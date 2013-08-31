@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -361,7 +361,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -487,7 +487,11 @@ Return the X,Y coordinates of point number C<$n> on the path.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A084849  (etc)
+=over
+
+L<http://oeis.org/A084849> (etc)
+
+=back
 
     end_type=jump, n_start=1  (the defaults)
       A084849    N on diagonal X=Y
@@ -509,7 +513,7 @@ L<Math::PlanePath::DiagonalsAlternating>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

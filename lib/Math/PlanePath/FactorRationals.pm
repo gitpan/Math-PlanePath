@@ -21,13 +21,11 @@
 # pn_type => 'even/odd'
 # pn_type => 'odd_even'
 # pn_type => 'negabinary'
-# pn_type => 'neg_zeros'
+# pn_type => 'revbinary'
+# pn_type => 'spread'
 
 
-# David M. Bradley http://arxiv.org/abs/math/0509025
-# earlier inverse
-# prime powers
-#
+
 # prime factors q1,..qk of n
 # f(m/n) = m^2*n^2/ (q1q2...qk)
 
@@ -72,7 +70,7 @@
 #     -2 2 -> 2*2-1 = 3      4 ->  2
 
 # Umberto Cerruti, "Ordinare i razionali Gli alberi di Keplero e di
-# Calkin-Wilf"
+# Calkin-Wilf", following T.J. Heard
 #   B(2k)=-k   even=negative and zero
 #   B(2k-1)=k  odd=positive
 #   which is Y/X invert
@@ -92,7 +90,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -115,8 +113,10 @@ use Math::PlanePath::CoprimeColumns;
 #       display   => 'Sign Encoding',
 #       type      => 'enum',
 #       default   => 'even/odd',
-#       choices         => ['even/odd','odd/even','negabinary','spread'],
-#       choices_display => ['Even/Odd','Odd/Even','Negabinary','Spread'],
+#       choices         => ['even/odd','odd/even',
+#                           'negabinary','revbinary','spread'],
+#       choices_display => ['Even/Odd','Odd/Even',
+#                           'Negabinary','Revbinary','Spread'],
 #     },
 #   ];
 
@@ -127,10 +127,10 @@ use constant y_minimum => 1;
 use constant gcdxy_maximum => 1;  # no common factor
 use constant absdy_minimum => 1;
 
-# even/odd
+# even/odd, odd/even
 #   dir_minimum_dxdy() suspect dir approaches 0.
 #   Eg. N=5324   = 2^2.11^3     dx=3,dy=92   0.97925
-#       N=642735 = 3^5.23^2     dX=45 dY=4    Dir4=0.05644  
+#       N=642735 = 3^5.23^2     dX=45 dY=4    Dir4=0.05644
 #         642736 = 2^4.17^2.139
 #   dir_maximum_dxdy() suspect approaches 360 degrees
 #   use constant dir_maximum_dxdy => (0,0);  # the default
@@ -140,9 +140,17 @@ use constant absdy_minimum => 1;
 #   dir_maximum_dxdy() believe approaches 360 degrees
 #   Eg. N=40=2^3.5 X=5, Y=2
 #       N=41=41    X=41, Y=1
-#   N=multiple 8 and solitary primes, followed by N+1=prime is dX=big, dY=-1 
+#   N=multiple 8 and solitary primes, followed by N+1=prime is dX=big, dY=-1
 #
+# revbinary
+#   dir_maximum_dxdy() approaches 360 degrees  dY=-1, dX=big
+#   Eg. N=7208=2^3*17*53 X=17*53  Y=2
+#       N=7209=3^4*89    X=3^4*89 Y=1
+#                       dX=6308  dY=-1
 
+
+#------------------------------------------------------------------------------
+# even/odd
 
 # $n>=0, return a positive if even or negative if odd
 #   $n==0  return  0
@@ -155,6 +163,20 @@ sub _pos_to_pn__even_odd {
   return ($n % 2 ? -1-$n : $n) / 2;
 }
 
+# # $n is positive or negative, return even for positive or odd for negative.
+# #   $n==0   return 0
+# #   $n==-1  return 1
+# #   $n==+1  return 2
+# #   $n==-2  return 3
+# #   $n==+2  return 4
+# sub _pn_to_pos__even_odd {
+#   my ($n) = @_;
+#   return ($n >= 0 ? 2*$n : -1-2*$n);
+# }
+
+#------------------------------------------------------------------------------
+# odd/even
+
 # $n>=0, return a positive if even or negative if odd
 #   $n==0  return  0
 #   $n==1  return +1
@@ -166,29 +188,19 @@ sub _pos_to_pn__odd_even {
   return ($n % 2 ? $n+1 : -$n) / 2;
 }
 
-#----------
+# # $n is positive or negative, return odd for positive or even for negative.
+# #   $n==0   return 0
+# #   $n==+1  return 1
+# #   $n==-1  return 2
+# #   $n==+2  return 3
+# #   $n==-2  return 4
+# sub _pn_to_pos__odd_even {
+#   my ($n) = @_;
+#   return ($n <= 0 ? -2*$n : 2*$n-1);
+# }
 
-# $n is positive or negative, return even for positive or odd for negative.
-#   $n==0   return 0
-#   $n==-1  return 1
-#   $n==+1  return 2
-#   $n==-2  return 3
-#   $n==+2  return 4
-sub _pn_to_pos__even_odd {
-  my ($n) = @_;
-  return ($n >= 0 ? 2*$n : -1-2*$n);
-}
-
-# $n is positive or negative, return odd for positive or even for negative.
-#   $n==0   return 0
-#   $n==+1  return 1
-#   $n==-1  return 2
-#   $n==+2  return 3
-#   $n==-2  return 4
-sub _pn_to_pos__odd_even {
-  my ($n) = @_;
-  return ($n <= 0 ? -2*$n : 2*$n-1);
-}
+#------------------------------------------------------------------------------
+# negabinary
 
 sub _pn_to_pos__negabinary {
   my ($n) = @_;
@@ -208,10 +220,55 @@ sub _pos_to_pn__negabinary {
   return (($n & 0x55555555) - ($n & 0xAAAAAAAA));
 }
 
+#------------------------------------------------------------------------------
+# revbinary
+# A065620  pos -> pn
+# A065621  pn(+ve) -> pos
+# A048724  pn(-ve) -> pos        n XOR 2n
+# A048725  A048724 twice
+# A073122  minimizing by taking +/- powers  cf A072219 A072339
+
+# rev = 2^e0 - 2^e1 + 2^e2 - 2^e3 + ... + (-1)^t*2^et
+sub _pos_to_pn__revbinary {
+  my ($n) = @_;
+  my $sign = 1;
+  my $ret = 0;
+  for (my $bit = 1; $bit <= $n; $bit *= 2) {
+    if ($n & $bit) {
+      $ret += $bit*$sign;
+      $sign = -$sign;
+    }
+  }
+  return $ret;
+}
+sub _pn_to_pos__revbinary {
+  my ($n) = @_;
+  my @bits;
+  while ($n) {
+    my $bit = ($n % 2);
+    push @bits, $bit;
+    $n -= $bit;
+    $n /= 2;
+    if ($bit) {
+      $n = -$n;
+    }
+  }
+  return digit_join_lowtohigh(\@bits, 2,
+                              $n); # zero
+}
+
+#------------------------------------------------------------------------------
+
 my %sign_encoding__pos_to_pn = ('even/odd' => \&_pos_to_pn__even_odd,
                                 'odd/even' => \&_pos_to_pn__odd_even,
                                 negabinary => \&_pos_to_pn__negabinary,
+                                revbinary  => \&_pos_to_pn__revbinary,
                                 spread     => 1,
+                               );
+my %sign_encoding__pn_to_pos = (# 'even/odd' => \&_pn_to_pos__even_odd,
+                                # 'odd/even' => \&_pn_to_pos__odd_even,
+                                negabinary => \&_pn_to_pos__negabinary,
+                                revbinary  => \&_pn_to_pos__revbinary,
                                );
 
 sub new {
@@ -391,12 +448,14 @@ sub xy_to_n {
     ### @nexps
     return (_factors_join(\@nexps, $x*0*$y));
 
-  } elsif ($self->{'sign_encoding'} eq 'negabinary') {
-    ### negabinary ...
+  } elsif ($self->{'sign_encoding'} eq 'negabinary'
+           || $self->{'sign_encoding'} eq 'revbinary') {
+    ### negabinary or revbinary ...
+    my $pn_to_pos = $sign_encoding__pn_to_pos{$self->{'sign_encoding'}};
     my $n = 1;
     my $zero = $x * 0 * $y;
 
-    # Factorize both $x and $y and apply their negabinary encoded powers to
+    # Factorize both $x and $y and apply their pn_to_pos encoded powers to
     # make $n.  A common factor between $x and $y is noticed if $divisor
     # divides both.
 
@@ -423,9 +482,9 @@ sub xy_to_n {
 
       # Here $count > 0 if from $x or $count < 0 if from $y.
       ### $count
-      ### negabinary: _pn_to_negabinary($count)
+      ### pn: &$pn_to_pos($count)
 
-      $count = _pn_to_pos__negabinary($count);
+      $count = &$pn_to_pos($count);
       $n *= ($divisor+$zero) ** $count;
 
       # new search limit, perhaps smaller than before
@@ -443,8 +502,9 @@ sub xy_to_n {
       return undef;
     }
 
-    # $x is power p^1 which is negabinary=1 so multiply into $n.  $y is
-    # power p^-1 and -1 is negabinary=3 so cube and multiply into $n.
+    # $x is power p^1 which is negabinary=1 or revbinary=1 so multiply into
+    # $n.  $y is power p^-1 and -1 is negabinary=3 so cube and multiply into
+    # $n.
     $n *= $x;
     $n *= $y*$y*$y;
 
@@ -501,7 +561,7 @@ sub xy_to_n {
 
 #------------------------------------------------------------------------------
 
-# all rationals X,Y >= 1 no common factor
+# all rationals X,Y >= 1 with no common factor
 use Math::PlanePath::DiagonalRationals;
 *xy_is_visited = Math::PlanePath::DiagonalRationals->can('xy_is_visited');
 
@@ -510,10 +570,10 @@ use Math::PlanePath::DiagonalRationals;
 # _limit() returns ($limit,$overflow).
 #
 # $limit is the biggest divisor to attempt trial division of $n.  If $n <
-# 2^32 then $limit=sqrt($n) and that will find all primes.  If $n is bigger
-# than $limit is smaller, based on the length of $n so as to make a roughly
-# constant amount of time doing divisions.  But $limit is always at least 50
-# so as to divide by primes up to 50.
+# 2^32 then $limit=sqrt($n) and that will find all primes.  If $n >= 2^32
+# then $limit is smaller than sqrt($n), being calculated from the length of
+# $n so as to make a roughly constant amount of time doing divisions.  But
+# $limit is always at least 50 so as to divide by primes up to 50.
 #
 # $overflow is a boolean, true if $n is too big to search for all primes and
 # $limit is something smaller than sqrt($n).  $overflow is false if $limit
@@ -551,8 +611,8 @@ sub _is_prime {
     if ($prime > $limit) { return 1; }
   }
 }
-   
-# $aref is an arrayref of prime exponents, [a,b,c,...]      
+
+# $aref is an arrayref of prime exponents, [a,b,c,...]
 # Return their product 2**a * 3**b * 5**c * ...
 #
 sub _factors_join {
@@ -598,7 +658,7 @@ sub _factors_split {
 #------------------------------------------------------------------------------
 
 # even/odd
-#   X=2^10 -> N=2^20 is X*X
+#   X=2^10 -> N=2^20 is X^2
 #   Y=3 -> N=3
 #   Y=3^2 -> N=3^3
 #   Y=3^3 -> N=3^5
@@ -610,6 +670,9 @@ sub _factors_split {
 #   X=prime^6 -> N=prime^26      is X^4.33
 #   maximum 101010...10110 -> 1101010...10 approaches factor 5
 #   same for negatives
+#
+# revbinary
+#   X=prime^k -> N=prime^(3k)    ix X^3
 
 # not exact
 sub rect_to_n_range {
@@ -621,25 +684,22 @@ sub rect_to_n_range {
   $x2 = round_nearest ($x2);
   $y2 = round_nearest ($y2);
 
-  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
-  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-  ### $x2
-  ### $y2
-
-  my $n = $x2 * $y2;
+  my $n = max($x1,$x2) * max($y1,$y2);
   my $n_squared = $n * $n;
   return (1,
-          ($self->{'sign_encoding'} eq 'even/odd'
-           ? $n_squared                      # X^2*Y^2
-           : $n_squared*$n_squared * $n));   # X^5*Y^5
-
+          ($self->{'sign_encoding'} eq 'negabinary'
+           ? ($n_squared*$n_squared) * $n     # X^5*Y^5
+           : $self->{'sign_encoding'} eq 'revbinary'
+           ? $n_squared * $n                  # X^3*Y^3
+           # even/odd, odd/even
+           : $n_squared));                    # X^2*Y^2
 }
 
 
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf McCrimmon Freilich Yoram Sagher negabinary
+=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf McCrimmon Freilich Yoram Sagher negabinary Denumerability
 
 =head1 NAME
 
@@ -658,11 +718,11 @@ rationals X/Y with no common factor, based on the prime powers in numerator
 and denominator.  This is per Kevin McCrimmon, and independently Gerald
 Freilich, and also Yoram Sagher.
 
-    15  |      15   60       240            735  960           1815      
+    15  |      15   60       240            735  960           1815
     14  |      14       126       350                1134      1694
     13  |      13   52  117  208  325  468  637  832 1053 1300 1573
     12  |      24                 600      1176                2904
-    11  |      11   44   99  176  275  396  539  704  891 1100     
+    11  |      11   44   99  176  275  396  539  704  891 1100
     10  |      10        90                 490       810      1210
      9  |      27  108       432  675      1323 1728      2700 3267
      8  |      32       288       800      1568      2592      3872
@@ -691,12 +751,12 @@ exponents are represented in an integer N by
          = 1-2*e    if e < 0
 
     f(e)      e
-    ---      --- 
+    ---      ---
      0        0
-     1       -1  
-     2        1  
-     3       -2  
-     4        2  
+     1       -1
+     2        1
+     3       -2
+     4        2
 
  For example
 
@@ -786,7 +846,11 @@ if/when available.
 This enumeration of the rationals is in Sloane's Online Encyclopedia of
 Integer Sequences in the following forms
 
-    http://oeis.org/A071974   (etc)
+=over
+
+L<http://oeis.org/A071974> (etc)
+
+=back
 
     A071974   X coordinate, numerators
     A071975   Y coordinate, denominators
@@ -811,20 +875,20 @@ L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>
 
 Kevin McCrimmon, "Enumeration of the Positive Rationals", American Math
-Monthly, Nov 1960, page 868.  http://www.jstor.org/stable/2309448
+Monthly, Nov 1960, page 868.  L<http://www.jstor.org/stable/2309448>
 
 Gerald Freilich, "A Denumerability Formula for the Rationals", American Math
-Monthly, Nov 1965, pages 1013-1014.  http://www.jstor.org/stable/2313350
+Monthly, Nov 1965, pages 1013-1014.  L<http://www.jstor.org/stable/2313350>
 
 Yoram Sagher, "Counting the rationals", American Math Monthly, Nov 1989,
-page 823.  http://www.jstor.org/stable/2324846
+page 823.  L<http://www.jstor.org/stable/2324846>
 
 David M. Bradley, "Counting the Positive Rationals: A Brief Survey",
-http://arxiv.org/abs/math/0509025
+L<http://arxiv.org/abs/math/0509025>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

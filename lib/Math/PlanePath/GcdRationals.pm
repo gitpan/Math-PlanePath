@@ -69,7 +69,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -659,13 +659,13 @@ Fortnow taking a greatest common divisor out of a triangular position.
 
 =over
 
-http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
+L<http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html>
 
 =back
 
 The attraction of this approach is that it's both efficient to calculate and
-it visits blocks of X/Y rationals using a modest range of N values, roughly
-a square N=2*max(num,den)^2 in the default i,j rows style.
+visits blocks of X/Y rationals using a modest range of N values, roughly a
+square N=2*max(num,den)^2 in the default rows style.
 
     13  |      79  80  81  82  83  84  85  86  87  88  89  90
     12  |      67              71      73              77     278
@@ -718,6 +718,10 @@ S<rational = gcd-1 + i/j>.  For example
     common factor gcd(6,10)=2
     so rational R = 2-1 + 6/10 = 1+3/5 = 8/5
     ie. X=8,Y=5
+
+If j is prime then gcd(i,j)=1 and so X=i,Y=j.  This means that in rows with
+prime Y are numbered by consecutive N across to the X=Y diagonal.  For
+example in row Y=7 above N=22 to N=27.
 
 =head2 Triangular Numbers
 
@@ -1104,7 +1108,11 @@ L</Rows Reverse> above).
 This enumeration of rationals is in Sloane's Online Encyclopedia of Integer
 Sequences in the following forms
 
-    http://oeis.org/A054531   (etc)
+=over
+
+L<http://oeis.org/A054531> (etc)
+
+=back
 
     pairs_order="rows" (the default)
       A226314   X coordinate
@@ -1133,7 +1141,7 @@ L<Math::PlanePath::DiagonalsOctant>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

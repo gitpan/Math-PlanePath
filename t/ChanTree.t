@@ -42,7 +42,7 @@ require Math::PlanePath::ChanTree;
 # VERSION
 
 {
-  my $want_version = 109;
+  my $want_version = 110;
   ok ($Math::PlanePath::ChanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ChanTree->VERSION,  $want_version,

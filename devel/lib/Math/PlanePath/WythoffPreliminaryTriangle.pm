@@ -38,7 +38,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -287,7 +287,11 @@ Create and return a new path object.
 The Wythoff array is in Sloane's Online Encyclopedia of Integer Sequences
 in various forms,
 
-    http://oeis.org/A035614   (etc)
+=over
+
+L<http://oeis.org/A035614> (etc)
+
+=back
 
     A165360     X
     A165359     Y

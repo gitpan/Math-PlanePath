@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -312,7 +312,7 @@ cellular automaton
 
 =over
 
-http://mathworld.wolfram.com/Rule190.html
+L<http://mathworld.wolfram.com/Rule190.html>
 
 =back
 
@@ -478,7 +478,11 @@ and biggest in the rectangle.
 This pattern is in Sloane's Online Encyclopedia of Integer Sequences in a
 couple of forms,
 
-    http://oeis.org/A037576  (etc)
+=over
+
+L<http://oeis.org/A037576> (etc)
+
+=back
 
     A037576     whole-row used cells as bits of a bignum
     A071039     \ 1/0 used and unused cells across rows
@@ -500,11 +504,11 @@ L<Math::PlanePath::PyramidRows>
 
 L<Cellular::Automata::Wolfram>
 
-http://mathworld.wolfram.com/Rule190.html
+L<http://mathworld.wolfram.com/Rule190.html>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

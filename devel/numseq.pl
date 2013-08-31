@@ -33,48 +33,64 @@ use Math::Trig 'pi';
   # print 4-atan2(2,1)/atan2(1,1)/2,"\n";
 
   require Math::NumSeq::PlanePathDelta;
+  require Math::NumSeq::PlanePathTurn;
   my $realpart = 3;
   my $radix = $realpart*$realpart + 1;
-  my $planepath = "HypotOctant,points=odd";
+  my $planepath;
   $planepath = "RationalsTree,tree_type=Drib";
   $planepath = "UlamWarburtonQuarter";
   $planepath = "GosperReplicate";
   $planepath = "QuintetReplicate";
-  $planepath = "PowerArray";
   $planepath = "RationalsTree,tree_type=HCS";
   $planepath = "ToothpickReplicate,parts=1";
   $planepath = "CfracDigits,radix=2";
   $planepath = "TerdragonCurve";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
   $planepath = "DiagonalRationals,direction=up";
-  $planepath = "LCornerReplicate";
   $planepath = "OneOfEight,parts=wedge";
   $planepath = "QuadricIslands";
   $planepath = "WunderlichSerpentine";
-  $planepath = "ToothpickTree,parts=octant";
   $planepath = "SacksSpiral";
   $planepath = "ComplexMinus,realpart=3";
   $planepath = "UlamWarburton,parts=4";
   $planepath = "PythagoreanTree,coordinates=SC,tree_type=UAD";
   $planepath = "ToothpickTreeByCells,parts=two_horiz";
   $planepath = "LCornerTreeByCells,parts=octant_up+1";
-  $planepath = "FactorRationals,sign_encoding=negabinary";
   $planepath = "ChanTree,k=5";
   $planepath = "ComplexPlus,realpart=2";
   $planepath = "CfracDigits,radix=".($radix-1);
-  $radix = 3;
   $planepath = "GosperIslands";
   $planepath = "ImaginaryHalf"; # ,digit_order=XnXY";
   $planepath = "SquareReplicate";
   $planepath = "GrayCode,radix=$radix,apply_type=Ts";
-  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                               # delta_type => 'AbsdY',
-                                               # delta_type => 'Dir4',
-                                               delta_type => 'dY',
-                                               # delta_type => 'dDiffXY',
-                                               # delta_type => 'TDir6',
-                                               # delta_type => 'dAbsDiff',
-                                              );
+  $planepath = "SquareReplicate";
+  $planepath = "ToothpickTree,parts=2";
+  $planepath = "ToothpickUpist";
+  $planepath = "CornerReplicate";
+  $radix = 4;
+  $planepath = "ZOrderCurve,radix=$radix";
+  $planepath = "LCornerReplicate";
+  $planepath = "LCornerTree,parts=diagonal-1";
+  $planepath = "WythoffArray";
+  $planepath = "PowerArray,radix=$radix";
+  $planepath = "DigitGroups,radix=$radix";
+  $planepath = "FactorRationals,sign_encoding=negabinary";
+  $planepath = "GcdRationals,pairs_order=diagonals_up";
+  $planepath = "LTiling";
+  $planepath = "TriangularHypot,points=hex_rotated";
+  $planepath = "Hypot,points=all";
+  $planepath = "VogelFloret";
+  # my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+  #                                              # delta_type => 'AbsdY',
+  #                                              delta_type => 'Dir4',
+  #                                              # delta_type => 'dY',
+  #                                              # delta_type => 'dDiffXY',
+  #                                              # delta_type => 'TDir6',
+  #                                              # delta_type => 'dAbsDiff',
+  #                                             );
+  my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
+                                              turn_type => 'Turn4',
+                                             );
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dX');
   my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
@@ -84,30 +100,36 @@ use Math::Trig 'pi';
   for (1 .. 10000000) {
     my ($i, $value) = $seq->next;
 
-    # neg for minimum
-    # $value = -$value; next unless $value;
-
     if ($value > $max) {
       my $dx = $dx_seq->ith($i);
       my $dy = $dy_seq->ith($i);
+      my $prev_dx = $dx_seq->ith($i-1) // 'u';
+      my $prev_dy = $dy_seq->ith($i-1) // 'u';
       my $ri = Math::BaseCnv::cnv($i,10,$radix);
       my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
       my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
       my $f = $dy && $dx/$dy;
-      printf "max i=%d[%s] %.5f  dx=%s,dy=%s[%s,%s]   %.3f\n",
-        $i,$ri, $value, $dx,$dy, $rdx,$rdy, $f;
       $max = $value;
+      printf "max i=%d[%s] %.5f  px=%s,py=%s dx=%s,dy=%s[%s,%s]   %.3f\n",
+        $i,$ri, $value,
+          $prev_dx,$prev_dy,
+            $dx,$dy, $rdx,$rdy, $f;
     }
 
     if ($value < $min) {
       my $dx = $dx_seq->ith($i);
       my $dy = $dy_seq->ith($i);
+      my $prev_dx = $dx_seq->ith($i-1) // 'u';
+      my $prev_dy = $dy_seq->ith($i-1) // 'u';
       my $ri = Math::BaseCnv::cnv($i,10,$radix);
       my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
       my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
       my $f = $dy && $dx/$dy;
-      printf " min i=%d[%s] %.5f  dx=%s,dy=%s   %.3f\n", $i,$ri, $value, $dx,$dy, $f;
       $min = $value;
+      printf " min i=%d[%s] %.5f  px=%s,py=%s dx=%s,dy=%s   %.3f\n",
+        $i,$ri, $value,
+          $prev_dx,$prev_dy,
+            $dx,$dy, $f;
     }
   }
 

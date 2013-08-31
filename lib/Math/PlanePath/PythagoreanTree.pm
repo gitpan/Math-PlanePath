@@ -69,8 +69,6 @@
 #
 # http://oai.cwi.nl/oai/asset/7151/7151A.pdf
 #
-# http://arxiv.org/abs/0809.4324
-#
 # http://www.math.ucdavis.edu/~romik/home/Publications_files/pythrevised.pdf
 #
 # http://www.microscitech.com/pythag_eigenvectors_invariants.pdf
@@ -86,7 +84,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -997,7 +995,7 @@ __END__
 
 
 
-=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's coprime mixed-radix Nrow N-Nrow Liber Quadratorum gnomon gnomons Diophantus Nrem
+=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's coprime mixed-radix Nrow N-Nrow Liber Quadratorum gnomon gnomons Diophantus Nrem OEIS
 
 =head1 NAME
 
@@ -1179,7 +1177,7 @@ X<Price, H. Lee>H. Lee Price
 =over
 
 "The Pythagorean Tree: A New Species", 2008,
-http://arxiv.org/abs/0809.4324
+L<http://arxiv.org/abs/0809.4324>
 
 =back
 
@@ -2081,7 +2079,11 @@ gets, only a P range determines an N range.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A007051  (etc)
+=over
+
+L<http://oeis.org/A007051> (etc)
+
+=back
 
     A007051   N start of depth=n, (3^n+1)/2, ie. tree_depth_to_n()
     A003462   N end of depth=n-1, (3^n-1)/2, ie. tree_depth_to_n_end()
@@ -2096,7 +2098,7 @@ L<Math::PlanePath::CoprimeColumns>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

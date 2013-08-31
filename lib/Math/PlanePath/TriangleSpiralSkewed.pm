@@ -24,7 +24,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -490,7 +490,11 @@ rectangle.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A117625  (etc)
+=over
+
+L<http://oeis.org/A117625> (etc)
+
+=back
 
     n_start=1, skew="left" (the defaults)
       A204439     abs(dX)
@@ -561,7 +565,7 @@ L<Math::PlanePath::SquareSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

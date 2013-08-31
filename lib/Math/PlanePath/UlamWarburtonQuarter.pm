@@ -27,7 +27,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -695,7 +695,11 @@ the path).
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path includes
 
-    http://oeis.org/A151920    (etc)
+=over
+
+L<http://oeis.org/A151920> (etc)
+
+=back
 
     A147610     num cells in level, being 3^count1bits(depth)
 
@@ -715,7 +719,7 @@ level calculation)
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

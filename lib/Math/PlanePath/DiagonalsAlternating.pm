@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -276,7 +276,11 @@ and the upper right is the maximum N.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A131179  (etc)
+=over
+
+L<http://oeis.org/A131179> (etc)
+
+=back
 
     n_start=1
       A131179    N on X axis (extra initial 0)
@@ -315,7 +319,7 @@ L<Math::PlanePath::DiagonalsOctant>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

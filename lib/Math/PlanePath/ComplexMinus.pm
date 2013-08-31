@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -198,7 +198,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie 0xC 0,1,0xC,0xD OEIS
+=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie 0xC 0,1,0xC,0xD OEIS ACM
 
 =head1 NAME
 
@@ -401,7 +401,7 @@ points (N=0 to norm^k-1 inclusive) is calculated in
 
 William J. Gilbert, "The Fractal Dimension of Sets Derived From Complex
 Bases", Canadian Math Bulletin, volume 29(4), 1986.
-http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf
+L<http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf>
 
 =back
 
@@ -562,7 +562,11 @@ the quotient is the new Y and the remainder is the digit.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A066321  (etc)
+=over
+
+L<http://oeis.org/A066321> (etc)
+
+=back
 
     realpart=1 (the default)
       A066321    N on X axis, being the base i-1 positive reals
@@ -583,7 +587,7 @@ L<Math::PlanePath::ComplexPlus>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

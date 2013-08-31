@@ -58,7 +58,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -680,7 +680,7 @@ __END__
 
 #------------------------------------------------------------------------------
 
-=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook versa Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns Shallit Kmosek Seminumerical dX,dY bitwise lookup dx dy ie
+=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook versa Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns Shallit Kmosek Seminumerical dX,dY bitwise lookup dx dy ie Xmid,Ymid
 
 =head1 NAME
 
@@ -1012,7 +1012,7 @@ two segments (rather then up to four for X,Y to N).
             |                        Ymid+1
 
 Segment S is to the East of X,Y.  The arm it falls on can be determined as
-per L<X,Y to N/Math::PlanePath::DragonMidpoint>.  Numbering arm(S) = 0,1,2,3
+per L<Math::PlanePath::DragonMidpoint/X,Y to N>.  Numbering arm(S) = 0,1,2,3
 then
 
                                      X,Y Visited
@@ -1199,12 +1199,17 @@ and can be masked out to lookup the final four dx, dy, next dx, next dy.
 The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences in
 various forms (and see C<DragonMidpoint> for its forms too),
 
-    http://oeis.org/A014577  (etc)
+=over
+
+L<http://oeis.org/A014577> (etc)
+
+=back
 
     A038189   turn, 0=left,1=right, bit above lowest 1, extra 0
     A089013    same as A038189, but initial extra 1
     A082410   turn, 1=left,0=right, reversing complement, extra 0
     A099545   turn, 1=left,3=right, as [odd part n] mod 4
+               so turn by 90 degrees * 1 or 3
     A034947   turn, 1=left,-1=right, Jacobi (-1/n)
     A112347   turn, 1=left,-1=right, Kronecker (-1/n), extra 0
     A121238   turn, 1=left,-1=right, -1^(n + some partitions) extra 1
@@ -1248,7 +1253,7 @@ sort of power sum,
 =over
 
 Jeffrey Shallit, "Simple Continued Fractions for Some Irrational Numbers",
-http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps
+L<http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps>
 
 =back
 
@@ -1289,7 +1294,7 @@ L<Math::PlanePath::AlternatePaper>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

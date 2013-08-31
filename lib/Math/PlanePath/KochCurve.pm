@@ -24,11 +24,8 @@
 # Sur une courbe continue sans tangente, obtenue par une construction
 # géométrique élémentaire
 #
-# Une methode geometrique elementaire pour l'etude de certaines questions de
-# la theorie des courbes planes Acta Arithmetica 30 145-174
 # http://www.nku.edu/~curtin/grenouille.html
 # http://www.nku.edu/~curtin/koch_171.jpg
-# http://archive.org/details/actamathematica11lefgoog
 #
 # Cesàro, "Remarques sur la courbe de von Koch." Atti della
 # R. Accad. della Scienze fisiche e matem. Napoli 12, No. 15, 1-12,
@@ -58,7 +55,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -528,9 +525,18 @@ Math::PlanePath::KochCurve -- horizontal Koch curve
 
 =head1 DESCRIPTION
 
-X<Koch, Helge von>This is an integer version of the self-similar curve by
-Helge von Koch going along the X axis and making triangular excursions
-upwards.
+X<Koch, Helge von>This is an integer version of the self-similar Koch curve,
+
+=over 4
+
+Helge von Koch, "Une ME<233>thode GE<233>omE<233>trique
+E<201>lE<233>mentaire pour l'E<201>tude de Certaines Questions de la
+ThE<233>orie des Courbes Planes", Acta Arithmetica, volume 30, 1906, pages
+145-174.  L<http://archive.org/details/actamathematica11lefgoog>
+
+=back
+
+It goes along the X axis and makes triangular excursions upwards.
 
                                8                                   3
                              /  \
@@ -639,10 +645,10 @@ Return 0, the first N in the path.
 
 =head2 N to Turn
 
-The turn at a given N position is straightforward.  The curve always turns
-either +60 degrees or -120 degrees, it never goes straight ahead.  In the
-base 4 representation of N the lowest non-zero digit gives the turn.  The
-first turn is at N=1 so there's always a non-zero digit in N.
+The curve always turns either +60 degrees or -120 degrees, it never goes
+straight ahead.  In the base 4 representation of N the lowest non-zero digit
+gives the turn.  The first turn is at N=1 so there's always a non-zero digit
+in N.
 
    low digit
     base 4         turn
@@ -826,12 +832,17 @@ rectangle but instead some trickier shape.
 The Koch curve is in Sloane's Online Encyclopedia of Integer Sequences in
 various forms,
 
-    http://oeis.org/A035263  (etc)
+=over
+
+L<http://oeis.org/A035263> (etc)
+
+=back
 
     A177702   abs(dX) from N=1 onwards, being 1,1,2 repeating
     A011655   abs(dY), being 0,1,1 repeating
     A035263   turn 1=left,0=right, by morphism
     A096268   turn 0=left,1=right, by morphism
+    A056832   turn 1=left,2=right, by replicate and flip last
     A029883   turn +/-1=left,0=right, Thue-Morse first differences
     A089045   turn +/-1=left,0=right, by +/- something
 
@@ -855,7 +866,7 @@ L<Math::Fractal::Curve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

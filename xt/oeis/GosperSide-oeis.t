@@ -203,29 +203,6 @@ MyOEIS::compare_values
 }
 
 #------------------------------------------------------------------------------
-# A060236 - turn 1=left, 2=right
-
-{
-  my $anum = 'A060236';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      push @got, xy_left_right ($path->n_to_xy($n-1),
-                                $path->n_to_xy($n),
-                                $path->n_to_xy($n+1)) + 1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - turn 1=left,2=right");
-}
-
-#------------------------------------------------------------------------------
 # A038502 - taken mod 3 is 1=left, 2=right
 
 {

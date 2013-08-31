@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -397,7 +397,11 @@ A table of cumulative totients is built and retained for the diagonal d=X+Y.
 This enumeration of rationals is in Sloane's Online Encyclopedia of Integer
 Sequences in the following forms
 
-    http://oeis.org/A020652   (etc)
+=over
+
+L<http://oeis.org/A020652> (etc)
+
+=back
 
     direction=down, n_start=1  (the defaults)
       A020652   X, numerator
@@ -428,7 +432,7 @@ L<Math::PlanePath::PythagoreanTree>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 228 A-numbers in 4 modules
+# total 236 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -2211,11 +2211,61 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A163536',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'PeanoCurve',
+      'turn_type',
+      'SLR'
+    ]
+  },
+  {
+    'anum' => 'A163537',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'PeanoCurve',
+      'turn_type',
+      'SRL'
+    ]
+  },
+  {
+    'anum' => 'A163542',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'HilbertCurve',
+      'turn_type',
+      'SLR'
+    ]
+  },
+  {
+    'anum' => 'A163543',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'HilbertCurve',
+      'turn_type',
+      'SRL'
+    ]
+  },
+  {
     'anum' => 'A035263',
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
       'KochCurve'
+    ]
+  },
+  {
+    'anum' => 'A056832',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'KochCurve',
+      'turn_type',
+      'SLR'
     ]
   },
   {
@@ -2226,6 +2276,16 @@ use constant info_arrayref =>
       'DragonCurve',
       'turn_type',
       'LSR'
+    ]
+  },
+  {
+    'anum' => 'A099545',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'DragonCurve',
+      'turn_type',
+      'Turn4'
     ]
   },
   {
@@ -2244,6 +2304,16 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'GosperSide'
+    ]
+  },
+  {
+    'anum' => 'A060236',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'GosperSide',
+      'turn_type',
+      'SLR'
     ]
   },
   {
@@ -2276,6 +2346,16 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'Corner,wider=3,n_start=-1'
+    ]
+  },
+  {
+    'anum' => 'A156596',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'FibonacciWordFractal',
+      'turn_type',
+      'SRL'
     ]
   }
 ]

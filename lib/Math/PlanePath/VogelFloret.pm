@@ -84,7 +84,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -796,7 +796,11 @@ Return "circle".
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A000201  (etc)
+=over
+
+L<http://oeis.org/A000201> (etc)
+
+=back
 
     A000201    spectrum of phi, N in first 0.618 of circle
     A003849    Fibonacci word, values 0,1
@@ -812,7 +816,7 @@ L<Math::NumSeq::Fibbinary>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

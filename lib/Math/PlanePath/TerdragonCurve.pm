@@ -44,7 +44,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -382,7 +382,7 @@ __END__
 # return (2*$i + $j - $k, $j+$k);
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism si,sj,sk
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism si,sj,sk dX,dY
 
 =head1 NAME
 
@@ -558,7 +558,7 @@ As per for example
 
 =over
 
-http://tilingsearch.org/HTML/data23/C07A.html
+L<http://tilingsearch.org/HTML/data23/C07A.html>
 
 =back
 
@@ -782,7 +782,11 @@ triangular representation of X,Y this means
 
 The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
-    http://oeis.org/A080846  etc
+=over
+
+L<http://oeis.org/A080846> (etc)
+
+=back
 
     A080846   next turn 0=left,1=right, by 120 degrees
                 (n=0 is turn at N=1)
@@ -819,7 +823,7 @@ L<Math::PlanePath::R5DragonCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

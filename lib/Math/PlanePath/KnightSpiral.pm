@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -474,9 +474,9 @@ page (quarter way down under "Open Knight's Tour"),
 
 =over
 
-http://www.borderschess.org/KTart.htm
-http://www.borderschess.org/KTinfinity.gif
-http://www.borderschess.org/Infinite.gif
+L<http://www.borderschess.org/KTart.htm>
+L<http://www.borderschess.org/KTinfinity.gif>
+L<http://www.borderschess.org/Infinite.gif>
 
 =back
 
@@ -514,7 +514,11 @@ This Knight's tour is in Sloane's OEIS following the Knight spiral and
 giving the resulting X,Y location by the C<SquareSpiral> numbering.  There's
 eight forms for 4 rotations and spiralling the same or opposite directions.
 
-    http://oeis.org/A068608
+=over
+
+L<http://oeis.org/A068608> (etc)
+
+=back
 
     permutations
       A068608   same knight and square spiral directions
@@ -536,7 +540,7 @@ L<Math::PlanePath::SquareSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

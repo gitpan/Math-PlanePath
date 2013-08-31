@@ -131,14 +131,14 @@ MyOEIS::compare_values
 
 sub delete_odd_bits {
   my ($n) = @_;
-  my @digits = bit_split_lowtohigh($n);
+  my @bits = bit_split_lowtohigh($n);
   my $bit = 1;
   my $ret = 0;
-  while (@digits) {
-    if (shift @digits) {
+  while (@bits) {
+    if (shift @bits) {
       $ret |= $bit;
     }
-    shift @digits;
+    shift @bits;
     $bit <<= 1;
   }
   return $ret;

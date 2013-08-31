@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -304,7 +304,7 @@ __END__
     #                                                 |
     #                                                 @
 
-=for stopwords eg Ryde Math-PlanePath zig-zag
+=for stopwords eg Ryde Math-PlanePath zig-zag OEIS
 
 =head1 NAME
 
@@ -414,7 +414,11 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A133851  (etc)
+=over
+
+L<http://oeis.org/A133851> (etc)
+
+=back
 
     A133851    Y at N=2^k, being successive powers 2^j at k=1mod4
 
@@ -428,7 +432,7 @@ L<Math::Fractal::Curve> -- its F<examples/generator4.pl> is this curve
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

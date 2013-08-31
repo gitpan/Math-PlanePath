@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -486,8 +486,9 @@ American March 1964 featured this spiral,
 
 =over
 
-http://www.nature.com/scientificamerican/journal/v210/n3/covers/index.html
-http://oeis.org/A143861/a143861.jpg
+L<http://www.nature.com/scientificamerican/journal/v210/n3/covers/index.html>
+
+L<http://oeis.org/A143861/a143861.jpg>
 
 =back
 
@@ -774,12 +775,20 @@ On that basis the maximum N in a rectangle is at one of the four corners,
 This path is in Sloane's Online Encyclopedia of Integer Sequences in various
 forms.  Summary at
 
-    http://oeis.org/A068225/a068225.html
+=over
+
+L<http://oeis.org/A068225/a068225.html>
+
+=back
 
 And various sequences,
 
-    http://oeis.org/A174344  (etc)
-    https://oeis.org/wiki/Ulam's_spiral
+=over
+
+L<http://oeis.org/A174344> (etc),
+L<https://oeis.org/wiki/Ulam's_spiral>
+
+=back
 
     wider=0 (the default)
       A174344    X coordinate
@@ -885,7 +894,7 @@ clockwise).
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

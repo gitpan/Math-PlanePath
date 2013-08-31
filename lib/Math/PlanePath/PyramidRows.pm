@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -795,7 +795,11 @@ X-Y difference, in the following cases.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A023531  (etc)
+=over
+
+L<http://oeis.org/A023531> (etc)
+
+=back
 
     step=1
       A002262    X coordinate, runs 0 to k
@@ -891,7 +895,7 @@ L<Math::PlanePath::Rows>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

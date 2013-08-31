@@ -75,7 +75,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -856,7 +856,11 @@ and if C<$x,$y> is a position not covered then the return is C<undef>.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A003136
+=over
+
+L<http://oeis.org/A003136> (etc)
+
+=back
 
     points="even" (the default)
       A003136  norms (X^2+3*Y^2)/4 which occur
@@ -912,7 +916,7 @@ L<Math::PlanePath::HexSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

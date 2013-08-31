@@ -48,7 +48,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -611,7 +611,11 @@ replication for negative and swapped X,Y.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A051132  (etc)
+=over
+
+L<http://oeis.org/A051132> (etc)
+
+=back
 
     points="all", n_start=0
       A051132    N on X axis, being count points norm < X^2
@@ -629,7 +633,7 @@ L<Math::PlanePath::PythagoreanTree>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

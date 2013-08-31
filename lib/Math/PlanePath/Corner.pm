@@ -54,7 +54,7 @@ use strict;
 use List::Util 'min';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -302,7 +302,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic PlanePath Ryde Math-PlanePath ie OEIS gnomon
+=for stopwords pronic PlanePath Ryde Math-PlanePath ie OEIS gnomon Nstart
 
 =head1 NAME
 
@@ -578,7 +578,11 @@ the top right corner otherwise.
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences as,
 
-    http://oeis.org/A196199  (etc)
+=over
+
+L<http://oeis.org/A196199> (etc)
+
+=back
 
     wider=0, n_start=1 (the defaults)
       A213088    X+Y sum
@@ -635,7 +639,7 @@ L<Math::PlanePath::Diagonals>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -128,7 +128,6 @@ sub xy_to_n {
   }
   my $d = int(($x + $y + 1) / 2);
   return (2*$d + 1)*$d - $y + $x + $self->{'n_start'};
-;
 }
 
 # exact
@@ -166,7 +165,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Legendre's
+=for stopwords eg Ryde Math-PlanePath Legendre's OEIS
 
 =head1 NAME
 
@@ -288,7 +287,11 @@ in the rectangle.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A084849  (etc)
+=over
+
+L<http://oeis.org/A084849> (etc)
+
+=back
 
     n_start=1 (the default)
       A084849    N on diagonal X=Y
@@ -309,7 +312,7 @@ L<Math::PlanePath::ToothpickSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

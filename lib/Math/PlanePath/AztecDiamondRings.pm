@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -422,7 +422,11 @@ then the x2 or x1 left or right edge is the minimum.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A001844  (etc)
+=over
+
+L<http://oeis.org/A001844> (etc)
+
+=back
 
     n_start=1 (the default)
       A001844    N on X axis, the centred squares 2k(k+1)+1
@@ -437,7 +441,7 @@ L<Math::PlanePath::DiamondSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

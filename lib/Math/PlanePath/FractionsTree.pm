@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -307,9 +307,12 @@ coprime.  The steps left or right are encoded/decoded as an N value.
 
 X<Kepler, Johannes>The default and only tree currently is by Johannes Kepler.
 
-    "Harmonices Mundi", Book III
-    Excerpt of translation by Aiton, Duncan and Field at
-    http://ndirty.cute.fi/~karttu/Kepler/a086592.htm
+=over
+
+"Harmonices Mundi", Book III.  Excerpt of translation by Aiton, Duncan and
+Field at L<http://ndirty.cute.fi/~karttu/Kepler/a086592.htm>
+
+=back
 
 In principle similar bit reversal etc variations as in C<RationalsTree>
 would be possible.
@@ -451,7 +454,11 @@ Return false, since there are no leaf nodes in the tree.
 The trees are in Sloane's Online Encyclopedia of Integer Sequences in the
 following forms
 
-    http://oeis.org/A020651   (etc)
+=over
+
+L<http://oeis.org/A020651> (etc)
+
+=back
 
     tree_type=Kepler
       A020651  - X numerator (RationalsTree AYT denominators)
@@ -477,7 +484,7 @@ L<Math::ContinuedFraction>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -57,7 +57,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -504,7 +504,11 @@ Create and return a new path object.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A036704  (etc)
+=over
+
+L<http://oeis.org/A036704> (etc)
+
+=back
 
     A036705  first diffs of N on X axis,
                being count of X,Y points n-1/2 < norm <= n+1/2
@@ -529,7 +533,7 @@ L<Math::PlanePath::MultipleRings>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

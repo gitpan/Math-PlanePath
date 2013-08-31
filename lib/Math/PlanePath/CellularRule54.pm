@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -334,7 +334,7 @@ cellular automaton
 
 =over
 
-http://mathworld.wolfram.com/Rule54.html
+L<http://mathworld.wolfram.com/Rule54.html>
 
 =back
 
@@ -443,7 +443,11 @@ cell the return is C<undef>.
 This pattern is in Sloane's Online Encyclopedia of Integer Sequences in a
 couple of forms,
 
-    http://oeis.org/A118108  (etc)
+=over
+
+L<http://oeis.org/A118108> (etc)
+
+=back
 
     A118108    whole-row used cells as bits of a bignum
     A118109    1/0 used and unused cells across rows
@@ -458,11 +462,11 @@ L<Math::PlanePath::PyramidRows>
 
 L<Cellular::Automata::Wolfram>
 
-http://mathworld.wolfram.com/Rule54.html
+L<http://mathworld.wolfram.com/Rule54.html>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

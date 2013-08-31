@@ -27,7 +27,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -414,7 +414,11 @@ need be.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A072895  (etc)
+=over
+
+L<http://oeis.org/A072895> (etc)
+
+=back
 
     A072895    N just below X axis
     A137515    N-1 just below X axis
@@ -430,7 +434,7 @@ L<Math::PlanePath::MultipleRings>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

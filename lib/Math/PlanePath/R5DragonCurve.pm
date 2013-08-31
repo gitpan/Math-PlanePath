@@ -30,7 +30,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -402,10 +402,10 @@ This tiling is also for example
 
 =over
 
-http://tilingsearch.org/HTML/data182/AL04.html
+L<http://tilingsearch.org/HTML/data182/AL04.html>
 
 Or with enlarged square part,
-http://tilingsearch.org/HTML/data149/L3010.html
+L<http://tilingsearch.org/HTML/data149/L3010.html>
 
 =back
 
@@ -520,7 +520,11 @@ digit.
 
 The R5 dragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
-    http://oeis.org/A175337
+=over
+
+L<http://oeis.org/A175337> (etc)
+
+=back
 
     A175337    next turn 0=left,1=right
                 (n=0 is the turn at N=1)
@@ -540,7 +544,7 @@ L<Math::PlanePath::TerdragonCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

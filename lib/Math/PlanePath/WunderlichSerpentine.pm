@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -565,7 +565,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::WunderlichSerpentine -- transpose parts of PeanoCurve, including coil order
+Math::PlanePath::WunderlichSerpentine -- transpose parts of Peano curve, including coil order
 
 =head1 SYNOPSIS
 
@@ -727,14 +727,12 @@ L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>
 
 Walter Wunderlich "Uber Peano-Kurven", Elemente der Mathematik, 28(1):1-10,
-1973.
-
-    http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/
-    http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/pdf/125.pdf
+1973.  L<http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/>Z<>
+L<http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/pdf/125.pdf>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

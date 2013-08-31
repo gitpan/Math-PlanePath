@@ -52,7 +52,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -866,9 +866,15 @@ L<Math::PlanePath::CellularRule> and L<Cellular::Automata::Wolfram>).
     "right"         60
     "left"          102
 
-    http://mathworld.wolfram.com/Rule90.html
-    http://mathworld.wolfram.com/Rule60.html
-    http://mathworld.wolfram.com/Rule102.html
+=over
+
+L<http://mathworld.wolfram.com/Rule90.html>
+
+L<http://mathworld.wolfram.com/Rule60.html>
+
+L<http://mathworld.wolfram.com/Rule102.html>
+
+=back
 
 =cut
 
@@ -1200,7 +1206,11 @@ to Y=15.
 The Sierpinski Triangle is in Sloane's Online Encyclopedia of Integer
 Sequences in various forms,
 
-    http://oeis.org/A001316    etc
+=over
+
+L<http://oeis.org/A001316> (etc)
+
+=back
 
     A001316   number of cells in each row (Gould's sequence)
     A001317   rows encoded as numbers with bits 0,1
@@ -1272,7 +1282,7 @@ L<Math::NumSeq::BalancedBinary>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

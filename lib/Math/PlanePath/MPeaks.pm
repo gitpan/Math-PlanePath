@@ -24,7 +24,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -295,7 +295,11 @@ squares of side 1, so the half-plane y>=-0.5 is entirely covered.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A045944  (etc)
+=over
+
+L<http://oeis.org/A045944> (etc)
+
+=back
 
     A045944    N on X axis except initial 0, octagonal numbers second kind
     A056106    N on Y axis, except initial 1
@@ -308,7 +312,7 @@ L<Math::PlanePath::PyramidSides>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

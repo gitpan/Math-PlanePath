@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -294,7 +294,11 @@ position without an N then the return is C<undef>.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A117625  (etc)
+=over
+
+L<http://oeis.org/A117625> (etc)
+
+=back
 
     n_start=1 (default)
       A010054     turn 1=left,0=straight, extra initial 1
@@ -338,7 +342,7 @@ L<Math::PlanePath::HexSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

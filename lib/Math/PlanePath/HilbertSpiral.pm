@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -431,7 +431,11 @@ and biggest in the rectangle.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A059285  (etc)
+=over
+
+L<http://oeis.org/A059285> (etc)
+
+=back
 
     A059285    X-Y coordinate diff
 
@@ -447,7 +451,7 @@ L<Math::PlanePath::BetaOmega>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

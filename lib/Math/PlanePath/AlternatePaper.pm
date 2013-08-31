@@ -42,7 +42,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -1289,7 +1289,11 @@ occurring k many times.  (See L<Math::NumSeq::GolayRudinShapiroCumulative>.)
 The alternate paper folding curve is in Sloane's Online Encyclopedia of
 Integer Sequences as
 
-    http://oeis.org/A106665  (etc)
+=over
+
+L<http://oeis.org/A106665> (etc)
+
+=back
 
     A106665  next turn 1=left,0=right, a(0) is turn at N=1
     A209615  turn 1=left,-1=right
@@ -1347,11 +1351,11 @@ L<Math::NumSeq::GolayRudinShapiroCumulative>
 Michel MendE<232>s France and G. Tenenbaum, "Dimension des Courbes Planes,
 Papiers Plies et Suites de Rudin-Shapiro", Bulletin de la S.M.F., volume
 109, 1981, pages 207-215.
-http://www.numdam.org/item?id=BSMF_1981__109__207_0
+L<http://www.numdam.org/item?id=BSMF_1981__109__207_0>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

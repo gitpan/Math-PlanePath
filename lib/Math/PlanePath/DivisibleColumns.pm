@@ -44,7 +44,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -526,7 +526,11 @@ worked out then they're used, otherwise this formula.
 This pattern is in Sloane's Online Encyclopedia of Integer Sequences in the
 following forms,
 
-    http://oeis.org/A061017  (etc)
+=over
+
+L<http://oeis.org/A061017> (etc)
+
+=back
 
     n_start=0 (the default)
       A006218    N on Y=1 row, cumulative count of divisors
@@ -554,7 +558,7 @@ L<Math::PlanePath::CoprimeColumns>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

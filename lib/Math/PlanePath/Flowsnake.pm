@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -825,21 +825,14 @@ flowsnake variations in bigger hexagons (with wiggly sides too).
 
 =over
 
-http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
-
-=back
-
-or if down then at archive.org
-
-=over
-
-http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
+L<http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf> or
+L<http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf>
 
 =back
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

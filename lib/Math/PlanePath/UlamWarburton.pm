@@ -34,7 +34,7 @@ use Carp;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -1071,7 +1071,11 @@ the path).
 This cellular automaton is in Sloane's Online Encyclopedia of Integer
 Sequences as
 
-    http://oeis.org/A147582    (etc)
+=over
+
+L<http://oeis.org/A147582> (etc)
+
+=back
 
     parts=4
       A147562   total cells to depth, being tree_depth_to_n() n_start=0
@@ -1105,7 +1109,7 @@ level calculation)
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

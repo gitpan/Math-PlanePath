@@ -133,7 +133,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ZeckendorfTerms';
   $path_class = 'Math::PlanePath::BinaryTerms';
   $path_class = 'Math::PlanePath::LCornerTreeByCells';
-  $path_class = 'Math::PlanePath::MultipleRings';
   $path_class = 'Math::PlanePath::UlamWarburtonOld';
   $path_class = 'Math::PlanePath::UlamWarburton';
   $path_class = 'Math::PlanePath::PythagoreanTree';
@@ -157,14 +156,18 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::FactorRationals';
+  $path_class = 'Math::PlanePath::MultipleRings';
 
   my $lo = 0;
-  my $hi = 22;
+  my $hi = 50;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     sign_encoding => 'spread',
+     #  ring_shape => 'polygon',
+      step => 1,
+
+     # sign_encoding => 'revbinary',
 
      # n_start => 0,
      # parts => 'wedge',
@@ -178,8 +181,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      #radix => 4,
 
      # parts => 'wedge+1',
-     #  ring_shape => 'polygon',
-     # step => 1,
 
      # rule => 6,
      # align => 'down',

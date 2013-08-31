@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -271,7 +271,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath OEIS triangulars
+=for stopwords PlanePath Ryde Math-PlanePath OEIS triangulars sqrt
 
 =head1 NAME
 
@@ -496,7 +496,11 @@ and the upper right is the maximum N.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A002262  (etc)
+=over
+
+L<http://oeis.org/A002262> (etc)
+
+=back
 
     direction=down (the default)
       A002262    X coordinate, runs 0 to k
@@ -571,7 +575,7 @@ L<Math::PlanePath::Columns>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

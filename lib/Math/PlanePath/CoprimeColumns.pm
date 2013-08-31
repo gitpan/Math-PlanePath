@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -402,7 +402,11 @@ column number used.
 This pattern is in Sloane's Online Encyclopedia of Integer Sequences in a
 couple of forms,
 
-    http://oeis.org/A002088  (etc)
+=over
+
+L<http://oeis.org/A002088> (etc)
+
+=back
 
     n_start=0 (the default)
       A038567    X coordinate, reduced fractions denominator
@@ -433,7 +437,7 @@ L<Math::PlanePath::DivisibleColumns>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

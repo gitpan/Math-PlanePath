@@ -49,6 +49,10 @@
 # xy_hexlattice_type "centred" "side_horiz"
 # xy_triangular_lattice "", "even", "odd
 #
+# lattice_type square,triangular,triangular_odd,pentagonal,fractional
+# $path->xy_any_odd()   xy_odd()   xy_all_odd()
+# $path->xy_any_even()  xy_even()  xy_all_even()
+#
 # sumabsxy_minimum   abs(X)+abs(Y)
 # absdiffxy_minimum  abs(X-Y)
 # productxy_minimum
@@ -58,6 +62,9 @@
 # trsquared_minimum
 # trsquared_minimum
 #
+# $path->turn_any_left
+# $path->turn_any_right
+# $path->turn_any_straight
 # $path->n_to_turn_lsr
 # $path->n_to_dir4
 # $path->n_to_turn4
@@ -72,10 +79,6 @@
 # $path->xy_to_n_list_maximum
 # $path->xy_next_in_rect($x,$y, $x1,$y1,$x2,$y2)
 #    return ($x,$y) or empty
-#
-# lattice_type square,triangular,triangular_odd,pentagonal,fractional
-# $path->xy_any_odd()   xy_odd()   xy_all_odd()
-# $path->xy_any_even()  xy_even()  xy_all_even()
 #
 # xy_unique_n_start
 # figures_disjoint
@@ -95,7 +98,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -306,10 +309,12 @@ sub xy_is_visited {
 
 sub n_to_dxdy {
   my ($self, $n) = @_;
+  ### n_to_dxdy(): $n
   my ($x,$y) = $self->n_to_xy ($n)
     or return;
   my ($next_x,$next_y) = $self->n_to_xy ($n + $self->arms_count)
     or return;
+  ### points: "$x,$y  $next_x,$next_y"
   return ($next_x - $x,
           $next_y - $y);
 }
@@ -542,7 +547,7 @@ sub _divrem_mutate {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick 7-gonals 8-gonal (step+2)-gonal heptagonals octagonals bignum multi-arm eg PerlMagick NaN NaNs subclasses incrementing arrayref hashref filename enum radix ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix radix-1
+=for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick 7-gonals 8-gonal (step+2)-gonal heptagonals octagonals bignum multi-arm eg PerlMagick NaN NaNs subclasses incrementing arrayref hashref filename enum radix ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix radix-1 octant dSum dDiffXY RSquared
 
 =head1 NAME
 
@@ -1262,7 +1267,7 @@ This is the same as C<tree_num_children_minimum()==0> since if NumChildren=0
 occurs then there are leaf nodes.
 
 Some trees may have no leaf nodes, for example in the complete binary tree
-of C<RationalsTree> every node always has 2 children..
+of C<RationalsTree> every node always has 2 children.
 
 =back
 

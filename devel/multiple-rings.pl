@@ -28,6 +28,30 @@ use Smart::Comments;
 
 
 {
+  require Math::NumSeq::PlanePathDelta;
+  foreach my $step (3 .. 10) {
+    print "$step\n";
+    my $path = Math::PlanePath::MultipleRings->new (step => $step,
+                                                    ring_shape => 'polygon');
+    foreach my $n (0 .. $step-1) {
+      my ($dx,$dy) = $path->n_to_dxdy($n+$path->n_start);
+      my $dir4 = Math::NumSeq::PlanePathDelta::_delta_func_Dir4($dx,$dy);
+      printf "%2d %6.3f,%6.3f  %6.3f\n", $n, $dx,$dy, $dir4;
+    }
+    # my $m = int((3*$step-3)/4);
+# $m = int((2*$step-4)/4);
+    my $m = 2*$step - 2 + ($step%2);
+    my ($cx,$cy) = Math::PlanePath::MultipleRings::_circlefrac_to_xy
+      (1, $m, 2*$step, pi());
+    # $cx = -$cx;
+    my $dir4 = Math::NumSeq::PlanePathDelta::_delta_func_Dir4($cx,$cy);
+    print "$m  $cx, $cy    $dir4\n";
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   foreach my $step (0 .. 10) {
     my $path = Math::PlanePath::MultipleRings->new (step => $step,
                                                     ring_shape => 'polygon');

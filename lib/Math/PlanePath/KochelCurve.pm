@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -604,18 +604,22 @@ L<Math::PlanePath::WunderlichMeander>
 Herman Haverkort, "Recursive Tilings and Space-Filling Curves with Little
 Fragmentation", Journal of Computational Geometry, 2(1), 92-127, 2011.
 
-    http://jocg.org/index.php/jocg/article/view/68
-    http://jocg.org/index.php/jocg/article/download/68/20
-    http://arxiv.org/abs/1002.1843
+=over
 
-    http://alexandria.tue.nl/openaccess/Metis239505.pdf
-    (slides)
-    http://www.win.tue.nl/~hermanh/stack/h-rtslf-eurocg2010-talk.pdf
-    (short form)
+L<http://jocg.org/index.php/jocg/article/view/68>
+L<http://jocg.org/index.php/jocg/article/download/68/20>
+L<http://arxiv.org/abs/1002.1843>
+
+L<http://alexandria.tue.nl/openaccess/Metis239505.pdf>
+(slides)
+L<http://www.win.tue.nl/~hermanh/stack/h-rtslf-eurocg2010-talk.pdf>
+(short form)
+
+=back
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

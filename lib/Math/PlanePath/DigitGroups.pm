@@ -40,7 +40,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -333,7 +333,11 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A084471  (etc)
+=over
+
+L<http://oeis.org/A084471> (etc)
+
+=back
 
     radix=2 (the default)
       A084471    N on X axis, bit 0->00
@@ -348,7 +352,7 @@ L<Math::PlanePath::PowerArray>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

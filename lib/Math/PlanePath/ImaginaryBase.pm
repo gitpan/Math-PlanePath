@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -558,7 +558,11 @@ alternately reverse 2,1,0 as shown here or forward 0,1,2.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A057300  (etc)
+=over
+
+L<http://oeis.org/A057300> (etc)
+
+=back
 
     radix=2
       A057300    permutation N at transpose Y,X (swap bit pairs)
@@ -581,7 +585,7 @@ L<Math::PlanePath::ZOrderCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

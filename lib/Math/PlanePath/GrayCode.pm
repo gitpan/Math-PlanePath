@@ -39,7 +39,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -701,7 +701,11 @@ zero bits (but by +60 and -120 degrees).
 This path is in Sloane's Online Encyclopedia of Integer Sequences in a few
 forms,
 
-    http://oeis.org/A163233  (etc)
+=over
+
+L<http://oeis.org/A163233> (etc)
+
+=back
 
     apply_type="TsF", radix=2  (the defaults)
       A039963    turn sequence, 1=+90 left, 0=180 reverse
@@ -757,7 +761,7 @@ L<Math::PlanePath::CornerReplicate>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

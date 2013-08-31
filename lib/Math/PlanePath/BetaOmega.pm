@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -677,19 +677,27 @@ Jens-Michael Wierum "Definition of a New Circular Space-Filling Curve:
 Beta-Omega-Indexing", Technical Report TR-001-02, Paderborn Center for
 Parallel Computing, March 2002.
 
-    http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3487
-    (cached copy)
+=over
+
+L<http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3487> (cached
+copy)
+
+=back
 
 Jens-Michael Wierum, "Logarithmic Path-Length in Space-Filling Curves", 14th
 Canadian Conference on Computational Geometry (CCCG'02), 2002.
 
-    http://www.cccg.ca/proceedings/2002/
-    http://www.cccg.ca/proceedings/2002/27.ps    [shorter]
-    http://www.cccg.ca/proceedings/2002/27l.ps   [longer]
+=over
+
+L<http://www.cccg.ca/proceedings/2002/>
+L<http://www.cccg.ca/proceedings/2002/27.ps> (shorter),
+L<http://www.cccg.ca/proceedings/2002/27l.ps> (longer)
+
+=back
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 4;
+plan tests => 7;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -59,6 +59,25 @@ sub dxdy_to_dir {
 }
 
 #------------------------------------------------------------------------------
+# A096268 - morphism turn 1=straight,0=not-straight
+#   but OFFSET=0 is turn at N=1
+
+MyOEIS::compare_values
+  (anum => 'A096268',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'CCurve',
+                                                 turn_type => 'LSR');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value == 0 ? 1 : 0;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A104488 -- num Hamiltonian groups
 # No, different at n=67 and more
 #
@@ -84,13 +103,15 @@ sub dxdy_to_dir {
     # A146559   X at N=2^k, being Re((i+1)^k)
     # A009545   Y at N=2^k, being Im((i+1)^k)
 
+require Math::NumSeq::PlanePathN;
+my $bigclass = Math::NumSeq::PlanePathN::_bigint();
+
 MyOEIS::compare_values
   (anum => 'A146559',
    func => sub {
      my ($count) = @_;
      my @got;
-     my $n = 1;
-     for (my $n = 1; @got < $count; $n *= 2) {
+     for (my $n = $bigclass->new(1); @got < $count; $n *= 2) {
        my ($x,$y) = $path->n_to_xy($n);
        push @got, $x;
      }
@@ -101,8 +122,7 @@ MyOEIS::compare_values
    func => sub {
      my ($count) = @_;
      my @got;
-     my $n = 1;
-     for (my $n = 1; @got < $count; $n *= 2) {
+     for (my $n = $bigclass->new(1); @got < $count; $n *= 2) {
        my ($x,$y) = $path->n_to_xy($n);
        push @got, $y;
      }

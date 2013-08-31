@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -374,7 +374,11 @@ point in the path as a square of side 1.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A056105  (etc)
+=over
+
+L<http://oeis.org/A056105> (etc)
+
+=back
 
     A056105    N on X axis, 3n^2-2n+1
     A056106    N on Y axis, 3n^2-n+1
@@ -403,7 +407,7 @@ L<Math::PlanePath::DiamondSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

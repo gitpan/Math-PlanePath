@@ -85,7 +85,7 @@ use List::Util;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -4821,7 +4821,7 @@ L<Math::PlanePath>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

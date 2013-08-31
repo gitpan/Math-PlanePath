@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,54 @@
 use 5.010;
 use strict;
 use warnings;
+use List::Util 'sum';
 use Math::PlanePath::KochCurve;
+
+
+{
+  # A056832 All a(n) = 1 or 2; a(1) = 1; get next 2^k terms by repeating
+  # first 2^k terms and changing last element so sum of first 2^(k+1) terms
+  # is odd.
+  # 
+  # Is lowest non-zero base4 digit(n) 1,3->a(n)=1 2->a(n)=2.
+  # a(2^k) flips 1<->2 each time for low non-zero flipping 1<->2.
+  # a(2^k) always flips because odd sum becomes even on duplicating.
+  #
+  my @a = (1);
+  for my $i (1 .. 6) {
+    push @a, @a;
+    unless (sum(@a) & 1) {
+      $a[-1] = 3-$a[-1];  # 2<->1
+      print "i=$i flip last\n";
+    }
+    print @a,"\n";
+  }
+
+  foreach my $i (1 .. 64) {
+    my $d = base4_lowest_nonzero_digit($i);
+    if ($d != 2) { $d = 1; }
+    print $d;
+  }
+  print "\n";
+
+  exit 0;
+}
+
+sub base4_lowest_nonzero_digit {
+  my ($n) = @_;
+  while (($n & 3) == 0) {
+    $n >>= 2;
+    if ($n == 0) { die "oops, no nonzero digits at all"; } 
+  }
+  return $n & 3;
+}
+sub base4_lowest_non3_digit {
+  my ($n) = @_;
+  while (($n & 3) == 3) {
+    $n >>= 2;
+  }
+  return $n & 3;
+}
 
 
 {

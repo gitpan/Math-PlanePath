@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -301,7 +301,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie Math-PlanePath Rolf Niedermeier octant Indexings
+=for stopwords eg Ryde ie Math-PlanePath Rolf Niedermeier octant Indexings OEIS
 
 =head1 NAME
 
@@ -322,8 +322,8 @@ Peter Sanders.
 =over
 
 "Towards Optimal Locality In Mesh Indexings", Discrete Applied Mathematics,
-volume 117, March 2002
-http://theinf1.informatik.uni-jena.de/publications/dam01a.pdf
+volume 117, March 2002.
+L<http://theinf1.informatik.uni-jena.de/publications/dam01a.pdf>
 
 =back
 
@@ -449,7 +449,11 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A097110  (etc)
+=over
+
+L<http://oeis.org/A097110> (etc)
+
+=back
 
     A097110    Y at N=2^k, being successively 2^j-1, 2^j
 
@@ -460,7 +464,7 @@ L<Math::PlanePath::SierpinskiCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

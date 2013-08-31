@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -318,7 +318,7 @@ sub rect_to_n_range {
 # where phi=(1+sqrt(5))/2 the golden ratio.
 #
 sub _log_phi_estimate {
-  my ($x,$radix) = @_;
+  my ($x) = @_;
   my ($pow,$exp) = round_down_pow ($x, 2);
   return int ($exp * (log(2) / log((1+sqrt(5))/2)));
 }
@@ -326,7 +326,7 @@ sub _log_phi_estimate {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime octant onwards decrement Shallit radix-1 Radix radix HCS
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime octant onwards decrement Shallit radix-1 Radix radix HCS 10www w's
 
 =head1 NAME
 
@@ -347,7 +347,7 @@ Shallit encoding continued fraction terms in digit strings, as per
 =over
 
 "Number Theory and Formal Languages", part 3,
-https://cs.uwaterloo.ca/~shallit/Papers/ntfl.ps
+L<https://cs.uwaterloo.ca/~shallit/Papers/ntfl.ps>
 
 =back
 
@@ -568,7 +568,11 @@ Return 0, the first N in the path.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A032924  (etc)
+=over
+
+L<http://oeis.org/A032924> (etc)
+
+=back
 
     radix=1
       A071766    X coordinate (numerator), except extra initial 1
@@ -599,7 +603,7 @@ L<Math::ContinuedFraction>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -463,7 +463,7 @@ __END__
 
 
 
-=for stopwords eg Ryde ie Math-PlanePath Koch Nstart Xstart,Ystart
+=for stopwords eg Ryde ie Math-PlanePath Koch Nstart Xstart,Ystart OEIS
 
 =head1 NAME
 
@@ -634,7 +634,11 @@ Create and return a new path object.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A003480  (etc)
+=over
+
+L<http://oeis.org/A003480> (etc)
+
+=back
 
     A003480    -X,-Y coordinate first point of each ring
                likewise A020727
@@ -650,7 +654,7 @@ L<Math::PlanePath::KochSnowflakes>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

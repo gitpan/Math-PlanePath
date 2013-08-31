@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -253,7 +253,7 @@ sub rect_to_n_range {
 __END__
 
 
-=for stopwords eg Ryde ie Math-PlanePath Asano Ranjan Roos Welzl Widmayer Informatics Nlevel OEIS
+=for stopwords eg Ryde ie Math-PlanePath Asano Ranjan Roos Welzl Widmayer Informatics Nlevel OEIS bitwise
 
 =head1 NAME
 
@@ -462,7 +462,11 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A062880  (etc)
+=over
+
+L<http://oeis.org/A062880> (etc)
+
+=back
 
     L_fill=middle
       A062880    N on X=Y diagonal, base 4 digits 0,2 only
@@ -491,7 +495,7 @@ L<Math::PlanePath::GosperReplicate>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

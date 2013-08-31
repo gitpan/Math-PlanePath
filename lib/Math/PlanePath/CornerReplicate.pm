@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -374,7 +374,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath OEIS bitwise
+=for stopwords eg Ryde Math-PlanePath OEIS bitwise dSum=dX+dY
 
 =head1 NAME
 
@@ -535,7 +535,11 @@ similar values -1, 1, 3, 7, 15, etc but in a different order to dSum.
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
-    http://oeis.org/A000695  (etc)
+=over
+
+L<http://oeis.org/A000695> (etc)
+
+=back
 
     A059906    Y coordinate
 
@@ -562,7 +566,7 @@ L<Math::PlanePath::GrayCode>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

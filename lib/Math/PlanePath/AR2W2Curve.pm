@@ -32,7 +32,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -501,10 +501,10 @@ AR2W2 curve per
 
 Asano, Ranjan, Roos, Welzl and Widmayer "Space-Filling Curves and Their Use
 in the Design of Geometric Data Structures", Theoretical Computer Science,
-181(1):3-15, 1997.  And in LATIN'95 Theoretical Informatics which is at
-Google Books
+181(1):3-15, 1997.
 
-http://books.google.com.au/books?id=_aKhJUJunYwC&pg=PA36
+And in LATIN'95 Theoretical Informatics which is at Google Books
+L<http://books.google.com.au/books?id=_aKhJUJunYwC&pg=PA36>
 
 =back
 
@@ -638,7 +638,7 @@ L<Math::PlanePath::PeanoCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -291,7 +291,7 @@ __END__
 
 
 
-=for stopwords Ryde Math-PlanePath octagram 18-gonal
+=for stopwords Ryde Math-PlanePath octagram 18-gonal OEIS
 
 =head1 NAME
 
@@ -404,7 +404,11 @@ degrees 4 sides, and by 45 degrees is 2 sides.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A125201  (etc)
+=over
+
+L<http://oeis.org/A125201> (etc)
+
+=back
 
     n_start=1 (the default)
       A125201    N on X axis, from X=1 onwards, 18-gonals + 1
@@ -428,7 +432,7 @@ L<Math::PlanePath::PyramidSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -264,7 +264,11 @@ smallest.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A196199  (etc)
+=over
+
+L<http://oeis.org/A196199> (etc)
+
+=back
 
     n_start=1 (the default)
       A049240    abs(dY), being 0=horizontal step at N=square
@@ -289,7 +293,7 @@ L<Math::PlanePath::MPeaks>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

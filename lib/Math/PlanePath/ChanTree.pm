@@ -33,7 +33,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -774,7 +774,7 @@ sub tree_n_root {
 sub _high_digit {
   my ($n, $radix) = @_;
   ### assert: ! ($n < 1)
-  my ($pow, $exp) = round_down_pow ($n, $radix);
+  my ($pow) = round_down_pow ($n, $radix);
   _divrem_mutate($n,$pow);  # $n=quotient
   return $n;
 }
@@ -801,7 +801,7 @@ This path enumerates rationals X/Y in a tree by Song Heng Chan.
 =over
 
 "Analogs of the Stern Sequence", Integers 2011,
-http://www.integers-ejcnt.org/l26/l26.pdf
+L<http://www.integers-ejcnt.org/l26/l26.pdf>
 
 =back
 
@@ -1028,7 +1028,7 @@ so
 Each denominator Y becomes the numerator X in the next point.  The last Y of
 a row becomes the first X of the next row.  This is a generalization of
 Stern's diatomic sequence and of the Calkin-Wilf tree of rationals.  (See
-L<Math::::NumSeq::SternDiatomic> and
+L<Math::NumSeq::SternDiatomic> and
 L<Math::PlanePath::RationalsTree/Calkin-Wilf Tree>.)
 
 The case k=2 is in fact precisely the Calkin-Wilf tree.  There's just one
@@ -1211,7 +1211,11 @@ base-k digits.
 
 This tree is in Sloane's Online Encyclopedia of Integer Sequences as
 
-    http://oeis.org/A191379   (etc)
+=over
+
+L<http://oeis.org/A191379> (etc)
+
+=back
 
     k=3, n_start=0 (the defaults)
       A191379   X coordinate, and Y=X(N+n)
@@ -1227,7 +1231,7 @@ L<Math::PlanePath::PythagoreanTree>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

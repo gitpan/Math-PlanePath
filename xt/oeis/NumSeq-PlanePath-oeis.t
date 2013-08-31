@@ -38,7 +38,7 @@ use MyOEIS;
 
 sub want_anum {
   my ($anum) = @_;
-  # return 0 unless $anum =~ /A226314/;
+   return 0 unless $anum =~ /A156596/;
   # return 0 unless $anum =~ /A151922|A183060/;
   # return 0 unless $anum =~ /A177702|A102283|A131756/;
   return 1;
@@ -64,6 +64,7 @@ sub want_coordinate {
   # return 0 unless $type =~ /^Abs[XY]/;
   # return 0 unless $type =~ /DiffYX/i;
   # return 0 unless $type =~ /^Depth/;
+  # return 0 unless $type =~ /SLR|SRL|LSR/;
   return 1;
 }
 

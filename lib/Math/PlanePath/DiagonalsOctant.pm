@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -546,7 +546,11 @@ And for the top right,
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A055087  (etc)
+=over
+
+L<http://oeis.org/A055087> (etc)
+
+=back
 
     direction=down
       A002620    N at end each run X=k,Y=k and X=k,Y=k+1
@@ -585,7 +589,7 @@ L<Math::PlanePath::PyramidRows>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -431,7 +431,7 @@ HAKMEM item 115 has this with tables for the state and X,Y bits,
 
 =over
 
-http://www.inwap.com/pdp10/hbaker/hakmem/topology.html#item115
+L<http://www.inwap.com/pdp10/hbaker/hakmem/topology.html#item115>
 
 =back
 
@@ -439,7 +439,7 @@ And C++ code based on that in Jorg Arndt's book,
 
 =over
 
-http://www.jjj.de/fxt/#fxtbook   (section 1.31.1)
+L<http://www.jjj.de/fxt/#fxtbook> (section 1.31.1)
 
 =back
 
@@ -549,7 +549,11 @@ Putting the two together then
 
 This path is in Sloane's OEIS in many forms,
 
-    http://oeis.org/A059252  (etc)
+=over
+
+L<http://oeis.org/A059252> (etc)
+
+=back
 
     A059252    Y coord
     A059253    X coord
@@ -637,15 +641,13 @@ L<Algorithm::SpatialIndex::Strategy::QuadTree>
 
 David Hilbert, "Ueber die stetige Abbildung einer Line auf ein
 FlE<228>chenstE<252>ck", Mathematische Annalen, volume 38, number 3,
-p459-460,
-
-    http://www.springerlink.com/content/v1u6427kk33k8j56/
-    DOI 10.1007/BF01199431
-    http://notendur.hi.is/oddur/hilbert/gcs-wrapper-1.pdf
+p459-460, DOI 10.1007/BF01199431.
+L<http://www.springerlink.com/content/v1u6427kk33k8j56/> Z<>
+L<http://notendur.hi.is/oddur/hilbert/gcs-wrapper-1.pdf>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

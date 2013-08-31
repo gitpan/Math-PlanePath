@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -128,6 +128,13 @@ sub xy_to_n {
   return ($radix + 0*$y) ** $x      # $y*0 to inherit bignum in power
     * ($y+1 + int($y/($radix-1)));  # stretch multiples of radix
 }
+
+# N=..004  X=0 Y=N-floor(N/5)
+# N=..010  X=1 Y=N/5-floor(N/25)   dX=1 dY=...
+# N=..011  X=0 Y=(N-1)/5-floor((N-1)/25)   dX=-1 dY=0
+# sub n_to_dxdy {
+#   my ($self, $n) = @_;
+# }
 
 # exact
 sub rect_to_n_range {
@@ -240,10 +247,11 @@ example radix 3 divides out factors of 3,
          +------------------------------------------------
             X=0     1     2     3     4     5     6     7
 
-X axis N=1,3,9,27,etc is the powers of 3.  Y axis N=1,2,4,5,7,etc is the
-integers N=1mod3 and N=2mod3, ie. those not a multiple of 3.  Notice when
-Y=1or2 mod 4 the N values in that row are all even, and when Y=0or3 mod 4
-the N values are all odd.
+N=1,3,9,27,etc on the X axis is the powers of 3.
+
+N=1,2,4,5,7,etc on the Y axis is the integers N=1or2 mod 3, ie. those not a
+multiple of 3.  Notice if Y=1or2 mod 4 then the N values in that row are all
+even, or if Y=0or3 mod 4 then the N values are all odd.
 
     radix => 3,  N values in ternary
 
@@ -310,7 +318,11 @@ and the upper right is the maximum N.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A007814  (etc)
+=over
+
+L<http://oeis.org/A007814> (etc)
+
+=back
 
     radix=2
       A007814    X coordinate, count low 0-bits of N
@@ -375,7 +387,7 @@ L<Math::PlanePath::ZOrderCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -21,6 +21,8 @@
 #
 # math-image --wx --path=MultipleRings,ring_shape=polygon,step=5  --scale=50 --figure=ring --all
 
+#
+# FIXME: $y equal across bottom side centre ?
 
 
 package Math::PlanePath::MultipleRings;
@@ -38,7 +40,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 109;
+$VERSION = 110;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -389,10 +391,25 @@ sub dir_maximum_dxdy {
   if ($self->{'step'} == 0) {
     return (1,0);   # step=0 horizontal always
   }
-  my $step = $self->{'step'};
+
   if ($self->{'ring_shape'} eq 'polygon') {
+    my $step = $self->{'step'};
     return $self->n_to_dxdy(int((3*$step+1)/4));  # 1 before the minimum
+
+    # # just before 3/4 way around, then half back ....
+    # # sides   side
+    # # -----   ----
+    # #   3      1
+    # #   4      2
+    # #   5      3
+    # #   6      3
+    # #   7      4
+    # #   8      5
+    # #   9      6
+    # #  10      6
+    # return _circlefrac_to_xy (1, int((3*$step-3)/4), $step, _PI);
   }
+
   return (0,0); # supremum, full circle
 }
 
@@ -691,6 +708,7 @@ sub n_to_xy {
   # }
 }
 
+# $side is 0 to $numsides-1
 sub _circlefrac_to_xy {
   my ($r, $side, $numsides, $pi) = @_;
   ### _circlefrac_to_xy(): "r=$r side=$side numsides=$numsides pi=$pi"
@@ -1212,7 +1230,7 @@ sub _pi {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath Pentagonals Nring ie OEIS spacings numsides Nrem
+=for stopwords Ryde Math-PlanePath Pentagonals Nring ie OEIS spacings numsides Nrem pronic pronics RSquared
 
 =head1 NAME
 
@@ -1593,7 +1611,11 @@ f along the polygon side.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A005448  (etc)
+=over
+
+L<http://oeis.org/A005448> (etc)
+
+=back
 
     A005448 A001844 A005891 A003215 A069099     3 to 7
     A016754 A060544 A062786 A069125 A003154     8 to 12
@@ -1616,7 +1638,7 @@ L<Math::PlanePath::PixelRings>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

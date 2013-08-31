@@ -191,27 +191,6 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A060236 - turn 1=left, 2=right
-
-# cf A136442 - a(3n)=1, a(3n-1)=0, a(3n+1)=a(n)
-# ternary lowest non-1  0->1 2->0
-
-MyOEIS::compare_values
-  (anum => 'A060236',
-   func => sub {
-     my ($count) = @_;
-     require Math::NumSeq::PlanePathTurn;
-     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
-                                                 turn_type => 'Right');
-     my @got;
-     while (@got < $count) {
-       my ($i, $value) = $seq->next;
-       push @got, $value+1;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
 # A038502 - taken mod 3 is 1=left, 2=right
 
 MyOEIS::compare_values

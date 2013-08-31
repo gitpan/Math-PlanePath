@@ -46,6 +46,7 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
+               'FactorRationals,sign_encoding=revbinary',
                'FactorRationals',
                'FactorRationals,sign_encoding=odd/even',
                'FactorRationals,sign_encoding=negabinary',
@@ -789,7 +790,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 109;
+my $want_version = 110;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

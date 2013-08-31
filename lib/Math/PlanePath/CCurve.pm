@@ -29,7 +29,7 @@ use strict;
 use List::Util 'min','max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -586,7 +586,11 @@ gives all the N which are the target X,Y.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A179868  (etc)
+=over
+
+L<http://oeis.org/A179868> (etc)
+
+=back
 
     A010059   abs(dX), count1bits(N) mod 2
     A010060   abs(dY), count1bits(N)+1 mod 2, being Thue-Morse
@@ -594,6 +598,7 @@ this path include
     A000120   total turn, being count 1-bits
     A179868   direction 0to3, count 1-bits mod 4
 
+    A096268   turn 1=straight,0=left or right
     A007814   turn-1 to the right, being count low 0-bits
 
     A003159   N positions of left or right turn, ends even num 0 bits
@@ -614,7 +619,7 @@ various other dragon curve and Koch curves).
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

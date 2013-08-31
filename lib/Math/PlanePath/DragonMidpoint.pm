@@ -60,7 +60,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -778,7 +778,11 @@ or 64 or whatever.
 The C<DragonMidpoint> is in Sloane's Online Encyclopedia of Integer
 Sequences as
 
-    http://oeis.org/A073089
+=over
+
+L<http://oeis.org/A073089> (etc)
+
+=back
 
     A073089   abs(dY) of n-1 to n, so 0=horizontal,1=vertical
                 (extra initial 0)
@@ -814,7 +818,7 @@ L<Math::PlanePath::TerdragonMidpoint>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -429,7 +429,11 @@ are 6x6.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include the various C<DragonCurve> sequences at even N, and in addition
 
-    http://oeis.org/A152822  (etc)
+=over
+
+L<http://oeis.org/A152822> (etc)
+
+=back
 
     A152822   abs(dX), so 0=vertical,1=not, being 1,1,0,1 repeating
     A166486   abs(dY), so 0=horizontal,1=not, being 0,1,1,1 repeating
@@ -443,7 +447,7 @@ L<Math::PlanePath::TerdragonRounded>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

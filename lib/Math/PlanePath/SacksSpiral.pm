@@ -32,7 +32,7 @@ use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 @ISA = ('Math::PlanePath');
 
 
@@ -255,7 +255,7 @@ sub _rect_to_radius_range {
 1;
 __END__
 
-=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM Euler's arctan Theodorus
+=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM Euler's arctan Theodorus dX dY
 
 =head1 NAME
 
@@ -275,7 +275,7 @@ fall on a line going to the right.  Read more at
 
 =over
 
-http://www.numberspiral.com
+L<http://www.numberspiral.com>
 
 =back
 
@@ -415,7 +415,7 @@ L<Math::PlanePath::VogelFloret>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -27,7 +27,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -382,11 +382,11 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  my ($len, $level) = round_down_pow (max ($x2,
-                                           ($arms >= 2 ? $y2-1  : ()),
-                                           ($arms >= 4 ? -1-$x1 : ()),
-                                           ($arms >= 6 ? -$y1   : ())),
-                                      2);
+  my ($len) = round_down_pow (max ($x2,
+                                   ($arms >= 2 ? $y2-1  : ()),
+                                   ($arms >= 4 ? -1-$x1 : ()),
+                                   ($arms >= 6 ? -$y1   : ())),
+                              2);
   return (0, 2*$arms*$len*$len-1);
 }
 
@@ -545,7 +545,7 @@ L<Math::PlanePath::TerdragonMidpoint>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

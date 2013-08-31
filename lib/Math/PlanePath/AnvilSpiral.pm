@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -474,7 +474,11 @@ widens the spiral path, it defaults to 0 which is no widening.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A033581  (etc)
+=over
+
+L<http://oeis.org/A033581> (etc)
+
+=back
 
     default wider=0, n_start=1
       A033570    N on X axis, alternate pentagonals (2n+1)*(3n+1)
@@ -505,7 +509,7 @@ L<Math::PlanePath::HexSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

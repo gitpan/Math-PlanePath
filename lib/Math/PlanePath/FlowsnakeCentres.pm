@@ -31,7 +31,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -879,7 +879,7 @@ The C<n_to_xy()> calculation follows Ed Schouten's method
 
 =over
 
-http://80386.nl/projects/flowsnake/
+L<http://80386.nl/projects/flowsnake/>
 
 =back
 
@@ -955,11 +955,11 @@ L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
-http://80386.nl/projects/flowsnake/ -- Ed Schouten's code
+L<http://80386.nl/projects/flowsnake/> -- Ed Schouten's code
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

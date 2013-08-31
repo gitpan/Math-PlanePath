@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -361,7 +361,11 @@ rectangle, or the edge on the side nearest the origin when not.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A010751  (etc)
+=over
+
+L<http://oeis.org/A010751> (etc)
+
+=back
 
     n_start=1
       A130883    N on X axis, 2*n^2-n+1
@@ -402,7 +406,7 @@ L<Math::PlanePath::ToothpickSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

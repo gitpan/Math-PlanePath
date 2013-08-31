@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiArrowheadCentres;
 # VERSION
 
 {
-  my $want_version = 109;
+  my $want_version = 110;
   ok ($Math::PlanePath::SierpinskiArrowheadCentres::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiArrowheadCentres->VERSION,  $want_version,

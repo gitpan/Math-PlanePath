@@ -29,7 +29,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -720,7 +720,11 @@ integer points.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A189706    etc
+=over
+
+L<http://oeis.org/A189706> (etc)
+
+=back
 
     A189706   turn 0=left,1=right at odd positions N=1,3,5,etc
     A189707     (N+1)/2 of the odd N positions of left turns
@@ -736,7 +740,7 @@ L<Math::PlanePath::KochCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

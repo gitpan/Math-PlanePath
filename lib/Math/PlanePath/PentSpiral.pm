@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -330,7 +330,11 @@ For the very first loop that lower right is length 0.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A140066  (etc)
+=over
+
+L<http://oeis.org/A140066> (etc)
+
+=back
 
     n_start=1 (the default)
       A140066    N on Y axis
@@ -351,7 +355,7 @@ L<Math::PlanePath::HexSpiral>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

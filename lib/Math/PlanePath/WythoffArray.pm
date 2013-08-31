@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -308,10 +308,9 @@ R. Morrison
 
 =over
 
-"A Stolarsky Array of Wythoff Pairs", in Collection of Manuscripts
-Related to the Fibonacci Sequence, pages 134 to 136, The Fibonacci
-Association, 1980.
-http://www.math.ucsb.edu/~drm/papers/stolarsky.pdf
+"A Stolarsky Array of Wythoff Pairs", in Collection of Manuscripts Related
+to the Fibonacci Sequence, pages 134 to 136, The Fibonacci Association,
+1980.  L<http://www.math.ucsb.edu/~drm/papers/stolarsky.pdf>
 
 =back
 
@@ -541,7 +540,11 @@ corner and the maximum N is in the upper right corner.
 The Wythoff array is in Sloane's Online Encyclopedia of Integer Sequences
 in various forms,
 
-    http://oeis.org/A035614   (etc)
+=over
+
+L<http://oeis.org/A035614> (etc)
+
+=back
 
     x_start=0,y_start=0 (the defaults)
       A035614     X, column numbered from 0
@@ -598,14 +601,14 @@ L<Math::Fibonacci>,
 L<Math::Fibonacci::Phi>
 
 Ron Knott, "Generalising the Fibonacci Series",
-http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibGen.html#wythoff
+L<http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibGen.html#wythoff>
 
 OEIS Classic Sequences, "The Wythoff Array and The Para-Fibonacci Sequence",
-http://oeis.org/classic.html
+L<http://oeis.org/classic.html>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

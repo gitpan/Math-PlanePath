@@ -39,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -988,7 +988,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 109;
+  $VERSION = 110;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1173,7 +1173,7 @@ sub _NOTWORKING__rule_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 109;
+  $VERSION = 110;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1256,7 +1256,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 109;
+  $VERSION = 110;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1496,7 +1496,7 @@ cellular automatons
 
 =over
 
-http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+L<http://mathworld.wolfram.com/ElementaryCellularAutomaton.html>
 
 =back
 
@@ -1632,13 +1632,13 @@ L<Math::PlanePath::PyramidRows>
 
 L<Cellular::Automata::Wolfram>
 
-http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+L<http://mathworld.wolfram.com/ElementaryCellularAutomaton.html>
 
-http://oeis.org/wiki/Index_to_OEIS:_Section_Ce#cell
+L<http://oeis.org/wiki/Index_to_OEIS:_Section_Ce#cell>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

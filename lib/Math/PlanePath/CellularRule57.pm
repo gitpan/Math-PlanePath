@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -397,7 +397,7 @@ cellular automaton
 
 =over
 
-http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+L<http://mathworld.wolfram.com/ElementaryCellularAutomaton.html>
 
 =back
 
@@ -546,11 +546,11 @@ L<Math::PlanePath::CellularRule54>,
 L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::PyramidRows>
 
-http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+L<http://mathworld.wolfram.com/ElementaryCellularAutomaton.html>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

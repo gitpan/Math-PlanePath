@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 1;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,79 +33,21 @@ use Math::PlanePath::FibonacciWordFractal;
 #use Smart::Comments '###';
 
 
-my $path  = Math::PlanePath::FibonacciWordFractal->new;
-
-# return true if the three X,Y's are on a straight line ... but assumed to
-# be equal distance steps
-sub xy_is_straight {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-  return (($x - $prev_x) == ($next_x - $x)
-          && ($y - $prev_y) == ($next_y - $y));
-}
-
-# with Y reckoned increasing upwards
-sub dxdy_to_direction {
-  my ($dx, $dy) = @_;
-  if ($dx > 0) { return 0; }  # east
-  if ($dx < 0) { return 2; }  # west
-  if ($dy > 0) { return 1; }  # north
-  if ($dy < 0) { return 3; }  # south
-}
-
-# return 0 if X,Y's are straight, 2 if left, 1 if right
-sub xy_turn_021 {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-
-  my $prev_dx = $x - $prev_x;
-  my $prev_dy = $y - $prev_y;
-  my $dx = $next_x - $x;
-  my $dy = $next_y - $y;
-
-  my $prev_dir = dxdy_to_direction ($prev_dx, $prev_dy);
-  my $dir = dxdy_to_direction ($dx, $dy);
-  my $turn = ($dir - $prev_dir) % 4;
-
-  if ($turn == 0) {
-    return 0;  # straight
-  }
-  if ($turn == 1) {
-    return 2;  # left (anti-clockwise)
-  }
-  if ($turn == 3) {
-    return 1;  # right (clockwise)
-  }
-  die "Oops, unrecognised turn $turn";
-}
-
 #------------------------------------------------------------------------------
-# A003849 - Fibonacci word 0/1
+# A003849 - Fibonacci word 0/1, 0=straight,1=left or right
 
 MyOEIS::compare_values
   (anum => 'A003849',
    func => sub {
      my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new
+       (planepath => 'FibonacciWordFractal',
+        turn_type => 'LSR');   # turn_type=Straight
      my @got;
-     for (my $n = $path->n_start + 1; @got < $count; $n++) {
-       push @got, (xy_is_straight($path->n_to_xy($n-1),
-                                  $path->n_to_xy($n),
-                                  $path->n_to_xy($n+1))
-                   ? 1 : 0);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A156596 - turns 0=straight,1=right,2=left
-
-MyOEIS::compare_values
-  (anum => 'A156596',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     for (my $n = $path->n_start + 1; @got < $count; $n++) {
-       push @got, xy_turn_021($path->n_to_xy($n-1),
-                              $path->n_to_xy($n),
-                              $path->n_to_xy($n+1));
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value == 0 ? 1 : 0;
      }
      return \@got;
    });

@@ -131,7 +131,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -614,7 +614,7 @@ __END__
   # }
 
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped GCD Luschny Jerzy Czyz Minkowski Nstart Shallit's HCS Ndepth N-Ndepth Nparent subtree LRRL parameterization parameterized Jacobsthal
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped GCD Luschny Jerzy Czyz Minkowski Nstart Shallit's HCS Ndepth N-Ndepth Nparent subtree LRRL parameterization parameterized Jacobsthal Thue-Morse ceil
 
 =head1 NAME
 
@@ -722,8 +722,8 @@ from the root 0=left then twice 1=right to reach X/Y=3/4 at N=11 decimal.
 Since each row is fractions of increasing value the path goes from the Y
 axis across and down to the X.  Each row is further from the origin than the
 previous row and doesn't intersect any other row.  The X/(X+Y) first half is
-an upward "shear" to the X,Y points of the previous row.  The second half
-(X+Y)/Y shears to the right.  For example,
+an upward "shear" of the X,Y points in the previous row.  The second half
+(X+Y)/Y is a shear to the right.  For example,
 
                                 N=8 to N=11
                                previous row
@@ -748,27 +748,30 @@ right.
 
 The first and last points of each row are always a turn to the right.  For
 example the turn at N=4 (going N=3 to N=4 to N=5) is to the right, and
-likewise at N=7.  This is because the second of the row such as N=5 is above
-a 45-degree line down from N=4, and similarly the second last such as N=6
-since the row is symmetric.
+likewise at N=7.  This is because the second point in the row such as N=5 is
+above a 45-degree line down from N=4, and similarly the second last such as
+N=6 (since the row is symmetric).
 
 The middle two points in each row for depthE<gt>=3 are always a turn to the
-left.  N=11 and N=12 shown above are the first such middle pair both turning
-to the left.  The middle two are transposes across the leading diagonal and
-so make a 45-degree line.  The second-from-middle points are above that line
-(N=10 and N=13).
+left.  For example N=11 and N=12 shown above are the first such middle pair
+and both turn to the left.  The middle two are transposes across the leading
+diagonal and so make a 45-degree line.  The second-from-middle points are
+above that line (N=10 and N=13).
 
 The middle left turns are copied into successive rows and the result is a
 repeating pattern "LRRL" except for the first and last in the row which are
 always right instead of left.  So,
 
-    if N=3                             left
-    otherwise if N=2^k or N=2^k-1      right
+    RRRL,LRRL,LRRL,LRRL,LRRL,LRRL,LRRL,LRRR   # row N=32 to N=63
 
-    otherwise if N=0 mod 4             left
-                 N=1 mod 4             right
-                 N=2 mod 4             right
-                 N=3 mod 4             left
+    condition                        turn
+    ---------                        ----
+    if N=3                           left
+    otherwise if N=2^k or N=2^k-1    right  # first and last of row
+    otherwise if N=0 mod 4           left   # LRRL pattern
+                 N=1 mod 4           right
+                 N=2 mod 4           right
+                 N=3 mod 4           left
 
 Pairs N=2m-1 and N=2m can be treated together by taking ceil(N/2),
 
@@ -782,8 +785,8 @@ Pairs N=2m-1 and N=2m can be treated together by taking ceil(N/2),
 =head2 Stern-Brocot Mediant
 
 Writing the parents between the children as an "in-order" tree traversal to
-a given depth has all values in increasing order, the same as each row
-individually is in increasing order.
+a given depth has all values in increasing order (the same as each row
+individually is in increasing order).
 
                  1/1
          1/2      |      2/1
@@ -799,8 +802,8 @@ New values at the next level of this flattening are a "mediant"
 (x1+x2)/(y1+y2) formed from the left and right parent.  So the next level
 4/3 shown is left parent 1/1 and right parent 3/2 giving mediant
 (1+3)/(1+2)=4/3.  At the left end a preceding 0/1 is imagined.  At the right
-a following 1/0 is imagined, so as to have 1/(depth+1) and (depth+1)/1 at
-the ends for a total 2^depth many new values.
+end a following 1/0 is imagined, so as to have 1/(depth+1) and (depth+1)/1
+at the ends for a total 2^depth many new values.
 
 =head2 Calkin-Wilf Tree
 
@@ -810,7 +813,7 @@ Neil Calkin and Herbert Wilf,
 =over
 
 "Recounting the Rationals",
-http://www.math.upenn.edu/~wilf/website/recounting.pdf
+L<http://www.math.upenn.edu/~wilf/website/recounting.pdf>
 
 =back
 
@@ -908,20 +911,18 @@ described (independently is it?) by D. N. Andreev and Shen Yu-Ting.
 
 =over
 
-http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf
+L<http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf>
 
 Shen Yu-Ting, "A Natural Enumeration of Non-Negative Rational Numbers
 -- An Informal Discussion", American Mathematical Monthly, 87, 1980,
-pages 25-29.
-http://www.jstor.org/stable/2320374
+pages 25-29.  L<http://www.jstor.org/stable/2320374>
 
 =back
 
 Their constructions are a one-to-one mapping between integer N and rational
-X/Y as a way of enumerating the rationals.  It's not designed to be a tree
-as such, but the result is the same 2^level rows as the above trees.  The
-X/Y values within each row are again the same, but in a further different
-order.
+X/Y as a way of enumerating the rationals.  This is not designed to be a
+tree as such, but the result is the same 2^level rows as the above trees.
+The X/Y values within each row are the same, but in a different order.
 
     N=1                             1/1
                               ------   ------
@@ -1015,10 +1016,10 @@ per Paul D. Hanna and independently Jerzy Czyz and Will Self.
 
 =over
 
-http://oeis.org/A071766
+L<http://oeis.org/A071766>
 
-http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml
-http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf
+L<http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml>
+L<http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf>
 
 Jerzy Czyz and William Self, "The Rationals Are Countable: Euclid's
 Proof", The College Mathematics Journal, volume 34, number 5,
@@ -1123,7 +1124,7 @@ For the last point of a row and the first of the next the points are
     second           100001     2d-1 / 2              eg. 9/2
 
 The second last of a row 11110 is a pair of Lucas numbers and the last of a
-row 11111 is a pair of Fibonacci numbers bigger than those lucas numbers.
+row 11111 is a pair of Fibonacci numbers bigger than those Lucas numbers.
 Plotting the examples shows the layout,
  
     13 |                __*  Fib 
@@ -1233,7 +1234,7 @@ X<Hinze, Ralf>C<tree_type=E<gt>"Bird"> selects the Bird tree by Ralf Hinze
 =over
 
 "Functional Pearls: The Bird tree",
-http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf
+L<http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf>
 
 =back
 
@@ -1299,7 +1300,7 @@ X<Hinze, Ralf>C<tree_type=E<gt>"Drib"> selects the Drib tree by Ralf Hinze.
 
 =over
 
-http://oeis.org/A162911
+L<http://oeis.org/A162911>
 
 =back
 
@@ -1360,7 +1361,7 @@ X<Luschny, Peter>C<tree_type=E<gt>"L"> selects the L-tree by Peter Luschny.
 
 =over
 
-http://www.oeis.org/wiki/User:Peter_Luschny/SternsDiatomic
+L<http://www.oeis.org/wiki/User:Peter_Luschny/SternsDiatomic>
 
 =back
 
@@ -1657,7 +1658,11 @@ Return false, since there are no leaf nodes in the tree.
 The trees are in Sloane's Online Encyclopedia of Integer Sequences in
 various forms,
 
-    http://oeis.org/A007305   (etc)
+=over
+
+L<http://oeis.org/A007305> (etc)
+
+=back
 
     tree_type=SB
       A007305   X (extra 0,1)
@@ -1755,7 +1760,7 @@ L<Math::ContinuedFraction>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

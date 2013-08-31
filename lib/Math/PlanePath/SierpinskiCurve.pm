@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1101,7 +1101,11 @@ an odd or even bit position.
 The Sierpinski curve is in Sloane's Online Encyclopedia of Integer Sequences
 as,
 
-    http://oeis.org/A039963    etc
+=over
+
+L<http://oeis.org/A039963> (etc)
+
+=back
 
     A039963   turn 1=right,0=left, doubling the KochCurve turns
     A081706   N-1 of left turn positions
@@ -1122,7 +1126,7 @@ L<Math::PlanePath::KochCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -252,7 +252,11 @@ covered.
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
-    http://oeis.org/A053615  (etc)
+=over
+
+L<http://oeis.org/A053615> (etc)
+
+=back
 
     n_start=1 (the default)
       A053615    abs(X), distance to next pronic, but starts n=0
@@ -291,7 +295,7 @@ L<Math::PlanePath::TriangleSpiralSkewed>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

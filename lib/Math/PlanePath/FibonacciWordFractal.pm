@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -411,14 +411,13 @@ Math::PlanePath::FibonacciWordFractal -- turns by Fibonacci word bits
 =head1 DESCRIPTION
 
 X<Monnerot-Dumaine, Alexis>X<Fibonacci Word>This is an integer version of
-the Fibonacci word fractal by Alexis Monnerot-Dumaine.
+the Fibonacci word fractal
 
 =over
 
-"The Fibonacci Word Fractal", February 2009
-
-http://hal.archives-ouvertes.fr/hal-00367972_v1/
-http://hal.archives-ouvertes.fr/docs/00/36/79/72/PDF/The_Fibonacci_word_fractal.pdf
+Alexis Monnerot-Dumaine, "The Fibonacci Word Fractal", February 2009.
+L<http://hal.archives-ouvertes.fr/hal-00367972_v1/>
+L<http://hal.archives-ouvertes.fr/docs/00/36/79/72/PDF/The_Fibonacci_word_fractal.pdf>
 
 =back
 
@@ -533,7 +532,11 @@ Return 0, the first N in the path.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A156596  (etc)
+=over
+
+L<http://oeis.org/A156596> (etc)
+
+=back
 
     A156596  - turn sequence, 0=straight,1=right,2=left
     A171587  - abs(dX), so 1=horizontal,0=vertical
@@ -553,7 +556,7 @@ L<Math::NumSeq::FibonacciWord>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -434,10 +434,9 @@ Peano for filling a unit square,
 =over
 
 Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",
-Mathematische Annalen, volume 36, number 1, 1890, p157-160
-
-http://www.springerlink.com/content/w232301n53960133/
-DOI 10.1007/BF01199438
+Mathematische Annalen, volume 36, number 1, 1890, p157-160.  DOI
+10.1007/BF01199438.
+L<http://www.springerlink.com/content/w232301n53960133/>
 
 =back
 
@@ -579,11 +578,11 @@ As for example in
 X<Moore, Eliakim Hastings>E. H. Moore, "On Certain Crinkly
 Curves",Trans. Am. Math. Soc., volume 1, number 1, 1900, pages 72-90.
 
-http://www.ams.org/journals/tran/1900-001-01/S0002-9947-1900-1500526-4/
-http://www.ams.org/tran/1900-001-01/S0002-9947-1900-1500526-4/S0002-9947-1900-1500526-4.pdf
+L<http://www.ams.org/journals/tran/1900-001-01/S0002-9947-1900-1500526-4/>
+L<http://www.ams.org/tran/1900-001-01/S0002-9947-1900-1500526-4/S0002-9947-1900-1500526-4.pdf>
 
-http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/
-http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/S0002-9947-1900-1500428-3.pdf
+L<http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/>
+L<http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/S0002-9947-1900-1500428-3.pdf>
 
 =back
 
@@ -819,7 +818,11 @@ one-third sub-part of X or Y overlaps the target region or not.
 This path is in Sloane's Online Encyclopedia of Integer Sequences in several
 forms,
 
-    http://oeis.org/A163528  (etc)
+=over
+
+L<http://oeis.org/A163528> (etc)
+
+=back
 
     A163528    X coordinate
     A163529    Y coordinate
@@ -886,7 +889,7 @@ L<Math::PlanePath::KochCurve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 

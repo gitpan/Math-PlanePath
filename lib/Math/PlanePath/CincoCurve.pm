@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -739,16 +739,16 @@ Model", and source code from COSIM
 
 =over
 
-http://www.cecs.uci.edu/~papers/ipdps07/pdfs/IPDPS-1569010963-paper-2.pdf
+L<http://www.cecs.uci.edu/~papers/ipdps07/pdfs/IPDPS-1569010963-paper-2.pdf>
 
-http://oceans11.lanl.gov/trac/POP/browser/trunk/pop/source/spacecurve_mod.F90
-http://oceans11.lanl.gov/svn/POP/trunk/pop/source/spacecurve_mod.F90
+L<http://oceans11.lanl.gov/trac/POP/browser/trunk/pop/source/spacecurve_mod.F90>
+L<http://oceans11.lanl.gov/svn/POP/trunk/pop/source/spacecurve_mod.F90>
 
 =back
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
