@@ -38,14 +38,14 @@ use MyOEIS;
 
 sub want_anum {
   my ($anum) = @_;
-   return 0 unless $anum =~ /A156596/;
+  # return 0 unless $anum =~ /A062157/;
   # return 0 unless $anum =~ /A151922|A183060/;
   # return 0 unless $anum =~ /A177702|A102283|A131756/;
   return 1;
 }
 sub want_planepath {
   my ($planepath) = @_;
-  # return 0 unless $planepath =~ /Stair/;
+   return 0 unless $planepath =~ /FactorRationals/;
   # return 0 unless $planepath =~ /Octag|Pent|Hept/;
   # return 0 unless $planepath =~ /Divis|DiagonalRationals|CoprimeCol/;
   # return 0 unless $planepath =~ /DiamondSpiral/;
@@ -61,6 +61,7 @@ sub want_planepath {
 }
 sub want_coordinate {
   my ($type) = @_;
+  # return 0 unless $type =~ /^dR/;
   # return 0 unless $type =~ /^Abs[XY]/;
   # return 0 unless $type =~ /DiffYX/i;
   # return 0 unless $type =~ /^Depth/;

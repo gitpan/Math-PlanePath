@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -66,7 +66,9 @@ sub sumxy_minimum {
   my ($self) = @_;
   return $sumxy_minimum{$self->{'L_fill'}};
 }
-*rsquared_minimum = \&sumxy_minimum;
+*sumabsxy_minimum  = \&sumxy_minimum;
+*absdiffxy_minimum = \&sumxy_minimum;
+*rsquared_minimum  = \&sumxy_minimum;
 
 #------------------------------------------------------------------------------
 

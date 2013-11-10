@@ -41,6 +41,27 @@ use Smart::Comments;
 
 
 {
+                [0,1,S  1,1,SW      1,0,W   0,0,-  ]);
+                [1,1,SW 0,1,S       0,0,-   1,0,W  ],
+
+                [1,0,W  0,0,-       0,1,S   1,1,SW ],
+my @yx_adj_x = ([0,0,-  1,0,W       1,1,SW  0,1,S  ],
+}
+
+{
+  # visited 0,1
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $y (reverse -16 .. 16) {
+    foreach my $x (-32 .. 32) {
+      print $path->xy_is_visited($x,$y) ? 1 : 0;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   foreach my $arms (1 .. 4) {
     my $path = Math::PlanePath::DragonCurve->new (arms => $arms);
     foreach my $x (-50 .. 50) {

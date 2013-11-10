@@ -29,6 +29,125 @@ use MyOEIS;
 # use Smart::Comments;
 
 
+
+{
+  # permutation between two paths
+  require Math::NumSeq::PlanePathCoord;
+  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
+      ->{'planepath'}->{'choices'}};
+
+  @choices = grep {$_ ne 'CellularRule'} @choices;
+  @choices = grep {$_ ne 'Rows'} @choices;
+  @choices = grep {$_ ne 'Columns'} @choices;
+  @choices = grep {$_ ne 'ArchimedeanChords'} @choices;
+  @choices = grep {$_ ne 'MultipleRings'} @choices;
+  @choices = grep {$_ ne 'VogelFloret'} @choices;
+  @choices = grep {$_ ne 'PythagoreanTree'} @choices;
+  @choices = grep {$_ ne 'PeanoHalf'} @choices;
+  @choices = grep {$_ !~ /EToothpick|LToothpick|Surround|Peninsula/} @choices;
+
+  @choices = grep {$_ ne 'CornerReplicate'} @choices;
+  @choices = grep {$_ ne 'ZOrderCurve'} @choices;
+  unshift @choices, 'CornerReplicate', 'ZOrderCurve';
+
+  @choices = ('PythagoreanTree');
+
+  my $num_choices = scalar(@choices);
+  print "$num_choices choices\n";
+
+  my @path_objects;
+  my %path_fullnames;
+  foreach my $name (@choices) {
+    my $class = "Math::PlanePath::$name";
+    Module::Load::load($class);
+
+    my $parameters = parameter_info_list_to_parameters
+      ($class->parameter_info_list);
+    foreach my $p (@$parameters) {
+      my $path_object = $class->new (@$p);
+      push @path_objects, $path_object;
+      $path_fullnames{$path_object} = "$name ".join(',',@$p);
+    }
+  }
+  my $num_path_objects = scalar(@path_objects);
+  print "total path objects $num_path_objects\n";
+
+  my $start_t = time();
+  my $t = $start_t-8;
+
+  my $i = 0;
+  # until ($path_objects[$i]->isa('Math::PlanePath::DiamondArms')) {
+  #   $i++;
+  # }
+  # while ($path_objects[$i]->isa('Math::PlanePath::PyramidSpiral')) {
+  #   $i++;
+  # }
+
+  my $start_permutations = $i * ($num_path_objects-1);
+  my $num_permutations = $num_path_objects * ($num_path_objects-1);
+
+  open DEBUG, '>/tmp/permutations.out' or die;
+  select DEBUG or die; $| = 1; # autoflush
+  select STDOUT or die;
+
+  for ( ; $i <= $#path_objects; $i++) {
+    my $from_path = $path_objects[$i];
+    my $from_fullname = $path_fullnames{$from_path};
+    my $n_start = $from_path->n_start;
+
+  PATH: foreach my $j (0 .. $#path_objects) {
+      if (time()-$t < 0 || time()-$t > 10) {
+        my $upto_permutation = $i*$num_path_objects + $j || 1;
+        my $rem_permutation = $num_permutations
+          - ($start_permutations + $upto_permutation);
+        my $done_permutations = ($upto_permutation-$start_permutations);
+        my $percent = 100 * $done_permutations / $num_permutations || 1;
+        my $t_each = (time() - $start_t) / $done_permutations;
+        my $done_per_second = $done_permutations / (time() - $start_t);
+        my $eta = int($t_each * $rem_permutation);
+        my $s = $eta % 60; $eta = int($eta/60);
+        my $m = $eta % 60; $eta = int($eta/60);
+        my $h = $eta;
+        my $eta_str = sprintf '%d:%02d:%02d', $h,$m,$s;
+        print "$upto_permutation / $num_permutations  est $eta_str  (each $t_each)\n";
+        $t = time();
+      }
+
+      next if $i == $j;
+      my $to_path = $path_objects[$j];
+      next if $to_path->n_start != $n_start;
+      my $to_fullname = $path_fullnames{$to_path};
+      my $name = "$from_fullname -> $to_fullname";
+
+      print DEBUG "$name\n";
+
+      my $str = '';
+      my @values;
+      foreach my $n ($n_start+2 .. $n_start+50) {
+        my ($x,$y) = $from_path->n_to_xy($n)
+          or next PATH;
+        my $pn = $to_path->xy_to_n($x,$y) // next PATH;
+        $str .= "$pn,";
+        push @values, $pn;
+      }
+      print MyOEIS->grep_for_values(name => $name,
+                                    array => \@values);
+
+      # if (defined (my $diff = constant_diff(@values))) {
+      #   print "$from_fullname -> $to_fullname\n";
+      #   print "  constant diff $diff\n";
+      #   next PATH;
+      # }
+      # if (my $found = stripped_grep($str)) {
+      #   print "$from_fullname -> $to_fullname\n";
+      #   print "  (",substr($str,0,20),"...)\n";
+      #   print $found;
+      #   print "\n";
+      # }
+    }
+  }
+  exit 0;
+}
 {
   # permutation of transpose
   require MyOEIS;
@@ -452,120 +571,6 @@ BEGIN {
 
 }
 
-{
-  # between two paths
-  require Math::NumSeq::PlanePathCoord;
-  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
-      ->{'planepath'}->{'choices'}};
-
-  @choices = grep {$_ ne 'CellularRule'} @choices;
-  @choices = grep {$_ ne 'Rows'} @choices;
-  @choices = grep {$_ ne 'Columns'} @choices;
-  @choices = grep {$_ ne 'ArchimedeanChords'} @choices;
-  @choices = grep {$_ ne 'MultipleRings'} @choices;
-  @choices = grep {$_ ne 'VogelFloret'} @choices;
-  @choices = grep {$_ ne 'PythagoreanTree'} @choices;
-  @choices = grep {$_ ne 'PeanoHalf'} @choices;
-  @choices = grep {$_ !~ /EToothpick|LToothpick|Surround|Peninsula/} @choices;
-
-  @choices = grep {$_ ne 'CornerReplicate'} @choices;
-  @choices = grep {$_ ne 'ZOrderCurve'} @choices;
-  unshift @choices, 'CornerReplicate', 'ZOrderCurve';
-
-  my $num_choices = scalar(@choices);
-  print "$num_choices choices\n";
-
-  my @path_objects;
-  my %path_fullnames;
-  foreach my $name (@choices) {
-    my $class = "Math::PlanePath::$name";
-    Module::Load::load($class);
-
-    my $parameters = parameter_info_list_to_parameters
-      ($class->parameter_info_list);
-    foreach my $p (@$parameters) {
-      my $path_object = $class->new (@$p);
-      push @path_objects, $path_object;
-      $path_fullnames{$path_object} = "$name ".join(',',@$p);
-    }
-  }
-  my $num_path_objects = scalar(@path_objects);
-  print "total path objects $num_path_objects\n";
-
-  my $start_t = time();
-  my $t = $start_t-8;
-
-  my $i = 0;
-  # until ($path_objects[$i]->isa('Math::PlanePath::DiamondArms')) {
-  #   $i++;
-  # }
-  # while ($path_objects[$i]->isa('Math::PlanePath::PyramidSpiral')) {
-  #   $i++;
-  # }
-
-  my $start_permutations = $i * ($num_path_objects-1);
-  my $num_permutations = $num_path_objects * ($num_path_objects-1);
-
-  open DEBUG, '>/tmp/permutations.out' or die;
-  select DEBUG or die; $| = 1; # autoflush
-  select STDOUT or die;
-
-  for ( ; $i <= $#path_objects; $i++) {
-    my $from_path = $path_objects[$i];
-    my $from_fullname = $path_fullnames{$from_path};
-    my $n_start = $from_path->n_start;
-
-  PATH: foreach my $j (0 .. $#path_objects) {
-      if (time()-$t < 0 || time()-$t > 10) {
-        my $upto_permutation = $i*$num_path_objects + $j || 1;
-        my $rem_permutation = $num_permutations
-          - ($start_permutations + $upto_permutation);
-        my $done_permutations = ($upto_permutation-$start_permutations);
-        my $percent = 100 * $done_permutations / $num_permutations || 1;
-        my $t_each = (time() - $start_t) / $done_permutations;
-        my $done_per_second = $done_permutations / (time() - $start_t);
-        my $eta = int($t_each * $rem_permutation);
-        my $s = $eta % 60; $eta = int($eta/60);
-        my $m = $eta % 60; $eta = int($eta/60);
-        my $h = $eta;
-        print "$upto_permutation / $num_permutations  est $h:$m:$s  (each $t_each)\n";
-        $t = time();
-      }
-
-      next if $i == $j;
-      my $to_path = $path_objects[$j];
-      next if $to_path->n_start != $n_start;
-      my $to_fullname = $path_fullnames{$to_path};
-
-      next unless ($from_path->isa('Math::PlanePath::CoprimeColumns')
-                   || $to_path->isa('Math::PlanePath::CoprimeColumns'));
-
-      print DEBUG "$from_path $to_path\n";
-
-      my $str = '';
-      my @values;
-      foreach my $n ($n_start+2 .. $n_start+50) {
-        my ($x,$y) = $from_path->n_to_xy($n)
-          or next PATH;
-        my $pn = $to_path->xy_to_n($x,$y) // next PATH;
-        $str .= "$pn,";
-        push @values, $pn;
-      }
-      if (defined (my $diff = constant_diff(@values))) {
-        print "$from_fullname -> $to_fullname\n";
-        print "  constant diff $diff\n";
-        next PATH;
-      }
-      if (my $found = stripped_grep($str)) {
-        print "$from_fullname -> $to_fullname\n";
-        print "  (",substr($str,0,20),"...)\n";
-        print $found;
-        print "\n";
-      }
-    }
-  }
-  exit 0;
-}
 
 {
   require Math::NumSeq::PlanePathCoord;

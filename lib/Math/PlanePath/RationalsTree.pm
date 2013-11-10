@@ -17,6 +17,11 @@
 
 # www.math.bas.bg/bantchev/articles/fractions.pdf
 
+# cf Ronald L. Graham, Donald E. Knuth, and Oren Patashnik, Concrete
+# Mathematics: A Foundation for Computer Science, Second
+# Edition. Addison-Wesley. 1994.
+# On Stern-Brocot tree.
+
 # cf A054429 permutation reverse within binary row
 #    A065249 - permutation SB X -> X/2
 #    A065250 - permutation SB X -> 2X
@@ -24,11 +29,8 @@
 #    A057115 - permutation SB X -> X-1
 #
 
-# math-image --path=RationalsTree --all --scale=3
-# math-image --path=RationalsTree --all --output=numbers_xy --size=60x40
-#
 #                    high-to-low   low-to-high
-# (X+Y)/Y  Y/(X+Y)     not-impl       AYT
+# (X+Y)/Y  Y/(X+Y)     HCS            AYT
 # X/(X+Y)  (X+Y)/Y      CW            SB    \ alt bit flips
 # Y/(X+Y)  (X+Y)/X     Drib          Bird   /
 #
@@ -131,7 +133,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -190,7 +192,7 @@ use constant tree_n_to_subheight => undef; # complete tree, all infinity
   # Drib apparent minimum dX=k dY=2*k+1 approaches dX=1,dY=2
   my %dir_minimum_dxdy = (CW   => [0,1],
                           Drib => [1,2],
-                          L    => [1,1], # N=0 dX=1,dY=1
+                          L    => [1,1], # at N=0 dX=1,dY=1
                          );
   sub dir_minimum_dxdy {
     my ($self) = @_;
@@ -198,17 +200,16 @@ use constant tree_n_to_subheight => undef; # complete tree, all infinity
   }
 }
 {
-  # AB apparent maximum dX=-6,dY=-12 at N=3
-  # AC apparent maximum dX=-6,dY=-12 at N=3 same
-  # PQ apparent maximum dX=-1,dY=-1
   my %dir_maximum_dxdy
     = (SB   => [1,-1],
-       Bird => [1,-1],
        # CW   => [0,0],
-       # AYT  => [0,0],
+
+       Bird => [1,-1],
        # Drib => [0,0],
-       # L    => [0,0], # at 2^k-1 dX=k+1,dY=-1 so approach Dir=4
+
        HCS  => [2,-1],
+       # AYT  => [0,0],
+       # L    => [0,0], # at 2^k-1 dX=k+1,dY=-1 so approach Dir=4
       );
   sub dir_maximum_dxdy {
     my ($self) = @_;
@@ -234,7 +235,7 @@ sub new {
   my $attributes = $attributes{$tree_type}
     || croak "Unrecognised tree type: ",$tree_type;
   %$self = (%$self, @$attributes);
-  ### $self
+
   return $self;
 }
 
@@ -422,9 +423,9 @@ sub xy_to_n {
 # algorithm on X,Y.  This is also the terms of the continued fraction
 # expansion of rational X/Y.
 #
-# The last term, the one at the end of the list, is decremented since this
-# is what the code above requires.  This term is the top-most quotient in
-# for example gcd(7,1) is 7=7*1+0 with q=7 returned as 6.
+# The last term, the last in the list, is decremented since this is what the
+# code above requires.  This term is the top-most quotient in for example
+# gcd(7,1) is 7=7*1+0 with q=7 returned as 6.
 #
 # If $x,$y have a common factor then the return is an empty list.
 # If $x,$y have no common factor then the returned list is always one or
@@ -634,20 +635,19 @@ having no common factor.
 The rationals are traversed by rows of a binary tree which represents a
 coprime pair X,Y by steps of a subtraction-only greatest common divisor
 algorithm which proves them coprime.  Or equivalently by bit runs with
-lengths which are the quotients in the division based Euclidean GCD
+lengths which are the quotients in the division-based Euclidean GCD
 algorithm and which are also the terms in the continued fraction
 representation of X/Y.
 
 The SB, CW, AYT, HCS, Bird and Drib trees all have the same set of X/Y
 rationals in a row, but in a different order due to different encodings of
-the N value, either high to low or low to high and some bit flips.  The L
-tree has a shift which visits 0/1 too.
+the N value.  The L tree has a shift which visits 0/1 too.
 
 The bit runs mean that N values are quite large for relatively modest sized
 rationals.  For example in the SB tree 167/3 is N=288230376151711741, a
 58-bit number.  The tendency is for the tree to make excursions out to large
 rationals while only slowly filling in small ones.  The worst is the integer
-X/1 which is an N with X many bits, and similarly 1/Y is Y bits.
+X/1 for which N has X many bits, and similarly 1/Y is Y bits.
 
 See F<examples/rationals-tree.pl> in the Math-PlanePath sources for a
 printout of all the trees.
@@ -657,23 +657,23 @@ printout of all the trees.
 X<Stern, Moritz>X<Brocot, Achille>The default C<tree_type=E<gt>"SB"> is the
 tree of Moritz Stern and Achille Brocot.
 
-                                               N       depth
-                                             -------   -----
-                    1/1                        1         0
-              ------   ------
-           1/2               2/1             2 to 3      1
-          /    \            /   \
-       1/3      2/3      3/2      3/1        4 to 7      2
-       | |      | |      | |      | |
-    1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1      8 to 15     3
+    depth    N                                                  
+    -----  -------                                              
+      0      1                         1/1                      
+                                 ------   ------
+      1    2 to 3             1/2               2/1             
+                             /    \            /   \
+      2    4 to 7         1/3      2/3      3/2      3/1        
+                          | |      | |      | |      | |
+      3    8 to 15     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1      
 
 Within a row the fractions increase in value.  Each row of the tree is a
-repeat of the previous row first as X/(X+Y) and then (X+Y)/Y.  For example
+repeat of the previous row as first X/(X+Y) and then (X+Y)/Y.  For example
 
-    depth=1 row 1/2, 2/1
+    depth=1    1/2, 2/1
 
-    depth=2 row 1/3, 2/3    X/(X+Y) of previous row
-            and 3/2, 3/1    (X+Y)/Y of previous row
+    depth=2    1/3, 2/3    X/(X+Y) of previous row
+               3/2, 3/1    (X+Y)/Y of previous row
 
 Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
@@ -1012,18 +1012,19 @@ related simply by
 
 X<Hanna, Paul D.>X<Czyz, Jerzy>X<Self, Will>C<tree_type=E<gt>"HCS"> selects
 continued fraction terms coded as bit runs 1000...00 from high to low, as
-per Paul D. Hanna and independently Jerzy Czyz and Will Self.
+per Paul D. Hanna and independently Czyz and Self.
 
 =over
 
 L<http://oeis.org/A071766>
 
-L<http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml>
-L<http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf>
-
 Jerzy Czyz and William Self, "The Rationals Are Countable: Euclid's
 Proof", The College Mathematics Journal, volume 34, number 5,
 November 2003, page 367.
+L<http://www.jstor.org/stable/3595818>
+
+L<http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml>
+L<http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf>
 
 =back
 
@@ -1110,9 +1111,9 @@ is the Thue-Morse sequence.
 
 This works because each row is two copies of the preceding.  The first copy
 is (X+Y)/Y so just a shear.  This is N=10xxxxx introducing a 0-bit at the
-top of N.  The second copy is Y/(X+Y) so a shear and then transpose.  This
-is N=11xxxxx introducing a further 1-bit at the top of N, so the transpose
-swapping leftE<lt>-E<gt>right corresponds to an extra 1-bit.
+top of N and so count 1-bits unchanged.  The second copy is Y/(X+Y) so a
+shear and then transpose.  This is N=11xxxxx introducing a further 1-bit at
+the top of N and transpose changes turns leftE<lt>-E<gt>right.
 
 For the last point of a row and the first of the next the points are
 
@@ -1142,9 +1143,9 @@ Plotting the examples shows the layout,
 
 The Lucas and Fibonacci pairs are both on a slope roughly Y=X*phi for
 phi=(1+sqrt(5))/2 the golden ratio.  The first and second points of the next
-row are then off towards X=d+1 and hence a right turn at the last of the
-row, and it corresponds to N+1 = binary "100000" having an odd number of
-1-bits (a single 1-bit).  Then at the first of the next row the turn is left
+row are then off towards X=d+1 and hence a right turn at the last of the row
+and it corresponds to N+1 = binary "100000" having an odd number of 1-bits
+(a single 1-bit).  Then at the first of the next row the turn is left
 corresponding to N=1 = binary "100001" having an even number of 1-bits (two
 1-bits).
 
@@ -1153,13 +1154,13 @@ meet, behave similarly,
 
     middle prev     1011110    Lucas     L[n+1]/L[n]
     middle end      1011111    Fibonacci F[n+1]/F[n]
-    middle          1100000    1 / d+1
+    middle first    1100000    1 / d+1
     middle second   1100001    2 / 2d-1
 
 These points are like a transpose of the first/last shown above, though the
-Lucas and Fibonacci pairs are one depth further on.  The "middle end"
-1011111 turns to the right, corresponding to N+1=1100000 having even 1-bits,
-and then at the "middle" 1100000 turn left corresponding to N+1=1100001
+Lucas and Fibonacci pairs are one step further on.  The "middle end" 1011111
+turns to the right, corresponding to N+1=1100000 having even 1-bits, and
+then at the "middle first" 1100000 turn left corresponding to N+1=1100001
 having odd 1-bits.
 
 =cut
@@ -1229,20 +1230,22 @@ having odd 1-bits.
 
 =head2 Bird Tree
 
-X<Hinze, Ralf>C<tree_type=E<gt>"Bird"> selects the Bird tree by Ralf Hinze
+X<Hinze, Ralf>C<tree_type=E<gt>"Bird"> selects the Bird tree,
 
 =over
 
-"Functional Pearls: The Bird tree",
+Ralf Hinze, "Functional Pearls: The Bird tree",
 L<http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf>
 
 =back
 
 It's expressed recursively, illustrating Haskell programming features.  The
-left subtree is the tree plus one then take the reciprocal.  The right
-subtree is conversely the tree reciprocal then plus one,
+left subtree is the tree plus one and take the reciprocal.  The right
+subtree is conversely the reciprocal first then add one,
 
-    1/(tree + 1)  and  (1/tree) + 1
+       1             1
+    --------  and  ---- + 1
+    tree + 1       tree
 
 which means Y/(X+Y) and (X+Y)/X taking N bits low to high.
 
@@ -1272,12 +1275,12 @@ Plotting by X,Y gives
          ----------------------------------------------------
           X=0   1    2    3    4    5    6    7    8    9   10
 
-Notice that unlike the other trees N=1,2,5,10,etc in the X=1 vertical of
+Notice that unlike the other trees N=1,2,5,10,etc in the X=1 vertical for
 fractions 1/Y is not the row start or end, but instead are on a zigzag
-through the middle of the tree giving binary N=1010...etc with alternate 1
-and 0 bits.  The integers X/1 in the Y=1 vertical are similar, but
-N=11010...etc starting the alternation from a 1 in the second highest bit,
-since those integers are in the right hand half of the tree.
+through the middle of the tree binary N=1010...etc alternate 1 and 0 bits.
+The integers X/1 in the Y=1 vertical are similar, but N=11010...etc starting
+the alternation from a 1 in the second highest bit, since those integers are
+in the right hand half of the tree.
 
 The Bird tree N values are related to the SB tree by inverting every second
 bit starting from the second after the high 1-bit,
@@ -1665,7 +1668,7 @@ L<http://oeis.org/A007305> (etc)
 =back
 
     tree_type=SB
-      A007305   X (extra 0,1)
+      A007305   X, extra initial 0,1
       A047679   Y
       A057431   X,Y pairs (initial extra 0/1,1/0)
       A007306   X+Y sum, Farey 0 to 1 part (extra 1,1)
@@ -1691,8 +1694,9 @@ L<http://oeis.org/A007305> (etc)
                    count trailing 0-bits plus 1 extra if N=2^k
 
     tree_type=HCS
-      A071585   X+Y sum (X+Y giving rationals >= 1)
+      A229742   X, extra initial 0/1
       A071766   Y
+      A071585   X+Y sum
 
     tree_type=Bird
       A162909   X
@@ -1703,8 +1707,8 @@ L<http://oeis.org/A007305> (etc)
     tree_type=Drib
       A162911   X
       A162912   Y
-      A086893   N of row Y=1,    N = binary 1101010...101
-      A000975   N of column X=1, N = binary  101010..1010
+      A086893   N of row Y=1,    N = binary 110101..0101 (ending 1)
+      A061547   N of column X=1, N = binary  110101..010 (ending 0)
 
     tree_type=L
       A174981   X
@@ -1782,3 +1786,20 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+#
+# =head2 Calkin-Wilf Tree -- X,Y to Next X,Y
+#
+# Successive values of the CW tree can be calculated using a method be Moshe
+# Newman.
+# 
+#           X                     Y
+#     N is ---      N+1 is ---------------
+#           Y              X+Y - 2*(X % Y)      0 <= X%Y < Y
+#
+# This means that the tree X,Y values can be iterated by keeping just a
+# current X,Y pair.
+# 
+#     dX = Y - X
+#     dY = X+Y - 2*(X%Y) - Y
+#        = X - 2*(X%Y)

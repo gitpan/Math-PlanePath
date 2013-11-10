@@ -31,6 +31,7 @@ devel/cubic-base.pl
 devel/diagonals.pl
 devel/digit-groups.pl
 devel/divisible-columns.pl
+devel/dragon-devel.m4
 devel/dragon-iterative.gri
 devel/dragon-numbers.pl
 devel/dragon.el
@@ -41,6 +42,7 @@ devel/exe-atan2.c
 devel/exe-complex-minus.c
 devel/exe-complex-plus.c
 devel/exe-complex-revolving.c
+devel/exe-pythagorean-matrices.c
 devel/factor-rationals.pl
 devel/fibonacci-word.logo
 devel/fibonacci-word.pl
@@ -148,6 +150,7 @@ examples/numbers.pl
 examples/other/dragon-curve.el
 examples/other/dragon-curve.gnuplot
 examples/other/dragon-curve.logo
+examples/other/dragon-curve.m4
 examples/other/dragon-recursive.gri
 examples/other/sierpinski-triangle-bitand.gnuplot
 examples/other/sierpinski-triangle-replicate.gnuplot
@@ -502,4 +505,5 @@ xtools/my-manifest.sh
 xtools/my-pc.sh
 xtools/my-tags.sh
 xtools/my-wunused.sh
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

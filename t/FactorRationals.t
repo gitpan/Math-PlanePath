@@ -39,7 +39,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 110;
+  my $want_version = 111;
   ok ($Math::PlanePath::FactorRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FactorRationals->VERSION,  $want_version,
@@ -74,7 +74,7 @@ my $n_start = $path->n_start;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::FactorRationals->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'factor_coding');
 }
 
 

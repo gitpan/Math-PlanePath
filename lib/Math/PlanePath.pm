@@ -29,8 +29,9 @@
 #
 # gcdxy_minimum
 # gcdxy_maximum
-# sumabsxy_minimum
-# absdiffxy_minimum
+# productxy_minimum
+# trsquared_minimum
+# trsquared_minimum
 #
 # $path->xy_integer() if X,Y both all integer
 # $path->x_integer()  if X all integer
@@ -52,15 +53,6 @@
 # lattice_type square,triangular,triangular_odd,pentagonal,fractional
 # $path->xy_any_odd()   xy_odd()   xy_all_odd()
 # $path->xy_any_even()  xy_even()  xy_all_even()
-#
-# sumabsxy_minimum   abs(X)+abs(Y)
-# absdiffxy_minimum  abs(X-Y)
-# productxy_minimum
-# gcdxy_minimum
-# gcdxy_maximum
-#
-# trsquared_minimum
-# trsquared_minimum
 #
 # $path->turn_any_left
 # $path->turn_any_right
@@ -98,7 +90,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 110;
+$VERSION = 111;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -157,12 +149,24 @@ sub sumxy_minimum {
 }
 use constant sumxy_maximum => undef;
 
-# If the path is confined to the fourth quadrant, so X>=something and
-# Y<=something then a minimum X-Y exists.  But fourth-quadrant-only path is
-# not usual, so don't bother with code checking that.
-#
+sub sumabsxy_minimum {
+  my ($self) = @_;
+  my $x_minimum = $self->x_minimum;
+  my $y_minimum = $self->y_minimum;
+  if (defined $x_minimum && $x_minimum >= 0
+      && defined $y_minimum && $y_minimum >= 0) {
+    # X>=0 and Y>=0 so abs(X)+abs(Y) == X+Y
+    return $self->sumxy_minimum;
+  }
+  return _max($x_minimum||0,0) + _max($y_minimum||0,0);
+}
+use constant sumabsxy_maximum => undef;
+
 use constant diffxy_minimum => undef;
 #
+# If the path is confined to the fourth quadrant, so X>=something and
+# Y<=something then a minimum X-Y exists.  But fourth-quadrant-only path is
+# unusual, so don't bother with code checking that.
 # sub diffxy_minimum {
 #   my ($self) = @_;
 #   if (defined (my $y_maximum = $self->y_maximum)
@@ -185,6 +189,29 @@ sub diffxy_maximum {
   } else {
     return undef;
   }
+}
+
+# absdiffxy = abs(X-Y)
+sub absdiffxy_minimum {
+  my ($self) = @_;
+  # if X-Y all one sign, so X-Y>=0 or X-Y<=0, then abs(X-Y) from that
+  my $m;
+  if (defined($m = $self->diffxy_minimum) && $m >= 0) {
+    return $m;
+  }
+  if (defined($m = $self->diffxy_maximum) && $m <= 0) {
+    return - $m;
+  }
+  return 0;
+}
+sub absdiffxy_maximum {
+  my ($self) = @_;
+  # if X-Y constrained so min<=X-Y<=max then max abs(X-Y) one of the two ends
+  if (defined (my $min = $self->diffxy_minimum)
+      && defined (my $max = $self->diffxy_maximum)) {
+    return _max(abs($min),abs($max));
+  }
+  return undef;
 }
 
 
@@ -992,9 +1019,9 @@ vertical step.  If X always changes then C<absdx_minimum()> will be
 something bigger than 0.  C<absdy_minimum()> likewise 0 if any horizontal
 dY=0, or bigger if Y always changes.
 
-=item C<$sumxy = $path-E<gt>sumxy_minimum()>
+=item C<$sum = $path-E<gt>sumxy_minimum()>
 
-=item C<$sumxy = $path-E<gt>sumxy_maximum()>
+=item C<$sum = $path-E<gt>sumxy_maximum()>
 
 Return the minimum or maximum values taken by coordinate sum X+Y reached by
 integer N values in the path.  If there's no minimum or maximum then return
@@ -1012,6 +1039,33 @@ and so have a maximum, though that's unusual.
       has maximum S=X+Y      | \
                                 \  S=X+Y
 
+
+=item C<$sum = $path-E<gt>sumabsxy_minimum()>
+
+=item C<$sum = $path-E<gt>sumabsxy_maximum()>
+
+Return the minimum or maximum values taken by coordinate sum abs(X)+abs(Y)
+reached by integer N values in the path.  A minimum always exists but if
+there's no maximum then return C<undef>.
+
+SumAbs=abs(X)+abs(Y) is sometimes called the "taxi-cab" or "Manhatten"
+distance, being how far to travel through a square-grid city to get to X,Y.
+C<sumabsxy_minimum()> is then how close to the origin the path extends.
+
+SumAbs can also be interpreted geometrically as numbering the anti-diagonals
+of the quadrant containing X,Y, which is equivalent to asking which diamond
+shape X,Y falls on.  C<sumabsxy_minimum()> is then the smallest such diamond
+reached by the path.
+
+         |
+        /|\       SumAbs = which diamond X,Y falls on
+       / | \
+      /  |  \
+    -----o-----
+      \  |  /
+       \ | /
+        \|/
+         |
 
 =item C<$diffxy = $path-E<gt>diffxy_minimum()>
 
@@ -1034,6 +1088,35 @@ octant" paths have a maximum.
                              /|
                             / |      Path always above
                            /         has minimum D=X-Y
+
+=item C<$absdiffxy = $path-E<gt>absdiffxy_minimum()>
+
+=item C<$absdiffxy = $path-E<gt>absdiffxy_maximum()>
+
+Return the minimum or maximum values taken by abs(X-Y) for integer N in the
+path.  The minimum is 0 or more.  If there's maximum then return C<undef>.
+
+abs(X-Y) can be interpreted geometrically as the distance away from the X=Y
+diagonal and measured at right-angles to that line.
+
+     d=abs(X-Y)  X=Y line
+           ^    /
+            \  /
+             \/
+             /\
+            /  \
+           /    \
+          o      v
+         /         d=abs(X-Y)
+
+Paths which visit the X=Y line (or approach it as an infimum) have
+C<absdiffxy_minimum() = 0>.  Otherwise C<absdiffxy_minimum()> is how close
+they come to the line.
+
+If the path is entirely below the X=Y line so XE<gt>=Y then X-Y>=0 and
+C<absdiffxy_minimum()> is the same as C<diffxy_minimum()>.  If the path is
+entirely below the X=Y line then C<absdiffxy_minimum()> is
+S<C<- diffxy_maximum()>>.
 
 =item C<$dsumxy = $path-E<gt>dsumxy_minimum()>
 
@@ -1063,17 +1146,17 @@ in some direction.  C<rsquared_maximum()> returns C<undef> in that case.
 =cut
 
 # =item C<$gcd = $path-E<gt>gcdxy_minimum()>
-# 
+#
 # =item C<$gcd = $path-E<gt>gcdxy_maximum()>
-# 
+#
 # Return the minimum or maximum GCD(X,Y) reached by integer N values in the
 # path.  If there's no minimum or maximum then return C<undef>.
-# 
+#
 # C<gcdxy_minimum()> is always 0 or more since the sign of X and Y is ignored
 # for taking the GCD.  GCD(0,0)=0 is the only GCD=0.  X!=0 or Y!=0 gives
 # GCD(X,Y)E<gt>0.  So the minimum is 0 if X=0,Y=0 is visited and E<gt>0 if
 # not.
-# 
+#
 # C<gcdxy_maximum()> is usually C<undef> since there's no limit to the GCD.
 # Paths such as C<CoprimeColumns> where X,Y have no common factor have
 # C<gcdxy_maximum()> returning 1.
@@ -1213,15 +1296,15 @@ Return the height of the sub-tree starting at C<$n>, or C<undef> if
 infinite.  The height of a tree is the longest distance down to a leaf node.
 For example,
 
-    ...                      N     subheight  
-      \                     ---    ---------        
-       6    7   8            0       undef          
-        \    \ /             1       undef          
-         3    4   5          2         2            
-          \    \ /           3       undef          
-           1    2            4         1            
-            \  /             5         0            
-              0             ...    
+    ...                      N     subheight
+      \                     ---    ---------
+       6    7   8            0       undef
+        \    \ /             1       undef
+         3    4   5          2         2
+          \    \ /           3       undef
+           1    2            4         1
+            \  /             5         0
+              0             ...
 
 At N=0 and all the left side the tree continues infinitely so the sub-height
 is infinite (so C<undef>).  For N=2 the sub-height is 2 because the longest
@@ -1731,19 +1814,20 @@ It sometimes happens that one of C<n_to_xy()> or C<xy_to_n()> is easier than
 the other but both should be implemented.
 
 C<n_to_xy()> should do something sensible on fractional N.  The suggestion
-is to make it an X,Y proportionally between integer N positions.  That can
-be done simply with two calculations of those integer points, until it's
-clear how to work the fraction into the result directly.
+is to make it an X,Y proportionally between integer N positions.  It can be
+along a straight line or an arc as best suits the path.  A straight line can
+be done simply by two calculations of the surrounding integer points, until
+it's clear how to work the fraction into the code directly.
 
-The base implementation of C<xy_to_n_list()> calls plain C<xy_to_n()> giving
-a single N at X,Y.  If a path has multiple Ns visiting an X,Y
+C<xy_to_n_list()> has a base implementation calling plain C<xy_to_n()> to
+give a single N at X,Y.  If a path has multiple Ns at an X,Y
 (eg. C<DragonCurve>) then it should implement C<xy_to_n_list()> to return
-all those Ns and it should also implement a plain C<xy_to_n()> returning the
-first of them.
+all those Ns and also implement a plain C<xy_to_n()> returning the first of
+them.
 
-C<rect_to_n_range()> can initially be implemented with any convenient
-over-estimate.  It should be an N big enough that from there onwards all
-points are certain to be beyond the given X,Y rectangle.
+C<rect_to_n_range()> can initially be any convenient over-estimate.  It
+should give N big enough that from there onwards all points are sure to be
+beyond the given X,Y rectangle.
 
 The following descriptive methods have base implementations
 
@@ -1755,7 +1839,7 @@ The following descriptive methods have base implementations
 
 The base C<n_start()> starts at N=1.  Paths which treat N as digits of some
 radix or where there's self-similar replication are often best started from
-N=0 instead, since doing so puts nice powers-of-2 etc on the axes or
+N=0 instead since doing so puts nice powers-of-2 etc on the axes or
 diagonals.
 
     use constant n_start => 0;    # digit or replication style

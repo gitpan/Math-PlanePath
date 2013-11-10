@@ -84,7 +84,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -162,6 +162,11 @@ use constant parameter_info_array =>
    },
   ];
 
+sub sumabsxy_minimum {
+  my ($self) = @_;
+  my ($x,$y) = $self->n_to_xy($self->n_start);
+  return abs($x)+abs($y);
+}
 sub rsquared_minimum {
   my ($self) = @_;
   # starting N=1 at R=radius_factor*sqrt(1), theta=something

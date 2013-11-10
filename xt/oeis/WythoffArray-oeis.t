@@ -65,7 +65,7 @@ sub pair_left_justify {
 }
 
 # path_find_row_with_pair() returns the row Y which contains the Fibonacci
-# sequence which includes $a,$b somewhere, W(X,Y)=$a and W(X+1,Y)=$b.
+# sequence which includes $a,$b somewhere, so W(X,Y)==$a and W(X+1,Y)==$b.
 #
 # If $a,$b are before the start of a row then the pair are stepped forward
 # as necessary.  So they specify a Fibonacci-type recurrent sequence which

@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -313,6 +313,50 @@ and the upper right is the maximum N.
     |   N min
     +-------------------
 
+=head2 N to Turn Left or Right
+
+The turn left or right is given by
+
+    radix = 2     left at N==0 mod radix and N==1mod4, right otherwise
+
+    radix >= 3    left at N==0 mod radix
+                  right at N=1 or radix-1 mod radix
+                  straight otherwise
+
+The points N!=0 mod radix are on the Y axis and those N==0 mod radix are off
+the axis.  For that reason the turn at N==0 mod radix is to the left,
+
+    |
+    C--
+       ---
+    A--__ --        point B is N=0 mod radix,
+    |    --- B      turn left A-B-C is left
+
+For radix>=3 the turns at A and C are to the right, since the point before A
+and after C is also on the Y axis.  For radix>=4 there's of run of points on
+the Y axis which are straight.
+
+For radix=2 the "B" case N=0 mod 2 applies, but for the A,C points in
+between the turn alternates left or right.
+
+    1--     N=1 mod 4             3--      N=3 mod 4
+     \ --   turn left              \ --    turn right
+      \  --                         \  --
+       2   --                        2   --
+             --                            --
+               --                            --
+                 0                             4
+
+Points N=2 mod 4 are X=1 and Y=N/2 whereas N=0 mod 4 has 2 or more trailing
+0 bits so XE<gt>1 and YE<lt>N/2.
+
+    N mod 4      turn
+    -------     ------
+       0        left         for radix=2
+       1         left
+       2        left
+       3         right
+                
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this

@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -119,7 +119,6 @@ sub new {
 
   $self->{'planepath_object'}
     ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'});
-
 
   ### turn_func: "_turn_func_$self->{'turn_type'}", $self->{'turn_func'}
   $self->{'turn_func'} = $self->can('_turn_func_'.$self->{'turn_type'})
@@ -1213,6 +1212,13 @@ sub characteristic_non_decreasing {
             : 0);
   }
 
+  # ENHANCE-ME: check this is true
+  # PlanePathTurn planepath=GrayCode,apply_type=TsF,gray_type=reflected,radix=2,  turn_type=SLR
+  # PlanePathTurn planepath=GrayCode,apply_type=Fs,gray_type=reflected,radix=2,  turn_type=SLR
+  # match 1,1,0,0,1,1,1,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1
+  # A039963 The period-doubling sequence A035263 repeated.
+  # A039963 ,1,1,0,0,1,1,1,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1
+
   # Not quite, A039963 is OFFSET=0 vs first turn at N=1 here
   # 'Math::PlanePath::GrayCode' =>
   # {
@@ -1221,6 +1227,21 @@ sub characteristic_non_decreasing {
   # },
   # Koch characteristic of A003159 ending even zeros
   # 'Math::PlanePath::GrayCode' =>
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    {
+     do {
+       my $peano = Math::PlanePath::PeanoCurve
+         -> _NumSeq_Turn_oeis_anum -> {'radix=3'};
+       ('apply_type=TsF,gray_type=reflected,radix=3' => $peano,
+        'apply_type=FsT,gray_type=reflected,radix=3' => $peano,
+       ),
+         # OEIS-Other: A163536 planepath=GrayCode,apply_type=TsF,radix=3 turn_type=SLR
+         # OEIS-Other: A163536 planepath=GrayCode,apply_type=FsT,radix=3 turn_type=SLR
+         # OEIS-Other: A163537 planepath=GrayCode,apply_type=TsF,radix=3 turn_type=SRL
+         # OEIS-Other: A163537 planepath=GrayCode,apply_type=FsT,radix=3 turn_type=SRL
+     },
+    };
 }
 { package Math::PlanePath::ImaginaryBase;
   sub _NumSeq_Turn_SLR_min {
@@ -1354,7 +1375,6 @@ sub characteristic_non_decreasing {
        # 'L1R0' => 'A014577', # left=1,right=0  OFFSET=0
        # 'L0R1' => 'A014707', # left=0,right=1  OFFSET=0
        # 'L1R2' => 'A014709', # left=1,right=2  OFFSET=0
-       # 'L2R1' => 'A014710', # left=2,right=1  OFFSET=0
        # 'L1R3' => 'A099545', # left=1,right=3  OFFSET=1
 
        #  # Not quite, A014707 has OFFSET=0 cf first elem for N=1
@@ -1367,6 +1387,7 @@ sub characteristic_non_decreasing {
 
        # Not quite A014709 OFFSET=0 vs first turn at N=1 here
        # SLR => 'A014709'
+       # SRL => 'A014710',
       },
     };
 }
@@ -1645,15 +1666,12 @@ sub characteristic_non_decreasing {
     }
   }
 
-  # PlanePathTurn planepath=Diagonals,direction=up,n_start=1,x_start=0,y_start=0,  turn_type=SLR
-  # match 1,2,1,0,2,1,0,0,2,1,0,0,0,2,1,0,0,0,0,2,1,0,0,0,0,0
-  # A156319 Triangle by columns: (1, 2, 0, 0, 0,...) in every column.
-  # A156319 ,1,2,1,0,2,1,0,0,2,1,0,0,0,2,1,0,0,0,0,2,1,0,0,0,0,0,2,1,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,1,
-
   use constant _NumSeq_Turn_oeis_anum =>
     { 'direction=down,n_start=0,x_start=0,y_start=0' =>
       { Left => 'A129184', # shift of triangle
+        srl  => 'A156319', # triangle 1, 2, 0, 0, 0, ... in each row OFFSET=1
         # OEIS-Catalogue: A129184 planepath=Diagonals,n_start=0
+        # OEIS-Catalogue: A156319 planepath=Diagonals,n_start=0 turn_type=srl
       },
       'direction=down,n_start=-1,x_start=0,y_start=0' =>
       { Right => 'A023531', # 1 at m(m+3)/2
@@ -1662,7 +1680,9 @@ sub characteristic_non_decreasing {
 
       'direction=up,n_start=0,x_start=0,y_start=0' =>
       { Right => 'A129184', # shift of triangle
+        SLR   => 'A156319', # triangle 1, 2, 0, 0, 0, ... in each row OFFSET=1
         # OEIS-Other: A129184 planepath=Diagonals,direction=up,n_start=0 turn_type=Right
+        # OEIS-Other: A156319 planepath=Diagonals,direction=up,n_start=0 turn_type=SLR
       },
       'direction=up,n_start=-1,x_start=0,y_start=0' =>
       { Left => 'A023531', # 1 at m(m+3)/2
@@ -1856,19 +1876,29 @@ sub characteristic_non_decreasing {
   }
   *_NumSeq_Turn_SRL_min = \&_NumSeq_Turn_SLR_min;
 
-  # PENDING OFFSET
-  # use constant _NumSeq_Turn_oeis_anum =>
-  #   {
-  #    do {
-  #      # right line 2, stair step
-  #      my $href = { Turn4 => 'A010684', # 3,1 repeating
-  #                 };
-  #      ('rule=84,n_start=-1' => $href,
-  #       'rule=116,n_start=-1' => $href,
-  #       'rule=212,n_start=-1' => $href,
-  #       'rule=244,n_start=-1' => $href)
-  #    },
-  #   };
+  use constant _NumSeq_Turn_oeis_anum =>
+    {
+     do {
+       # right line 2, stair step
+       #       |
+       #    3--1
+       #    |   
+       # 3--1   Turn4
+       # |      
+       # *      
+       my $href = { Turn4 => 'A176040', # 3,1 repeating OFFSET=0
+                  };
+       ('rule=84,n_start=-1' => $href,
+        'rule=116,n_start=-1' => $href,
+        'rule=212,n_start=-1' => $href,
+        'rule=244,n_start=-1' => $href)
+         # OEIS-Catalogue: A176040 planepath=CellularRule,rule=84,n_start=-1 turn_type=Turn4
+         # OEIS-Other:     A176040 planepath=CellularRule,rule=116,n_start=-1 turn_type=Turn4
+         # OEIS-Other:     A176040 planepath=CellularRule,rule=212,n_start=-1 turn_type=Turn4
+         # OEIS-Other:     A176040 planepath=CellularRule,rule=244,n_start=-1 turn_type=Turn4
+     },
+
+    };
 }
 { package Math::PlanePath::CellularRule::Line;
   use constant _NumSeq_Turn_Left_max => 0; # straight ahead only
@@ -1906,16 +1936,42 @@ sub characteristic_non_decreasing {
             ? Math::NumSeq::PlanePathTurn::_turn_func_Turn4(-2,1, -1,1) # N=4
             : 3);
   }
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'align=left,n_start=-1' =>
+      { SRL => 'A131534', # repeat 1,2,1, 1,2,1, ... OFFSET=0
+        # OEIS-Catalogue: A131534 planepath=CellularRule,rule=6,n_start=-1 turn_type=SRL
+        # OEIS-Other:     A131534 planepath=CellularRule,rule=38,n_start=-1 turn_type=SRL
+        # OEIS-Other:     A131534 planepath=CellularRule,rule=134,n_start=-1 turn_type=SRL
+        # OEIS-Other:     A131534 planepath=CellularRule,rule=166,n_start=-1 turn_type=SRL
+      },
+
+      'align=right,n_start=-1' =>
+      { SRL => 'A130196', # repeat 1,2,2, 1,2,2, ... OFFSET=0
+        # OEIS-Catalogue: A130196 planepath=CellularRule,rule=20,n_start=-1 turn_type=SRL
+        # OEIS-Other:     A130196 planepath=CellularRule,rule=52,n_start=-1 turn_type=SRL
+        # OEIS-Other:     A130196 planepath=CellularRule,rule=148,n_start=-1 turn_type=SRL
+        # OEIS-Other:     A130196 planepath=CellularRule,rule=180,n_start=-1 turn_type=SRL
+      },
+    };
 }
 { package Math::PlanePath::CellularRule::OddSolid;
   use constant _NumSeq_Turn_Turn4_max => 2.5; # at N=2
 
-  # PENDING OFFSET
-  # use constant _NumSeq_Turn_oeis_anum =>
-  #   { 'wider=1,n_start=-1' =>
-  #     { SRL => 'A156319', # triangle rows 1,2,0,0,0,0,...
-  #     },
-  #   };
+  # R 0 0 L  1 0 0 2
+  #  R 0 L    1 0 2  
+  #   R L      1 2    
+  #    .        .      
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'n_start=0' =>
+      { SRL => 'A156319', # triangle rows 1,2,0,0,0,0,...
+        # OEIS-Other: A156319 planepath=CellularRule,rule=50,n_start=0 turn_type=SRL
+        # OEIS-Other: A156319 planepath=CellularRule,rule=58,n_start=0 turn_type=SRL
+        # OEIS-Other: A156319 planepath=CellularRule,rule=250,n_start=0 turn_type=SRL
+        # OEIS-Other: A156319 planepath=CellularRule,rule=179,n_start=0 turn_type=SRL
+      },
+    };
 }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Turn_Turn4_max => 2.5;
@@ -2057,29 +2113,27 @@ sub characteristic_non_decreasing {
   # max i=59[21] 3.98889  px=-1,py=55 dx=0,dy=1[0,1]   0.000
 
   # use constant _NumSeq_oeis_anum =>
-  #   {
-  #      # Not quite, A011765 0,0,0,1 repeating has OFFSET=1
-  #      # cf n_start=1 is first turn at N=2
-  #      # Left  => 'A011765',
-  #      # Right => 'A011765',
+  #   # Not quite, A011765 0,0,0,1 repeating has OFFSET=1
+  #   # cf n_start=1 is first turn at N=2
+  #   # Left  => 'A011765',
+  #   # Right => 'A011765',
+  #
+  #     # Not quite, A131534 has OFFSET=1 vs first turn at N=2 here
+  #     # 'radix=3' =>
+  #     # { SRL => 'A131534', # repeat 1,2,1, OFFSET=0
+  #     # }
+  #
+  #     # Not quite, A007877 has OFFSET=1 vs first turn at N=2 here
+  #     # 'radix=4' =>
+  #     # { SRL => 'A007877', # repeat 0,1,2,1
+  #     # }
+  #
+  #     # Not quite, 0,0,2,1,2 here vs A053796 0,2,1,2,0
+  #     # 'radix=5' =>
+  #     # { SRL => 'A053796', # repeat 0,2,1,2,0
+  #     # }
   #   };
-
-  # PlanePathTurn planepath=PowerArray,radix=3,  turn_type=SLR
-  # match 2,1,2,2,1,2,2,1,2,2,1,2,2,1,2,2,1,2,2,1,2,2,1,2,2,1
-  # A130196 Period 3: repeat 1 2 2.
-  # A130196 ,1,2,2,1,2,2,1,2,2,1,2,2,1,2,2,1,2,2,1,2
-
-  # PlanePathTurn planepath=PowerArray,radix=5,  turn_type=SLR
-  # match 0,0,2,1,2,0,0,2,1,2,0,0,2,1,2,0,0,2,1,2,0,0,2,1,2,0
-  # A053796 n^2+n modulo 5.
-  # A053796 ,0,2,1,2,0,0,2,1,2,0,0,2,1,2,0,0,2,1,2,0,0,2,1,2,0,0,2,1
-
-  # PlanePathTurn planepath=PowerArray,radix=4,  turn_type=SRL
-  # match 0,1,2,1,0,1,2,1,0,1,2,1,0,1,2,1,0,1,2,1,0,1,2,1,0,1
-  # A007877 Period 4: repeat 0,1,2,1.
-  # A007877 ,0,1,2,1,0,1,2,1
 }
-
 { package Math::PlanePath::ToothpickTree;
   {
     my %_NumSeq_Turn_Turn4_max

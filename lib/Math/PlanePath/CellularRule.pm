@@ -39,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -658,10 +658,10 @@ my @rule_to_class;
     # 000 -> 0 for outsides
     # so (rule & 0x5F) == 0x14
     #
-    my $left_onetwo = [ 'Math::PlanePath::CellularRule::OneTwo',
+    my $right_onetwo = [ 'Math::PlanePath::CellularRule::OneTwo',
                         align => 'right' ];
     foreach my $i (0 .. 255) {
-      $store->(($i&0xA0)|0x14, $left_onetwo);
+      $store->(($i&0xA0)|0x14, $right_onetwo);
     }
   }
 
@@ -988,7 +988,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 110;
+  $VERSION = 111;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1173,7 +1173,7 @@ sub _NOTWORKING__rule_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 110;
+  $VERSION = 111;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1256,7 +1256,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 110;
+  $VERSION = 111;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

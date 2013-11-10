@@ -40,7 +40,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 110;
+$VERSION = 111;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -101,11 +101,26 @@ sub x_negative {
 }
 *y_negative = \&x_negative;
 
+sub y_maximum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? 0  # step=0 always Y=0
+          : undef);
+}
+
 sub sumxy_minimum {
   my ($self) = @_;
   return ($self->{'step'} == 0 ? 0 : undef);
 }
+sub sumabsxy_minimum {
+  my ($self) = @_;
+  # first point N=1 innermost ring
+  my ($x,$y) = $self->n_to_xy($self->n_start);
+  return $x;
+}
 *diffxy_minimum = \&sumxy_minimum;
+
+# step=0 X=0,Y=0 AbsDiff=0
+# step=3 N=88 X=Y=5.3579957587697 ring of 24 is a multiple of 8
 
 sub rsquared_minimum {
   my ($self) = @_;
@@ -115,9 +130,22 @@ sub rsquared_minimum {
     # step=1 start at origin
     return 0;
   }
+
+  # step=3  *--___        
+  # circle  |     --__         o         0.5/r = sin60 = sqrt(3)/2
+  #         |   o   __*      / | \       r = 1/sqrt(3)
+  #         |  ___--       /   |   \     r^2 = 1/3
+  #         *--           *---------*
+  #                              1/2
+  # polygon
+  #          o         0.5/r = sin60 = sqrt(3)/2
+  #        / | \       r = 1/sqrt(3)                 
+  #      /   |   \     r^2 = 1/3                
+  #     *---------*                             
+  #            1/2                              
+  # 
   if ($step == 3) {
-    # radius = sqrt(3)/2, rsquared=3/4
-    return 0.75;
+    return ($self->{'ring_shape'} eq 'polygon' ? 3/4 : 1/3);
   }
   if ($step == 4) {
     # radius = sqrt(2)/2, rsquared=1/2
@@ -653,8 +681,15 @@ sub n_to_xy {
       ### from: "$x, $y"
       ### to: "$to_x, $to_y"
 
-      $x = $x*(1-$n) + $to_x*$n;
-      $y = $y*(1-$n) + $to_y*$n;
+      # If vertical or horizontal then don't apply the proportions since the
+      # two parts $x*$n and $to_x*(1-$n) can round off giving the sum != to
+      # the original $x.
+      if ($to_x != $x) {
+        $x = $x*(1-$n) + $to_x*$n;
+      }
+      if ($to_y != $y) {
+        $y = $y*(1-$n) + $to_y*$n;
+      }
     }
 
     if ($xy_transpose) {

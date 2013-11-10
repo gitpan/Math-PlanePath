@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1394,18 +1394,32 @@ sub values_max {
   # Not quite, start X=1 value=1 cf seq OFFSET=0 value=0
 }
 { package Math::PlanePath::FactorRationals;
-  use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_X_axis_i_start => 1;
+  sub _NumSeq_X_axis_increasing {
+    my ($self) = @_;
+    # perfect squares along X axis of even/odd
+    return $self->{'factor_coding'} eq 'even/odd';
+  }
+
   use constant _NumSeq_Y_axis_i_start => 1;
+  sub _NumSeq_Y_axis_increasing {
+    my ($self) = @_;
+    # perfect squares along Y axis of odd/even
+    return $self->{'factor_coding'} eq 'odd/even';
+  }
 
   use constant _NumSeq_N_oeis_anum =>
-    { '' =>
+    { 'factor_coding=even/odd' =>
       { Y_axis => 'A102631', # n^2/(squarefree kernel)
         # OEIS-Catalogue: A102631 planepath=FactorRationals line_type=Y_axis
 
         # # Not quite, OFFSET=0 value 0 whereas start X=Y=1 value 1 here
         # X_axis => 'A000290',  # squares 0,1,4,9
         # # OEIS-Other: A000290 planepath=FactorRationals line_type=X_axis
+      },
+      'factor_coding=odd/even' =>
+      { X_axis => 'A102631', # n^2/(squarefree kernel)
+        # OEIS-Other: A102631 planepath=FactorRationals,factor_coding=odd/even line_type=X_axis
       },
     };
 }

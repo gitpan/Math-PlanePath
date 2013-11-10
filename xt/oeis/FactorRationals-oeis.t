@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 3;
+plan tests => 14;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -34,6 +34,100 @@ use Math::PlanePath::FactorRationals;
 
 
 my $path = Math::PlanePath::FactorRationals->new;
+
+
+#------------------------------------------------------------------------------
+# A053985 - negabinary pos->pn
+MyOEIS::compare_values
+  (anum => 'A053985',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::FactorRationals;
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, Math::PlanePath::FactorRationals::_pos_to_pn__negabinary($i);
+     }
+     return \@got;
+   });
+
+# A005351  pn(+ve) -> pos
+MyOEIS::compare_values
+  (anum => 'A005351',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::FactorRationals;
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, Math::PlanePath::FactorRationals::_pn_to_pos__negabinary($i);
+     }
+     return \@got;
+   });
+# A039724  pn(+ve) -> pos, in binary
+MyOEIS::compare_values
+  (anum => 'A039724',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::FactorRationals;
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, sprintf('%b', Math::PlanePath::FactorRationals::_pn_to_pos__negabinary($i));
+     }
+     return \@got;
+   });
+
+# A005352  pn(-ve) -> pos
+MyOEIS::compare_values
+  (anum => 'A005352',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::FactorRationals;
+     for (my $i = -1; @got < $count; $i--) {
+       push @got, Math::PlanePath::FactorRationals::_pn_to_pos__negabinary($i);
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A065620 - revbinary pos->pn
+MyOEIS::compare_values
+  (anum => 'A065620',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::FactorRationals;
+     for (my $i = 1; @got < $count; $i++) {
+       push @got, Math::PlanePath::FactorRationals::_pos_to_pn__revbinary($i);
+     }
+     return \@got;
+   });
+
+# A065621  pn(+ve) -> pos
+MyOEIS::compare_values
+  (anum => 'A065621',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::FactorRationals;
+     for (my $i = 1; @got < $count; $i++) {
+       push @got, Math::PlanePath::FactorRationals::_pn_to_pos__revbinary($i);
+     }
+     return \@got;
+   });
+
+# A048724  pn(-ve) -> pos        n XOR 2n
+MyOEIS::compare_values
+  (anum => 'A048724',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::FactorRationals;
+     for (my $i = 0; @got < $count; $i--) {
+       push @got, Math::PlanePath::FactorRationals::_pn_to_pos__revbinary($i);
+     }
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ use strict;
 use List::Util 'min','max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -79,7 +79,9 @@ use constant parameter_info_array =>
 use Math::PlanePath::SierpinskiCurve;
 *x_minimum      = \&Math::PlanePath::SierpinskiCurve::x_minimum;
 *sumxy_minimum  = \&Math::PlanePath::SierpinskiCurve::sumxy_minimum;
+use constant sumabsxy_minimum => 1;
 *diffxy_minimum = \&Math::PlanePath::SierpinskiCurve::diffxy_minimum;
+use constant absdiffxy_minimum => 1; # X=Y never occurs
 use constant rsquared_minimum => 1; # minimum X=1,Y=0
 
 use constant dx_minimum => -1;

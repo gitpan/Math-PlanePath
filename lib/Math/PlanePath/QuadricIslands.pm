@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,6 +47,7 @@ use Math::PlanePath::QuadricCurve;
 
 
 use constant n_frac_discontinuity => 0;
+use constant sumabsxy_minimum => 1;   # minimum X=1/2,Y=1/2
 use constant rsquared_minimum => 0.5; # minimum X=1/2,Y=1/2
 
 use constant dx_maximum => 1;

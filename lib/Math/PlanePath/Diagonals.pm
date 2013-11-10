@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -560,6 +560,7 @@ L<http://oeis.org/A002262> (etc)
       A004198    X bit-and Y
       A003986    X bit-or Y
       A003987    X bit-xor Y
+      A156319    turn 0=straight,1=left,2=right
 
       A061579    permutation N at transpose Y,X
                    which is direction=down <-> direction=up

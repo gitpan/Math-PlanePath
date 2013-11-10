@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 110;
+$VERSION = 111;
 
 use Exporter;
 @ISA = ('Exporter');

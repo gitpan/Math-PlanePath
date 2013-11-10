@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -73,12 +73,15 @@ sub rsquared_minimum {
           ? 1   # odd "wider" minimum X=1,Y=0
           : 0); # even "wider" includes X=0,Y=0
 }
+*sumabsxy_minimum = \&rsquared_minimum;
 
 use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
+*absdiffxy_minimum = \&rsquared_minimum;
+
 use constant dsumxy_minimum => -2; # SW diagonal
 use constant dsumxy_maximum => 2;  # dX=+2 and diagonal
 use constant ddiffxy_minimum => -2; # NW diagonal

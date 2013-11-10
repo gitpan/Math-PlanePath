@@ -20,12 +20,12 @@
 use 5.010;
 use strict;
 use warnings;
-use Math::Matrix;
 use List::Util 'min', 'max';
 use Math::Libm 'hypot';
 use Math::PlanePath::PythagoreanTree;
 use Math::PlanePath::Base::Digits
   'round_down_pow',
+  'digit_join_lowtohigh',
   'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
@@ -33,42 +33,237 @@ use Smart::Comments;
 
 
 {
-  require Devel::TimeThis;
-  require Math::PlanePath::FractionsTree;
-  my $path = Math::PlanePath::FractionsTree->new
-    (
-     # tree_type => 'FB',
-     # tree_type => 'UAD',
-     # coordinates => 'BC',
-     # coordinates => 'PQ',   # P>Q one odd other even
-    );
+  # possible matrices
+
+  require Math::PlanePath::GcdRationals;
+  *gcd = \&Math::PlanePath::GcdRationals::_gcd;
+
+  # 1
+  # 1 + 3 = 4
+  # 1 + 3 + 9 = 13
+  # 1 + 3 + 9 + 27 = 40
+  my @p;
+  my @q;
+  my @pq;
   {
-    my $t = Devel::TimeThis->new('xy_is_visited');
-    foreach my $x (0 .. 200) {
-      foreach my $y (0 .. 200) {
-        $path->xy_is_visited($x,$y);
+    my $path = Math::PlanePath::PythagoreanTree->new(coordinates => 'PQ');
+    foreach my $i (0 .. 120) {
+      ($p[$i],$q[$i]) = $path->n_to_xy($path->n_start + $i);
+      $pq[$i] = "$p[$i],$q[$i]";
+    }
+    $#pq = 13;
+  }
+  # {
+  #   foreach my $p (2 .. 18) {
+  #     foreach my $q (1 .. 18) {
+  #       next unless pq_acceptable($p,$q);
+  #       push @p, $p;
+  #       push @q, $q;
+  #       push @pq, "$p,$q";
+  #     }
+  #   }
+  # }
+
+  my $term_min = -4;
+  my $term_max = 4;
+  my @term_list;
+  for (my $term = $term_min; $term <= $term_max; $term += 0.5) {
+    push @term_list, $term;
+  }
+  my @matrices;
+  foreach my $a (@term_list) {
+    foreach my $b (@term_list) {
+      foreach my $c (@term_list) {
+        foreach my $d (@term_list) {
+          my $m = [$a,$b,$c,$d];
+          next unless mm_acceptable($m);
+          push @matrices, $m;
+        }
       }
     }
   }
-  {
-    my $t = Devel::TimeThis->new('xy_to_n');
-    foreach my $x (0 .. 200) {
-      foreach my $y (0 .. 200) {
-        $path->xy_to_n($x,$y);
+  print "matrices ",scalar(@matrices),"\n";
+
+  foreach my $m (@matrices) {
+    if (mm_non_integer($m)) {
+      print "non-integer ",mm_string($m),"\n";
+    }
+  }
+  sub mm_non_integer {
+    my ($m) = @_;
+    return ! (is_integer($m->[0]) && is_integer($m->[1])
+              && is_integer($m->[2]) && is_integer($m->[3]));
+  }
+  sub is_integer {
+    my ($n) = @_;
+    return $n == int($n);
+  }
+
+  my $mm_count = 5;
+  my @mm_indices = (0 .. $mm_count-1);
+  MM_LIST: for (;;) {
+    {
+      my @mm_list = map {$matrices[$_]} @mm_indices;
+      if (m3_coverage(@mm_list)) {
+        print m3_string(@mm_list),"\n";
       }
+    }
+    my $pos = $mm_count-1;
+    for (;;) {
+      $mm_indices[$pos]++;
+      if ($mm_indices[$pos] <= $#matrices - ($mm_count-1 - $pos)) {
+        last;
+      }
+      $pos--;
+      if ($pos < 0) {
+        last MM_LIST;
+      }
+    }
+    while (++$pos < $mm_count) {
+      $mm_indices[$pos] = $mm_indices[$pos-1] + 1;
+    }
+  }
+
+no Smart::Comments;
+  sub pq_acceptable {
+    my ($p,$q) = @_;
+    unless (is_integer($p)) {
+      ### not integer p ...
+      return 0;
+    }
+    unless (is_integer($q)) {
+      ### not integer q ...
+      return 0;
+    }
+    return ($p > $q
+            && $q >= 1
+            && ($p % 2) != ($q % 2)
+            && gcd($p,$q) == 1);
+  }
+  sub mm_acceptable {
+    my ($m) = @_;
+    ### mm_acceptable(): mm_string($m).'  '.mm_name($m)
+    foreach my $i (0 .. $#p) {
+      my ($p,$q) = mm_descend($m, $p[$i],$q[$i]);
+      return 0 unless pq_acceptable($p,$q);
+    }
+    return 1;
+  }
+
+  sub m3_coverage {
+    my @mm_list = @_;
+    ### m3_coverage(): m3_string(@mm_list)
+    {
+      my %seen;
+      my @pending_p = (2);
+      my @pending_q = (1);
+      for (1 .. 6) {
+        my @new_pending_p;
+        my @new_pending_q;
+        while (@pending_p) {
+          my $p = pop @pending_p;
+          my $q = pop @pending_q;
+          if ($seen{"$p,$q"}++) {
+            ### duplicate p,q ...
+            return 0;
+          }
+          foreach my $m (@mm_list) {
+            my ($new_p,$new_q) = mm_descend($m,$p,$q);
+            push @new_pending_p, $new_p;
+            push @new_pending_q, $new_q;
+          }
+        }
+        @pending_p = @new_pending_p;
+        @pending_q = @new_pending_q;
+      }
+      # foreach my $pq (@pq) {
+      #   if (! $seen{$pq}) {
+      #     return 0;
+      #   }
+      # }
+    }
+    if (1) {
+    PQ: foreach my $i (1 .. $#p) {
+        my $p = $p[$i];
+        my $q = $q[$i];
+        foreach my $m (@mm_list) {
+          if (mm_upward($m, $p,$q)) { next PQ; }
+        }
+        ### no upward for p,q: "p=$p q=$q"
+        return 0;
+      }
+    }
+    return 1;
+  }
+
+  sub mm_descend {
+    my ($m, $p,$q) = @_;
+    ### assert: @_ == 3
+    ### assert: @$m == 4
+    ### assert: defined $m->[0]
+    ### assert: defined $m->[1]
+    ### assert: defined $m->[2]
+    ### assert: defined $m->[3]
+    ### assert: defined $p
+    ### assert: defined $q
+    return ($m->[0]*$p + $m->[1]*$q,
+            $m->[2]*$p + $m->[3]*$q);
+  }
+  # (a b)(p)  inverse (d -b)
+  # (c d)(q)          (-c a) / det
+  # det = ad-bc
+  sub mm_upward {
+    my ($m, $p,$q) = @_;
+    my $det = mm_determinant($m);
+    my $ap = $m->[3]*$p - $m->[1]*$q;
+    my $aq = - $m->[2]*$p + $m->[0]*$q;
+    if (! is_integer($ap)) { return 0; }
+    if (! is_integer($aq)) { return 0; }
+    if ($ap % $det || $aq % $det) { return 0; }
+    $ap /= $det;
+    $aq /= $det;
+    if (! pq_acceptable($ap,$aq)) {
+      return 0;
+    }
+    return 1;
+  }
+  sub mm_determinant {
+    my ($m) = @_;
+    return ($m->[0] * $m->[3] - $m->[1] * $m->[2]);
+  }
+  sub m3_string {
+    my (@mm_list) = @_;
+    return join('  ',map {mm_string($_)} @mm_list)
+      .'  '.join('',map {mm_name($_)} @mm_list);
+  }
+  sub mm_string {
+    my ($m) = @_;
+    return $m->[0].','.$m->[1].','.$m->[2].','.$m->[3];
+  }
+  BEGIN {
+    my %mm_name = ('2,-1,1,0' => "U",
+                   '2,1,1,0' => "A",
+                   '1,2,0,1' => "D",
+                   '1,1,0,2' => "K1",
+                   '2,0,1,-1' => "K2",
+                   '2,0,1,1' => "K3");
+    sub mm_name {
+      my ($m) = @_;
+      return $mm_name{join (',',@$m)} || '.';
     }
   }
   exit 0;
 }
+
 {
   # X,Y list
 
   # PQ UAD
-  # N=1  2 / 1
+  # N=1  2 / 1     
   #
-  # N=2  3 / 2
-  # N=3  5 / 2
-  # N=4  4 / 1
+  # N=2  3 / 2      5,12
+  # N=3  5 / 2     21,20
+  # N=4  4 / 1     15,8
   #
   # N=5  4 / 3
   # N=6  8 / 3
@@ -101,10 +296,11 @@ use Smart::Comments;
   require Math::PlanePath::PythagoreanTree;
   my $path = Math::PlanePath::PythagoreanTree->new
     (
-     tree_type => 'FB',
-     # tree_type => 'UAD',
-     # coordinates => 'BC',
-     coordinates => 'PQ',   # P>Q one odd other even
+     # tree_type => 'UKT',
+      tree_type => 'UAD',
+     # tree_type => 'FB',
+      coordinates => 'AB',
+     # coordinates => 'PQ',   # P>Q one odd other even
     );
   my $n = $path->n_start;
   foreach my $level (0 .. 5) {
@@ -122,6 +318,290 @@ use Smart::Comments;
   }
   exit 0;
 }
+
+{
+  # TKU parent/child
+  foreach my $n (1 .. 40) {
+    if (n_is_row_start($n)) { print "\n"; }
+    my $n_str = n_to_pythagstr($n);
+    my ($p,$q) = tku_n_to_pq($n);
+    my @pq_children = tku_pq_children($p,$q);
+    my ($p1,$q1,$p2,$q2,$p3,$q3) = @pq_children;
+    print "$n = $n_str  $p,$q   children $p1,$q1  $p2,$q2  $p3,$q3\n";
+    while (@pq_children) {
+      my $child_p = shift @pq_children;
+      my $child_q = shift @pq_children;
+      my ($parent_p,$parent_q) = tku_pq_parent($child_p,$child_q);
+      if ($parent_p != $p || $parent_q != $q) {
+        print "oops\n";
+      }
+    }
+  }
+  exit 0;
+
+  sub tku_pq_children {
+    my ($p,$q) = @_;
+    return ($p+3*$q, 2*$q,  # T
+            2*$p, $p-$q,    # K2 (2p, p-q)
+            2*$p-$q, $p);   # "U" = (2p-q, p)
+  }
+  sub tku_pq_parent {
+    my ($p,$q) = @_;
+    if ($p > 2*$q) {
+      if ($p % 2) {
+
+        # T  1 3    p -> p+3q      p > 2q,     p odd, q even
+        #    0 2    q -> 2q        det=2
+        # inverse  1 -3/2
+        #          0  1/2
+        $q /= 2;
+        $p -= 3*$q;
+      } else {
+        # K2 2  0   p -> 2p        p > 2q,     p even, q odd
+        #    1 -1   q -> p-q       det=-2
+        # inverse -1  0 / -2 = 1/2  0
+        #         -1  2        1/2 -1
+        $p /= 2;
+        $q = $p - $q;
+      }
+    } else {
+      # U  2 -1   p -> 2p-q      2q > p > q  small p
+      #    1  0   q -> p         det=1
+      # inverse  0  1  = 0 -1
+      #         -1  2    1 -2
+      ($p,$q) = ($q, 2*$q-$p);
+    }
+    return ($p,$q);
+  }
+}
+{
+  # 1^2 = 1  3^2 = 9 = 1 mod 4
+  # A^2 + B^2 = C^2
+  #  1     0     1
+  #  0     1     1
+  # A = 1 mod 4, B = 0 mod 4
+  # even 3mod4, any 1mod4
+
+  exit 0;
+}
+
+
+{
+  my $path = Math::PlanePath::PythagoreanTree->new (tree_type => 'UKT',
+                                                    coordinates => 'PQ');
+  $path->xy_to_n(4,5);
+  exit 0;
+}
+
+{
+  # UAD to TKU
+  my $uad = Math::PlanePath::PythagoreanTree->new (tree_type => 'UAD',
+                                                   coordinates => 'PQ');
+  foreach my $n (1 .. 40) {
+    if (n_is_row_start($n)) { print "\n"; }
+    my ($p,$q) = $uad->n_to_xy($n);
+    my $ukt_n = ukt_pq_to_n($p,$q);
+    my $ukt_n_str = n_to_pythagstr($ukt_n);
+    my $n_str = n_to_pythagstr($n);
+    print "$n = $n_str  $p,$q   UKT=$n $ukt_n_str\n";
+  }
+  exit 0;
+
+  sub ukt_pq_to_n {
+    my ($p,$q) = @_;
+    my @ndigits;
+    while ($p > 2) {
+
+      if ($p > 2*$q) {
+        if ($p % 2) {
+          $q /= 2;    # T
+          $p -= 3*$q;
+          push @ndigits, 1;
+        } else {
+          $p /= 2;   # K2
+          $q = $p - $q;
+          push @ndigits, 2;
+        }
+      } else {
+        ($p,$q) = ($q, 2*$q-$p);  # U
+        push @ndigits, 0;
+      }
+    }
+    my $zero = $p*0*$q;
+    return ((3+$zero)**scalar(@ndigits) + 1)/2    # tree_depth_to_n()
+      + digit_join_lowtohigh(\@ndigits,3,$zero);  # digits within this depth
+  }
+}
+
+{
+  # U = 2,-1,1,0
+  # A = 2,1, 1,0
+  # D = 1,2, 0,1
+
+  # K1 = 1,1, 0,2
+  # K2 = 2,0, 1,-1
+  # K3 = 2,0, 1,1
+
+  # p+2q = unchanged
+  # p+q = odd
+  # 2p or 2q = even
+
+  # 2a+b>2c+d
+  # ap+b>cp+d
+  #
+  # ap+b(p-1) > cp+d(p-1)
+  # (c-1)p+b(p-1) > cp+d(p-1)
+  # cp-p+b(p-1) > cp+d(p-1)
+  # -p+b(p-1) > d(p-1)
+  # b(p-1) > d(p-1)+p
+  # b > d+p/(p-1)
+  # b > d+1
+
+  #   D        A         U
+  # 1,2,0,1  2,-1,1,0  2,1,1,0
+  #
+  # U  2 -1   p -> 2p-q      2q > p > q    small p
+  #    1  0   q -> p         det=1
+  #
+  # A  2  1   p -> 2p+q      3q > p > 2q    mid p
+  #    1  0   q -> p         det=-1
+  #
+  # D  1  2   p -> p+2q      p > 3q         big p
+  #    0  1   q -> q         det=1
+
+  #   K1       K2        K3
+  # 1,1,0,2  2,0,1,-1  2,0,1,1
+  #
+  # K1 1 1    p -> p+q       p > 2q,  p odd, q even
+  #    0 2    q -> 2q        det=2
+  #
+  # K2 2  0   p -> 2p        p > 2q,  p even, q odd
+  #    1 -1   q -> p-q       det=-2
+  #
+  # K3 2  0   p -> 2p        2q > p,  small p,  p even, q odd
+  #    1  1   q -> p+q       det=2
+
+  #             U        K2
+  # 1,3,0,2  2,-1,1,0  2,0,1,-1
+  #
+  #
+  # T  1 3    p -> p+3q      p > 2q,     p odd, q even
+  #    0 2    q -> 2q        det=2
+  #
+  # K2 2  0   p -> 2p        p > 2q,     p even, q odd
+  #    1 -1   q -> p-q       det=-2
+  #
+  # U  2  1   p -> 2p-q      2q > p > q  small p
+  #    1  0   q -> p         det=-1
+
+  my $uad = Math::PlanePath::PythagoreanTree->new (tree_type => 'UAD',
+                                                   coordinates => 'PQ');
+  my $fb = Math::PlanePath::PythagoreanTree->new (tree_type => 'FB',
+                                                  coordinates => 'PQ');
+  my $len = 0;
+  foreach my $n (1 .. 40) {
+    if (n_is_row_start($n)) { print "\n"; }
+    my ($p,$q) = tku_n_to_pq($n);
+    my $uad_n = n_to_pythagstr($uad->xy_to_n($p,$q));
+    my $fb_n = n_to_pythagstr($fb->xy_to_n($p,$q));
+    my $n_str = n_to_pythagstr($n);
+    print "$n = $n_str  $p,$q   UAD N=$uad_n   FB N=$fb_n\n";
+  }
+  exit 0;
+
+  sub n_is_row_start {
+    my ($n) = @_;
+    my ($pow, $exp) = round_down_pow (2*$n-1, 3);
+    return ($n == ($pow+1)/2);
+  }
+  sub tku_n_to_pq {
+    my ($n) = @_;
+    my $p = 2;
+    my $q = 1;
+    foreach my $digit (n_to_pythag_digits_lowtohigh($n)) {
+      if ($digit == 0) {
+        $p += 3*$q;    # T
+        $q *= 2;
+      } elsif ($digit == 1) {
+        $q = $p-$q;                   # (2p, p-q)  K2
+        $p *= 2;
+      } else {
+        ($p,$q) = (2*$p-$q, $p);      # "U" = (2p-q, p)
+      }
+    }
+    return ($p,$q);
+  }
+
+  sub n_to_pythagstr {
+    my ($n) = @_;
+    if (! defined $n) { return '[undef]' }
+    if ($n < 1) { return "($n)"; }
+    my @digits = n_to_pythag_digits_lowtohigh($n);
+    return '1.'.join('',reverse @digits);
+  }
+
+  # ($pow+1)/2 = row start
+  # pow = 3^exp
+  # N - rowstart + 3^exp = N - (pow+1)/2 + pow
+  #                      = N - pow/2 - 1/2 + pow
+  #                      = N + pow/2 - 1/2
+  #                      = N + (pow-1)/2
+  sub n_to_pythag_digits_lowtohigh {
+    my ($n) = @_;
+    my ($pow, $exp) = round_down_pow (2*$n-1, 3);
+    my @digits = digit_split_lowtohigh($n + ($pow-1)/2,3);
+    pop @digits;  # high 1
+    return @digits;
+  }
+}
+
+{
+  # P,Q tables
+    my $path = Math::PlanePath::PythagoreanTree->new(coordinates => 'PQ');
+  foreach my $n ($path->n_start .. $path->tree_depth_to_n_end(2)) {
+    my ($p,$q) = $path->n_to_xy($n);
+    print "$p,";
+  }
+  print "\n";
+  foreach my $n ($path->n_start .. $path->tree_depth_to_n_end(2)) {
+    my ($p,$q) = $path->n_to_xy($n);
+    print "$q,";
+  }
+  print "\n";
+  exit 0;
+}
+
+
+
+{
+  require Devel::TimeThis;
+  require Math::PlanePath::FractionsTree;
+  my $path = Math::PlanePath::FractionsTree->new
+    (
+     # tree_type => 'FB',
+     # tree_type => 'UAD',
+     # coordinates => 'BC',
+     # coordinates => 'PQ',   # P>Q one odd other even
+    );
+  {
+    my $t = Devel::TimeThis->new('xy_is_visited');
+    foreach my $x (0 .. 200) {
+      foreach my $y (0 .. 200) {
+        $path->xy_is_visited($x,$y);
+      }
+    }
+  }
+  {
+    my $t = Devel::TimeThis->new('xy_to_n');
+    foreach my $x (0 .. 200) {
+      foreach my $y (0 .. 200) {
+        $path->xy_to_n($x,$y);
+      }
+    }
+  }
+  exit 0;
+}
+
 {
   # numbers in a grid
 
@@ -172,6 +652,7 @@ use Smart::Comments;
   # P+(2^k-1)*Q, 2^k*Q
   # applied to P=2,Q=1
   # 2+(2^k-1) = 2^k + 1, 2^k
+  require Math::Matrix;
   my $u = Math::Matrix->new ([1,1],
                              [0,2]);
   my $m = $u;
@@ -186,6 +667,7 @@ use Smart::Comments;
 
 {
   # repeated "U" as p,q matrix
+  require Math::Matrix;
   my $u = Math::Matrix->new ([2,-1],
                              [1,0]);
   my $m = $u;
@@ -658,6 +1140,7 @@ use Smart::Comments;
 
 
 {
+  require Math::Matrix;
   my $f = Math::Matrix->new ([2,0],
                              [1,1]);
   my $g = Math::Matrix->new ([-1,1],
@@ -789,6 +1272,7 @@ use Smart::Comments;
 
 
 {
+  require Math::Matrix;
   my $u = Math::Matrix->new ([1,2,2],
                              [-2,-1,-2],
                              [2,2,3]);

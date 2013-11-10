@@ -32,7 +32,149 @@ use Math::PlanePath::RationalsTree;
 use Smart::Comments;
 
 
+{
+  # CW successively per Moshe Newman
+  require Math::PlanePath::GcdRationals;
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+  my $p = 0;
+  my $q = 1;
+  foreach my $n (0 .. 30) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $x ||= 0;
+    $y ||= 0;
+    my $diff = ($x!=$p || $y!=$q ? '  ***' : '');
+    print "$n  $x,$y   $p,$q$diff\n";
 
+    # f*q + r = p
+    # f*q = p - r
+    # q-r = 1 - (-p % q)
+    # next = 1 / (2*floor(p/q) + 1 - p/q)
+    #      = q / (2*q*floor(p/q) + q - p)
+    #      = q / (2*q*f + q - p)
+    #      = q / (2*(p - r) + q - p)
+    #      = q / (2*p - 2*r + q - p)
+    #      = q / (p + q - 2*r)
+    my ($f,$r) = Math::PlanePath::_divrem($p,$q);
+    # ($p,$q) = ($q, ($q*(2*$f+1) - $p));
+    ($p,$q) = ($q, $p + $q - 2*($p % $q));
+    # ($p,$q) = ($q, $p-$r + 1 - (-$p % $q));
+
+    # my $g = Math::PlanePath::GcdRationals::_gcd($p,$q);
+    # $p /= $g;
+    # $q /= $g;
+  }
+  exit 0;
+}
+
+
+{
+  # X,Y list CW
+
+  # 1,1,3, 5,11,21,43
+  # 1,2,5,10,21,42,85
+  # P = X+Y Q=X      X=Q Y=P-Q
+  #
+  #              X,Y                                   X+Y,X
+  #           /        \                            /         \
+  #    X,(X+Y)           (X+Y),Y             2X+Y,X             X+2Y,X+Y
+  #   /     \            /      \           /      \            /          \
+  # X,(2X+Y) 2X+Y,X+Y X+Y,X+2Y X+2Y,Y  3X+Y,2X+Y 3X+2Y,2X+Y 2X+3Y,X+Y X+3Y,X+2Y
+  #
+  #              1,1
+  #    1,2                 2,1
+  # 1,3  3,2            2,3    3,1
+  # 1/4  4/3  3/5 5/2  2/5 5/3  3/4 4/1
+  #
+  # X+Y,X                                         2,1 T
+  #                        3,1                                          3,2*U
+  #           4,1*D                   5,3                   5,2*A                    4,3*UU
+  #       5,1      7,4*DU     8,3*UA        7,5      7,2*UD        8,5*AU        7,3         5,4*UUU
+  #
+  #  6,1*DD 9,5 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,5 11,8*   10,3* 11,7  9,4*DA 6,5*
+  #
+  # X+Y,Y                                         2,1 T
+  #                        3,2*U                                         3,1
+  #           4,3*UU                  5,2                   5,3*A                    4,1*D
+  #       5,4*UUU  7,3*DU     8,5*UA        7,2      7,5*UD        8,3*AU        7,4         5,1*UUU
+  #
+  #  6,5*DD 9,4 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,8 11,3*   10,7* 11,4* 9,5*DA 6,1*
+
+  require Math::PlanePath::RationalsTree;
+  require Math::PlanePath::PythagoreanTree;
+  my $pythag = Math::PlanePath::PythagoreanTree->new (coordinates=>'PQ');
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+  my $oe_total = 0;
+  foreach my $depth (0 .. 6) {
+    my $oe = 0;
+    foreach my $n ($path->tree_depth_to_n($depth) ..
+                   $path->tree_depth_to_n_end($depth)) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $flag = '';
+      ($x,$y) = ($x+$y, $y);
+      if ($x%2 != $y%2) {
+        $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
+        $oe += $flag ? 1 : 0;
+      }
+      my $octant = '';
+      if ($y < $x) {
+        $octant = 'octant';
+      }
+      my $pn = $pythag->xy_to_n($x,$y);
+      if ($pn) {
+        $pn = n_to_pythagstr($pn);
+      }
+      printf "N=%2d %2d / %2d   %10s %10s %s\n", $n, $x,$y,
+        $flag, $octant, $pn||'';
+      $n++;
+    }
+    $oe_total += $oe;
+    print "$oe   $oe_total\n";
+  }
+
+  sub n_to_pythagstr {
+    my ($n) = @_;
+    if ($n < 1) { return undef; }
+    my ($pow, $exp) = round_down_pow (2*$n-1, 3);
+    $n -= ($pow+1)/2;  # offset into row
+    my @digits = digit_split_lowtohigh($n,3);
+    push @digits, (0) x ($exp - scalar(@digits));  # high pad to $exp many
+    return '1-'.join('',reverse @digits);
+  }
+
+  exit 0;
+}
+{
+  # Pythagorean N search
+
+  # CW A016789 3n+2.
+
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $add (0 .. 3, -3 .. -1) {
+    print "offset=$add\n";
+    foreach my $tree_type (@$tree_type_aref) {
+      my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
+      my @values;
+      for (my $n = 2; @values < 40; $n += 1) {
+        my ($x,$y) = $path->n_to_xy($n);
+
+        # next unless xy_is_pythagorean($x,$y);
+        # next unless (($x^$y)&1) == 0;  # odd/odd
+        # next unless (($x^$y)&1) == 1;  # odd/even or even/odd
+        next unless ($x%2==1 && $y%2==0);
+        push @values, $n+$add;
+      }
+      use lib 'xt'; require MyOEIS;
+      print MyOEIS->grep_for_values(array => \@values,
+                                    name => "$tree_type plus $add");
+    }
+  }
+  exit 0;
+
+  sub xy_is_pythagorean {
+    my ($x,$y) = @_;
+    return ($x>$y && ($x%2)!=($y%2));
+  }
+}
 {
   # Pythagorean N in binary
   my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
@@ -50,43 +192,43 @@ use Smart::Comments;
     print "\n";
   }
   exit 0;
-
-  sub xy_is_pythagorean {
-    my ($x,$y) = @_;
-    return ($x>$y && ($x%2)!=($y%2));
-  }
 }
 {
-  # Pythagorean N search
-  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
-  foreach my $offset (0 .. 3, -3 .. -1) {
-    print "offset=$offset\n";
-    foreach my $tree_type (@$tree_type_aref) {
-      my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
-      my $str = '';
-      for (my $n = 2; length($str) < 60; $n += 1) {
-        my ($x,$y) = $path->n_to_xy($n);
+  # X=1 or Y=1 row/column in binary
 
-        # next unless xy_is_pythagorean($x,$y);
-        # next unless (($x^$y)&1) == 0;  # odd/odd
-        # next unless (($x^$y)&1) == 1;  # odd/even or even/odd
-        next unless ($x%2==1 && $y%2==0);
-        $str .= ($n+$offset).",";
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $tree_type (@$tree_type_aref) {
+    {
+      print "$tree_type  Y=1 row\n";
+      my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
+      for (my $i = 2; $i < 20; $i += 1) {
+        my $n = $path->xy_to_n($i,1);
+        printf "%20b\n", $n;
       }
-      print "$tree_type  $str\n";
-      if (system("grep -e '$str' ~/OEIS/stripped") == 0) {
-        print "matched\n";
+      print "\n";
+    }
+    {
+      print "$tree_type  X=1 row\n";
+      my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
+      for (my $i = 2; $i < 20; $i += 1) {
+        my $n = $path->xy_to_n(1,$i);
+        printf "%20b\n", $n;
       }
       print "\n";
     }
   }
   exit 0;
-
-  sub xy_is_pythagorean {
-    my ($x,$y) = @_;
-    return ($x>$y && ($x%2)!=($y%2));
-  }
 }
+{
+  # lamplighter
+  require Math::NumSeq::OEIS::File;
+  my $lamp = Math::NumSeq::OEIS::File->new(anum=>'A154435');
+  my $n = 0b1000001000;
+  my $l = $lamp->ith($n);
+  printf "%d    %b = %d\n", $n, $l, $l;
+  exit 0;
+}
+
 {
   # parity search
   my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
@@ -675,83 +817,6 @@ use Smart::Comments;
 
 
 {
-  # X,Y list CW
-
-  # 1,1,3, 5,11,21,43
-  # 1,2,5,10,21,42,85
-  # P = X+Y Q=X      X=Q Y=P-Q
-  #
-  #              X,Y                                   X+Y,X
-  #           /        \                            /         \
-  #    X,(X+Y)           (X+Y),Y             2X+Y,X             X+2Y,X+Y
-  #   /     \            /      \           /      \            /          \
-  # X,(2X+Y) 2X+Y,X+Y X+Y,X+2Y X+2Y,Y  3X+Y,2X+Y 3X+2Y,2X+Y 2X+3Y,X+Y X+3Y,X+2Y
-  #
-  #              1,1
-  #    1,2                 2,1
-  # 1,3  3,2            2,3    3,1
-  # 1/4  4/3  3/5 5/2  2/5 5/3  3/4 4/1
-  #
-  # X+Y,X                                         2,1 T
-  #                        3,1                                          3,2*U
-  #           4,1*D                   5,3                   5,2*A                    4,3*UU
-  #       5,1      7,4*DU     8,3*UA        7,5      7,2*UD        8,5*AU        7,3         5,4*UUU
-  #
-  #  6,1*DD 9,5 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,5 11,8*   10,3* 11,7  9,4*DA 6,5*
-  #
-  # X+Y,Y                                         2,1 T
-  #                        3,2*U                                         3,1
-  #           4,3*UU                  5,2                   5,3*A                    4,1*D
-  #       5,4*UUU  7,3*DU     8,5*UA        7,2      7,5*UD        8,3*AU        7,4         5,1*UUU
-  #
-  #  6,5*DD 9,4 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,8 11,3*   10,7* 11,4* 9,5*DA 6,1*
-
-  require Math::PlanePath::RationalsTree;
-  require Math::PlanePath::PythagoreanTree;
-  my $pythag = Math::PlanePath::PythagoreanTree->new (coordinates=>'PQ');
-  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
-  my $oe_total = 0;
-  foreach my $depth (0 .. 6) {
-    my $oe = 0;
-    foreach my $n ($path->tree_depth_to_n($depth) ..
-                   $path->tree_depth_to_n_end($depth)) {
-      my ($x,$y) = $path->n_to_xy($n);
-      my $flag = '';
-      ($x,$y) = ($x+$y, $y);
-      if ($x%2 != $y%2) {
-        $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
-        $oe += $flag ? 1 : 0;
-      }
-      my $octant = '';
-      if ($y < $x) {
-        $octant = 'octant';
-      }
-      my $pn = $pythag->xy_to_n($x,$y);
-      if ($pn) {
-        $pn = n_to_pythagstr($pn);
-      }
-      printf "N=%2d %2d / %2d   %10s %10s %s\n", $n, $x,$y,
-        $flag, $octant, $pn||'';
-      $n++;
-    }
-    $oe_total += $oe;
-    print "$oe   $oe_total\n";
-  }
-
-  sub n_to_pythagstr {
-    my ($n) = @_;
-    if ($n < 1) { return undef; }
-    my ($pow, $exp) = round_down_pow (2*$n-1, 3);
-    $n -= ($pow+1)/2;  # offset into row
-    my @digits = digit_split_lowtohigh($n,3);
-    push @digits, (0) x ($exp - scalar(@digits));  # high pad to $exp many
-    return '1+'.join('',reverse @digits);
-  }
-
-    exit 0;
-  }
-
-{
   # count 0-bits below high 1
   # 1 2 3 4 5 6 7 8
   # 0,1,0,2,1,0,0,3,2,1,1,0,0,0,0,4,3,2,2,1,1,1,1,0,0,0,0,0,0,0,0,5,
@@ -1291,8 +1356,6 @@ use Smart::Comments;
     $a &= (1 << $level) - 1;
     return $z,0;
   }
-
-  no Devel::Comments;
 
   sub bird_to_ayt {
     my ($b) = @_;

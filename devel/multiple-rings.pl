@@ -26,7 +26,6 @@ use Math::PlanePath::MultipleRings;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
-
 {
   require Math::NumSeq::PlanePathDelta;
   foreach my $step (3 .. 10) {

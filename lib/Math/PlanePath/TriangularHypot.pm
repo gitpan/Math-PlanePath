@@ -75,7 +75,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -109,6 +109,14 @@ sub rsquared_minimum {
   return ($self->{'points'} eq 'odd'           ? 1   # at X=1,Y=0
           : $self->{'points'} eq 'hex_centred' ? 2   # at X=1,Y=1
           : 0);   # even,all,hex,hex_rotated at X=0,Y=0
+}
+*sumabsxy_minimum = \&rsquared_minimum;
+
+sub absdiffxy_minimum {
+  my ($self) = @_;
+  return ($self->{'points'} eq 'odd'
+          ? 1     # odd, line X=Y not included
+          : 0);   # even,all includes X=Y
 }
 
 #------------------------------------------------------------------------------

@@ -790,7 +790,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 110;
+my $want_version = 111;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1643,8 +1643,12 @@ sub pythagorean_diag {
 
     my $sumxy_minimum = $path->sumxy_minimum;
     my $sumxy_maximum = $path->sumxy_maximum;
+    my $sumabsxy_minimum = $path->sumabsxy_minimum;
+    my $sumabsxy_maximum = $path->sumabsxy_maximum;
     my $diffxy_minimum = $path->diffxy_minimum;
     my $diffxy_maximum = $path->diffxy_maximum;
+    my $absdiffxy_minimum = $path->absdiffxy_minimum;
+    my $absdiffxy_maximum = $path->absdiffxy_maximum;
     my $gcdxy_minimum = $path->gcdxy_minimum;
     my $gcdxy_maximum = $path->gcdxy_maximum;
 
@@ -1702,6 +1706,15 @@ sub pythagorean_diag {
           &$report("n_to_xy($n) X+Y=$sumxy above sumxy_maximum=$sumxy_maximum");
         }
       }
+      {
+        my $sumabsxy = abs($x) + abs($y);
+        if (defined $sumabsxy_minimum && $sumabsxy < $sumabsxy_minimum) {
+          &$report("n_to_xy($n) abs(X)+abs(Y)=$sumabsxy below sumabsxy_minimum=$sumabsxy_minimum");
+        }
+        if (defined $sumabsxy_maximum && $sumabsxy > $sumabsxy_maximum) {
+          &$report("n_to_xy($n) abs(X)+abs(Y)=$sumabsxy above sumabsxy_maximum=$sumabsxy_maximum");
+        }
+      }
 
       {
         my $diffxy = $x - $y;
@@ -1710,6 +1723,15 @@ sub pythagorean_diag {
         }
         if (defined $diffxy_maximum && $diffxy > $diffxy_maximum) {
           &$report("n_to_xy($n) X-Y=$diffxy above diffxy_maximum=$diffxy_maximum");
+        }
+      }
+      {
+        my $absdiffxy = abs($x - $y);
+        if (defined $absdiffxy_minimum && $absdiffxy < $absdiffxy_minimum) {
+          &$report("n_to_xy($n) abs(X-Y)=$absdiffxy below absdiffxy_minimum=$absdiffxy_minimum");
+        }
+        if (defined $absdiffxy_maximum && $absdiffxy > $absdiffxy_maximum) {
+          &$report("n_to_xy($n) abs(X-Y)=$absdiffxy above absdiffxy_maximum=$absdiffxy_maximum");
         }
       }
 

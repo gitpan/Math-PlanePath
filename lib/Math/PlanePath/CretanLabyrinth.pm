@@ -17,6 +17,8 @@
 
 
 # math-image --path=CretanLabyrinth --output=numbers_dash
+# http://labyrinthlocator.com/labyrinth-typology/4341-classical-labyrinths
+
 
 
 package Math::PlanePath::CretanLabyrinth;
@@ -26,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

@@ -46,7 +46,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -81,8 +81,10 @@ sub x_minimum {
 }
 # points=odd X=1,Y=0
 # otherwise  X=0,Y=0
-*diffxy_minimum   = \&x_minimum;  # X>=Y so X-Y>=0
-*rsquared_minimum = \&x_minimum;
+*sumabsxy_minimum  = \&x_minimum;
+*diffxy_minimum    = \&x_minimum;  # X>=Y so X-Y>=0
+*absdiffxy_minimum = \&x_minimum;
+*rsquared_minimum  = \&x_minimum;
 
 sub absdy_minimum {
   my ($self) = @_;

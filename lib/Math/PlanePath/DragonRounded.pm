@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -56,7 +56,9 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          description => 'Arms',
                                        } ];
 
-use constant rsquared_minimum => 1; # minimum X=1,Y=0
+use constant sumabsxy_minimum  => 1;
+use constant absdiffxy_minimum => 1; # X=Y doesn't occur
+use constant rsquared_minimum  => 1; # minimum X=1,Y=0
 
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;

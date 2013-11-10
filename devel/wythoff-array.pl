@@ -20,13 +20,16 @@
 use 5.004;
 use strict;
 use Math::PlanePath::WythoffArray;
+use lib 't','xt';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 {
-  # left-align shift amount
+  # left-justified shift amount
+  require Math::NumSeq::Fibbinary;
+  my $fib = Math::NumSeq::Fibbinary->new;
   my $path = Math::PlanePath::WythoffArray->new;
   foreach my $y (0 .. 50) {
     my $a = $path->xy_to_n(0,$y);
@@ -36,10 +39,184 @@ use Math::PlanePath::WythoffArray;
       ($a,$b) = ($b-$a,$a);
       $count++;
     }
-    print "$y  $count\n";
+    my $y_fib = sprintf '%b',$fib->ith($y);
+    print "$y  $y_fib  $count\n";
+    # $count = ($count+1)/2;
+    # print "$count,";
   }
   exit 0;
 }
+{
+  # tree
+  require Math::PlanePath::WythoffArray;
+  my $wythoff = Math::PlanePath::WythoffArray->new (x_start => 1, y_start => 1);
+
+  my @parent = (undef, 0);
+  my @value = (0, 1);
+  my @child_left = (1);
+  my @child_right = (undef);
+  {
+    my @pending = (1);
+    foreach (0 .. 10) {
+      my @new_pending;
+      while (@pending) {
+        my $i = shift @pending;
+        my $value = $value[$i] // die "oops no value at $i";
+        my $parent_i = $parent[$i];
+        my $parent_value = $value[$parent_i];
+        {
+          my $left_value = $value + $parent_value;
+          my $left_i = scalar(@value);
+          $value[$left_i] = $left_value;
+          $parent[$left_i] = $i;
+          $child_left[$i] = $left_i;
+          push @new_pending, $left_i;
+        }
+        {
+          my $right_value =  3*$value - $parent_value;
+          my $right_i = scalar(@value);
+          $value[$right_i] = $right_value;
+          $parent[$right_i] = $i;
+          $child_right[$i] = $right_i;
+          push @new_pending, $right_i;
+        }
+      }
+      @pending = @new_pending;
+    }
+  }
+  print "total nodes ",scalar(@value),"\n";
+
+  my @rows;
+  {
+    # by rows
+    my @pending = (0);
+    while (@pending) {
+      my @new_pending;
+      my @row;
+      while (@pending) {
+        my $i = shift @pending;
+        if (defined $child_left[$i]) {
+          push @new_pending, $child_left[$i];
+        }
+        if (defined $child_right[$i]) {
+          push @new_pending, $child_right[$i];
+        }
+        my $value = $value[$i];
+        push @row, $value;
+        if (@row < 20) {
+          printf '%4d,', $value;
+        }
+      }
+      print "\n";
+      @pending = @new_pending;
+      push @rows, \@row;
+    }
+  }
+
+  my @wythoff_row;
+  my @wythoff_step;
+  {
+    # wythoff row
+    my $r = 0;
+    my $c = 0;
+    my %seen;
+    my $print_c_limit = 300;
+    for (;;) {
+      my $v1 = $rows[$r]->[$c];
+      if (! defined $v1) {
+        $r++;
+        if ($c < $print_c_limit) {
+          print "next row\n";
+        }
+        next;
+      }
+      my $v2 = $rows[$r+1]->[$c];
+      if (! defined $v2) {
+        last;
+      }
+
+      if ($v1 <= $v2) {
+        print "smaller v1: $v1 $v2\n";
+      }
+
+      my ($x,$y,$step) = pair_to_wythoff_xy($v1,$v2);
+      $x //= '[undef]';
+      $y //= '[undef]';
+      my $wv1 = $wythoff->xy_to_n($x,$y);
+      my $wv2 = $wythoff->xy_to_n($x+1,$y);
+
+      if ($c < $print_c_limit) {
+        print "$c  $v1,$v2   $x, $y   $step is $wv1, $wv2\n";
+      }
+      if ($c < 40) {
+        push @wythoff_row, $y;
+        push @wythoff_step, $step;
+      }
+      if (defined $seen{$y}) {
+        print "seen $y  at $seen{$y}\n";
+      }
+      $seen{$y} = $c;
+
+      $c++;
+    }
+    print "stop at column $c\n";
+
+    print "\n";
+  }
+
+  foreach (1, 2) {
+    print join(',',@wythoff_row),"\n";
+    {
+      require Math::NumSeq::Fibbinary;
+      my $fib = Math::NumSeq::Fibbinary->new;
+      print join(',',map{sprintf '%b',$fib->ith($_)} @wythoff_row),"\n";
+    }
+    foreach (@wythoff_row) { $_++ }
+    print "\n";
+  }
+
+  print "step: ",join(',',@wythoff_step),"\n";
+
+  require MyOEIS;
+  MyOEIS::compare_values
+      (anum => 'A230871',
+       func => sub {
+         my ($count) = @_;
+         my @got;
+         my $r = 0;
+         my $c = 0;
+         while (@got < $count) {
+           my $row = $rows[$r] // last;
+           if ($c > $#$row) {
+             $r++;
+             $c = 0;
+             next;
+           }
+           push @got, $row->[$c];
+           $c++;
+         }
+         return \@got;
+       });
+
+  exit 0;
+
+  sub pair_to_wythoff_xy {
+    my ($v1,$v2) = @_;
+    foreach my $step (0 .. 500) {
+      # use Smart::Comments;
+      ### at: "seek $v1, $v2  step $_"
+      if (my ($x,$y) = $wythoff->n_to_xy($v1)) {
+        my $wv2 = $wythoff->xy_to_n($x+1,$y);
+        if (defined $wv2 && $wv2 == $v2) {
+          ### found: "pair $v1 $v2 at x=$x y=$x"
+          return ($x,$y,$step);
+        }
+      }
+      ($v1,$v2) = ($v2,$v1+$v2);
+    }
+  }
+}
+
 {
   # Y*phi
   use constant PHI => (1 + sqrt(5)) / 2;

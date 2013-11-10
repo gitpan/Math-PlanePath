@@ -18,10 +18,14 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# cf A152975/A152976 redundant Stern-Brocot
+#    inserting mediants to make ternary tree
+
+
 use 5.004;
 use strict;
 use Test;
-plan tests => 39;
+plan tests => 49;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -48,6 +52,234 @@ sub gcd {
     ($x,$y) = ($y, $x % $y);
   }
 }
+
+
+#------------------------------------------------------------------------------
+# A000975 -- 010101 without consecutive equal bits, Bird tree X=1 column
+
+MyOEIS::compare_values
+  (anum => 'A000975',
+   max_count => 100,
+   name => "Bird column X=1",
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got = (0);  # extra initial 0 in A000975
+     require Math::BigInt;
+     for (my $y = Math::BigInt->new(1); @got < $count; $y++) {
+       push @got, $path->xy_to_n (1, $y);
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A061547 -- 010101 without consecutive equal bits, Drib tree X=1 column
+
+# Y/1 in Drib, extra initial 0 in A061547
+MyOEIS::compare_values
+  (anum => 'A061547',
+   max_count => 100,
+   name => "Drib column X=1",
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+     my @got = (0); # extra initial 0 in A061547
+     for (my $y = Math::BigInt->new(1); @got < $count; $y++) {
+       push @got, $path->xy_to_n (1, $y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A086893 -- Drib tree Y=1 row
+
+MyOEIS::compare_values
+  (anum => 'A086893',
+   max_count => 100,
+   name => "Drib row Y=1",
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+     my @got;
+     require Math::BigInt;
+     for (my $x = Math::BigInt->new(1); @got < $count; $x++) {
+       push @got, $path->xy_to_n ($x, 1);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A229742 -- HCS numerators
+# 0, 1, 2, 1, 3, 3, 1, 2, 4, 5, 4, 5, 1, 2, 3, 3, 5, 7, 7, 8, 5, 7, 7, 8,   
+ 
+MyOEIS::compare_values
+  (anum => 'A229742',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my @got = (0);  # extra initial 0/1
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A071766 -- HCS denominators
+# 1, 1, 1, 2, 1, ...
+
+MyOEIS::compare_values
+  (anum => 'A071766',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my @got = (1);  # extra initial 1/1
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A071585 -- HCS num+den
+# 1, 2, 3, 3, 4, ...
+
+MyOEIS::compare_values
+  (anum => 'A071585',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my @got = (1);  # extra initial 1/1 then Rat+1
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x+$y;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A154435 -- permutation HCS->Bird, lamplighter
+
+MyOEIS::compare_values
+  (anum => 'A154435',
+   func => sub {
+     my ($count) = @_;
+     my $hcs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got = (0);  # initial 0
+     for (my $n = $hcs->n_start; @got < $count; $n++) {
+       my ($x, $y) = $hcs->n_to_xy($n);
+       push @got, $bird->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A154436 -- permutation Bird->HCS, lamplighter inverse
+
+MyOEIS::compare_values
+  (anum => 'A154436',
+   func => sub {
+     my ($count) = @_;
+     my $hcs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got = (0);  # initial 0
+     for (my $n = $bird->n_start; @got < $count; $n++) {
+       my ($x, $y) = $bird->n_to_xy($n);
+       push @got, $hcs->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A059893 -- bit-reversal permutation
+
+# CW<->SB
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got;
+     for (my $n = $cw->n_start; @got < $count; $n++) {
+       my ($x, $y) = $cw->n_to_xy($n);
+       push @got, $sb->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     for (my $n = $sb->n_start; @got < $count; $n++) {
+       my ($x, $y) = $sb->n_to_xy($n);
+       push @got, $cw->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+
+# Drib<->Bird
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my $drib  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+     my @got;
+     for (my $n = $drib->n_start; @got < $count; $n++) {
+       my ($x, $y) = $drib->n_to_xy($n);
+       push @got, $bird->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my $drib  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+     for (my $n = $bird->n_start; @got < $count; $n++) {
+       my ($x, $y) = $bird->n_to_xy($n);
+       push @got, $drib->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+
+# AYT<->HCS
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my $hcs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     my @got;
+     for (my $n = $ayt->n_start; @got < $count; $n++) {
+       my ($x, $y) = $ayt->n_to_xy($n);
+       push @got, $hcs->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $hcs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     for (my $n = $hcs->n_start; @got < $count; $n++) {
+       my ($x, $y) = $hcs->n_to_xy($n);
+       push @got, $ayt->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A047270 -- 3or5 mod 6, is CW positions of X>Y not both odd
@@ -419,35 +651,18 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A154436 -- permutation Bird->HCS, lamplighter inverse
-
-MyOEIS::compare_values
-  (anum => 'A154436',
-   func => sub {
-     my ($count) = @_;
-     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-     my @got = (0);  # initial 0
-     for (my $n = $bird->n_start; @got < $count; $n++) {
-       my ($x, $y) = $bird->n_to_xy($n);
-       push @got, $cs->xy_to_n($x,$y);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
 # A003188 -- permutation SB->HCS, Gray code shift+xor
 
 MyOEIS::compare_values
   (anum => 'A003188',
    func => sub {
      my ($count) = @_;
-     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $hcs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
      my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
      my @got = (0);  # initial 0
      for (my $n = $sb->n_start; @got < $count; $n++) {
        my ($x, $y) = $sb->n_to_xy($n);
-       push @got, $cs->xy_to_n($x,$y);
+       push @got, $hcs->xy_to_n($x,$y);
      }
      return \@got;
    });
@@ -459,29 +674,12 @@ MyOEIS::compare_values
   (anum => 'A006068',
    func => sub {
      my ($count) = @_;
-     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $hcs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
      my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
      my @got = (0);  # initial 0
-     for (my $n = $cs->n_start; @got < $count; $n++) {
-       my ($x, $y) = $cs->n_to_xy($n);
+     for (my $n = $hcs->n_start; @got < $count; $n++) {
+       my ($x, $y) = $hcs->n_to_xy($n);
        push @got, $sb->xy_to_n($x,$y);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A154435 -- permutation HCS->Bird, lamplighter
-
-MyOEIS::compare_values
-  (anum => 'A154435',
-   func => sub {
-     my ($count) = @_;
-     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-     my @got = (0);  # initial 0
-     for (my $n = $cs->n_start; @got < $count; $n++) {
-       my ($x, $y) = $cs->n_to_xy($n);
-       push @got, $bird->xy_to_n($x,$y);
      }
      return \@got;
    });
@@ -531,69 +729,6 @@ MyOEIS::compare_values
      return \@got;
    });
 
-
-#------------------------------------------------------------------------------
-# A071585 -- HCS num+den
-
-MyOEIS::compare_values
-  (anum => 'A071585',
-   func => sub {
-     my ($count) = @_;
-     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-     my @got = (1);  # extra initial 1/1 then Rat+1
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x, $y) = $path->n_to_xy ($n);
-       push @got, $x+$y;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A071766 -- HCS denominators
-
-MyOEIS::compare_values
-  (anum => 'A071766',
-   func => sub {
-     my ($count) = @_;
-     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-     my @got = (1);  # extra initial 1/1
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x, $y) = $path->n_to_xy ($n);
-       push @got, $y;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A059893 -- permutation CW<->SB, bit reversal
-
-MyOEIS::compare_values
-  (anum => 'A059893',
-   func => sub {
-     my ($count) = @_;
-     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-     my @got;
-     for (my $n = $cw->n_start; @got < $count; $n++) {
-       my ($x, $y) = $cw->n_to_xy($n);
-       push @got, $sb->xy_to_n($x,$y);
-     }
-     return \@got;
-   });
-
-MyOEIS::compare_values
-  (anum => 'A059893',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-     for (my $n = $sb->n_start; @got < $count; $n++) {
-       my ($x, $y) = $sb->n_to_xy($n);
-       push @got, $cw->xy_to_n($x,$y);
-     }
-     return \@got;
-   });
 
 #------------------------------------------------------------------------------
 # A153153 -- permutation CW->AYT
@@ -686,20 +821,6 @@ MyOEIS::compare_values
      return \@got;
    });
 
-# Y/1 in Drib, extra initial 0 in A061547
-MyOEIS::compare_values
-  (anum => 'A061547',
-   max_count => 100,
-   func => sub {
-     my ($count) = @_;
-     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
-     my @got = (0); # extra initial 0 in A061547
-     for (my $y = Math::BigInt->new(1); @got < $count; $y++) {
-       push @got, $path->xy_to_n (1, $y);
-     }
-     return \@got;
-   });
-
 # #------------------------------------------------------------------------------
 # # A113881
 # # different as n=49
@@ -764,23 +885,6 @@ if (! eval { require Math::ContinuedFraction; 1 }) {
          return \@got;
        });
 }
-
-#------------------------------------------------------------------------------
-# A000975 -- 010101 without consecutive equal bits, Bird tree X=1 column
-
-MyOEIS::compare_values
-  (anum => 'A000975',
-   max_count => 100,
-   func => sub {
-     my ($count) = @_;
-     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-     my @got = (0);  # extra initial 0 in A000975
-     require Math::BigInt;
-     for (my $y = Math::BigInt->new(1); @got < $count; $y++) {
-       push @got, $path->xy_to_n (1, $y);
-     }
-     return \@got;
-   });
 
 #------------------------------------------------------------------------------
 # A086893 -- pos of frac F(n+1)/F(n) in Stern diatomic, is CW N

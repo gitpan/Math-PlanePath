@@ -23,7 +23,7 @@ depth .level.
 The total number of line segments for the recursion is 2^level.
 level=0 is a straight line from x1,y1 to x2,y2.
 
-The default for x1,y1 and x2,y2 is to draw from horizontally from 0,0
+The default for x1,y1 and x2,y2 is to draw horizontally from 0,0
 to 1,0.
 {
     new .x1. .y1. .x2. .y2. .level.
@@ -74,7 +74,7 @@ to 1,0.
 
 # Dragon curve from 0,0 to 1,0 extends out by 1/3 at the ends, so
 # extents -0.5 to +1.5 for a bit of margin.  The Y extent is the same
-# distance 2 to keep the graph square.
+# size 2 to make the graph square.
 set x axis -0.5 1.5   .25
 set y axis -1 1 .25
 

@@ -34,7 +34,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
 

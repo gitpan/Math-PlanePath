@@ -33,6 +33,16 @@ use Smart::Comments;
 # 2*3^k  right
 
 {
+  # dRadius range
+  my $n = 118088;
+  require Math::PlanePath::TerdragonMidpoint;
+  my $path = Math::PlanePath::TerdragonMidpoint->new;
+  my ($x1,$y1) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+1);
+  print "$x1,$y1   $x2,$y2\n";
+  exit 0;
+}
+{
   # A+Yw  A=X-Y
   use lib 'xt'; require MyOEIS;
   require Math::BaseCnv;

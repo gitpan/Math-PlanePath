@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -48,6 +48,7 @@ use constant n_start => 0;
   = \&Math::PlanePath::TerdragonCurve::parameter_info_array;
 *new = \&Math::PlanePath::TerdragonCurve::new;
 
+use constant sumabsxy_minimum => 2; # X=2,Y=0
 sub rsquared_minimum {
   my ($self) = @_;
   return ($self->arms_count < 2

@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 236 A-numbers in 4 modules
+# total 242 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -1053,6 +1053,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A124625',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'Rows,width=2,n_start=0',
+      'delta_type',
+      'dRSquared'
+    ]
+  },
+  {
     'anum' => 'A010673',
     'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
@@ -1127,9 +1137,19 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
       'planepath',
-      'CellularRule,rule=14',
+      'CellularRule,rule=14,n_start=0',
       'delta_type',
       'dSum'
+    ]
+  },
+  {
+    'anum' => 'A109613',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=84,n_start=0',
+      'delta_type',
+      'dRSquared'
     ]
   },
   {
@@ -2325,6 +2345,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A156319',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'turn_type',
+      'srl'
+    ]
+  },
+  {
     'anum' => 'A000007',
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
@@ -2346,6 +2376,36 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'Corner,wider=3,n_start=-1'
+    ]
+  },
+  {
+    'anum' => 'A176040',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=84,n_start=-1',
+      'turn_type',
+      'Turn4'
+    ]
+  },
+  {
+    'anum' => 'A131534',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=6,n_start=-1',
+      'turn_type',
+      'SRL'
+    ]
+  },
+  {
+    'anum' => 'A130196',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=20,n_start=-1',
+      'turn_type',
+      'SRL'
     ]
   },
   {

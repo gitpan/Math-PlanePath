@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+Version 111, November 2013
+    - FactorRationals new factor_coding "odd/even","negabinary","revbinary"
+    - new sumabsxy_minimum(), sumabsxy_maximum(), absdiffxy_minimum(),
+      absdiffxy_maximum()
+
 Version 110, August 2013
     - PlanePathTurn new turn_type "SLR","SRL"
 

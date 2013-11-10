@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -114,6 +114,8 @@ use constant parameter_info_array =>
     return $sumxy_minimum[$self->arms_count];
   }
 }
+use constant sumabsxy_minimum => 1;
+
 # Note: shared by Math::PlanePath::SierpinskiCurveStair
 #                 Math::PlanePath::AlternatePaper
 #                 Math::PlanePath::AlternatePaperMidpoint
@@ -123,6 +125,7 @@ sub diffxy_minimum {
           ? 1       # octant Y<=X-1 so X-Y>=1
           : undef); # more than 1 arm, DiffXY goes negative
 }
+use constant absdiffxy_minimum => 1; # X=Y never occurs
 use constant rsquared_minimum => 1; # minimum X=1,Y=0
 
 sub dx_minimum {

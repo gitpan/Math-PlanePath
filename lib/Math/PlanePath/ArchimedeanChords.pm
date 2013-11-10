@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -460,7 +460,11 @@ Math::PlanePath::ArchimedeanChords -- radial spiral chords
 
 This path puts points at unit chord steps along an Archimedean spiral.  The
 spiral goes outwards by 1 unit each revolution and the points are spaced 1
-apart.  The result is roughly
+apart.
+
+    R = theta/(2*pi)
+
+The result is roughly
 
                          31              
                    32          30         ...                3

@@ -135,7 +135,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::LCornerTreeByCells';
   $path_class = 'Math::PlanePath::UlamWarburtonOld';
   $path_class = 'Math::PlanePath::UlamWarburton';
-  $path_class = 'Math::PlanePath::PythagoreanTree';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ToothpickSpiral';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
@@ -157,6 +156,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::FactorRationals';
   $path_class = 'Math::PlanePath::MultipleRings';
+  $path_class = 'Math::PlanePath::PythagoreanTree';
 
   my $lo = 0;
   my $hi = 50;
@@ -164,8 +164,11 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+     coordinates => 'PQ',
+     tree_type => 'UKT',
+
      #  ring_shape => 'polygon',
-      step => 1,
+     # step => 1,
 
      # sign_encoding => 'revbinary',
 
@@ -186,8 +189,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # align => 'down',
      # x_start => 5,
      # y_start => 2,
-     # coordinates => 'PQ',
-     # tree_type => 'UAD',
 
      # divisor_type => 'proper',
 

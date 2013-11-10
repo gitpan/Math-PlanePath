@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 2;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,6 +32,28 @@ use Math::PlanePath::PythagoreanTree;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
+
+#------------------------------------------------------------------------------
+# A058529 - all prime factors == +/-1 mod 8
+#   is differences mid-small legs
+
+MyOEIS::compare_values
+  (anum => 'A058529',
+   max_count => 35,
+   func => sub {
+     my ($count) = @_;
+     require Math::BigInt;
+     my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'SM');
+     my %seen;
+     for (my $n = $path->n_start; $n < 100000; $n++) {
+       my ($s,$m) = $path->n_to_xy($n);
+       my $diff = $m - $s;
+       $seen{$diff} = 1;
+     }
+     my @got = sort {$a<=>$b} keys %seen;
+     $#got = $count-1;
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A003462 = (3^n-1)/2 is tree_depth_to_n_end()

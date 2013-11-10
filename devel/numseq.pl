@@ -44,8 +44,6 @@ use Math::Trig 'pi';
   $planepath = "RationalsTree,tree_type=HCS";
   $planepath = "ToothpickReplicate,parts=1";
   $planepath = "CfracDigits,radix=2";
-  $planepath = "TerdragonCurve";
-  $planepath = "MultipleRings,step=6,ring_shape=polygon";
   $planepath = "DiagonalRationals,direction=up";
   $planepath = "OneOfEight,parts=wedge";
   $planepath = "QuadricIslands";
@@ -79,18 +77,26 @@ use Math::Trig 'pi';
   $planepath = "LTiling";
   $planepath = "TriangularHypot,points=hex_rotated";
   $planepath = "Hypot,points=all";
+  $planepath = "MultipleRings,step=3";
+  $planepath = "ArchimedeanChords";
+  $planepath = "TerdragonCurve";
+  $planepath = "DragonMidpoint";
+  $planepath = "HexSpiral,wider=1";
+  $planepath = "AlternatePaper";
   $planepath = "VogelFloret";
-  # my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-  #                                              # delta_type => 'AbsdY',
-  #                                              delta_type => 'Dir4',
-  #                                              # delta_type => 'dY',
-  #                                              # delta_type => 'dDiffXY',
-  #                                              # delta_type => 'TDir6',
-  #                                              # delta_type => 'dAbsDiff',
-  #                                             );
-  my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
-                                              turn_type => 'Turn4',
-                                             );
+  $planepath = "MultipleRings,step=6,ring_shape=polygon";
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+                                               # delta_type => 'AbsdY',
+                                                delta_type => 'Dir4',
+                                               #delta_type => 'dRadius',
+                                               # delta_type => 'dRSquared',
+                                               # delta_type => 'dDiffXY',
+                                               # delta_type => 'TDir6',
+                                               # delta_type => 'dAbsDiff',
+                                              );
+  # my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
+  #                                             turn_type => 'Turn4',
+  #                                            );
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dX');
   my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
@@ -99,6 +105,7 @@ use Math::Trig 'pi';
   my $max = -99;
   for (1 .. 10000000) {
     my ($i, $value) = $seq->next;
+    # $seq->seek_to_i(2*$i+2);
 
     if ($value > $max) {
       my $dx = $dx_seq->ith($i);
@@ -130,6 +137,53 @@ use Math::Trig 'pi';
         $i,$ri, $value,
           $prev_dx,$prev_dy,
             $dx,$dy, $f;
+    }
+  }
+
+  exit 0;
+}
+
+{
+  # min/max PlanePathCoord
+
+  require Math::BaseCnv;
+
+  require Math::NumSeq::PlanePathCoord;
+  my $realpart = 3;
+  my $radix = $realpart*$realpart + 1;
+  my $planepath;
+  $planepath = "MultipleRings,step=3";
+  $planepath = "MultipleRings,step=3,ring_shape=polygon";
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath => $planepath,
+                                               coordinate_type => 'AbsDiff');
+  my $path = $seq->{'planepath_object'};
+  my $min = 99;
+  my $max = -99;
+  for (1 .. 10000000) {
+    my ($i, $value) = $seq->next;
+
+    # if ($value > $max) {
+    #   my $dx = $dx_seq->ith($i);
+    #   my $dy = $dy_seq->ith($i);
+    #   my $prev_dx = $dx_seq->ith($i-1) // 'u';
+    #   my $prev_dy = $dy_seq->ith($i-1) // 'u';
+    #   my $ri = Math::BaseCnv::cnv($i,10,$radix);
+    #   my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
+    #   my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
+    #   my $f = $dy && $dx/$dy;
+    #   $max = $value;
+    #   printf "max i=%d[%s] %.5f  px=%s,py=%s dx=%s,dy=%s[%s,%s]   %.3f\n",
+    #     $i,$ri, $value,
+    #       $prev_dx,$prev_dy,
+    #         $dx,$dy, $rdx,$rdy, $f;
+    # }
+
+    if ($value < $min) {
+      my ($x,$y) = $path->n_to_xy($i);
+      $min = $value;
+      my $ri = Math::BaseCnv::cnv($i,10,$radix);
+      printf " min i=%d[%s] %.5f  x=%s,y=%s\n",
+        $i,$ri, $value, $x,$y;
     }
   }
 

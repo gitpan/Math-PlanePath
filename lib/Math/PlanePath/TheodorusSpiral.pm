@@ -16,7 +16,23 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Detlef Gronau "The Spiral of Theodorus", AMM, 111(3), March 2004,
 # http://www.uni-graz.at/~gronau/monthly230-237.pdf
+
+# Philip J. Davis, book "Spirals: From Theodorus to Chaos", published
+# A. K. Peters, 1993, pages 7-11, 37-43.
+
+# K. J. Heuvers, D.S. Moak, B.Boursaw, "The Functional Equation of the
+# Square Root Spiral", Functional Equations and Inequalities,
+# ed. T. M. Rassias, Kluwer 2000, pages 111-117, MR1792078 (2001k:39033)
+
+# David Brink, "The Spiral of Theodorus and Sums of Zeta-values at the
+# Half-integers", American Mathematical Monthly, Vol. 119, No. 9 (November
+# 2012),
+# pp. 779-786. http://www.jstor.org/stable/10.4169/amer.math.monthly.119.09.779
+
+# A226317 constant of theodorus in decimal
+
 
 
 package Math::PlanePath::TheodorusSpiral;
@@ -27,7 +43,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -288,7 +304,8 @@ Each loop is just under 2*pi^2 = 19.7392 many N points longer than the
 previous.  This means quadratic values 9.8696*k^2 for integer k are an
 almost straight line.  Quadratics close to 9.87 (or a square multiple of
 that) nearly line up.  For example the 22-polygonal numbers have 10*k^2 and
-at low values are nearly straight, but then spiral away.
+at low values are nearly straight because 10 is close to 9.87, but then
+spiral away.
 
 =head1 FUNCTIONS
 
@@ -297,7 +314,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 The code is currently implemented by adding unit steps in X,Y coordinates,
 so it's not particularly fast.  The last X,Y is saved in the object
 anticipating successively higher N (not necessarily consecutive), and
-previous positions 1000 apart are saved for re-use or to go back to.
+previous positions 1000 apart are saved for re-use or to go back.
 
 =over 4
 
@@ -354,22 +371,22 @@ angles to the integer position, so
 =head2 X,Y to N
 
 For a given X,Y the radius R=hypot(X,Y) determines the N position as N=R^2.
-An N point up to 0.5 away radially might above cover X,Y, so the range of N
-to consider is
+An N point up to 0.5 away radially might cover X,Y, so the range of N to
+consider is
 
     Nlo = (R-.5)^2
     Nhi = (R+.5)^2
 
-A simple search through those N's searching for which, if any, covers X,Y is
-then done.  The number of N's searched is Nhi-Nlo = 2*R+1 which is about 1/3
-of a loop around the spiral (2*R/2*pi*R ~= 1/3).  Actually 0.51 is used to
-guard against floating point round-off, which is then about 4*.51 = 2.04*R
-many points.
+A simple search is made through those N's seeking which, if any, covers X,Y.
+The number of N's searched is Nhi-Nlo = 2*R+1 which is about 1/3 of a loop
+around the spiral (2*R/2*pi*R ~= 1/3).  Actually 0.51 is used to guard
+against floating point round-off, which is then about 4*.51 = 2.04*R many
+points.
 
 The angle of the X,Y position determines which part of the spiral is
 intersected, but using that doesn't seem particularly easy.  The angle for a
-given N is an arctan sum and don't have a good closed-form or converging
-series for that to invert, or some Newton's method, or whatever.
+given N is an arctan sum and there doesn't seem to be a good closed-form or
+converging series to invert, or apply some Newton's method, or whatever.
 
 =head2 Rectangle to N Range
 

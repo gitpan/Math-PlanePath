@@ -17,7 +17,6 @@
 
 
 # math-image --path=FlowsnakeCentres --lines --scale=10
-# math-image --path=FlowsnakeCentres,arms=3 --all --output=numbers_dash
 #
 # http://80386.nl/projects/flowsnake/
 #
@@ -31,7 +30,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -734,6 +733,12 @@ Gosper which follows the flowsnake tiling the same way but the centres of
 the hexagons instead of corners across.  The result is the same overall
 shape, but a symmetric base figure.
 
+=cut
+
+# math-image --path=FlowsnakeCentres --all --output=numbers_dash --size=78x45
+
+=pod
+
                          39----40                          8
                         /        \
           32----33    38----37    41                       7
@@ -794,6 +799,12 @@ The optional C<arms> parameter can give up to three copies of the curve,
 each advancing successively.  For example C<arms=E<gt>3> is as follows.
 Notice the N=3*k points are the plain curve, and N=3*k+1 and N=3*k+2 are
 rotated copies of it.
+
+=cut
+
+# math-image --path=FlowsnakeCentres,arms=3 --all --output=numbers_dash
+
+=pod
 
                             84---...    48----45                   5
                            /           /        \

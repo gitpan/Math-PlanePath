@@ -1,48 +1,48 @@
---- #YAML:1.0
-name:               Math-PlanePath
-version:            110
-abstract:           Mathematical paths through the 2-D plane.
+---
+abstract: 'Mathematical paths through the 2-D plane.'
 author:
-    - Kevin Ryde <user42@zip.com.au>
-license:            gpl
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
+  - 'Kevin Ryde <user42@zip.com.au>'
 build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    constant:         1.02
-    constant::defer:  5
-    List::Util:       0
-    Math::Libm:       0
-    perl:             5.004
-    Test:             0
-resources:
-    homepage:  http://user42.tuxfamily.org/math-planepath/index.html
-    license:   http://www.gnu.org/licenses/gpl.html
-no_index:
-    directory:
-        - t
-        - inc
-        - devel
-        - xt
-    package:
-        - Math::PlanePath::ToothpickTree
-        - Math::PlanePath::ToothpickReplicate
-        - Math::PlanePath::ToothpickUpist
-        - Math::PlanePath::LCornerTree
-        - Math::PlanePath::LCornerReplicate
-        - Math::PlanePath::OneOfEight
-generated_by:       ExtUtils::MakeMaker version 6.57_05
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.132830'
+license: open_source
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Math-PlanePath
+no_index:
+  directory:
+    - t
+    - inc
+    - devel
+    - xt
+  package:
+    - Math::PlanePath::ToothpickTree
+    - Math::PlanePath::ToothpickReplicate
+    - Math::PlanePath::ToothpickUpist
+    - Math::PlanePath::LCornerTree
+    - Math::PlanePath::LCornerReplicate
+    - Math::PlanePath::OneOfEight
 optional_features:
-    maximum_tests:
-        description:  Have "make test" do as much as possible.
-        requires:
-            Data::Float:         0
-            Math::BigFloat:      1.993
-            Math::BigInt:        0
-            Math::BigInt::Lite:  0
-            Math::BigRat:        0
+  maximum_tests:
+    description: "Have \"make test\" do as much as possible."
+    requires:
+      Data::Float: 0
+      Math::BigFloat: 1.993
+      Math::BigInt: 0
+      Math::BigInt::Lite: 0
+      Math::BigRat: 0
+requires:
+  List::Util: 0
+  Math::Libm: 0
+  Test: 0
+  constant: 1.02
+  constant::defer: 5
+  perl: 5.004
+resources:
+  homepage: http://user42.tuxfamily.org/math-planepath/index.html
+  license: http://www.gnu.org/licenses/gpl.html
+version: 111

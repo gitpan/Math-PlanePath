@@ -60,7 +60,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -476,7 +476,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al bignum Xadj,Yadj lookup OEIS 0b.zz111 0b..zz11 ie
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al bignum Xadj,Yadj lookup OEIS 0b.zz111 0b..zz11 ie tilingsearch
 
 =head1 NAME
 
@@ -652,7 +652,14 @@ the following tiling of the plane repeating in 4x4 blocks.
                      X=0
 
 The pairs follow this pattern both for the main curve N=0 etc shown, and
-also for the rotated copies per L</Arms> above.
+also for the rotated copies per L</Arms> above.  This tiling is in the
+tilingsearch database as
+
+=over
+
+L<http://tilingsearch.org/HTML/data24/K02A.html>
+
+=back
 
 Taking pairs N=2k+1 and N=2k+2, being odd N and its successor, gives a
 regular pattern too, but this time repeating in blocks of 16x16.

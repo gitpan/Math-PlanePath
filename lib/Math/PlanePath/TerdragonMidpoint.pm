@@ -31,7 +31,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 110;
+$VERSION = 111;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -57,6 +57,7 @@ use constant parameter_info_array => [ { name        => 'arms',
                                          description => 'Arms',
                                        } ];
 
+use constant sumabsxy_minimum => 2; # X=2,Y=0 or X=1,Y=1
 sub rsquared_minimum {
   my ($self) = @_;
   return ($self->arms_count < 2
