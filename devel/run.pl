@@ -164,8 +164,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     coordinates => 'PQ',
-     tree_type => 'UKT',
+     coordinates => 'UV',
+     tree_type => 'UAD',
 
      #  ring_shape => 'polygon',
      # step => 1,
@@ -178,8 +178,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # pn_encoding => 'negabinary',
      #  points => 'all_mul',
      # k => 4,
-     # digit_direction => 'HtoL',
-     # digit_direction => 'LtoH',
+     # digit_order => 'HtoL',
+     # digit_order => 'LtoH',
      # reduced => 1,
      #radix => 4,
 

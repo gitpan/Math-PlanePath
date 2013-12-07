@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -249,7 +249,7 @@ A complex integer can be represented as a set of powers,
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
     base b=i-1
-    digits a[n] to a[0] either 0 or 1
+    digits a[n] to a[0] each = 0 or 1
 
     N = a[n]*2^n + ... + a[2]*2^2 + a[1]*2 + a[0]
 
@@ -270,11 +270,11 @@ position offsets.
     6   7                    14  15
         4   5                    12  13
 
-For b=i-1 each N=2^level point starts at b^level.  The powering of that b
-means the start position rotates around by +135 degrees each time and
+For b=i-1 each N=2^level point starts at X+Yi=b^level.  The powering of that
+b means the start position rotates around by +135 degrees each time and
 outward by a radius factor sqrt(2) each time.  So for example b^3 = 2+2i is
 followed by b^4 = -4, which is 135 degrees around and radius |b^3|=sqrt(8)
-becoming |b^4|=sqrt(16).
+becomes |b^4|=sqrt(16).
 
 =head2 Real Part
 
@@ -388,14 +388,14 @@ bits by multiplying up to make an integer N
     Yfrac = Yint / 16^k
 
 256 is a good power because b^8=16 is a positive real and so there's no
-rotations to apply to the resulting X,Y, just a power-of-16 division
+rotations to apply to the resulting X,Y, only a power-of-16 division
 (b^8)^k=16^k each.  Using b^4=-4 for a multiplier 16^k and divisor (-4)^k
-would be almost as easy too, requiring just a sign change if k odd.
+would be almost as easy too, requiring just sign changes if k odd.
 
 =head2 Boundary Length
 
 X<Gilbert, William J.>The length of the boundary of the first norm^k many
-points (N=0 to norm^k-1 inclusive) is calculated in
+points, ie. N=0 to N=norm^k-1 inclusive, is calculated in
 
 =over
 
@@ -405,7 +405,7 @@ L<http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf>
 
 =back
 
-The result is a 3rd-order recurrence.  For the twindragon it is
+The boundary formula is a 3rd-order recurrence.  For the twindragon case,
 
     realpart=1
     boundary[k] = boundary[k-1] + 2*boundary[k-3]
@@ -432,10 +432,10 @@ next boundary[3] = 10+2*4 = 18.
                                        +---+---+
 
 Gilbert calculates the boundary of any i-r by taking it in three parts A,B,C
-and showing how in the next replication level those parts transform into
-multiple copies of the preceding level parts.  The replication is a little
-easier to visualize for a bigger "r" than for the twindragon.  In bigger r
-it's clearer how the A, B and C parts differ.
+and showing how in the next replication level those boundary parts transform
+into multiple copies of the preceding level parts.  The replication is
+easier to visualize for a bigger "r" than for the twindragon because in
+bigger r it's clearer how the A, B and C parts differ.  The replications are
 
     A -> A * (2*realpart-1)             + C * 2*realpart
     B -> A * (realpart^2-2*realpart+2)  + C * (realpart-1)^2
@@ -448,7 +448,7 @@ it's clearer how the A, B and C parts differ.
 
     total boundary = A+B+C
 
-For the twindragon realpart=1 these A,B,C are already in the form of a
+For the twindragon case realpart=1 these A,B,C are already in the form of a
 recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B, per the formula above.  For
 other real parts a little matrix rearrangement gives the recurrence
 
@@ -457,7 +457,7 @@ other real parts a little matrix rearrangement gives the recurrence
                 + boundary[k-3] * norm               
 
     starting from
-      boundary[0] = 4
+      boundary[0] = 4           (ie. a single square cell)
       boundary[1] = 2*norm + 2
       boundary[2] = 2*(norm-1)*(realpart+2) + 4
 
@@ -468,8 +468,8 @@ For example
 
     4, 12, 36, 140, 516, 1868, 6820, 24908, ...
 
-As with all such recurrences, for large k values can be calculated by
-powering up the matrix form.
+If calculating for large k values then the matrix form can be powered up
+rather than repeated additions.  (As usual for all such recurrences.)
 
 =head1 FUNCTIONS
 
@@ -501,12 +501,12 @@ A given X,Y representing X+Yi can be turned into digits of N by successive
 complex divisions by i-r.  Each digit of N is a real remainder 0 to r*r
 inclusive from that division.
 
-As per the base formula above
+The base formula above is
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-and we will want the a[0]=digit to be a real 0 to r*r.  Subtracting a[0] and
-dividing by b will give
+and we want the a[0]=digit to be a real 0 to r*r inclusive.  Subtracting
+a[0] and dividing by b will give
 
     (X+Yi - digit) / (i-r)
     = - (X-digit + Y*i) * (i+r) / norm
@@ -515,11 +515,11 @@ dividing by b will give
 
 which is
 
-    X   <-   Y - (X-digit)*r)/norm
-    Y   <-   -((X-digit) + Y*r)/norm
+    Xnew = Y - (X-digit)*r)/norm
+    Ynew = -((X-digit) + Y*r)/norm
 
-The a[0] digit must make both X and Y parts integers.  The easiest to
-calculate from is the imaginary part,
+The a[0] digit must make both Xnew and Ynew parts integers.  The easiest one
+to calculate from is the imaginary part, from which require
 
     - ((X-digit) + Y*r) == 0 mod norm
 
@@ -530,15 +530,15 @@ so
 This digit value makes the real part a multiple of norm too, as can be seen
 from
 
-    Y - (X-digit)*r
-    = Y - X*r - (X+Y*r)*r
-    = Y - X*r - X*r + Y*r*r
-    = Y*(r*r+1)
-    = Y*norm
+    Xnew = Y - (X-digit)*r
+         = Y - X*r - (X+Y*r)*r
+         = Y - X*r - X*r + Y*r*r
+         = Y*(r*r+1)
+         = Y*norm
 
-Notice the new Y is the quotient from (X+Y*r)/norm rounded towards negative
+Notice Ynew is the quotient from (X+Y*r)/norm rounded towards negative
 infinity.  Ie. in the division "X+Y*r mod norm" which calculates the digit,
-the quotient is the new Y and the remainder is the digit.
+the quotient is Ynew and the remainder is the digit.
 
 =cut
 
@@ -576,8 +576,8 @@ L<http://oeis.org/A066321> (etc)
       A003476    boundary length / 2
                    recurrence a(n) = a(n-1) + 2*a(n-3)
       A203175    boundary length, starting from 4
-                   if its conjectured recurrence is true
-      A052537    boundary length part A, B or C per Gilbert's paper
+                   (believe its conjectured recurrence is true)
+      A052537    boundary length part A, B or C, per Gilbert's paper
 
 =head1 SEE ALSO
 

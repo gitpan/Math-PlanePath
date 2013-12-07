@@ -37,16 +37,51 @@ use lib 'xt';
 
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+# use Smart::Comments;
 
 
 {
-                [0,1,S  1,1,SW      1,0,W   0,0,-  ]);
-                [1,1,SW 0,1,S       0,0,-   1,0,W  ],
+  # LLRR
+  my $reverse = sub {
+    my ($str) = @_;
+    $str = reverse $str;
+    $str =~ tr/+-/-+/;
+    return $str;
+  };
 
-                [1,0,W  0,0,-       0,1,S   1,1,SW ],
-my @yx_adj_x = ([0,0,-  1,0,W       1,1,SW  0,1,S  ],
+  my $str = 'F';
+  while (length($str) < 8192) {
+    $str = $str . '+' . $reverse->($str);  # unfold left
+    $str = $str . '+' . $reverse->($str);  # unfold left
+    $str = $str . '-' . $reverse->($str);  # unfold right
+    $str = $str . '-' . $reverse->($str);  # unfold right
+  }
+  require Language::Logo;
+  my $lo = Logo->new(update => 2, port => 8200 + (time % 100));
+  my $draw;
+  $lo->command("right 45; backward 200; seth 90");
+  $lo->command("pendown; hideturtle");
+  my %char_to_command = (F   => 'forward 5',
+                         '+' => 'left 90',
+                         '-' => 'right 90',
+                        );
+  foreach my $char (split //, $str) {
+    ### $char
+    $lo->command($char_to_command{$char});
+  }
+  $lo->disconnect("Finished...");
+  exit 0;
+
+  exit 0;
 }
+
+# {
+#                 [0,1,S  1,1,SW      1,0,W   0,0,-  ]);
+#                 [1,1,SW 0,1,S       0,0,-   1,0,W  ],
+# 
+#                 [1,0,W  0,0,-       0,1,S   1,1,SW ],
+# my @yx_adj_x = ([0,0,-  1,0,W       1,1,SW  0,1,S  ],
+# }
 
 {
   # visited 0,1

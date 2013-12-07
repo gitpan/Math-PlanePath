@@ -40,7 +40,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 111;
+$VERSION = 112;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';

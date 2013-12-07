@@ -23,7 +23,7 @@ use Carp;
 use Scalar::Util 'blessed';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 111;
+$VERSION = 112;
 
 # uncomment this to run the ### lines
 use Smart::Comments;

@@ -51,7 +51,6 @@ use Math::Trig 'pi';
   $planepath = "SacksSpiral";
   $planepath = "ComplexMinus,realpart=3";
   $planepath = "UlamWarburton,parts=4";
-  $planepath = "PythagoreanTree,coordinates=SC,tree_type=UAD";
   $planepath = "ToothpickTreeByCells,parts=two_horiz";
   $planepath = "LCornerTreeByCells,parts=octant_up+1";
   $planepath = "ChanTree,k=5";
@@ -65,7 +64,7 @@ use Math::Trig 'pi';
   $planepath = "ToothpickTree,parts=2";
   $planepath = "ToothpickUpist";
   $planepath = "CornerReplicate";
-  $radix = 4;
+  $radix = 3;
   $planepath = "ZOrderCurve,radix=$radix";
   $planepath = "LCornerReplicate";
   $planepath = "LCornerTree,parts=diagonal-1";
@@ -85,6 +84,7 @@ use Math::Trig 'pi';
   $planepath = "AlternatePaper";
   $planepath = "VogelFloret";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
+  $planepath = "PythagoreanTree,coordinates=MC,tree_type=UMT";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                # delta_type => 'AbsdY',
                                                 delta_type => 'Dir4',

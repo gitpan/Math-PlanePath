@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -845,8 +845,8 @@ L<http://oeis.org/A163528> (etc)
     A163481    N on Y axis
     A163343    N on X=Y diagonal, 0,4,8,44,40,36,etc
     A163344    N on X=Y diagonal divided by 4
-    A007417    N+1=n positions of horizontals, n even trailing 0s
-    A145204    N+1=n positions of verticals, n odd trailing 0s
+    A007417    N+1 of positions of horizontals, ternary even trailing 0s
+    A145204    N+1 of positions of verticals, ternary odd trailing 0s
 
     A163332    Peano N -> ZOrder radix=3 N mapping
                  and vice versa since is self-inverse

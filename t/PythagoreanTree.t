@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 319;
+plan tests => 329;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 111;
+  my $want_version = 112;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -240,6 +240,8 @@ require Math::PlanePath::PythagoreanTree;
 #------------------------------------------------------------------------------
 # n_to_xy(),  xy_to_n()
 
+# my $path = Math::PlanePath::PythagoreanTree->new;
+# print $path->tree_depth_to_n(5); exit;
 #
 foreach my $group
   ([ [], # default tree_type => 'UAD', coordinates => 'AB'
@@ -264,6 +266,17 @@ foreach my $group
      [ undef, 63,216 ],
      [ undef, 75,100 ],
      [ undef, 81,360 ],
+   ],
+   
+   # example from Jerzy Kocik "Cliffor Algebras and Euclid's
+   # Parameterization of Pythagorean Triples"
+   [ [coordinates => 'AB'],
+     # URLLU in Hall lettering
+     # reverse 10021 = 88, plus row start 122 = 210
+     [ 122 + (((1*3 + 0)*3 + 0)*3 + 2)*3 + 1, 3115,3348 ],
+   ],
+   [ [coordinates => 'AC'],
+     [ 122 + (((1*3 + 0)*3 + 0)*3 + 2)*3 + 1, 3115,4573 ],
    ],
 
    [ [ tree_type => 'UAD', coordinates => 'PQ' ],
@@ -334,14 +347,14 @@ foreach my $group
     my ($n, $want_x, $want_y) = @$elem;
     next unless defined $n;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "x at n=$n");
-    ok ($got_y, $want_y, "y at n=$n");
+    ok ($got_x, $want_x, "x at n=$n options=@$options");
+    ok ($got_y, $want_y, "y at n=$n options=@$options");
   }
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
     my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
+    ok ($got_n, $want_n, "n at x=$x,y=$y options=@$options");
   }
 
   foreach my $elem (@data) {

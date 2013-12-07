@@ -54,7 +54,7 @@ use strict;
 use List::Util 'min';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

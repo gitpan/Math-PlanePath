@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 3;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -43,6 +43,21 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::PentSpiralSkewed->new;
      my @got;
      for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n(0,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A147875 - N on Y negative axis, n_start=0, second heptagonals
+
+MyOEIS::compare_values
+  (anum => 'A147875',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PentSpiralSkewed->new (n_start => 0);
+     my @got;
+     for (my $y = 0; @got < $count; $y--) {
        push @got, $path->xy_to_n(0,$y);
      }
      return \@got;

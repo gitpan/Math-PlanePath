@@ -46,6 +46,28 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
+               'PythagoreanTree,tree_type=UMT',
+               'PythagoreanTree,tree_type=UMT,coordinates=AC',
+               'PythagoreanTree,tree_type=UMT,coordinates=BC',
+               'PythagoreanTree,tree_type=UMT,coordinates=PQ',
+               'PythagoreanTree,tree_type=UMT,coordinates=SM',
+               'PythagoreanTree,tree_type=UMT,coordinates=SC',
+               'PythagoreanTree,tree_type=UMT,coordinates=MC',
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=AC',
+               'PythagoreanTree,coordinates=BC',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,coordinates=SM',
+               'PythagoreanTree,coordinates=SC',
+               'PythagoreanTree,coordinates=MC',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,tree_type=FB,coordinates=AC',
+               'PythagoreanTree,tree_type=FB,coordinates=BC',
+               'PythagoreanTree,tree_type=FB,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB,coordinates=SM',
+               'PythagoreanTree,tree_type=FB,coordinates=SC',
+               'PythagoreanTree,tree_type=FB,coordinates=MC',
+
                'FactorRationals,sign_encoding=revbinary',
                'FactorRationals',
                'FactorRationals,sign_encoding=odd/even',
@@ -230,21 +252,6 @@ my @modules = (
                'RationalsTree,tree_type=Drib',
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=HCS',
-
-               'PythagoreanTree,coordinates=SM',
-               'PythagoreanTree,coordinates=SC',
-               'PythagoreanTree,coordinates=MC',
-               'PythagoreanTree,tree_type=FB,coordinates=SM',
-               'PythagoreanTree,tree_type=FB,coordinates=SC',
-               'PythagoreanTree,tree_type=FB,coordinates=MC',
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=AC',
-               'PythagoreanTree,coordinates=BC',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,tree_type=FB,coordinates=AC',
-               'PythagoreanTree,tree_type=FB,coordinates=BC',
-               'PythagoreanTree,tree_type=FB,coordinates=PQ',
 
                '*LCornerTree,parts=octant_up+1',
                '*LCornerTree,parts=octant+1',
@@ -790,7 +797,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 111;
+my $want_version = 112;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

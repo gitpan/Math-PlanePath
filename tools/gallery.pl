@@ -44,8 +44,31 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['pythagorean-tree-umt-big.png',
+    'math-image --path=PythagoreanTree,tree_type=UMT --values=LinesTree --scale=4 --size=200'],
+   ['pythagorean-tree-fb-big.png',
+    'math-image --path=PythagoreanTree,tree_type=FB --values=LinesTree --scale=4 --size=200'],
+   ['pythagorean-tree-big.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
+   ['pythagorean-points-sm-big.png',
+    'math-image --path=PythagoreanTree,coordinates=SM --all --scale=1 --size=150'],
+   ['pythagorean-points-sc-big.png',
+    'math-image --path=PythagoreanTree,coordinates=SC --all --scale=1 --size=150'],
+   ['pythagorean-points-mc-big.png',
+    'math-image --path=PythagoreanTree,coordinates=MC --all --scale=1 --size=150'],
+   ['pythagorean-points-bc-big.png',
+    'math-image --path=PythagoreanTree,coordinates=BC --all --scale=1 --size=200'],
+   ['pythagorean-points-ac-big.png',
+    'math-image --path=PythagoreanTree,coordinates=AC --all --scale=1 --size=200'],
+   ['pythagorean-small.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
+   ['pythagorean-points-big.png',
+    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
+
+
+
    ['chan-tree-rows-ltoh.png', \&special_chan_rows,
-    title => 'ChanTree,digit_direction=LtoH rows' ],
+    title => 'ChanTree,digit_order=LtoH rows' ],
 
    ['cfrac-digits-growth.png',
     "math-image --path=CfracDigits --expression='i<=3**7?i:0' --scale=1 --size=100x200"],
@@ -129,27 +152,6 @@ foreach my $elem
     'math-image --path=ToothpickReplicate --lines --scale=4 --size=32 --figure=toothpick'],
    ['toothpick-replicate-big.png',
     'math-image --path=ToothpickReplicate --all --scale=6 --size=200 --figure=toothpick'],
-
-
-   ['pythagorean-points-sm-big.png',
-    'math-image --path=PythagoreanTree,coordinates=SM --all --scale=1 --size=150'],
-   ['pythagorean-points-sc-big.png',
-    'math-image --path=PythagoreanTree,coordinates=SC --all --scale=1 --size=150'],
-   ['pythagorean-points-mc-big.png',
-    'math-image --path=PythagoreanTree,coordinates=MC --all --scale=1 --size=150'],
-   ['pythagorean-points-bc-big.png',
-    'math-image --path=PythagoreanTree,coordinates=BC --all --scale=1 --size=200'],
-   ['pythagorean-points-ac-big.png',
-    'math-image --path=PythagoreanTree,coordinates=AC --all --scale=1 --size=200'],
-   ['pythagorean-tree-fb-big.png',
-    'math-image --path=PythagoreanTree,tree_type=FB --values=LinesTree --scale=4 --size=200'],
-   ['pythagorean-tree-big.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
-   ['pythagorean-small.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
-   ['pythagorean-points-big.png',
-    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
-
 
 
    ['ulam-warburton-1.png',
@@ -985,6 +987,8 @@ foreach my $elem
     pngtextadd ($tempfile, 'Title', $title);
   }
 
+  system ("optipng -quiet -o2 $tempfile");
+
   my $targetfile = "$target_dir/$filename";
   if (File::Compare::compare($tempfile,$targetfile) == 0) {
     print "Unchanged $filename\n";
@@ -1057,7 +1061,7 @@ sub special_chan_rows {
   $image->rectangle (0,0, $width-1,$height-1, 'black');
 
   require Math::PlanePath::ChanTree;
-  my $path = Math::PlanePath::ChanTree->new (digit_direction => 'LtoH',
+  my $path = Math::PlanePath::ChanTree->new (digit_order => 'LtoH',
                                             reduced => 0);
 
   foreach my $y (0 .. $yhi) {

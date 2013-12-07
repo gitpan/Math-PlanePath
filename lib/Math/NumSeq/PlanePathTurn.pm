@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -960,6 +960,16 @@ sub characteristic_non_decreasing {
               && $UAD_coordinates_always_left{$self->{'coordinates'}});
     }
   }
+  {
+    my %UMT_coordinates_any_straight = (BC => 1,  # UMT at N=5
+                                        PQ => 1); # UMT at N=5
+    sub _NumSeq_Turn_never_straight {
+      my ($self) = @_;
+      return ($self->{'tree_type'} eq 'UMT'
+              && $UMT_coordinates_any_straight{$self->{'coordinates'}}
+             ? 0 : 1);
+    }
+  }
 
   sub _NumSeq_Turn_Left_min {
     my ($self) = @_;
@@ -990,7 +1000,7 @@ sub characteristic_non_decreasing {
   sub _NumSeq_Turn_SLR_min {
     my ($self) = @_;
     return (_NumSeq_Turn_always_Right($self) ? 2
-            : 1); # never straight
+            : $self->_NumSeq_Turn_never_straight);
   }
   sub _NumSeq_Turn_SLR_max {
     my ($self) = @_;
@@ -1000,7 +1010,7 @@ sub characteristic_non_decreasing {
   sub _NumSeq_Turn_SRL_min {
     my ($self) = @_;
     return (_NumSeq_Turn_always_Left($self) ? 2
-            : 1);  # never straight
+            : $self->_NumSeq_Turn_never_straight);
   }
   sub _NumSeq_Turn_SRL_max {
     my ($self) = @_;

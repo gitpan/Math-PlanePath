@@ -54,6 +54,23 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
+# A145204 -- N+1 of positions of verticals
+MyOEIS::compare_values
+  (anum => 'A145204',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::PeanoCurve->new;
+     my @got = (0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $peano->n_to_dxdy($n);
+       if ($dx == 0) {
+         push @got, $n+1;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A014578 -- abs(dX), 1=horizontal 0=vertical, extra initial 0
 MyOEIS::compare_values
   (anum => 'A014578',

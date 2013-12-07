@@ -16,6 +16,11 @@
 ;; with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+;; Usage: M-x load-file dragon-curve.el
+;;
+;; And thereafter M-x dragon-picture.
+;;
+
 (unless (fboundp 'ignore-errors)
   (require 'cl)) ;; Emacs 22 and earlier `ignore-errors'
 

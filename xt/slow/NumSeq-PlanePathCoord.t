@@ -51,7 +51,7 @@ sub want_planepath {
   # return 0 unless $planepath =~ /LCorner/;
   # return 0 unless $planepath =~ /DiagonalRationals/;
   # return 0 unless $planepath =~ /FactorRationals/;
-  return 0 unless $planepath =~ /MultipleRings/;
+  # return 0 unless $planepath =~ /MultipleRings/;
   return 1;
 }
 sub want_coordinate {
@@ -402,6 +402,28 @@ my @modules = (
 
                # module list begin
 
+               'PythagoreanTree,tree_type=UMT',
+               'PythagoreanTree,tree_type=UMT,coordinates=AC',
+               'PythagoreanTree,tree_type=UMT,coordinates=BC',
+               'PythagoreanTree,tree_type=UMT,coordinates=PQ',
+               'PythagoreanTree,tree_type=UMT,coordinates=SM',
+               'PythagoreanTree,tree_type=UMT,coordinates=SC',
+               'PythagoreanTree,tree_type=UMT,coordinates=MC',
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=AC',
+               'PythagoreanTree,coordinates=BC',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,coordinates=SM',
+               'PythagoreanTree,coordinates=SC',
+               'PythagoreanTree,coordinates=MC',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,tree_type=FB,coordinates=AC',
+               'PythagoreanTree,tree_type=FB,coordinates=BC',
+               'PythagoreanTree,tree_type=FB,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB,coordinates=SM',
+               'PythagoreanTree,tree_type=FB,coordinates=SC',
+               'PythagoreanTree,tree_type=FB,coordinates=MC',
+               
                'Rows,width=1',
                'Rows,width=2',
                'Rows,width=6',
@@ -516,21 +538,6 @@ my @modules = (
                'PyramidRows,align=left,step=6',
                'PyramidRows,align=left,step=7',
                'PyramidRows,align=left,step=37',
-               
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=AC',
-               'PythagoreanTree,coordinates=BC',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,coordinates=SM',
-               'PythagoreanTree,coordinates=SC',
-               'PythagoreanTree,coordinates=MC',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,tree_type=FB,coordinates=AC',
-               'PythagoreanTree,tree_type=FB,coordinates=BC',
-               'PythagoreanTree,tree_type=FB,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB,coordinates=SM',
-               'PythagoreanTree,tree_type=FB,coordinates=SC',
-               'PythagoreanTree,tree_type=FB,coordinates=MC',
                
                'CornerReplicate',
                

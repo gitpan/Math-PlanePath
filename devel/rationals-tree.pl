@@ -33,41 +33,6 @@ use Smart::Comments;
 
 
 {
-  # CW successively per Moshe Newman
-  require Math::PlanePath::GcdRationals;
-  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
-  my $p = 0;
-  my $q = 1;
-  foreach my $n (0 .. 30) {
-    my ($x,$y) = $path->n_to_xy($n);
-    $x ||= 0;
-    $y ||= 0;
-    my $diff = ($x!=$p || $y!=$q ? '  ***' : '');
-    print "$n  $x,$y   $p,$q$diff\n";
-
-    # f*q + r = p
-    # f*q = p - r
-    # q-r = 1 - (-p % q)
-    # next = 1 / (2*floor(p/q) + 1 - p/q)
-    #      = q / (2*q*floor(p/q) + q - p)
-    #      = q / (2*q*f + q - p)
-    #      = q / (2*(p - r) + q - p)
-    #      = q / (2*p - 2*r + q - p)
-    #      = q / (p + q - 2*r)
-    my ($f,$r) = Math::PlanePath::_divrem($p,$q);
-    # ($p,$q) = ($q, ($q*(2*$f+1) - $p));
-    ($p,$q) = ($q, $p + $q - 2*($p % $q));
-    # ($p,$q) = ($q, $p-$r + 1 - (-$p % $q));
-
-    # my $g = Math::PlanePath::GcdRationals::_gcd($p,$q);
-    # $p /= $g;
-    # $q /= $g;
-  }
-  exit 0;
-}
-
-
-{
   # X,Y list CW
 
   # 1,1,3, 5,11,21,43
@@ -143,6 +108,43 @@ use Smart::Comments;
 
   exit 0;
 }
+
+{
+  # CW successively per Moshe Newman
+  require Math::PlanePath::GcdRationals;
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+  my $p = 0;
+  my $q = 1;
+  foreach my $n (0 .. 30) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $x ||= 0;
+    $y ||= 0;
+    my $diff = ($x!=$p || $y!=$q ? '  ***' : '');
+    print "$n  $x,$y   $p,$q$diff\n";
+
+    # f*q + r = p
+    # f*q = p - r
+    # q-r = 1 - (-p % q)
+    # next = 1 / (2*floor(p/q) + 1 - p/q)
+    #      = q / (2*q*floor(p/q) + q - p)
+    #      = q / (2*q*f + q - p)
+    #      = q / (2*(p - r) + q - p)
+    #      = q / (2*p - 2*r + q - p)
+    #      = q / (p + q - 2*r)
+    my ($f,$r) = Math::PlanePath::_divrem($p,$q);
+    # ($p,$q) = ($q, ($q*(2*$f+1) - $p));
+    ($p,$q) = ($q, $p + $q - 2*($p % $q));
+    # ($p,$q) = ($q, $p-$r + 1 - (-$p % $q));
+
+    # my $g = Math::PlanePath::GcdRationals::_gcd($p,$q);
+    # $p /= $g;
+    # $q /= $g;
+  }
+  exit 0;
+}
+
+
+
 {
   # Pythagorean N search
 

@@ -57,7 +57,7 @@ sub read_values {
     }
   } else {
     my $error = $@;
-    @bvalues = read_stripped($anum);
+    @bvalues = __PACKAGE__->stripped_read_values($anum);
     if (! @bvalues) {
       MyTestHelpers::diag ("$anum not available: ", $error);
       return;
@@ -93,10 +93,24 @@ sub read_values {
   return (\@bvalues, $lo, $seq->{'filename'});
 }
 
+sub oeis_directory {
+  # my ($class) = @_;
+  require File::Spec;
+  require File::HomeDir;
+  return File::Spec->catdir(File::HomeDir->home, 'OEIS');
+}
+
+sub stripped_filename {
+  my ($class) = @_;
+  require File::Spec;
+  require File::HomeDir;
+  return File::Spec->catfile($class->oeis_directory, 'stripped');
+}
+
 # return list of values, or empty list if not found
-sub read_stripped {
-  my ($anum) = @_;
-  open FH, "< $ENV{HOME}/OEIS/stripped"
+sub stripped_read_values {
+  my ($class, $anum) = @_;
+  open FH, "< " . __PACKAGE__->stripped_filename
     or return;
   (my $num = $anum) =~ s/^A//;
   my $line = bsearch_textfile (\*FH, sub {
@@ -201,9 +215,13 @@ sub compare_values {
       MyTestHelpers::diag ("got:     ",join_values($got));
     }
   }
-  require Test;
-  local $Test::TestLevel = $Test::TestLevel + 1;
-  Test::skip (! $bvalues, $diff, undef, "$anum");
+  if (defined $Test::TestLevel) {
+    require Test;
+    local $Test::TestLevel = $Test::TestLevel + 1;
+    Test::skip (! $bvalues, $diff, undef, "$anum");
+  } elsif (defined $diff) {
+    print "$diff\n";
+  }
 }
 
 sub join_values {

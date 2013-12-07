@@ -18,23 +18,14 @@
 
 # math-image --path=PythagoreanTree --all --scale=3
 
-# Saunders, Robert A.; Randall, Trevor (July 1994), "The family tree of the
-# Pythagorean triplets revisited", Mathematical Gazette 78: 190–193,
-# http://www.jstor.org/stable/3618576
+# http://sunilchebolu.wordpress.com/pythagorean-triples-and-the-integer-points-on-a-hyperboloid/
 
-# Mack Czernezkyj "The tree in Pythagoras’ garden". Australian Senior
-# Mathematics Journal, 24(2), 58–63
-# files.eric.ed.gov/fulltext/EJ906702.pdf
-# 
-# Frank R. Bernhart, and H. Lee Price, "Pythagoras' garden, revisited",
-# Australian Senior Mathematics Journal 01/ 2012; 26(1):29-40.
-# http://www.eric.ed.gov/PDFS/EJ992372.pdf
 
 # A022344:
 # Horadam "Fibonacci Number Triples" Amer. Math. Monthly 68(1961)
 # 751-753. That paper showed that if F(0), F(1), F(2), F(3)
 # are 4 sequential numbers in a row of the Wythoff array, then
-# P = (2F(1)*F(2),F(0)*F(1),2F(1)*F(2) + F(0)^2) is a
+# (2F(1)*F(2), F(0)*F(1), 2F(1)*F(2) + F(0)^2) is a
 # Pythagorean triple (a,b,c) i.e. a^2 + b^2 = c^2.
 
 # Diophantus III, 22
@@ -42,7 +33,7 @@
 #
 # Dickson History of the Theory of Numbers vol 2 chapter iv page 165
 # Diophantus knew that if the sides of a right triangle are
-# expressed by rational numbers they are proportional to 2mn, m 2 n 2 ,
+# expressed by rational numbers they are proportional to 2mn, m^2 n^2,
 #
 # http://www.cut-the-knot.org/htdocs/dcforum/DCForumID4/745.shtml
 # Horadam "Fibonacci Number Triples" Amer. Math. Monthly 68(1961) 751-753
@@ -51,10 +42,6 @@
 # triplet.
 # (2F(1)*F(2))^2 + (F(0)*F(3))^2 = (2F(1)*F(2)+F(0)^2)^2.
 #
-#
-# Daniel Shanks. Solved and Unsolved Problems in Number Theory, pp. 121 and
-# 141, 1993.
-#     http://books.google.com.au/books?id=KjhM9pZEGCkC&lpg=PR1&dq=Solved%20and%20Unsolved%20Problems%20in%20Number%20Theory&pg=PA122#v=onepage&q&f=false
 #
 # Euclid Book X prop 28,29 that u,v makes a triple, maybe Babylonians
 #
@@ -80,18 +67,46 @@
 # http://www.math.sjsu.edu/~alperin/Pythagoras/ModularTree.html
 # http://www.math.sjsu.edu/~alperin/pt.pdf
 #
-# http://oai.cwi.nl/oai/asset/7151/7151A.pdf
-#
 # http://www.math.ucdavis.edu/~romik/home/Publications_files/pythrevised.pdf
 #
 # http://www.microscitech.com/pythag_eigenvectors_invariants.pdf
 #
+
 # L. Palmer, M. Ahuja, and M. Tikoo, "Finding Pythagorean Triple Preserving
 # Matrices". Missouri Journal of Mathematical Sciences, 10 (1998), 99-105.
 # http://www.math-cs.ucmo.edu/~mjms/1998.2/palmer.ps
 # http://www.math-cs.ucmo.edu/~mjms/1998.3/palmer.ps
 
-# http://sunilchebolu.wordpress.com/pythagorean-triples-and-the-integer-points-on-a-hyperboloid/
+# Barning 1963
+# http://oai.cwi.nl/oai/asset/7151/7151A.pdf
+# A1 = A, A2 = U, A3 = D
+# Ai^T.J.Ai = J for J = 1,0,0; 0,1,0; 0,0,-1
+# A2^-1 * A1 = +/-1,0,0; 0; 0,-/+1,0; 0,0,1
+# u^-1*a
+# d^-1*a
+
+# Other:
+
+# Mack and Czernezkyj "The tree in Pythagoras’ garden". Australian Senior
+# Mathematics Journal, 24(2), 58–63
+# files.eric.ed.gov/fulltext/EJ906702.pdf
+# UDA tree figure 3, with A<B each
+#
+# Frank R. Bernhart, and H. Lee Price, "Pythagoras' garden, revisited",
+# Australian Senior Mathematics Journal 01/ 2012; 26(1):29-40.
+# http://www.eric.ed.gov/PDFS/EJ992372.pdf
+# Followup to Mack and Czernezkyj, UAD and FB trees
+
+# Saunders, Robert A.; Randall, Trevor (July 1994), "The family tree of the
+# Pythagorean triplets revisited", Mathematical Gazette 78: 190–193,
+# http://www.jstor.org/stable/3618576
+# Followup to Kanga describing the UAD tree.
+
+# Daniel Shanks. Solved and Unsolved Problems in Number Theory, pp. 121 and
+# 141, 1993.
+# http://books.google.com.au/books?id=KjhM9pZEGCkC&lpg=PR1&dq=Solved%20and%20Unsolved%20Problems%20in%20Number%20Theory&pg=PA122#v=onepage&q&f=false
+# Page 141 on p,q per Euclid and Babylonians
+
 
 package Math::PlanePath::PythagoreanTree;
 use 5.004;
@@ -99,7 +114,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -129,9 +144,7 @@ use constant parameter_info_array =>
       display         => 'Tree Type',
       type            => 'enum',
       default         => 'UAD',
-      choices         => ['UAD','FB',
-                          # 'UKT',
-                         ],
+      choices         => ['UAD','FB','UMT'],
     },
     { name            => 'coordinates',
       share_key       => 'coordinates_abcpqsm',
@@ -140,10 +153,12 @@ use constant parameter_info_array =>
       default         => 'AB',
       choices         => ['AB','AC','BC','PQ', 'SM','SC','MC',
                           # 'BA'
+                          # 'UV',  # q from x=y diagonal down at 45-deg
                          ],
     },
   ];
 
+#------------------------------------------------------------------------------
 {
   my %coordinate_minimum = (A => 3,
                             B => 4,
@@ -202,18 +217,31 @@ use constant gcdxy_maximum => 1;  # no common factor
 {
   my %absdx_minimum = ('AB,UAD' => 2,
                        'AB,FB'  => 2,
+                       'AB,UMT' => 2,
+
                        'AC,UAD' => 2,
                        'AC,FB'  => 2,
+                       'AC,UMT' => 2,
+
                        'BC,UAD' => 4,  # at N=37
                        'BC,FB'  => 4,  # at N=2 X=12,Y=13
+                       'BC,UMT' => 4,  # at N=2 X=12,Y=13
+
                        'PQ,UAD' => 0,
                        'PQ,FB'  => 0,
+                       'PQ,UMT'  => 0,
+
                        'SM,UAD' => 1,
                        'SM,FB'  => 1,
+                       'SM,UMT' => 2,
+
                        'SC,UAD' => 1,
                        'SC,FB'  => 1,
+                       'SC,UMT' => 1,
+
                        'MC,UAD' => 3,
                        'MC,FB'  => 3,
+                       'MC,UMT' => 1,
                       );
   sub absdx_minimum {
     my ($self) = @_;
@@ -223,14 +251,19 @@ use constant gcdxy_maximum => 1;  # no common factor
 {
   my %absdy_minimum = ('AB,UAD' => 4,
                        'AB,FB'  => 4,
+                       'AB,UMT' => 4,
+
                        'AC,UAD' => 4,
                        'AC,FB'  => 4,
                        'BC,UAD' => 4,
                        'BC,FB'  => 4,
                        'PQ,UAD' => 0,
                        'PQ,FB'  => 1,
+
                        'SM,UAD' => 3,
                        'SM,FB'  => 3,
+                       'SM,UMT' => 1,
+
                        'SC,UAD' => 4,
                        'SC,FB'  => 4,
                        'MC,UAD' => 4,
@@ -245,7 +278,7 @@ use constant gcdxy_maximum => 1;  # no common factor
 {
   my %dir_minimum_dxdy = (# AB apparent minimum dX=16,dY=8
                           'AB,UAD' => [16,8],
-                          'AC,UAD' => [1,1], # it seems
+                          'AC,UAD' => [1,1],  # it seems
                           # 'BC,UAD' => [1,0], # infimum
                           # 'SM,UAD' => [1,0], # infimum
                           # 'SC,UAD' => [1,0], # N=255 dX=7,dY=0
@@ -254,6 +287,18 @@ use constant gcdxy_maximum => 1;  # no common factor
                           # 'SM,FB' => [1,0], # infimum
                           # 'SC,FB' => [1,0], # infimum
                           # 'SM,FB' => [1,0], # infimum
+
+                          'AB,UMT' => [6,12], # it seems
+
+                          # N=ternary 1111111122 dx=118,dy=40
+                          # in general dx=3*4k-2 dy=4k
+                          'AC,UMT' => [3,1], # infimum
+                          #
+                          # 'BC,UMT' => [1,0], # N=31 dX=72,dY=0
+                          'PQ,UMT' => [1,1], # N=1
+                          'SM,UMT' => [1,0],  # infiumum dX=big,dY=3
+                          'SC,UMT' => [3,1],  # like AC
+                          # 'MC,UMT' => [1,0],  # at N=31
                          );
   sub dir_minimum_dxdy {
     my ($self) = @_;
@@ -280,6 +325,17 @@ use constant gcdxy_maximum => 1;  # no common factor
                           # 'SM,FB'  => [0,0],   # supremum
                           # 'SC,FB'  => [0,0],   # supremum
                           # 'MC,FB'  => [0,0],   # supremum
+
+                          # N=ternary 1111111122 dx=118,dy=-40
+                          # in general dx=3*4k-2 dy=-4k
+                          'AB,UMT' => [3,-1], # supremum
+                          #
+                          'AC,UMT' => [-10,-20], # at N=9 apparent maximum
+                          # 'BC,UMT' => [0,0],  # apparent approach
+                          'PQ,UMT' => [1,-1], # N=2
+                          # 'SM,UMT' => [0,0],  # supremum dX=big,dY=-1
+                          'SC,UMT' => [-3,-5], # apparent approach
+                          # 'MC,UMT' => [0,0], # supremum dX=big,dY=-small
                          );
   sub dir_maximum_dxdy {
     my ($self) = @_;
@@ -300,6 +356,7 @@ my %xy_to_pq = (AB => \&_ab_to_pq,
                 SM => \&_sm_to_pq,
                 SC => \&_sc_to_pq,
                 MC => \&_mc_to_pq,
+                UV => \&_uv_to_pq,
                );
 my %pq_to_xy = (AB => \&_pq_to_ab,
                 AC => \&_pq_to_ac,
@@ -308,6 +365,7 @@ my %pq_to_xy = (AB => \&_pq_to_ab,
                 SM => \&_pq_to_sm,
                 SC => \&_pq_to_sc,
                 MC => \&_pq_to_mc,
+                UV => \&_pq_to_uv,
                );
 
 sub new {
@@ -315,7 +373,7 @@ sub new {
   {
     my $tree_type = ($self->{'tree_type'} ||= 'UAD');
     ($tree_type eq 'UAD' || $tree_type eq 'FB'
-     || $tree_type eq 'UKT'
+     || $tree_type eq 'UMT'
     )
       || croak "Unrecognised tree_type option: ",$tree_type;
   }
@@ -404,7 +462,7 @@ sub _n_to_pq {
   if ($self->{'tree_type'} eq 'UAD') {
     ### UAD ...
 
-    # # Could optimize high zeros as repeated U 
+    # # Could optimize high zeros as repeated U
     # # high zeros as repeated U: $depth-scalar(@ndigits)
     # # U^0 = p,    q
     # # U^1 = 2p-q, p          eg. P=2,Q=1 is 2*2-1,2 = 3,2
@@ -444,21 +502,21 @@ sub _n_to_pq {
 
       if ($digit) {
         if ($digit == 1) {
-          $q = $p-$q;                   # (2p, p-q)  K2
+          $q = $p-$q;                   # (2p, p-q)  M2
           $p *= 2;
         } else {
           # ($p,$q) = (2*$p, $p+$q);
-          $q += $p;                     # (p+q, 2q)  K3
+          $q += $p;                     # (p+q, 2q)  M3
           $p *= 2;
         }
       } else { # $digit == 0
         # ($p,$q) = ($p+$q, 2*$q);
-        $p += $q;                       # (p+q, 2q)  K1
+        $p += $q;                       # (p+q, 2q)  M1
         $q *= 2;
       }
     }
   } else {
-    ### UKT ...
+    ### UMT ...
 
     foreach my $digit (@ndigits) {  # high to low, possibly $digit=undef
       ### $p
@@ -467,10 +525,10 @@ sub _n_to_pq {
 
       if ($digit) {
         if ($digit == 1) {
-          $q = $p-$q;                   # (2p, p-q)  K2
+          $q = $p-$q;                 # (2p, p-q)  M2
           $p *= 2;
         } else { # $digit == 2
-          $p += 3*$q;    # T
+          $p += 3*$q;                 # T
           $q *= 2;
         }
       } else { # $digit == 0
@@ -558,16 +616,16 @@ sub xy_to_n {
         ### q odd, p even, digit 1 or 2 ...
         $p /= 2;
         if ($q > $p) {
-          ### digit 2 ...
+          ### digit 2, M3 ...
           push @ndigits, 2;
-          $q = $q - $p;  # opp parity of p, and < new p
+          $q -= $p;  # opp parity of p, and < new p
         } else {
-          ### digit 1 ...
+          ### digit 1, M2 ...
           push @ndigits, 1;
           $q = $p - $q;  # opp parity of p, and < p
         }
       } else {
-        ### q even, p odd, digit 0 ...
+        ### q even, p odd, digit 0, M1 ...
         push @ndigits, 0;
         $q /= 2;
         $p -= $q;  # opp parity of q
@@ -575,7 +633,7 @@ sub xy_to_n {
       ### descend: "$q / $p"
     }
 
-  } else { # UKT
+  } else { # UMT
     for (;;) {
       ### at: "p=$p q=$q"
       my $qmod2 = $q % 2;
@@ -588,7 +646,7 @@ sub xy_to_n {
         ($p,$q) = ($q, 2*$q-$p);  # U
         push @ndigits, 0;
       } elsif ($qmod2) {
-        $p /= 2;   # K2
+        $p /= 2;   # M2
         $q = $p - $q;
         push @ndigits, 1;
       } else {
@@ -840,6 +898,15 @@ sub _pq_to_sm {
   return ($a < $b ? ($a, $b) : ($b, $a));
 }
 
+# u = p+q, v=p-q
+# at given p, vertical q
+# u=p,v=p on diagonal then p+q,p-q is diagonal down
+# so mirror p axis to x=y diagonal and measure down diagonal from there
+sub _pq_to_uv {
+  my ($p, $q) = @_;
+  return ($p+$q, $p-$q);
+}
+
 #------------------------------------------------------------------------------
 
 # a = p^2 - q^2
@@ -1042,6 +1109,14 @@ sub _mc_to_pq {
   return ($p,$q);
 }
 
+# u = p+q, v=p-q
+# u+v=2p   p = (u+v)/2
+# u-v=2q   q = (u-v)/2
+sub _uv_to_pq {
+  my ($u, $v) = @_;
+  return (($u+$v)/2, ($u-$v)/2);
+}
+
 1;
 __END__
 
@@ -1089,9 +1164,15 @@ Math::PlanePath::PythagoreanTree -- primitive Pythagorean triples by tree
 =head1 DESCRIPTION
 
 This path enumerates primitive Pythagorean triples by a breadth-first
-traversal of a ternary tree, either "UAD" or "FB".  Each point is an integer
-X,Y=A,B which has integer hypotenuse and is primitive in the sense that A
-and B have no common factor.
+traversal of one of three ternary trees,
+
+    "UAD"    Berggren, and others
+    "FB"     Price
+    "UMT"    a third form
+
+Each X,Y point is a pair of integer A,B sides of a right triangle.  The
+points are "primitive" in the sense that the sense that A and B have no
+common factor.
 
      A^2 + B^2 = C^2    gcd(A,B)=1, no common factor
      X=A, Y=B
@@ -1105,18 +1186,25 @@ and B have no common factor.
         <-A->
 
 A primitive triple always has one of A,B odd and the other even.  The trees
-here give triples ordered as A odd and B even.
+here have triples ordered as A odd and B even.
 
 The trees are traversed breadth-first and tend to go out to rather large A,B
 values while yet to complete smaller ones.  The UAD tree goes out further
-than the FB.
+than the FB.  The author's mathematical write-up for proofs of the UMT and
+that these are the only trees with a fixed set of matrices.
+
+=over
+
+L<http://user42.tuxfamily.org/triples/index.html>
+
+=back
 
 =head2 UAD Tree
 
 The UAD tree by Berggren (1934) and later independently by Barning (1963),
 Hall (1970), and other authors, uses three matrices U, A and D which can be
 multiplied onto an existing primitive triple to form three further new
-primitive triples.  See L</UAD Matrices> below for details of the descent.
+primitive triples.
 
     tree_type => "UAD"   (the default)
 
@@ -1137,12 +1225,33 @@ primitive triples.  See L</UAD Matrices> below for details of the descent.
          +--------------------------------------------------
             X=3         X=15  X=20           X=35      X=45
 
-The starting point is N=1 at X=3,Y=4 which is the well-known 3^2 + 4^2 =
-5^2.  From it three further points N=2, N=3 and N=4 are derived, then three
-more from each of those, etc,
+The matrices are
 
-    depth=0  depth=1    depth=2     depth=3
-     N=1     N=2..4     N=5..13     N=14...
+The UAD matrices are
+
+         1  2  2         1  2  2         -1 -2 -2
+    U = -2 -1 -2     A = 2  1  2     D =  2  1  2
+         2  2  3         2  3  3          2  2  3
+
+They're multiplied on the right of an (A,B,C) vector, for example
+
+    (3, 4, 5) * U = (5, 12, 13)
+
+The starting point is N=1 at X=3,Y=4 which is the well-known
+
+    3^2 + 4^2 = 5^2
+
+From it three further points N=2, N=3 and N=4 are derived, then three more
+from each of those, etc,
+
+=cut
+
+# printed by tools/pythagorean-tree.pl
+
+=pod
+
+    depth=0   depth=1    depth=2    depth=3
+     N=1      N=2..4     N=5..13    N=14...
 
                       +-> 7,24
           +-> 5,12  --+-> 55,48
@@ -1163,16 +1272,15 @@ of a level (which is C<tree_depth_to_n()>) is at
          = (3^depth + 1) / 2
 
 The level numbering is like a mixed-radix representation of N where the high
-digit is binary and the digits below are ternary.
+digit is binary (so always 1) and the digits below are ternary.
 
          +--------+---------+---------+--   --+---------+
     N =  | binary | ternary | ternary |  ...  | ternary |
          +--------+---------+---------+--   --+---------+
               1      0,1,2     0,1,2             0,1,2
 
-The high digit must be non-zero so is always 1.  The number of ternary
-digits is the "depth" and their value without the high binary 1 is the
-position across within the row.
+The number of ternary digits is the "depth" and their value without the high
+binary 1 is the position in the row.
 
 =head2 A Repeatedly
 
@@ -1186,6 +1294,7 @@ or below the X=Y leading diagonal.  The N values are 1,3,9,27,etc = 3^depth.
 =cut
 
 # FIXME: were these known to Fermat?
+# PQ coordinates A000129 Pell numbers
 
 =pod
 
@@ -1198,14 +1307,13 @@ Taking the lower "D" matrix repeatedly gives
 which is the primitives among a sequence of triples known to the ancients
 (Dickson's I<History of the Theory of Numbers>, start of chapter IV),
 
-     A = k^2-1
+     A = k^2-1       k even for primitives
      B = 2*k
      C = k^2+1       so C=A+2
 
-When k is even these are primitive.  (If k is odd then A and B are both
-even, ie. a common factor of 2, so not primitive.)  These points are the
-last of each level, so at N=(3^(depth+1)-1)/2 which is
-C<tree_depth_to_n_end()>.
+When k is even these are primitive.  If k is odd then A and B are both even,
+ie. a common factor of 2, so not primitive.  These points are the last of
+each level, so at N=(3^(depth+1)-1)/2 which is C<tree_depth_to_n_end()>.
 
 =head2 U Repeatedly
 
@@ -1213,16 +1321,17 @@ Taking the upper "U" matrix repeatedly gives
 
     3.4 -> 5,12 -> 7,24 -> 9,40 -> etc
 
-with C=B+1.  These are the first of each level so at Nrow described above.
-The resulting triples are a sequence known to Pythagoras (Dickson's
-I<History of the Theory of Numbers>, start of chapter IV).
+with C=B+1 and A the odd numbers.  These are the first of each level so at
+Nrow described above.  The resulting triples are a sequence known to
+Pythagoras (Dickson's I<History of the Theory of Numbers>, start of chapter
+IV).
 
-    A = k               k any odd integer
-    B = (k^2-1)/2        so A^2 any odd square
-    C = (k^2+1)/2
+    A = any odd integer, so A^2 any odd square
+    B = (A^2-1)/2
+    C = (A^2+1)/2
 
-           / k^2-1 \       / k^2+1 \
-    k^2 + | ------  |^2 = |  -----  |^2
+           / A^2-1 \       / A^2+1 \
+    A^2 + | ------  |^2 = |  -----  |^2
            \   2   /       \   2   /
 
 This is also described by X<Fibonacci>Fibonacci in his
@@ -1238,8 +1347,8 @@ Squares>) in terms of sums of odd numbers
 
 X<Gnomon>The geometric interpretation is that an existing square of side B
 is extended by a X<Gnomon>"gnomon" around two sides making a new larger
-square of side C=B+1.  If the length of the gnomon is a square then the new
-total area is the sum of two squares.
+square of side C=B+1.  The length of the gnomon is odd and when it's an odd
+square then the new total area is the sum of two squares.
 
        *****gnomon*******     gnomon length an odd square = A^2
        +--------------+ *
@@ -1253,7 +1362,8 @@ See L<Math::PlanePath::Corner> for a path following such gnomons.
 
 =head2 FB Tree
 
-X<Price, H. Lee>Option C<tree_type =E<gt> "FB"> selects the Fibonacci boxes tree
+X<Price, H. Lee>Option C<tree_type =E<gt> "FB"> selects the Fibonacci boxes
+tree per
 
 =over
 
@@ -1294,9 +1404,15 @@ triples, but in a different order to the UAD above.
 The first point N=1 is again at X=3,Y=4, from which three further points
 N=2,3,4 are derived, then three more from each of those, etc.
 
+=cut
+
+# printed by tools/pythagorean-tree.pl
+
+=pod
+
     N=1      N=2..4      N=5..13     N=14...
 
-                      +-> 9,40
+                      +-> 9,40             A,B coordinates
           +-> 5,12  --+-> 35,12
           |           +-> 11,60
           |
@@ -1307,6 +1423,33 @@ N=2,3,4 are derived, then three more from each of those, etc.
           |           +-> 13,84
           +-> 7,24  --+-> 63,16
                       +-> 15,112
+
+=head2 UMT Tree
+
+The third tree type is a combination of "U" from Berggren, "M2" from Price,
+and a third matrix T.  Is this new?  In any case,
+
+=cut
+
+# printed by tools/pythagorean-tree.pl
+
+=pod
+
+              U       +-> 7,24             A,B coordinates
+          +-> 5,12  --+-> 35,12
+          |           +-> 65,72
+          |
+          |   M2      +-> 33,56
+    3,4 --+-> 15,8  --+-> 55,48
+          |           +-> 45,28
+          |
+          |   T       +-> 39,80
+          +-> 21,20 --+-> 91,60
+                      +-> 105,88
+
+The first "T" child is 21,20 and is the same as the "A" matrix, but it
+differs at further levels down ("T" twice is 105,88 which is not the same as
+"A" twice 119,120).
 
 =head2 AC Coordinates
 
@@ -1454,7 +1597,7 @@ The B,C points fall on 45-degree straight lines going up from X=Y-1.  This
 occurs because a primitive triple A,B,C with A odd and B even can be written
 
     A^2 = C^2 - B^2
-    A^2 = (C+B)*(C-B)
+        = (C+B)*(C-B)
 
 gcd(A,B)=1 means also gcd(C+B,C-B)=1 and therefore since C+B and C-B have no
 common factor they must each be squares to give A^2.  Call them s^2 and t^2,
@@ -1542,28 +1685,28 @@ AB points below the X=Y diagonal up to the upper eighth,
 
     coordinates => "SM"
 
-     91 |                                16       
-     84 |        122                              
-        |                     8                   
-        |                    10                   
-     72 |                                  12     
-        |                                         
-        |                                         
-     60 |       41 40                             
-        |                  11                     
-     55 |                          6              
-        |                                         
-        |                7                        
-     40 |      14                                 
-        |                                         
-     35 |        13                               
-        |                                         
-     24 |     5                                   
-     21 |            3                            
-        |                                         
-     12 |    2 4                                  
-        |                                         
-    Y=4 |   1                                     
+     91 |                                16
+     84 |        122
+        |                     8
+        |                    10
+     72 |                                  12
+        |
+        |
+     60 |       41 40
+        |                  11
+     55 |                          6
+        |
+        |                7
+     40 |      14
+        |
+     35 |        13
+        |
+     24 |     5
+     21 |            3
+        |
+     12 |    2 4
+        |
+    Y=4 |   1
         |
         +----------------------------------------
           X=3  8     20     33     48      60 65
@@ -1575,30 +1718,30 @@ each triple,
 
     coordinates => "SC"
 
-     85 |        122         10     
-        |                           
-        |                           
+     85 |        122         10
+        |
+        |
      73 |                          6
-        |                           
-        |          40      11       
-     61 |       41                  
-        |                           
-     53 |                7          
-        |                           
-        |                           
-     41 |      14                   
-     37 |        13                 
-        |                           
-        |            3              
-     25 |     5                     
-        |                           
-        |      4                    
-     13 |    2                      
-        |                           
-    Y=5 |   1                       
+        |
+        |          40      11
+     61 |       41
+        |
+     53 |                7
+        |
+        |
+     41 |      14
+     37 |        13
+        |
+        |            3
+     25 |     5
+        |
+        |      4
+     13 |    2
+        |
+    Y=5 |   1
         |
         +-----------------------------
-          X=3  8     20     33     48 
+          X=3  8     20     33     48
 
 The points are all X E<lt> 0.7*Y since with X as the smaller leg must have
 S<X^2 E<lt> Y^2/2> so S<X E<lt> Y*1/sqrt(2)>.
@@ -1611,21 +1754,21 @@ each triple,
     coordinates => "MC"
 
      65 |                             11 40
-     61 |                               41    
-        |                                     
-     53 |                       7             
-        |                                     
-        |                                     
-     41 |                     14              
-     37 |                  13                 
-        |                                     
-     29 |           3                         
-     25 |             5                       
-        |                                     
-     17 |        4                            
-     13 |       2                           
-        |                                     
-    Y=5 |   1                                                     
+     61 |                               41
+        |
+     53 |                       7
+        |
+        |
+     41 |                     14
+     37 |                  13
+        |
+     29 |           3
+     25 |             5
+        |
+     17 |        4
+     13 |       2
+        |
+    Y=5 |   1
         |
         +-----------------------------------
           X=4   15   24    35 40      56 63
@@ -1635,7 +1778,7 @@ S<X^2 E<gt> Y^2/2> so S<X E<gt> Y*1/sqrt(2)>.
 
 =cut
 
-# if A=B=C/sqrt(2) 
+# if A=B=C/sqrt(2)
 # A^2+B^2 = C^2/2+C^2/2 = C^2
 # so X=Y/sqrt(2) = Y*0.7071
 
@@ -1931,6 +2074,27 @@ roughly C<3**log2(x)>.
 
 =back
 
+=head2 Descriptive Methods
+
+=over
+
+=item C<$x = $path-E<gt>x_minimum()>
+
+=item C<$y = $path-E<gt>y_minimum()>
+
+Return the minimum X or Y occurring in the path.  The value goes according
+to the C<coordinates> option,
+
+    coordinate    minimum
+    ----------    -------
+        A,S          3
+        B,M          4
+         C           5
+         P           2
+         Q           1
+
+=back
+
 =head2 Tree Methods
 
 X<Complete ternary tree>Each point has 3 children, so the path is a complete
@@ -1998,24 +2162,6 @@ Return false, since there are no leaf nodes in the tree.
 
 =head2 UAD Matrices
 
-The UAD matrices are
-
-        /  1   2   2  \
-    U = | -2  -1  -2  |
-        \  2   2   3  /
-
-        /  1   2   2  \
-    A = |  2   1   2  |
-        \  2   3   3  /
-
-        / -1  -2  -2  \
-    D = |  2   1   2  |
-        \  2   2   3  /
-
-They're multiplied on the right of an (A,B,C) vector, for example
-
-    (3, 4, 5) * U = (5, 12, 13)
-
 Internally the code uses P,Q and calculates A,B at the end as necessary.
 The UAD transformations in P,Q coordinates are
 
@@ -2051,13 +2197,13 @@ level then they can be applied to the initial P=2,Q=1 as
 The FB tree is calculated in P,Q and converted to A,B at the end as
 necessary.  Its three transformations are
 
-    K1     P -> P+Q         ( 1  1 )
+    M1     P -> P+Q         ( 1  1 )
            Q -> 2Q          ( 0  2 )
 
-    K2     P -> 2P          ( 2  0 )
+    M2     P -> 2P          ( 2  0 )
            Q -> P-Q         ( 1 -1 )
 
-    K3     P -> 2P          ( 2  0 )
+    M3     P -> 2P          ( 2  0 )
            Q -> P+Q         ( 1  1 )
 
 Price's paper shows rearrangements of a set of four values q',q,p,p'.  Just
@@ -2086,24 +2232,95 @@ If at any stage P,Q doesn't satisfy PE<gt>QE<gt>=1, one odd, the other even,
 then it means the original point, however it was converted, was not a
 primitive triple.  For a primitive triple the endpoint is always P=2,Q=1.
 
+The conditions PE<gt>3Q or PE<gt>2Q work because each matrix sends its
+parent P,Q to one of three disjoint regions,
+
+     Q                  P=Q                    P=2Q                P=3Q
+     |                    *       U         ----     A        ++++++
+     |                  *               ----            ++++++
+     |                *             ----          ++++++
+     |              *           ----        ++++++
+     |            *         ----      ++++++
+     |          *       ----    ++++++
+     |        *     ----  ++++++                     D
+     |      *   ----++++++
+     |    * ----++++
+     |  ----++
+     |
+     +------------------------------------------------- P
+
+So U is the upper wedge, A the middle, and D the lower.  The parent P,Q can
+be anywhere in PE<gt>QE<gt>=1, the matrices always map to these regions.
+
 =head2 X,Y to N -- FB
 
 After converting to P,Q as necessary, a P,Q point can be reversed up the FB
 tree to its parent
 
-    if P odd     reverse K1    P -> P-Q
+    if P odd     reverse M1    P -> P-Q
     (Q even)                   Q -> Q/2
 
-    if Q < P/2   reverse K2    P -> P/2
-                               Q -> P/2 - Q
+    if P > 2Q    reverse M2    P -> P/2
+    (P even)                   Q -> P/2 - Q
 
-    otherwise    reverse K3    P -> P/2
-                               Q -> Q - P/2
+    otherwise    reverse M3    P -> P/2
+    (P even)                   Q -> Q - P/2
 
 This is a little like the binary greatest common divisor algorithm, but
 designed for one value odd and the other even.  Like the UAD ascent above if
 at any stage P,Q doesn't satisfy PE<gt>QE<gt>=1, one odd, the other even,
 then the initial point wasn't a primitive triple.
+
+The M1 reversal works because M1 sends any parent P,Q to a child which has P
+odd.  All odd P,Q comes from M1.  The M2 and M3 always make children with P
+even.  Those children are divided between two disjoint regions above and
+below the line P=2Q.
+
+     Q                  P=Q                     P=2Q
+     |                    *     M3 P=even   ----
+     |                  *               ----
+     |                *             ----
+     |              *           ----
+     |            *         ----              M2 P=even
+     |          *       ----
+     |        *     ----
+     |      *   ----
+     |    * ----                 M1 P=odd anywhere
+     |  ----
+     |
+     +------------------------------------------------- P
+
+=head2 X,Y to N -- UMT
+
+After converting to P,Q as necessary, a P,Q point can be reversed up the UMT
+tree to its parent
+
+    if P > 2Q    reverse "U"     P -> Q
+                  digit=0        Q -> 2Q-P
+
+    if P even    reverse "M2"    P -> P/2
+    (Q odd)                      Q -> P/2 - Q
+
+    otherwise    reverse "T"     P -> P - 3 * Q/2
+    (Q even)                     Q -> Q/2
+
+These reversals work because U sends any parent P,Q to a child PE<gt>2Q
+whereas the M2 and T go below that line.  M2 and T are distinguished by M2
+giving P even whereas T gives P odd.
+
+     Q                  P=Q                     P=2Q
+     |                    *       U         ----
+     |                  *               ----
+     |                *             ----
+     |              *           ----
+     |            *         ----        M2 for P=even
+     |          *       ----             T for P=odd
+     |        *     ----
+     |      *   ----
+     |    * ----
+     |  ----
+     |
+     +------------------------------------------------- P
 
 =head2 Rectangle to N Range -- UAD
 
@@ -2137,21 +2354,21 @@ A=35,B=12.  In general,
     Bmin = 2^level + 4
 
 In P,Q coordinates a Q=1 is found in that second row which is the minimum B,
-and the smallest P is found by taking K1 steps half-way then a K2 step, then
-K1 steps for the balance.  This is a slightly complicated
+and the smallest P is found by taking M1 steps half-way then a M2 step, then
+M1 steps for the balance.  This is a slightly complicated
 
     Pmin = /  3*2^(k-1) + 1    if even level = 2*k
            \  2^(k+1) + 1      if odd level = 2*k+1
     Q = 1
 
-The fixed Q=1 arises from the K1 steps giving
+The fixed Q=1 arises from the M1 steps giving
 
     P = 2 + 1+2+4+8+...+2^(level-2)
       = 2 + 2^(level-1) - 1
       = 2^(level-1) + 1
     Q = 2^(level-1)
 
-    followed by K2 step
+    followed by M2 step
     Q -> P-Q
          = 1
 
@@ -2171,10 +2388,50 @@ L<http://oeis.org/A007051> (etc)
 
     A007051   N start of depth=n, (3^n+1)/2, ie. tree_depth_to_n()
     A003462   N end of depth=n-1, (3^n-1)/2, ie. tree_depth_to_n_end()
-    A000244   N of "A repeatedly", 3^n
+    A000244   N of row middle line, 3^n
 
     A058529   possible values taken by abs(A-B),
                 being integers with all prime factors == +/-1 mod 8
+
+    "U" repeatedly
+      A046092    coordinate B, 2n(n+1) = 4*triangular numbers
+      A099776    \ coordinate C, being 2n(n+1)+1
+      A001844    /  which is the "centred squares"
+
+    "A" repeatedly
+      A046727    \ coordinate A
+      A084159    /   "Pell oblongs"
+      A046729    coordinate B
+      A001653    coordinate C, numbers n where 2*n^2-1 is square
+      A000129    coordinate P and Q, the Pell numbers
+      A001652    coordinate S, the smaller leg
+      A046090    coordinate M, the bigger leg
+
+    "D" repeatedly
+      A000466    coordinate A, being 4*n^2-1 for n>=1
+
+    "M1" repeatedly
+      A028403    coordinate B,   binary 10..010..000
+      A007582    coordinate B/4, binary 10..010..0
+      A085601    coordinate C,   binary 10..010..001
+
+    "M2" repeatedly
+      A015249    \ coordinate A, binary 111000111000...
+      A084152    |
+      A084175    /
+      A054881    coordinate B, binary 1010..1010000..00
+
+    "M3" repeatedly
+      A106624    coordinate P,Q pairs, 2^k-1,2^k
+
+    "T" repeatedly
+      A134057    coordinate A, binomial(2^n-1,2)
+                   binary 111..11101000..0001
+      A093357    coordinate B, binary 10111..111000..000
+      A052940    \
+      A055010    | coordinate P, 3*2^n-1
+      A083329    |   binary 10111..111
+      A153893    /
 
 =head1 SEE ALSO
 

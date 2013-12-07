@@ -34,6 +34,7 @@ devel/divisible-columns.pl
 devel/dragon-devel.m4
 devel/dragon-iterative.gri
 devel/dragon-numbers.pl
+devel/dragon-pgf.tex
 devel/dragon.el
 devel/dragon.gnuplot
 devel/dragon.logo
@@ -42,7 +43,6 @@ devel/exe-atan2.c
 devel/exe-complex-minus.c
 devel/exe-complex-plus.c
 devel/exe-complex-revolving.c
-devel/exe-pythagorean-matrices.c
 devel/factor-rationals.pl
 devel/fibonacci-word.logo
 devel/fibonacci-word.pl
@@ -151,11 +151,14 @@ examples/other/dragon-curve.el
 examples/other/dragon-curve.gnuplot
 examples/other/dragon-curve.logo
 examples/other/dragon-curve.m4
+examples/other/dragon-pgf-latex.tex
+examples/other/dragon-pgf-plain.tex
 examples/other/dragon-recursive.gri
 examples/other/sierpinski-triangle-bitand.gnuplot
 examples/other/sierpinski-triangle-replicate.gnuplot
 examples/other/sierpinski-triangle-text.gnuplot
 examples/other/sierpinski-triangle-text.logo
+examples/other/sierpinski-triangle.m4
 examples/rationals-tree.pl
 examples/sacks-xpm.pl
 examples/square-numbers.pl
@@ -406,6 +409,7 @@ tools/hilbert-curve-table.pl
 tools/hilbert-spiral-table.pl
 tools/kochel-curve-table.pl
 tools/moore-spiral-table.pl
+tools/pythagorean-tree.pl
 tools/r5dragon-midpoint-offset.pl
 tools/terdragon-midpoint-offset.pl
 tools/wunderlich-meander-table.pl
@@ -463,6 +467,7 @@ xt/oeis/ImaginaryBase-oeis.t
 xt/oeis/KnightSpiral-oeis.t
 xt/oeis/KochCurve-oeis.t
 xt/oeis/LTiling-oeis.t
+xt/oeis/MPeaks-oeis.t
 xt/oeis/MultipleRings-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
 xt/oeis/OctagramSpiral-oeis.t

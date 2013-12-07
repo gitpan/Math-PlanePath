@@ -38,7 +38,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -214,18 +214,18 @@ A coordinate pair Y and X are the start of a Fibonacci style recurrence,
 
     F[1]=Y, F[2]=X    F[i+i] = F[i] + F[i-1]
 
-Any such sequence eventually becomes a row of the Wythoff array
+Such a sequence eventually becomes a row of the Wythoff array
 (L<Math::PlanePath::WythoffArray>) after some number of initial iterations.
-The N value at X,Y is the row number of the Wythoff array containing
-sequence beginning Y and X.  Rows are numbered starting from 1.  Eg.
+The N value at X,Y is the row number of the Wythoff array which is reached
+from initial Y and X.  Rows are numbered starting from 1.  Eg.
 
     Y=4,X=1 sequence:       4, 1, 5, 6, 11, 17, 28, 45, ...
     row 7 of WythoffArray:                  17, 28, 45, ...
     so N=7 at Y=4,X=1
 
-Conversely a given N is positioned in the triangle according to where row
-number N of the Wythoff array "precurses" by running the recurrence in
-reverse,
+Taking this in reverse, a given N is at an X,Y position in the triangle
+according to where row number N of the Wythoff array "precurses" back to.
+The Wythoff row is run in reverse,
 
     F[i-1] = F[i+i] - F[i]
 

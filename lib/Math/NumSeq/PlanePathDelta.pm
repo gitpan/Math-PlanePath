@@ -42,7 +42,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -1421,14 +1421,12 @@ sub _dxdy_to_dir4 {
 }
 { package Math::PlanePath::PythagoreanTree;
   {
-    my %_NumSeq_Delta_dRadius_integer = ('AB,UAD' => 1,  # Radius=C
-                                         'AB,FB'  => 1,
-                                         'SM,UAD' => 1,  # Radius=C
-                                         'SM,FB'  => 1,
+    my %_NumSeq_Delta_dRadius_integer = ('AB' => 1,  # Radius=C
+                                         'SM' => 1,  # Radius=C
                                         );
     sub _NumSeq_Delta_dRadius_integer {
       my ($self) = @_;
-      return $_NumSeq_Delta_dRadius_integer{"$self->{'coordinates'},$self->{'tree_type'}"};
+      return $_NumSeq_Delta_dRadius_integer{$self->{'coordinates'}};
     }
   }
   {
@@ -1444,6 +1442,10 @@ sub _dxdy_to_dir4 {
                                'SM,FB' => 1,
                                'SC,FB' => 1,
                                'MC,FB' => 1,
+
+                               'AC,UMT' => 1,
+                               'SM,UMT' => 1,
+                               'SC,UMT' => 1,
                               );
     sub _NumSeq_Dir4_min_is_infimum {
       my ($self) = @_;
@@ -1462,6 +1464,12 @@ sub _dxdy_to_dir4 {
                                 'SM,FB' => 1,
                                 'SC,FB' => 1,
                                 'MC,FB' => 1,
+
+                                'AB,UMT' => 1,
+                                'BC,UMT' => 1,
+                                'SM,UMT' => 1,
+                                'SC,UMT' => 1,
+                                'MC,UMT' => 1,
                                );
     sub _NumSeq_Dir4_max_is_supremum {
       my ($self) = @_;

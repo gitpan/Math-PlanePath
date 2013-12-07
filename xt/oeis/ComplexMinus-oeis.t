@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1;
+plan tests => 5;
 use Math::BigInt try => 'GMP';
 
 use lib 't','xt';
@@ -38,9 +38,27 @@ my $path = Math::PlanePath::ComplexMinus->new;
 #------------------------------------------------------------------------------
 # A052537 length A,B or C
 # A003476 total boundary length / 2
+# A203175 boundary length
+
+MyOEIS::compare_values
+  (anum => 'A203175',
+   name => 'boundary length',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1,1,2);
+     my $a = Math::BigInt->new(2);
+     my $b = Math::BigInt->new(2);
+     my $c = Math::BigInt->new(0);
+     while (@got < $count) {
+       push @got, ($a+$b+$c);
+       ($a,$b,$c) = abc_step($a,$b,$c);
+     }
+     return \@got;
+   });
 
 MyOEIS::compare_values
   (anum => 'A003476',
+   name => 'boundary length / 2',
    func => sub {
      my ($count) = @_;
      my @got = (1);

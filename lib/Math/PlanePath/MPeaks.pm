@@ -24,7 +24,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 111;
+$VERSION = 112;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -303,7 +303,7 @@ L<http://oeis.org/A045944> (etc)
 
     A045944    N on X axis except initial 0, octagonal numbers second kind
     A056106    N on Y axis, except initial 1
-    A056109    N on X negative axis, from Y=-1
+    A056109    N on X negative axis, for X<=-1
 
 =head1 SEE ALSO
 

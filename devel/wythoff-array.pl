@@ -27,27 +27,7 @@ use lib 't','xt';
 
 
 {
-  # left-justified shift amount
-  require Math::NumSeq::Fibbinary;
-  my $fib = Math::NumSeq::Fibbinary->new;
-  my $path = Math::PlanePath::WythoffArray->new;
-  foreach my $y (0 .. 50) {
-    my $a = $path->xy_to_n(0,$y);
-    my $b = $path->xy_to_n(1,$y);
-    my $count = 0;
-    while ($a < $b) {
-      ($a,$b) = ($b-$a,$a);
-      $count++;
-    }
-    my $y_fib = sprintf '%b',$fib->ith($y);
-    print "$y  $y_fib  $count\n";
-    # $count = ($count+1)/2;
-    # print "$count,";
-  }
-  exit 0;
-}
-{
-  # tree
+  # tree A230871
   require Math::PlanePath::WythoffArray;
   my $wythoff = Math::PlanePath::WythoffArray->new (x_start => 1, y_start => 1);
 
@@ -55,13 +35,15 @@ use lib 't','xt';
   my @value = (0, 1);
   my @child_left = (1);
   my @child_right = (undef);
+  my $value_seen = '';
   {
     my @pending = (1);
-    foreach (0 .. 10) {
+    foreach (0 .. 13) {
       my @new_pending;
       while (@pending) {
         my $i = shift @pending;
         my $value = $value[$i] // die "oops no value at $i";
+        if ($value < 20000) { vec($value_seen,$value,1) = 1; }
         my $parent_i = $parent[$i];
         my $parent_value = $value[$parent_i];
         {
@@ -113,8 +95,22 @@ use lib 't','xt';
     }
   }
 
+  # print columns
+  {
+    foreach my $c (0 .. 20) {
+      print "col c=$c: ";
+      foreach my $r (0 .. 20) {
+        if (defined (my $value = $rows[$r]->[$c])) {
+          print "$value,";
+        }
+      }
+      print "\n";
+    }        
+  }
+
   my @wythoff_row;
   my @wythoff_step;
+  my @triangle;
   {
     # wythoff row
     my $r = 0;
@@ -139,6 +135,7 @@ use lib 't','xt';
         print "smaller v1: $v1 $v2\n";
       }
 
+      $triangle[$v1][$v2] = 1;
       my ($x,$y,$step) = pair_to_wythoff_xy($v1,$v2);
       $x //= '[undef]';
       $y //= '[undef]';
@@ -164,6 +161,17 @@ use lib 't','xt';
     print "\n";
   }
 
+  {
+    # print triangle
+    foreach my $v1 (reverse 0 .. 80) {
+      foreach my $v2 (0 .. 80) {
+        print $triangle[$v1][$v2] ? '*' : ' ';
+      }
+      print "\n";
+    }
+  }
+
+  @wythoff_row = sort {$a<=>$b} @wythoff_row;
   foreach (1, 2) {
     print join(',',@wythoff_row),"\n";
     {
@@ -171,7 +179,7 @@ use lib 't','xt';
       my $fib = Math::NumSeq::Fibbinary->new;
       print join(',',map{sprintf '%b',$fib->ith($_)} @wythoff_row),"\n";
     }
-    foreach (@wythoff_row) { $_++ }
+    foreach (@wythoff_row) { $_-- }
     print "\n";
   }
 
@@ -179,7 +187,22 @@ use lib 't','xt';
 
   require MyOEIS;
   MyOEIS::compare_values
+      (anum => 'A230872',
+       name => 'tree all values occurring',
+       max_count => 700,
+       func => sub {
+         my ($count) = @_;
+         my @got = (0);
+         for (my $i = 0; @got < $count; $i++) {
+           if (vec($value_seen,$i,1)) {
+             push @got, $i;
+           }
+         }
+         return \@got;
+       });
+  MyOEIS::compare_values
       (anum => 'A230871',
+       name => 'tree table',
        func => sub {
          my ($count) = @_;
          my @got;
@@ -215,6 +238,26 @@ use lib 't','xt';
       ($v1,$v2) = ($v2,$v1+$v2);
     }
   }
+}
+{
+  # left-justified shift amount
+  require Math::NumSeq::Fibbinary;
+  my $fib = Math::NumSeq::Fibbinary->new;
+  my $path = Math::PlanePath::WythoffArray->new;
+  foreach my $y (0 .. 50) {
+    my $a = $path->xy_to_n(0,$y);
+    my $b = $path->xy_to_n(1,$y);
+    my $count = 0;
+    while ($a < $b) {
+      ($a,$b) = ($b-$a,$a);
+      $count++;
+    }
+    my $y_fib = sprintf '%b',$fib->ith($y);
+    print "$y  $y_fib  $count\n";
+    # $count = ($count+1)/2;
+    # print "$count,";
+  }
+  exit 0;
 }
 
 {

@@ -29,8 +29,62 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+# use Smart::Comments;
 
+{
+  # OEIS grep matrices repeatedly
+  use lib 'xt'; require MyOEIS;
+  require Math::BigInt;
+
+  my $coordinates_choices = Math::PlanePath::PythagoreanTree
+    ->parameter_info_hash->{'coordinates'}->{'choices'};
+  my $zero = Math::BigInt->new(0);
+
+  require Math::NumSeq::PlanePathN;
+  # Math::NumSeq::PlanePathN::_bigint()->new(0);
+
+  my @nlists;
+  foreach my $digit (0 .. 2) {
+    foreach my $depth (1 .. 10) {
+      push @{$nlists[$digit]}, ternarytree_join_lowtohigh([($digit) x $depth], $zero);
+    }
+    print join(',', @{$nlists[$digit]}),"\n";
+  }
+
+  foreach my $tree_type ('UAD', 'FB', 'UMT') {
+    foreach my $matrix ($tree_type eq 'UMT' ? 2 : 0 .. 2) {
+
+      my %seen_coord_name;
+      foreach my $coordinates (@$coordinates_choices) {
+        my $path = Math::PlanePath::PythagoreanTree->new(tree_type => $tree_type,
+                                                         coordinates => $coordinates);
+        foreach my $coord (1, 2, 3) {
+          my $coord_name = ($coord & 1 ? substr($coordinates,0,1) : '')
+            . ($coord & 2 ? substr($coordinates,1,1) : '');
+          next if $seen_coord_name{$coord_name}++;
+
+          my @values;
+          foreach my $n (@{$nlists[$matrix]}) {
+            my @xy = $path->n_to_xy($n);
+            if ($coord & 1) { push @values, $xy[0]; }
+            if ($coord & 2) { push @values, $xy[1]; }
+            ### @xy
+          }
+          print MyOEIS->grep_for_values
+            (array => \@values,
+             name => "$tree_type matrix=$matrix coord=$coord_name ($coord of $coordinates)");
+        }
+      }
+    }
+  }
+  exit 0;
+
+  sub ternarytree_join_lowtohigh {
+    my ($aref, $zero) = @_;
+    return ((3+$zero)**scalar(@$aref) + 1)/2    # tree_depth_to_n()
+      + digit_join_lowtohigh($aref,3,$zero);  # digits within this depth
+  }
+}
 
 {
   # possible matrices
@@ -101,7 +155,7 @@ use Smart::Comments;
 
   my $mm_count = 5;
   my @mm_indices = (0 .. $mm_count-1);
-  MM_LIST: for (;;) {
+ MM_LIST: for (;;) {
     {
       my @mm_list = map {$matrices[$_]} @mm_indices;
       if (m3_coverage(@mm_list)) {
@@ -124,7 +178,7 @@ use Smart::Comments;
     }
   }
 
-no Smart::Comments;
+  no Smart::Comments;
   sub pq_acceptable {
     my ($p,$q) = @_;
     unless (is_integer($p)) {
@@ -296,7 +350,7 @@ no Smart::Comments;
   require Math::PlanePath::PythagoreanTree;
   my $path = Math::PlanePath::PythagoreanTree->new
     (
-     # tree_type => 'UKT',
+     # tree_type => 'UMT',
       tree_type => 'UAD',
      # tree_type => 'FB',
       coordinates => 'AB',
@@ -387,7 +441,7 @@ no Smart::Comments;
 
 
 {
-  my $path = Math::PlanePath::PythagoreanTree->new (tree_type => 'UKT',
+  my $path = Math::PlanePath::PythagoreanTree->new (tree_type => 'UMT',
                                                     coordinates => 'PQ');
   $path->xy_to_n(4,5);
   exit 0;
@@ -400,14 +454,14 @@ no Smart::Comments;
   foreach my $n (1 .. 40) {
     if (n_is_row_start($n)) { print "\n"; }
     my ($p,$q) = $uad->n_to_xy($n);
-    my $ukt_n = ukt_pq_to_n($p,$q);
-    my $ukt_n_str = n_to_pythagstr($ukt_n);
+    my $umt_n = umt_pq_to_n($p,$q);
+    my $umt_n_str = n_to_pythagstr($umt_n);
     my $n_str = n_to_pythagstr($n);
-    print "$n = $n_str  $p,$q   UKT=$n $ukt_n_str\n";
+    print "$n = $n_str  $p,$q   UMT=$n $umt_n_str\n";
   }
   exit 0;
 
-  sub ukt_pq_to_n {
+  sub umt_pq_to_n {
     my ($p,$q) = @_;
     my @ndigits;
     while ($p > 2) {
