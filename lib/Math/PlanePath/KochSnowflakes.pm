@@ -18,22 +18,66 @@
 
 # math-image --path=KochSnowflakes --lines --scale=10
 #
-# A178789 number of angles in level n
-#
 # area approaches sqrt(48)/10
 #     *     height=sqrt(1-1/4)=sqrt(3)/2
 #    /|\    halfbase=1/2
 #   / | \   trianglearea = sqrt(3)/4
 #  *-----*
-# segments = 3*4^level
-# area = 9*prevarea + segments
-#      = 9*prevarea + 3*4^level
-# area = 3*4^level + 9*(3*4^(level-1) + 9*(3*4^(level-2) + (1)))
-#      = 3*4^level + 9*3*4^(level-1) + 9*9*(3*4^(level-2) + (1)))
-# area = 1 + 3*1/9 + 3*4*1/9^2 + 3*4^2*1/9^3 + ... + 3*4^level/9^(level+1)
-#      = 1 + 3/9*(1 + 4/9 + 4^2/9^2 + ... + 4^level/9^level)
-#      = 1 + 3/9*[ ((4/9)^(level+1) - 1) / ((4/9) - 1) ]
-#      = 1 + 
+# segments = 3*4^level = 3,12,48,192,...
+#
+# with initial triangle area=1
+# add a new triangle onto each side
+# x,y scale by 3* so 9*area
+#
+# area[level+1] = 9*area[level] + segments
+#               = 9*area[level] + 3*4^level
+
+# area[0] = 1
+# area[1] = 9*area[0] + 3       = 9 + 3 = 12
+# area[2] = 9*area[1] + 3*4
+#         = 9*(9*1 + 3) + 3*4
+#         = 9*9 + 3*9 + 3*4     = 120
+# area[3] = 9*area[2] + 3*4
+#         = 9*(9*9 + 3*9 + 3*4) + 3*4^2
+#         = 9^3 + 3*9^2 + 3*0*4 + 3*4^2
+
+# area[level+1]
+#   = 9^(level+1) + (9^(level+1) - 4^(level+1)) * 3/5
+#   = (5*9^(level+1) + 3*9^(level+1) - 3*4^(level+1)) / 5
+#   = (8*9^(level+1) - 3*4^(level+1)) / 5
+#
+# area[level] = (8*9^level - 3*4^level) / 5
+#             = 1,12,120,1128,10344,93864,847848
+#
+#         .
+#        / \       area[0] = 1
+#       .---.  
+#
+#         .
+#        / \       area=[1] = 12 = 9*area[0] + 3*4^0
+#   .---.---.---.
+#    \ / \ / \ /
+#     .---.---.
+#    / \ / \ / \
+#   .---.---.---.
+#        \ /
+#         .
+#
+# area[level] / 9^level
+#   = (8*9^level / 9^level - 3*4^level / 9^level) / 5
+#   = (8 - 3*(4/0)^level)/5
+#   -> 8/5   as level->infinity
+
+# in integer coords
+# initial triangle area
+#         *       2/3        1*2 / 2 = 1 unit
+#        / \
+#       *---*     -1/3
+#      -1   +1
+#
+# so area[level] / (sqrt(3)/2)
+
+
 
 package Math::PlanePath::KochSnowflakes;
 use 5.004;
@@ -42,7 +86,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -456,7 +500,7 @@ points.
 Counting the innermost triangle as level 0, each ring is
 
     Nstart = 4^level
-    length = 3*(4^level)   many points
+    length = 3*4^level    many points
 
 For example the outer ring shown above is level 2 starting N=4^2=16 and
 having length=3*4^2=48 points (through to N=63 inclusive).
@@ -487,6 +531,38 @@ to N=Nstart+length-1 and scaling X/3^level Y/3^level to give a 2-wide
 1-high figure of desired fineness.  See F<examples/koch-svg.pl> in the
 Math-PlanePath sources for a complete program doing that as an SVG
 image file.
+
+=head2 Area
+
+The area of the snowflake at a given level can be calculated from the area
+under the Koch curve per L<Math::PlanePath::KochCurve/Area> which is the 3
+sides, and the central triangle
+
+                 *          ^ Yhi
+                / \         |          height = 3^level
+               /   \        |                 
+              /     \       |
+             *-------*      v
+
+             <------->      width = 3^level - (- 3^level) = 2*3^level
+            Xlo      Xhi
+
+    triangle_area = width*height/2 = 9^level
+
+    snowflake_area[level] = triangle_area[level] + 3*curve_area[level]
+                          = 9^level + 3*(9^level - 4^level)/5
+                          = (8*9^level - 3*4^level) / 5
+
+If the snowflake is conceived as a fractal of fixed initial triangle size
+and ever-smaller notches then the area is divided by that central triangle
+area 9^level,
+
+    unit_snowflake[level] = snowflake_area[level] / 9^level
+                          = (8 - 3*(4/9)^level) / 5
+                          -> 8/5      as level -> infinity
+
+Which is the well-known 8/5 * initial triangle area for the fractal
+snowflake.
 
 =head1 FUNCTIONS
 
@@ -520,13 +596,36 @@ and the last point in that level is
 Using this as an N range is an over-estimate, but an easy calculation.  It's
 not too difficult to trace down for an exact range
 
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to the
+Koch snowflake include the following.  See
+L<Math::PlanePath::KochCurve/OEIS> for entries related to a single Koch side.
+
+=over
+
+L<http://oeis.org/A164346> (etc)
+
+=back
+
+    A164346   number of points in ring n, being 3*4^n
+    A178789   number of acute angles in ring n, 4^n + 2
+    A002446   number of obtuse angles in ring n, 2*4^n - 2
+
+The acute angles are those of +/-120 degrees and the obtuse ones +/-240
+degrees.  Eg. in the outer ring=2 shown above the acute angles are at N=18,
+22, 24, 26, etc.  The angles are all either acute or obtuse, so
+
+    A178789 + A002446 = A164346
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PeanoCurve>,
-L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>
+
+L<Math::PlanePath::QuadricIslands>
 
 =head1 HOME PAGE
 

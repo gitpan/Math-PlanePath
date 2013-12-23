@@ -113,7 +113,6 @@ devel/numseq.pl
 devel/peano.pl
 devel/permutations.pl
 devel/pixel-rings.pl
-devel/pythagorean-area.pl
 devel/pythagorean.pl
 devel/quadric.pl
 devel/quintet-replicate.pl
@@ -466,6 +465,7 @@ xt/oeis/HypotOctant-oeis.t
 xt/oeis/ImaginaryBase-oeis.t
 xt/oeis/KnightSpiral-oeis.t
 xt/oeis/KochCurve-oeis.t
+xt/oeis/KochSnowflakes-oeis.t
 xt/oeis/LTiling-oeis.t
 xt/oeis/MPeaks-oeis.t
 xt/oeis/MultipleRings-oeis.t

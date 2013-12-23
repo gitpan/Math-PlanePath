@@ -20,14 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 329;
+plan tests => 349;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::PythagoreanTree;
 
@@ -36,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 112;
+  my $want_version = 113;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -59,6 +59,83 @@ require Math::PlanePath::PythagoreanTree;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# _n_to_digits_lowtohigh() on 53-bits
+
+my $have_53bits;
+{
+  my $bit16 = (1 << 16);
+  my $bit63 = (1 << 15)*$bit16*$bit16*$bit16;
+  my $ffs = $bit63 - 1;
+  ### $ffs
+  ### ffs: sprintf '%b', $ffs
+  my $mod = $ffs % 2;
+  $have_53bits = ($mod == 1 ? 1 : 0);
+}
+my $skip_less_than_53bits = ($have_53bits ? undef
+                             : 'skip due to no 53-bit integers');
+MyTestHelpers::diag ("have_53bits: ", $have_53bits);
+
+{
+  # depth=34
+  # Nrow = (3^depth + 1) / 2 = 8338590849833285
+  # offset = 2^53-1 - 8338590849833285 = 668608404907706
+  # ternary "00001101211011001220022202002022022100101"
+  #
+  my $want_str = reverse "0010020200100100011022211200212222";
+  my $F32 = 0xFFFF_FFFF;
+  my $F21 = (1 << 21) - 1;
+  my $n = ($F21 << 32) | $F32;  # 2^53-1
+  my $digits = Math::PlanePath::PythagoreanTree::_n_to_digits_lowtohigh($n);
+  foreach my $digit (@$digits) {
+    if (! defined $digit) { $digit = '0'; }  # mutate array
+  }
+  my $got_str = join('', @$digits);
+  skip ($skip_less_than_53bits,
+        $got_str, $want_str, "n=$n");
+}
+
+
+#------------------------------------------------------------------------------
+# _n_to_digits_lowtohigh()
+
+{
+  my @data = ([ 1, '' ],
+
+              [ 2,  '0' ],
+              [ 3,  '1' ],
+              [ 4,  '2' ],
+
+              [ 5,  '0,0' ],
+              [ 6,  '1,0' ],
+              [ 7,  '2,0' ],
+              [ 11,  '0,2' ],
+              [ 12,  '1,2' ],
+              [ 13,  '2,2' ],
+
+              [ 14,  '0,0,0' ],
+              [ 15,  '1,0,0' ],
+              [ 16,  '2,0,0' ],
+              [ 17,  '0,1,0' ],
+              [ 38,  '0,2,2' ],
+              [ 39,  '1,2,2' ],
+              [ 40,  '2,2,2' ],
+
+              [ 41,  '0,0,0,0' ],
+              [ 42,  '1,0,0,0' ],
+             );
+  my $path = Math::PlanePath::PythagoreanTree->new;
+  foreach my $elem (@data) {
+    my ($n, $want_str) = @$elem;
+    my $digits = Math::PlanePath::PythagoreanTree::_n_to_digits_lowtohigh($n);
+    foreach my $digit (@$digits) {
+      if (! defined $digit) { $digit = '0'; }  # mutate array
+    }
+    my $got_str = join(',', @$digits);
+    ok ($got_str, $want_str, "n=$n");
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -186,7 +263,7 @@ require Math::PlanePath::PythagoreanTree;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::PythagoreanTree->parameter_info_list;
-  ok (join(',',@pnames), 'tree_type,coordinates');
+  ok (join(',',@pnames), 'tree_type,coordinates,digit_order');
 }
 
 #------------------------------------------------------------------------------

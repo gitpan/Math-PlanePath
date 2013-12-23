@@ -90,7 +90,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 112;
+$VERSION = 113;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -251,8 +251,8 @@ use constant gcdxy_maximum => undef;
 
 #------------------------------------------------------------------------------
 
-use constant dir_minimum_dxdy => (1,0);
-use constant dir_maximum_dxdy => (0,0);
+use constant dir_minimum_dxdy => (1,0);   # East
+use constant dir_maximum_dxdy => (0,0);   # supremum all angles
 
 use constant dx_minimum => undef;
 use constant dy_minimum => undef;
@@ -734,6 +734,7 @@ And in the separate Math-PlanePath-Toothpick distribution
     LCornerTree            L-shape corner growth
     LCornerReplicate       same by replication rather than tree
     OneOfEight
+    HTree                  H shapes replicated
 
 The paths are object oriented to allow parameters, though many have none.
 See C<examples/numbers.pl> in the Math-PlanePath sources for a sample
@@ -2073,7 +2074,9 @@ L<Math::PlanePath::LCornerReplicate>,
 L<Math::PlanePath::ToothpickTree>,
 L<Math::PlanePath::ToothpickReplicate>,
 L<Math::PlanePath::ToothpickUpist>,
-L<Math::PlanePath::ToothpickSpiral>
+L<Math::PlanePath::ToothpickSpiral>,
+L<Math::PlanePath::OneOfEight>,
+L<Math::PlanePath::HTree>
 
 L<Math::NumSeq::PlanePathCoord>,
 L<Math::NumSeq::PlanePathDelta>,

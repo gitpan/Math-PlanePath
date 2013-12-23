@@ -36,7 +36,7 @@ require Math::PlanePath::TerdragonMidpoint;
 # VERSION
 
 {
-  my $want_version = 112;
+  my $want_version = 113;
   ok ($Math::PlanePath::TerdragonMidpoint::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TerdragonMidpoint->VERSION,  $want_version,

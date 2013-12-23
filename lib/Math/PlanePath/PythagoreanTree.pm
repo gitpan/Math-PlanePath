@@ -20,92 +20,13 @@
 
 # http://sunilchebolu.wordpress.com/pythagorean-triples-and-the-integer-points-on-a-hyperboloid/
 
-
-# A022344:
-# Horadam "Fibonacci Number Triples" Amer. Math. Monthly 68(1961)
-# 751-753. That paper showed that if F(0), F(1), F(2), F(3)
-# are 4 sequential numbers in a row of the Wythoff array, then
-# (2F(1)*F(2), F(0)*F(1), 2F(1)*F(2) + F(0)^2) is a
-# Pythagorean triple (a,b,c) i.e. a^2 + b^2 = c^2.
-
-# Diophantus III, 22
-# http://archive.org/details/diophantusofalex00heatiala
-#
-# Dickson History of the Theory of Numbers vol 2 chapter iv page 165
-# Diophantus knew that if the sides of a right triangle are
-# expressed by rational numbers they are proportional to 2mn, m^2 n^2,
-#
-# http://www.cut-the-knot.org/htdocs/dcforum/DCForumID4/745.shtml
-# Horadam "Fibonacci Number Triples" Amer. Math. Monthly 68(1961) 751-753
-# F(0), F(1), F(2) and F(3) are 4 sequential numbers of a Fibonacci type
-# sequence then P = (2F(1)*F(2),F(0)*F(3),2F(1)F(2)+F(0)^2) is a Pythagorean
-# triplet.
-# (2F(1)*F(2))^2 + (F(0)*F(3))^2 = (2F(1)*F(2)+F(0)^2)^2.
-#
-#
-# Euclid Book X prop 28,29 that u,v makes a triple, maybe Babylonians
-#
 # http://www.math.uconn.edu/~kconrad/blurbs/ugradnumthy/pythagtriple.pdf
-#
-# http://www.fq.math.ca/Scanned/30-2/waterhouse.pdf
-# Continued fractions for P/Q.
 #
 # http://www.math.ou.edu/~dmccullough/teaching/pythagoras1.pdf
 # http://www.math.ou.edu/~dmccullough/teaching/pythagoras2.pdf
 #
-# B. Berggren 1934, "Pytagoreiska trianglar", Tidskrift
-# for elementar matematik, fysik och kemi 17 (1934): 129-139.
-#
-# Kanga, A. R., "The family tree of Pythagorean triples," Bulletin of the
-# Institute of Mathematics and its Applications 26, January/February 1990,
-# 15–17.
-#
-# http://arxiv.org/abs/math/0406512
-# http://www.mendeley.com/research/dynamics-pythagorean-triples/
-#    Dan Romik
-#
-# http://www.math.sjsu.edu/~alperin/Pythagoras/ModularTree.html
-# http://www.math.sjsu.edu/~alperin/pt.pdf
-#
-# http://www.math.ucdavis.edu/~romik/home/Publications_files/pythrevised.pdf
-#
 # http://www.microscitech.com/pythag_eigenvectors_invariants.pdf
 #
-
-# L. Palmer, M. Ahuja, and M. Tikoo, "Finding Pythagorean Triple Preserving
-# Matrices". Missouri Journal of Mathematical Sciences, 10 (1998), 99-105.
-# http://www.math-cs.ucmo.edu/~mjms/1998.2/palmer.ps
-# http://www.math-cs.ucmo.edu/~mjms/1998.3/palmer.ps
-
-# Barning 1963
-# http://oai.cwi.nl/oai/asset/7151/7151A.pdf
-# A1 = A, A2 = U, A3 = D
-# Ai^T.J.Ai = J for J = 1,0,0; 0,1,0; 0,0,-1
-# A2^-1 * A1 = +/-1,0,0; 0; 0,-/+1,0; 0,0,1
-# u^-1*a
-# d^-1*a
-
-# Other:
-
-# Mack and Czernezkyj "The tree in Pythagoras’ garden". Australian Senior
-# Mathematics Journal, 24(2), 58–63
-# files.eric.ed.gov/fulltext/EJ906702.pdf
-# UDA tree figure 3, with A<B each
-#
-# Frank R. Bernhart, and H. Lee Price, "Pythagoras' garden, revisited",
-# Australian Senior Mathematics Journal 01/ 2012; 26(1):29-40.
-# http://www.eric.ed.gov/PDFS/EJ992372.pdf
-# Followup to Mack and Czernezkyj, UAD and FB trees
-
-# Saunders, Robert A.; Randall, Trevor (July 1994), "The family tree of the
-# Pythagorean triplets revisited", Mathematical Gazette 78: 190–193,
-# http://www.jstor.org/stable/3618576
-# Followup to Kanga describing the UAD tree.
-
-# Daniel Shanks. Solved and Unsolved Problems in Number Theory, pp. 121 and
-# 141, 1993.
-# http://books.google.com.au/books?id=KjhM9pZEGCkC&lpg=PR1&dq=Solved%20and%20Unsolved%20Problems%20in%20Number%20Theory&pg=PA122#v=onepage&q&f=false
-# Page 141 on p,q per Euclid and Babylonians
 
 
 package Math::PlanePath::PythagoreanTree;
@@ -114,8 +35,9 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
+*_divrem = \&Math::PlanePath::_divrem;
 @ISA = ('Math::PlanePath');
 
 #use List::Util 'min','max';
@@ -129,6 +51,7 @@ use Math::PlanePath::Base::Digits
   'round_down_pow',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
+use Math::PlanePath::GrayCode;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -144,7 +67,7 @@ use constant parameter_info_array =>
       display         => 'Tree Type',
       type            => 'enum',
       default         => 'UAD',
-      choices         => ['UAD','FB','UMT'],
+      choices         => ['UAD','UArD','FB','UMT'],
     },
     { name            => 'coordinates',
       share_key       => 'coordinates_abcpqsm',
@@ -155,6 +78,12 @@ use constant parameter_info_array =>
                           # 'BA'
                           # 'UV',  # q from x=y diagonal down at 45-deg
                          ],
+    },
+    { name            => 'digit_order',
+      display         => 'Digit Order',
+      type            => 'enum',
+      default         => 'HtoL',
+      choices         => ['HtoL','LtoH'],
     },
   ];
 
@@ -368,13 +297,22 @@ my %pq_to_xy = (AB => \&_pq_to_ab,
                 UV => \&_pq_to_uv,
                );
 
+my %tree_types = (UAD  => 1,
+                  UArD => 1,
+                  FB   => 1,
+                  UMT  => 1);
+my %digit_orders = (HtoL  => 1,
+                    LtoH => 1);
 sub new {
   my $self = shift->SUPER::new (@_);
   {
+    my $digit_order = ($self->{'digit_order'} ||= 'HtoL');
+    $digit_orders{$digit_order}
+      || croak "Unrecognised digit_order option: ",$digit_order;
+  }
+  {
     my $tree_type = ($self->{'tree_type'} ||= 'UAD');
-    ($tree_type eq 'UAD' || $tree_type eq 'FB'
-     || $tree_type eq 'UMT'
-    )
+    $tree_types{$tree_type}
       || croak "Unrecognised tree_type option: ",$tree_type;
   }
   {
@@ -428,30 +366,16 @@ sub n_to_radius {
 sub _n_to_pq {
   my ($self, $n) = @_;
 
-  # @ndigits list of ternary digits 0,1,2 which are the position of $n within
-  # its row of the tree.  This is like a mixed-radix form where the high
-  # digit is binary (and so always 1, and not in @ndigits) and the rest are
-  # ternary.
-  #
-  # h = 2*(n-1)+1 = 2*n-2+1 = 2*n-1
-  # rowstart = (range-1)/2+1
-  #
-  # Eg. at N=1 pow=1,depth=0 then N=2 pow=3,depth=1
-  my ($pow, $depth) = round_down_pow (2*$n-1, 3);
+  my $ndigits = _n_to_digits_lowtohigh($n);
+  ### $ndigits
 
-  ### h: 2*$n-1
-  ### $depth
-  ### $pow
-  ### base: ($pow + 1)/2
-  ### rem n: $n - ($pow + 1)/2
-
-  my @ndigits = digit_split_lowtohigh ($n - ($pow+1)/2,  3);
-  $#ndigits = $depth-1;   # pad to $depth with undefs
-  ### @ndigits
-
-  if (! $self->{'reverse'}) {
-    @ndigits = reverse @ndigits;
-    ### @ndigits
+  if ($self->{'tree_type'} eq 'UArD') {
+    Math::PlanePath::GrayCode::_digits_to_gray_reflected($ndigits,3);
+    ### gray: $ndigits
+  }
+  if ($self->{'digit_order'} eq 'HtoL') {
+    @$ndigits = reverse @$ndigits;
+    ### reverse: $ndigits
   }
 
   my $zero = $n * 0;
@@ -459,43 +383,10 @@ sub _n_to_pq {
   my $p = 2 + $zero;
   my $q = 1 + $zero;
 
-  if ($self->{'tree_type'} eq 'UAD') {
-    ### UAD ...
-
-    # # Could optimize high zeros as repeated U
-    # # high zeros as repeated U: $depth-scalar(@ndigits)
-    # # U^0 = p,    q
-    # # U^1 = 2p-q, p          eg. P=2,Q=1 is 2*2-1,2 = 3,2
-    # # U^2 = 3p-2q, 2p-q      eg. P=2,Q=1 is 3*2-2*1,2*2-1 = 4,3
-    # # U^3 = 4p-3q, 3p-2q
-    # # U^k = (k+1)p-kq, kp-(k-1)q   for k>=2
-    # #     = p + k*(p-q), k*(p-q)+q
-    # # and with initial p=2,q=1
-    # # U^k = 2+k, 1+k
-    # #
-    # $q = $depth - $#ndigits + $zero;  # count high zeros + 1
-    # $p = $q + 1 + $zero;
-
-    foreach my $digit (@ndigits) {  # high to low, possibly $digit=undef
-      ### $p
-      ### $q
-      ### $digit
-
-      if ($digit) {
-        if ($digit == 1) {
-          ($p,$q) = (2*$p+$q, $p);      # "A" = (2p+q, p)
-        } else {
-          $p += 2*$q;                   # "D" = (p+2q, q)
-        }
-      } else { # $digit==0
-        ($p,$q) = (2*$p-$q, $p);        # "U" = (2p-q, p)
-      }
-    }
-
-  } elsif ($self->{'tree_type'} eq 'FB') {
+  if ($self->{'tree_type'} eq 'FB') {
     ### FB ...
 
-    foreach my $digit (@ndigits) {  # high to low, possibly $digit=undef
+    foreach my $digit (@$ndigits) {  # high to low, possibly $digit=undef
       ### $p
       ### $q
       ### $digit
@@ -515,10 +406,10 @@ sub _n_to_pq {
         $q *= 2;
       }
     }
-  } else {
+  } elsif ($self->{'tree_type'} eq 'UMT') {
     ### UMT ...
 
-    foreach my $digit (@ndigits) {  # high to low, possibly $digit=undef
+    foreach my $digit (@$ndigits) {  # high to low, possibly $digit=undef
       ### $p
       ### $q
       ### $digit
@@ -536,13 +427,101 @@ sub _n_to_pq {
         ($p,$q) = (2*$p-$q, $p);      # "U" = (2p-q, p)
       }
     }
+  } else {
+    ### UAD or UArD ...
+    ### assert: $self->{'tree_type'} eq 'UAD' || $self->{'tree_type'} eq 'UArD'
+
+    # # Could optimize high zeros as repeated U
+    # # high zeros as repeated U: $depth-scalar(@$ndigits)
+    # # U^0 = p,    q
+    # # U^1 = 2p-q, p          eg. P=2,Q=1 is 2*2-1,2 = 3,2
+    # # U^2 = 3p-2q, 2p-q      eg. P=2,Q=1 is 3*2-2*1,2*2-1 = 4,3
+    # # U^3 = 4p-3q, 3p-2q
+    # # U^k = (k+1)p-kq, kp-(k-1)q   for k>=2
+    # #     = p + k*(p-q), k*(p-q)+q
+    # # and with initial p=2,q=1
+    # # U^k = 2+k, 1+k
+    # #
+    # $q = $depth - $#ndigits + $zero;  # count high zeros + 1
+    # $p = $q + 1 + $zero;
+
+    foreach my $digit (@$ndigits) {  # high to low, possibly $digit=undef
+      ### $p
+      ### $q
+      ### $digit
+
+      if ($digit) {
+        if ($digit == 1) {
+          ($p,$q) = (2*$p+$q, $p);      # "A" = (2p+q, p)
+        } else {
+          $p += 2*$q;                   # "D" = (p+2q, q)
+        }
+      } else { # $digit==0
+        ($p,$q) = (2*$p-$q, $p);        # "U" = (2p-q, p)
+      }
+    }
+
   }
 
-  ### final
-  ### $p
-  ### $q
+  ### final pq: "$p, $q"
 
   return ($p, $q);
+}
+
+# _n_to_digits_lowtohigh() returns an arrayref $ndigits which is a list of
+# ternary digits 0,1,2 from low to high which are the position of $n within
+# its row of the tree.
+# The length of the array is the depth.
+#
+# depth N  N%3      2*N-1   (N-2)/3*2+1
+#   0   1   1         1         1/3
+#   1   2   2         3          1
+#   2   5   2         9          3
+#   3   14  2        27          9
+#   4   41  2        81         27       28 + (28/2-1) = 41
+#
+# (N-2)/3*2+1 rounded down to pow=3^k gives depth=k+1 and base=pow+(pow+1)/2
+# is the start of the row base=1,2,5,14,41 etc.
+#
+# An easier calculation is 2*N-1 rounded down to pow=3^d gives depth=d and
+# base=2*pow-1, but 2*N-1 and 2*pow-1 might overflow an integer.  Though
+# just yet round_down_pow() goes into floats and so doesn't preserve 64-bit
+# integer.  So the technique here helps 53-bit float integers, but not right
+# up to 64-bits.
+#
+sub _n_to_digits_lowtohigh {
+  my ($n) = @_;
+  ### _n_to_digits_lowtohigh(): $n
+
+  my @ndigits;
+  if ($n >= 2) {
+    my ($pow) = _divrem($n-2, 3);
+    ($pow, my $depth) = round_down_pow (2*$pow+1, 3);
+    ### $depth
+    ### base: $pow + ($pow+1)/2
+    ### offset: $n - $pow - ($pow+1)/2
+    @ndigits = digit_split_lowtohigh ($n - $pow - ($pow+1)/2, 3);
+    push @ndigits, (0) x ($depth - $#ndigits);   # pad to $depth with 0s
+  }
+  ### @ndigits
+  return \@ndigits;
+
+
+  # {
+  #   my ($pow, $depth) = round_down_pow (2*$n-1, 3);
+  #
+  #   ### h: 2*$n-1
+  #   ### $depth
+  #   ### $pow
+  #   ### base: ($pow + 1)/2
+  #   ### rem n: $n - ($pow + 1)/2
+  #
+  #   my @ndigits = digit_split_lowtohigh ($n - ($pow+1)/2,  3);
+  #   $#ndigits = $depth-1;   # pad to $depth with undefs
+  #   ### @ndigits
+  #
+  #   return \@ndigits;
+  # }
 }
 
 #------------------------------------------------------------------------------
@@ -577,35 +556,7 @@ sub xy_to_n {
   }
 
   my @ndigits;  # low to high
-  if ($self->{'tree_type'} eq 'UAD') {
-    for (;;) {
-      ### $p
-      ### $q
-      if ($q <= 0 || $p <= 0 || $p <= $q) {
-        return undef;
-      }
-      last if $q <= 1 && $p <= 2;
-
-      if ($p > 2*$q) {
-        if ($p > 3*$q) {
-          ### digit 2 ...
-          push @ndigits, 2;
-          $p -= 2*$q;
-        } else {
-          ### digit 1
-          push @ndigits, 1;
-          ($p,$q) = ($q, $p - 2*$q);
-        }
-
-      } else {
-        ### digit 0 ...
-        push @ndigits, 0;
-        ($p,$q) = ($q, 2*$q-$p);
-      }
-      ### descend: "$q / $p"
-    }
-
-  } elsif ($self->{'tree_type'} eq 'FB') {
+  if ($self->{'tree_type'} eq 'FB') {
     for (;;) {
       unless ($p > $q && $q >= 1) {
         return undef;
@@ -633,7 +584,7 @@ sub xy_to_n {
       ### descend: "$q / $p"
     }
 
-  } else { # UMT
+  } elsif ($self->{'tree_type'} eq 'UMT') {
     for (;;) {
       ### at: "p=$p q=$q"
       my $qmod2 = $q % 2;
@@ -655,17 +606,56 @@ sub xy_to_n {
         push @ndigits, 2;
       }
     }
-  }
 
-  if ($self->{'reverse'}) {
+  } else {
+    ### UAD or UArD ...
+    ### assert: $self->{'tree_type'} eq 'UAD' || $self->{'tree_type'} eq 'UArD'
+    for (;;) {
+      ### $p
+      ### $q
+      if ($q <= 0 || $p <= 0 || $p <= $q) {
+        return undef;
+      }
+      last if $q <= 1 && $p <= 2;
+
+      if ($p > 2*$q) {
+        if ($p > 3*$q) {
+          ### digit 2 ...
+          push @ndigits, 2;
+          $p -= 2*$q;
+        } else {
+          ### digit 1
+          push @ndigits, 1;
+          ($p,$q) = ($q, $p - 2*$q);
+        }
+
+      } else {
+        ### digit 0 ...
+        push @ndigits, 0;
+        ($p,$q) = ($q, 2*$q-$p);
+      }
+      ### descend: "$q / $p"
+    }
+  }
+  ### @ndigits
+
+  if ($self->{'digit_order'} eq 'LtoH') {
     @ndigits = reverse @ndigits;
+    ### unreverse: @ndigits
+  }
+  if ($self->{'tree_type'} eq 'UArD') {
+    Math::PlanePath::GrayCode::_digits_from_gray_reflected(\@ndigits,3);
+    ### ungray: @ndigits
   }
 
   my $zero = $x*0*$y;
-  return ((3+$zero)**scalar(@ndigits) + 1)/2    # tree_depth_to_n()
-    + digit_join_lowtohigh(\@ndigits,3,$zero);  # digits within this depth
-}
+  ### offset: digit_join_lowtohigh(\@ndigits,3,$zero)
+  ### depth: scalar(@ndigits)
+  ### Nrow: $self->tree_depth_to_n($zero + scalar(@ndigits))
 
+  return ($self->tree_depth_to_n($zero + scalar(@ndigits))
+          + digit_join_lowtohigh(\@ndigits,3,$zero)); # offset into row
+}
 
 # numprims(H) = how many with hypot < H
 # limit H->inf  numprims(H) / H -> 1/2pi
@@ -719,8 +709,15 @@ sub rect_to_n_range {
   }
 
   my $depth;
-  if ($self->{'tree_type'} eq 'UAD') {
-    ### UAD ...
+  if ($self->{'tree_type'} eq 'FB') {
+    ### FB ...
+    if ($self->{'coordinates'} eq 'PQ') {
+      $x2 *= 3;
+    }
+    my ($pow, $exp) = round_down_pow ($x2, 2);
+    $depth = 2*$exp;
+  } else {
+    ### UAD or UArD, and UMT ...
     if ($self->{'coordinates'} eq 'PQ') {
       ### PQ ...
       # P=k+1,Q=k diagonal N=100..000 first of row is depth=P-2
@@ -731,13 +728,6 @@ sub rect_to_n_range {
       my $ydepth = int (($y2+31) / 4);
       $depth = min($xdepth,$ydepth);
     }
-  } else {
-    ### FB ...
-    if ($self->{'coordinates'} eq 'PQ') {
-      $x2 *= 3;
-    }
-    my ($pow, $exp) = round_down_pow ($x2, 2);
-    $depth = 2*$exp;
   }
   ### depth: "$depth"
   return (1, $self->tree_depth_to_n_end($zero+$depth));
@@ -1190,8 +1180,8 @@ here have triples ordered as A odd and B even.
 
 The trees are traversed breadth-first and tend to go out to rather large A,B
 values while yet to complete smaller ones.  The UAD tree goes out further
-than the FB.  The author's mathematical write-up for proofs of the UMT and
-that these are the only trees with a fixed set of matrices.
+than the FB.  See the author's mathematical write-up for a proof of the UMT
+and that these are the only trees with a fixed set of matrices.
 
 =over
 
@@ -1225,19 +1215,19 @@ primitive triples.
          +--------------------------------------------------
             X=3         X=15  X=20           X=35      X=45
 
-The matrices are
-
 The UAD matrices are
 
-         1  2  2         1  2  2         -1 -2 -2
-    U = -2 -1 -2     A = 2  1  2     D =  2  1  2
-         2  2  3         2  3  3          2  2  3
+         1 -2  2         1  2  2         -1  2  2
+    U =  2 -1  2     A = 2  1  2     D = -2  1  2
+         2 -2  3         2  2  3         -2  2  3
 
-They're multiplied on the right of an (A,B,C) vector, for example
+They're multiplied on the right of an (A,B,C) column vector, for example
 
-    (3, 4, 5) * U = (5, 12, 13)
+         / 3 \     /  5 \
+     U * | 4 |  =  | 12 |
+         \ 5 /     \ 13 /
 
-The starting point is N=1 at X=3,Y=4 which is the well-known
+The starting point is N=1 at X=3,Y=4 which is the well-known triple
 
     3^2 + 4^2 = 5^2
 
@@ -1253,7 +1243,7 @@ from each of those, etc,
     depth=0   depth=1    depth=2    depth=3
      N=1      N=2..4     N=5..13    N=14...
 
-                      +-> 7,24
+                      +-> 7,24             A,B coordinates
           +-> 5,12  --+-> 55,48
           |           +-> 45,28
           |
@@ -1266,7 +1256,7 @@ from each of those, etc,
                       +-> 35,12
 
 Counting N=1 as depth=0, each level has 3^depth many points and the first N
-of a level (which is C<tree_depth_to_n()>) is at
+of a level (C<tree_depth_to_n()>) is at
 
     Nrow = 1 + (1 + 3 + 3^2 + ... + 3^(depth-1))
          = (3^depth + 1) / 2
@@ -1360,6 +1350,40 @@ square then the new total area is the sum of two squares.
 
 See L<Math::PlanePath::Corner> for a path following such gnomons.
 
+=head2 UArD Tree
+
+X<Gray code>Option C<tree_type =E<gt> "UArD"> varies the UAD tree by taking
+points within a row in ternary reflected Gray code order.  The 3 children
+under each node are unchanged, just their order.
+
+                      +-> 7,24         tree_type => "UArD"
+          +-> 5,12  --+-> 55,48        A,B coordinates
+          |           +-> 45,28
+          |
+          |           +-> 77,36        <-+- U,D legs swapped
+    3,4 --+-> 21,20 --+-> 119,120        |
+          |           +-> 39,80        <-+
+          |
+          |           +-> 33,56
+          +-> 15,8  --+-> 65,72
+                      +-> 35,12
+
+Notice the middle points 77,36 and 39,80 are swapped relative to the UAD
+shown above.  In general the whole tree underneath an "A" is reversed as a
+mirror image.  If there's an even number of "A"s above then those mirrorings
+cancel out to be plain again.
+
+This tree form is primarily of interest for L</Digit Order Low to High>
+described below since it gives points ordered clockwise down from the Y
+axis.
+
+In L</PQ Coordinates> below, with the default digits high to low, UArD also
+makes successive steps across the row either horizontal or 45-degrees NE-SW.
+
+In all cases the Gray coding is applied to N first, then the resulting
+digits are interpreted either high to low (the default) or low to high
+(C<LtoH> option).
+
 =head2 FB Tree
 
 X<Price, H. Lee>Option C<tree_type =E<gt> "FB"> selects the Fibonacci boxes
@@ -1372,11 +1396,11 @@ L<http://arxiv.org/abs/0809.4324>
 
 =back
 
-This is based on expressing triples in certain "Fibonacci boxes" with a box
-of four values q',q,p,p' having p=q+q' and p'=p+q so each is the sum of the
-preceding two in a fashion similar to the Fibonacci sequence.  A box where p
-and q have no common factor corresponds to a primitive triple.  See L</PQ
-Coordinates> and L</FB Transformations> below.
+This tree is based on expressing triples in certain "Fibonacci boxes" with a
+box of four values q',q,p,p' having p=q+q' and p'=p+q so each is the sum of
+the preceding two in a fashion similar to the Fibonacci sequence.  A box
+where p and q have no common factor corresponds to a primitive triple.  See
+L</PQ Coordinates> and L</FB Transformations> below.
 
     tree_type => "FB"
 
@@ -1426,8 +1450,8 @@ N=2,3,4 are derived, then three more from each of those, etc.
 
 =head2 UMT Tree
 
-The third tree type is a combination of "U" from Berggren, "M2" from Price,
-and a third matrix T.  Is this new?  In any case,
+Option C<tree_type => "UMT"> is a third type made from a combination of "U"
+from Berggren, "M2" from Price, and a third matrix T.
 
 =cut
 
@@ -1447,9 +1471,56 @@ and a third matrix T.  Is this new?  In any case,
           +-> 21,20 --+-> 91,60
                       +-> 105,88
 
-The first "T" child is 21,20 and is the same as the "A" matrix, but it
-differs at further levels down ("T" twice is 105,88 which is not the same as
-"A" twice 119,120).
+The first "T" child 21,20 is the same as the "A" matrix, but it then differs
+at further levels down.  "T" twice is 105,88 which is not the same as "A"
+twice 119,120.
+
+=head2 Digit Order Low to High
+
+Option C<digit_order =E<gt> 'LtoH'> applies matrices using the ternary
+digits of N taken from low to high.  The points in each row are unchanged,
+as is the parent-child N numbering, but the X,Y values are rearranged within
+the row.
+
+The UAD matrices send points to disjoint regions and the effect of LtoH is
+to keep the tree growing into those separate wedge regions.  The arms grow
+roughly as follows
+
+=cut
+
+# math-image --path=PythagoreanTree,digit_order=LtoH --all --output=numbers_xy --size=75x14
+
+=pod
+
+    tree_type => "UAD", digit_order => "LtoH"
+
+    Y=80 |                  6                       UAD LtoH
+         |                 /
+         |                /
+    Y=56 |               /   7     10  9
+         |              /   /       / /
+         |             /   /       | /  8
+         |            /  _/       / /  /
+         |           /  /        / /  /
+    Y=24 |        5 /  /        | / _/        __--11
+         |       / / _/         |/_/      __--
+    Y=20 |      / / /         __3     __--       _____----12
+         |      |/_/      __--   __---  ____-----
+    Y=12 |      2     __--     _/___----  ____13
+         |     /  __--     __-- _____-----
+         |    /_--_____---4-----
+     Y=4 |    1---
+         |
+         +--------------------------------------------------
+            X=3         X=15  X=20           X=35        X=76
+
+Notice the points of the second row N=5 to N=13 are almost clockwise down
+from the Y axis, except N=8,9,10 go upwards.  Those N=8,9,10 go upwards
+because the A matrix has a reflection (its determinant is -1).
+
+Option C<tree_type =E<gt> "UArD"> reverses the tree underneath each A, and
+that plus LtoH gives A,B points going clockwise in each row.  P,Q
+coordinates go clockwise too.
 
 =head2 AC Coordinates
 
@@ -1483,8 +1554,8 @@ X=A,Y=C.
         +-------------------------------------------
           X=3 7 9   21      35   45  55   63     77
 
-Since AE<lt>C the coordinates are XE<lt>Y so all above the X=Y diagonal.
-The L</D Repeatedly> triples described above have C=A+2 so are the points
+Since AE<lt>C the coordinates are XE<lt>Y all above the X=Y diagonal.  The
+L</D Repeatedly> triples described above have C=A+2 so they are the points
 Y=X+2 just above the diagonal.
 
 For the FB tree the set of points visited is the same, but with a different
@@ -1554,10 +1625,9 @@ combination has points on 45-degree straight lines.
         +--------------------------------------------------
           X=4  12    24      40        60           84
 
-Since BE<lt>C the coordinates are XE<lt>Y and therefore above the X=Y
-leading diagonal.  N=1,2,5,14,41,etc along the X=Y-1 diagonal are the L</U
-Repeatedly> triples described above which are at the start of each depth
-level and have C=B+1.
+Since BE<lt>C the coordinates are XE<lt>Y above the X=Y leading diagonal.
+N=1,2,5,14,41,etc along the X=Y-1 diagonal are the L</U Repeatedly> triples
+described above which have C=B+1 and are at the start of each tree row.
 
 For the FB tree the set of points visited is the same, but with a different
 N numbering.
@@ -1593,17 +1663,18 @@ N numbering.
         +----------------------------------------------
           X=4  12    24      40        60           84
 
-The B,C points fall on 45-degree straight lines going up from X=Y-1.  This
-occurs because a primitive triple A,B,C with A odd and B even can be written
+As seen from the diagrams, the B,C points fall on 45-degree straight lines
+going up from X=Y-1.  This occurs because a primitive triple A,B,C with A
+odd and B even can be written
 
     A^2 = C^2 - B^2
         = (C+B)*(C-B)
 
-gcd(A,B)=1 means also gcd(C+B,C-B)=1 and therefore since C+B and C-B have no
-common factor they must each be squares to give A^2.  Call them s^2 and t^2,
+gcd(A,B)=1 means also gcd(C+B,C-B)=1 and so since C+B and C-B have no common
+factor they must each be squares to give A^2.  Call them s^2 and t^2,
 
-    C+B = s^2    so  C = (s^2 + t^2)/2
-    C-B = t^2        B = (s^2 - t^2)/2
+    C+B = s^2    and conversely  C = (s^2 + t^2)/2
+    C-B = t^2                    B = (s^2 - t^2)/2
 
       s = odd integer      s >= 3
       t = odd integer  s > t >= 1
@@ -1616,10 +1687,10 @@ makes a line upwards at 45-degrees from those t=1 positions,
      C + B = s^2      anti-diagonal 45-degrees,
                       position along diagonal determined by t
 
-All primitive triples start from a C=B+1 for C=(s^2+1)/2 which is half an
-odd square, and go up from there.  To ensure the triple is primitive must
-have gcd(s,t)=1.  Values of t where gcd(s,t)!=1 are gaps in the
-anti-diagonal lines.
+All primitive triples start from a C=B+1 with C=(s^2+1)/2 half an odd
+square, and go up from there.  To ensure the triple is primitive must have
+gcd(s,t)=1.  Values of t where gcd(s,t)!=1 are gaps in the anti-diagonal
+lines.
 
 =head2 PQ Coordinates
 
@@ -2024,8 +2095,10 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 Create and return a new path object.  The C<tree_type> option can be
 
-    "UAD"  (the default)
+    "UAD"         (the default)
+    "UArD"        UAD with Gray code reflections
     "FB"
+    "UMT"
 
 The C<coordinates> option can be
 
@@ -2036,6 +2109,11 @@ The C<coordinates> option can be
     "SM"     small, medium legs
     "SC"     small leg, hypotenuse
     "MC"     medium leg, hypotenuse
+
+The C<digit_order> option can be
+
+    "HtoL"   high to low (the default)
+    "LtoH"   low to high (the default)
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -2439,11 +2517,6 @@ L<Math::PlanePath>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>
-
-A. Hall, "Genealogy of Pythagorean Triads", Classroom Notes 232, The
-Mathematical Gazette, volume 54, number 390, December 1970, pages 377-379.
-L<http://www.jstor.org/stable/3613860>.  (And reprinted in "Biscuits of
-Number Theory" by Arthur T. Benjamin.)
 
 =head1 HOME PAGE
 

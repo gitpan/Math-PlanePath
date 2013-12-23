@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -1146,7 +1146,7 @@ Return false, since there are no leaf nodes in the tree.
 
 =head1 FORMULAS
 
-=head2 Tree Children
+=head2 N Children
 
 For the default k=3 the children are
 
@@ -1167,7 +1167,7 @@ In general for k and Nstart the children are
       ...
     kN - (k-1)*(Nstart-1)  + k-1
 
-=head2 Tree Parent
+=head2 N Parent
 
 The parent node reverses the children calculation above.  The simplest case
 is C<n_start=1> where it's a division to remove the lowest base-k
@@ -1192,7 +1192,7 @@ top nodes and therefore has a parent.
 
     N-(Nstart-1) >= k      to check N is past top-nodes
 
-=head2 Tree Root
+=head2 N Root
 
 As described under L</N Start> above, if Nstart=1 then the tree root is
 simply the most significant base-k digit of N.  For other Nstart an
@@ -1201,7 +1201,7 @@ adjustment is made to N=1 style and back again.
     adjust = Nstart-1
     Nroot(N) = high_base_k_digit(N-adjust) + adjust
 
-=head2 Tree Depth
+=head2 N to Depth
 
 The structure of the tree means
 

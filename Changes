@@ -16,7 +16,11 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-Version 112, May 2013
+Version 113, December 2013
+    - PythagoreanTree new tree_type="UArD", digit_order="LtoH"
+    - PlanePathCoord new coordinate_type "MinAbs","MaxAbs"
+
+Version 112, December 2013
     - PythagoreanTree new tree_type="UMT"
 
 Version 111, November 2013

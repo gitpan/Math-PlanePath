@@ -78,19 +78,19 @@ use Math::Trig 'pi';
   $planepath = "Hypot,points=all";
   $planepath = "MultipleRings,step=3";
   $planepath = "ArchimedeanChords";
-  $planepath = "TerdragonCurve";
   $planepath = "DragonMidpoint";
   $planepath = "HexSpiral,wider=1";
   $planepath = "AlternatePaper";
   $planepath = "VogelFloret";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
   $planepath = "PythagoreanTree,coordinates=MC,tree_type=UMT";
+  $planepath = "HTree";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                               # delta_type => 'AbsdY',
-                                                delta_type => 'Dir4',
+                                               # delta_type => 'dX',
+                                               # delta_type => 'Dir4',
                                                #delta_type => 'dRadius',
                                                # delta_type => 'dRSquared',
-                                               # delta_type => 'dDiffXY',
+                                                delta_type => 'dDiffXY',
                                                # delta_type => 'TDir6',
                                                # delta_type => 'dAbsDiff',
                                               );

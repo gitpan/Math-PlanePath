@@ -55,7 +55,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -612,6 +612,38 @@ L<Math::PlanePath/Triangular Lattice>.
     (X/2) / 3^level
     (Y*sqrt(3)/2) / 3^level
 
+
+=head2 Area
+
+The area under the curve to a given level can be calculated from its
+self-similar nature.  The curve at level+1 is 3 times wider and higher and
+adds a triangle of unit area onto each line segment.  So reckoning the line
+segment N=0 to N=1 as level=0 (which is area[0]=0),
+
+    area[level] = 9*area[level-1] + 4^(level-1)
+                = 4^(level-1) + 9*4^(level-2) + ... + 9^(level-1)*4^0
+
+                  9^level - 4^level
+                = -----------------
+                          5
+
+                = 0, 1, 13, 133, 1261, 11605, 105469, ...
+
+The sides are 6 different angles.  The triangles added there are always the
+same shape either pointing up or down.  Base width=2 and height=1 gives
+area=1.
+
+       *            *-----*   ^
+      / \            \   /    | height=1
+     /   \            \ /     |
+    *-----*            *      v     triangle area = 2*1/2 = 1
+
+    <-----> width=2
+
+If the Y coordinates are stretched to make equilateral triangles then the
+number of triangles is not changed and so the area increases by a factor of
+the area of the equilateral triangle, sqrt(3)/4.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -849,9 +881,12 @@ L<http://oeis.org/A035263> (etc)
     A003159   N positions of left turns, ending even number 0 bits
     A036554   N positions of right turns, ending odd number 0 bits
 
-For reference, the recurrence in A217586 not quite the same as the right
-turn of A096268.  A217586 differs by a 0E<lt>-E<gt>1 flip at N=2^k due to
-different initial a(1)=1.
+    A020988   number of left turns N=0 to N < 4^k, being 2*(4^k-1)/3
+    A002450   number of right turns N=0 to N < 4^k, being (4^k-1)/3
+    A016153   area under the curve, (9^n-4^n)/5
+
+For reference, A217586 is not quite the same as A096268 right turn.  A217586
+differs by a 0E<lt>-E<gt>1 flip at N=2^k due to different initial a(1)=1.
 
 =head1 SEE ALSO
 

@@ -100,7 +100,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::GosperIslands';
   $path_class = 'Math::PlanePath::ToothpickReplicate';
   $path_class = 'Math::PlanePath::EToothpickTree';
-  $path_class = 'Math::PlanePath::ToothpickUpist';
   $path_class = 'Math::PlanePath::Hypot';
   $path_class = 'Math::PlanePath::SierpinskiCurve';
   $path_class = 'Math::PlanePath::FlowsnakeCentres';
@@ -156,22 +155,25 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::FactorRationals';
   $path_class = 'Math::PlanePath::MultipleRings';
+  $path_class = 'Math::PlanePath::HTreeByCells';
+  $path_class = 'Math::PlanePath::ToothpickUpist';
+  $path_class = 'Math::PlanePath::HTree';
   $path_class = 'Math::PlanePath::PythagoreanTree';
-
+  
   my $lo = 0;
-  my $hi = 50;
-
+  my $hi = 41;
+  
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     coordinates => 'UV',
+     coordinates => 'PQ',
      tree_type => 'UAD',
-
+     
      #  ring_shape => 'polygon',
      # step => 1,
-
+     
      # sign_encoding => 'revbinary',
-
+     
      # n_start => 0,
      # parts => 'wedge',
      # shift => 6,
@@ -182,16 +184,16 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # digit_order => 'LtoH',
      # reduced => 1,
      #radix => 4,
-
+     
      # parts => 'wedge+1',
-
+     
      # rule => 6,
      # align => 'down',
      # x_start => 5,
      # y_start => 2,
-
+     
      # divisor_type => 'proper',
-
+     
      # wider => 3,
      # reverse => 1,
      # tree_type => 'L',
@@ -228,7 +230,13 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   my $arms_count = $path->arms_count;
   my $path_ref = ref($path);
   print "n_start()=$n_start arms_count()=$arms_count   $path_ref\n";
-
+  
+  {
+    my $num_roots = $path->tree_num_roots();
+    my @n_list = $path->tree_root_n_list();
+    print "  $num_roots roots n=",join(',',@n_list),"\n";
+  }
+  
   {
     require Data::Float;
     my $pos_infinity = Data::Float::pos_infinity();
@@ -250,13 +258,13 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$neg_infinity,0,0);
     $path->rect_to_n_range(0,$nan,0,0);
   }
-
+  
   for (my $i = $n_start+$lo; $i <= $hi; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
-
+    
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
-
+    
     my $dxdy = '';
     my $diffdxdy = '';
     my ($dx, $dy) = $path->n_to_dxdy($i);
@@ -266,7 +274,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     } else {
       $dxdy='[undef]';
     }
-
+    
     my ($next_x, $next_y) = $path->n_to_xy($i+$arms_count);
     if (defined $next_x && defined $next_y) {
       my $want_dx = $next_x - $x;
@@ -275,7 +283,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
         $diffdxdy = "dxdy(want $want_dx,$want_dy)";
       }
     }
-
+    
     my $rep = '';
     my $xy = (defined $x ? $x : 'undef').','.(defined $y ? $y : 'undef');
     if (defined $seen{$xy}) {
@@ -284,7 +292,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     } else {
       $seen{$xy} = $i;
     }
-
+    
     my @n_list = $path->xy_to_n_list ($x+.0, $y-.0);
     my $n_rev;
     if (@n_list) {

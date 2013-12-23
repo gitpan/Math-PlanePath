@@ -34,6 +34,61 @@ use Math::PlanePath::KochCurve;
 
 
 #------------------------------------------------------------------------------
+# A002450 number of right turns N=1 to N < 4^k
+#
+#        2
+#       / \     /
+#  0---1   3---4
+
+# A020988 number of left turns N=1 to N < 4^k  = (2/3)*(4^n-1).
+# duplicate A084180
+MyOEIS::compare_values
+  (anum => 'A020988',
+   max_value => 100_000,
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Left');
+     my @got;
+     my $total = 0;
+     my $target = 1;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if ($i == $target) {
+         push @got, $total;
+         $target *= 4;
+       }
+       $total += $value;
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => 'A002450',
+   max_value => 100_000,
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Right');
+     my @got;
+     my $total = 0;
+     my $target = 1;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if ($i == $target) {
+         push @got, $total;
+         $target *= 4;
+       }
+       $total += $value;
+     }
+     return \@got;
+   });
+
+
+
+#------------------------------------------------------------------------------
 # A177702 - abs(dX) from N=1 onwards, repeating 1,1,2
 
 MyOEIS::compare_values

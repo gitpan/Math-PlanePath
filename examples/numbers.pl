@@ -389,6 +389,8 @@ my @all_classes = ('SquareSpiral',
                    '*OneOfEight,parts=3mid',
                    '*OneOfEight,parts=3side',
                    '*OneOfEight,parts=wedge',
+
+                   '*HTree',
                   );
 # expand arg "all" to full list
 @ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;

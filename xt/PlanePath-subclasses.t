@@ -40,11 +40,18 @@ BEGIN { MyTestHelpers::nowarnings(); }
 use Math::PlanePath;
 use Math::PlanePath::Base::Generic
   'is_infinite';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 
 my $verbose = 1;
 
 my @modules = (
+               # modules marked "*" are from Math-PlanePath-Toothpick or
+               # elsewhere and are skipped if not available to test
+
                # module list begin
+
+               '*HTree',
 
                'PythagoreanTree,tree_type=UMT',
                'PythagoreanTree,tree_type=UMT,coordinates=AC',
@@ -797,7 +804,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 112;
+my $want_version = 113;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1167,18 +1174,18 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-
+  
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-
+    
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-
+    
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-
+    
     my $dxdy_allowed
       = $class_dxdy_allowed{$class.",skew=".($parameters{'skew'}||'')}
         || $class_dxdy_allowed{$class};
@@ -1191,11 +1198,12 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-
+    
     #
     # MyTestHelpers::diag ($mod);
     #
-
+    
+    my $depth_limit = 10;
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -1212,19 +1220,19 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-
+    
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' oops ', @_);
       $good = 0;
       # exit 1;
     };
-
+    
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-
+    
     foreach my $pinfo ($path->parameter_info_list) {
       if ($pinfo->{'type'} eq 'enum') {
         my $choices = $pinfo->{'choices'};
@@ -1237,14 +1245,14 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-
+    
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
@@ -1261,7 +1269,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     if (# VogelFloret has a secret undocumented return for N=0
         ! $path->isa('Math::PlanePath::VogelFloret')
         # Rows/Columns secret undocumented extend into negatives ...
@@ -1271,7 +1279,7 @@ sub pythagorean_diag {
       {
         my @xy = $path->n_to_xy($n);
         if (scalar @xy) {
-          &$report("n_to_xy() at n_start()-1 has X,Y but should not");
+          &$report("n_to_xy() at n_start()-1=$n has X,Y but should not");
         }
       }
       foreach my $method ('n_to_rsquared', 'n_to_radius') {
@@ -1307,7 +1315,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     {
       my $saw_warning;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
@@ -1339,7 +1347,7 @@ sub pythagorean_diag {
         $path->xy_to_n(undef,0);
         $saw_warning or &$report("xy_to_n(undef,0) doesn't give a warning");
       }
-
+      
       # No warning if xy_is_visited() is a constant, skip test in that case.
       unless (coderef_is_const($path->can('xy_is_visited'))) {
         $saw_warning = 0;
@@ -1350,7 +1358,7 @@ sub pythagorean_diag {
         $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
       }
     }
-
+    
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -1439,7 +1447,7 @@ sub pythagorean_diag {
       # #   }
       # }
     }
-
+    
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1476,7 +1484,7 @@ sub pythagorean_diag {
         $num_values == 0
           or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
-
+      
       foreach my $method ('n_to_rsquared','n_to_radius') {
         ### n_to_r (neg_infinity) ...
         my @ret = $path->$method($neg_infinity);
@@ -2270,6 +2278,10 @@ sub pythagorean_diag {
       }
     }
 
+    my @depth_to_width_by_count;
+    my @depth_to_n_seen;
+    my @depth_to_n_end_seen;
+
     if ($path->can('tree_n_to_depth')
         != Math::PlanePath->can('tree_n_to_depth')) {
       ### tree_n_to_depth() vs count up by parents ...
@@ -2277,9 +2289,17 @@ sub pythagorean_diag {
       foreach my $n ($n_start .. $n_start+$limit) {
         my $want_depth = path_tree_n_to_depth_by_parents($path,$n);
         my $got_depth = $path->tree_n_to_depth($n);
+
         if (! defined $got_depth || ! defined $want_depth
             || $got_depth != $want_depth) {
           &$report ("tree_n_to_depth($n) got ",$got_depth," want ",$want_depth);
+        }
+        if ($got_depth >= 0 && $got_depth <= $depth_limit) {
+          $depth_to_width_by_count[$got_depth]++;
+          if (! defined $depth_to_n_seen[$got_depth]) {
+            $depth_to_n_seen[$got_depth] = $n;
+          }
+          $depth_to_n_end_seen[$got_depth] = $n;
         }
       }
     }
@@ -2328,7 +2348,9 @@ sub pythagorean_diag {
 
     ### tree_depth_to_n() ...
     if ($is_a_tree) {
-      foreach my $depth (0 .. 10) {
+      my $n_rows_are_contiguous = path_tree_n_rows_are_contiguous($path);
+
+      foreach my $depth (0 .. $depth_limit) {
         my $n = $path->tree_depth_to_n($depth);
         if (! defined $n) {
           &$report ("tree_depth_to_n($depth) should not be undef");
@@ -2337,6 +2359,12 @@ sub pythagorean_diag {
         if ($n != int($n)) {
           &$report ("tree_depth_to_n($depth) not an integer: ",$n);
           next;
+        }
+        if ($n <= $limit) {
+          my $want_n = $depth_to_n_seen[$depth];
+          if (! defined $want_n || $n != $want_n) {
+            &$report ("tree_depth_to_n($depth)=$n but depth_to_n_seen[$depth]=",$want_n);
+          }
         }
 
         my $n_end = $path->tree_depth_to_n_end($depth);
@@ -2365,7 +2393,7 @@ sub pythagorean_diag {
         {
           my $got_depth = $path->tree_n_to_depth($n_end);
           if (! defined $got_depth || $got_depth != $depth) {
-            &$report ("tree_depth_to_n($depth)=$n reverse n_end got_depth=",$got_depth);
+            &$report ("tree_depth_to_n_end($depth)=$n_end reverse n_end got_depth=",$got_depth);
           }
         }
         {
@@ -2375,12 +2403,11 @@ sub pythagorean_diag {
           }
         }
 
-        if ($path->can('tree_depth_to_width') !=
-            Math::PlanePath->can('tree_depth_to_width')) {
+        if ($n_end <= $limit) {
           my $got_width = $path->tree_depth_to_width($depth);
-          my $want_width = $n_end-$n+1;
+          my $want_width = $depth_to_width_by_count[$depth] || 0;
           if ($got_width != $want_width) {
-            &$report ("tree_depth_to_width($depth)=$got_width expected by difference $want_width");
+            &$report ("tree_depth_to_width($depth)=$got_width but counting want=$want_width");
           }
         }
       }
@@ -2391,28 +2418,63 @@ sub pythagorean_diag {
   ok ($good, 1);
 }
 
-  sub path_tree_n_to_depth_by_parents {
-    my ($path, $n) = @_;
-    if ($n < $path->n_start) {
-      return undef;
+# Return true if the rows of the tree are numbered contiguously, so each row
+# starts immediately following the previous with no overlapping.
+sub path_tree_n_rows_are_contiguous {
+  my ($path) = @_;
+  foreach my $depth (0 .. 10) {
+    my $n_end = $path->tree_depth_to_n_end($depth);
+    my $n_next = $path->tree_depth_to_n($depth+1);
+    if ($n_next != $n_end+1) {
+      return 0;
     }
-    my $depth = 0;
-    for (;;) {
-      my $parent_n = $path->tree_n_parent($n);
-      last if ! defined $parent_n;
-      if ($parent_n >= $n) {
-        die "Oops, tree parent $parent_n >= child $n in ", ref $path;
-      }
-      $n = $parent_n;
-      $depth++;
-    }
-    return $depth;
   }
+  return 1;
+}
+
+# Unused for now.
+#
+# sub path_tree_depth_to_width_by_count {
+#   my ($path, $depth) = @_;
+#   ### path_tree_depth_to_width_by_count(): $depth
+#   my $width = 0;
+#   my ($n_lo, $n_hi) = $path->tree_depth_to_n_range($depth);
+#   ### $n_lo
+#   ### $n_hi
+#   foreach my $n ($n_lo .. $n_hi) {
+#     ### d: $path->tree_n_to_depth($n)
+#     $width += ($path->tree_n_to_depth($n) == $depth);
+#   }
+#   ### $width
+#   return $width;
+# }
+
+sub path_tree_n_to_depth_by_parents {
+  my ($path, $n) = @_;
+  if ($n < $path->n_start) {
+    return undef;
+  }
+  my $depth = 0;
+  for (;;) {
+    my $parent_n = $path->tree_n_parent($n);
+    last if ! defined $parent_n;
+    if ($parent_n >= $n) {
+      die "Oops, tree parent $parent_n >= child $n in ", ref $path;
+    }
+    $n = $parent_n;
+    $depth++;
+  }
+  return $depth;
+}
 
 # use Smart::Comments;
 use constant SUBHEIGHT_SEARCH_LIMIT => 50;
 sub path_tree_n_to_subheight_by_search {
   my ($path, $n, $limit) = @_;
+
+  if ($path->isa('Math::PlanePath::HTree') && is_pow2($n)) {
+    return undef;  # infinite
+  }
 
   if (! defined $limit) { $limit = SUBHEIGHT_SEARCH_LIMIT; }
   if ($limit <= 0) {
@@ -2540,6 +2602,12 @@ sub gcd {
     ($x,$y) = ($y, fmod($x,$y));
   }
 }
+
+  sub is_pow2 {
+    my ($n) = @_;
+    my ($pow,$exp) = round_down_pow ($n, 2);
+    return ($n == $pow);
+  }
 
 #------------------------------------------------------------------------------
 # generic

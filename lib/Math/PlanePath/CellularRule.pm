@@ -39,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -988,7 +988,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 112;
+  $VERSION = 113;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1173,7 +1173,7 @@ sub _NOTWORKING__rule_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 112;
+  $VERSION = 113;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1256,7 +1256,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 112;
+  $VERSION = 113;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

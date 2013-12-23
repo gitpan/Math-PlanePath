@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -2932,55 +2932,59 @@ sub values_max {
       # },
     };
 }
-  { package Math::PlanePath::LCornerReplicate;
-    use constant _NumSeq_X_axis_increasing => 1;
-    use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
+{ package Math::PlanePath::LCornerReplicate;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
 
-    # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
-    use constant _NumSeq_N_oeis_anum =>
-      { '' =>
-        { Diagonal => 'A062880', # base 4 digits 0,2 only
-          # OEIS-Other: A062880 planepath=LCornerReplicate line_type=Diagonal
-        },
-      };
-  }
+  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
+  use constant _NumSeq_N_oeis_anum =>
+    { '' =>
+      { Diagonal => 'A062880', # base 4 digits 0,2 only
+        # OEIS-Other: A062880 planepath=LCornerReplicate line_type=Diagonal
+      },
+    };
+}
 
-    { package Math::PlanePath::OneOfEight;
-      use constant _NumSeq_X_axis_increasing => 1;
-      use constant _NumSeq_X_neg_increasing => 1;
-      use constant _NumSeq_Y_axis_increasing => 1;
-      use constant _NumSeq_Y_neg_increasing => 1;
-      use constant _NumSeq_Diagonal_increasing => 1;
-      use constant _NumSeq_Diagonal_NW_increasing => 1;
-      use constant _NumSeq_Diagonal_SW_increasing => 1;
-      use constant _NumSeq_Diagonal_SE_increasing => 1;
+{ package Math::PlanePath::OneOfEight;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_X_neg_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Y_neg_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+  use constant _NumSeq_Diagonal_SW_increasing => 1;
+  use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-      # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
-      use constant _NumSeq_N_oeis_anum =>
-        { 'parts=4' =>
-          { Depth_start   => 'A151725',
-            # OEIS-Other: A151725 planepath=OneOfEight line_type=Depth_start
-          },
-          'parts=1' =>
-          { Depth_start   => 'A151735',
-            # OEIS-Other: A151735 planepath=OneOfEight,parts=1 line_type=Depth_start
-          },
-          'parts=3mid' =>
-          { Depth_start   => 'A170880',
-            # OEIS-Other: A170880 planepath=OneOfEight,parts=3mid line_type=Depth_start
-          },
-          'parts=3side' =>
-          { Depth_start   => 'A170879',
-            # OEIS-Other: A170879 planepath=OneOfEight,parts=3side line_type=Depth_start
-          },
-        };
-    }
+  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
+  use constant _NumSeq_N_oeis_anum =>
+    { 'parts=4' =>
+      { Depth_start   => 'A151725',
+        # OEIS-Other: A151725 planepath=OneOfEight line_type=Depth_start
+      },
+      'parts=1' =>
+      { Depth_start   => 'A151735',
+        # OEIS-Other: A151735 planepath=OneOfEight,parts=1 line_type=Depth_start
+      },
+      'parts=3mid' =>
+      { Depth_start   => 'A170880',
+        # OEIS-Other: A170880 planepath=OneOfEight,parts=3mid line_type=Depth_start
+      },
+      'parts=3side' =>
+      { Depth_start   => 'A170879',
+        # OEIS-Other: A170879 planepath=OneOfEight,parts=3side line_type=Depth_start
+      },
+    };
+}
 
+{ package Math::PlanePath::HTree;
+  # clockwise around each sub-tree so N increases along X axis
+  use constant _NumSeq_X_axis_increasing => 1;
+}
 
-    #------------------------------------------------------------------------------
-    { package Math::PlanePath;
-      use constant _NumSeq_A2 => 0;
-    }
+#------------------------------------------------------------------------------
+{ package Math::PlanePath;
+  use constant _NumSeq_A2 => 0;
+}
 { package Math::PlanePath::TriangleSpiral;
   use constant _NumSeq_A2 => 1;
 }

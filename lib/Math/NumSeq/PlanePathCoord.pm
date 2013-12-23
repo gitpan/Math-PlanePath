@@ -84,7 +84,7 @@ use List::Util;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -120,6 +120,7 @@ use constant::defer parameter_info_array =>
                    'IntXY', 'FracXY',
                    'BitAnd', 'BitOr', 'BitXor',
                    'Min','Max',
+                   'MinAbs','MaxAbs',
                    'GCD',
                    'Depth', 'SubHeight',
                    'NumChildren','NumSiblings',
@@ -127,6 +128,7 @@ use constant::defer parameter_info_array =>
                    'IsLeaf','IsNonLeaf',
 
                    # Maybe:
+                   'MinAbsTri','MaxAbsTri',
                    # 'AbsX',
                    # 'AbsY',
                    # 'DiffXY/2',
@@ -134,11 +136,9 @@ use constant::defer parameter_info_array =>
                    # 'DiffYXsquares',
                    # 'Parity',
                    # 'Numerator','Denominator',
-                    'LeafDistance',
+                   # 'LeafDistance',
                    # 'GcdDivisions',
                    # 'KroneckerSymbol',
-                   # 'MinAbs',
-                   # 'MaxAbs',
                    # 'MulDist',
                    # 'HammingDist',
                    # 'NumSurround4',
@@ -727,7 +727,7 @@ sub _coordinate_func_LeafDistance {
   if (my $coderef = $self->{'planepath_object'}
       ->can('_EXPERIMENTAL__tree_n_to_leafdist')) {
     return $self->{'planepath_object'}->$coderef($n);
-  }      
+  }
   return path_tree_n_to_leafdist_by_search($self->{'planepath_object'},$n);
 }
 sub path_tree_n_to_leafdist_by_search {
@@ -999,6 +999,7 @@ sub _coordinate_func_Max {
     or return undef;
   return max($x,$y);
 }
+
 sub _coordinate_func_MinAbs {
   my ($self, $n) = @_;
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
@@ -1010,6 +1011,19 @@ sub _coordinate_func_MaxAbs {
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
     or return undef;
   return max(abs($x),abs($y));
+}
+
+sub _coordinate_func_MaxAbsTri {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return max(abs($x+$y),abs($x-$y),abs(2*$y));
+}
+sub _coordinate_func_MinAbsTri {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return min(abs($x+$y),abs($x-$y),abs(2*$y));
 }
 
 use Math::PlanePath::GcdRationals;
@@ -1294,8 +1308,21 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_NumSurround8_integer => 1;
   use constant _NumSeq_Coord_oeis_anum => {};
 
+  #------
+  # X
   use constant _NumSeq_Coord_X_integer => 1;  # usually
+  use constant _NumSeq_Coord_X_increasing => undef;
+  use constant _NumSeq_Coord_X_non_decreasing => undef;
+
+  #------
+  # Y
   use constant _NumSeq_Coord_Y_integer => 1;  # usually
+  use constant _NumSeq_Coord_Y_increasing => undef;
+  use constant _NumSeq_Coord_Y_non_decreasing => undef;
+
+
+  #------
+  # Sum
 
   sub _NumSeq_Coord_Sum_integer {
     my ($self) = @_;
@@ -1579,12 +1606,10 @@ sub characteristic_smaller {
     my ($self) = @_;
     my $x_minimum = $self->x_minimum;
     my $y_minimum = $self->y_minimum;
-    if (defined $x_minimum || defined $y_minimum) {
-      return Math::NumSeq::PlanePathCoord::max
-        (defined $x_minimum ? $x_minimum : (),
-         defined $y_minimum ? $y_minimum : ());
-    }
-    return undef;
+    # or empty max is undef if neither minimum
+    return Math::NumSeq::PlanePathCoord::max
+      (defined $x_minimum ? $x_minimum : (),
+       defined $y_minimum ? $y_minimum : ());
   }
   # Return the maximum value taken by max(X,Y) at integer N.
   # This is simply the smaller of x_maximum() or y_maximum().
@@ -1602,6 +1627,42 @@ sub characteristic_smaller {
   *_NumSeq_Coord_Min_integer    = \&_NumSeq_Coord_Sum_integer;
   *_NumSeq_Coord_Max_integer    = \&_NumSeq_Coord_Sum_integer;
 
+  sub _NumSeq_Coord_Max_is_always_X {
+    my ($path) = @_;
+    # if X-Y>=0 then X>=Y and max(X,Y)=X
+    my $diffxy_minimum = $path->diffxy_minimum;
+    return (defined $diffxy_minimum && $diffxy_minimum >= 0);
+  }
+  sub _NumSeq_Coord_Max_is_always_Y {
+    my ($path) = @_;
+    # if X-Y<=0 then X<=Y and max(X,Y)=Y
+    my $diffxy_maximum = $path->diffxy_maximum;
+    return (defined $diffxy_maximum && $diffxy_maximum <= 0);
+  }
+  sub _NumSeq_Coord_Max_increasing {
+    my ($path) = @_;
+    if ($path->_NumSeq_Coord_Max_is_always_X) {
+      return $path->_NumSeq_Coord_X_increasing;
+    }
+    if ($path->_NumSeq_Coord_Max_is_always_Y) {
+      return $path->_NumSeq_Coord_Y_increasing;
+    }
+    return undef;
+  }
+  sub _NumSeq_Coord_Max_non_decreasing {
+    my ($path) = @_;
+    if ($path->_NumSeq_Coord_Max_is_always_X) {
+      return $path->_NumSeq_Coord_X_non_decreasing;
+    }
+    if ($path->_NumSeq_Coord_Max_is_always_Y) {
+      return $path->_NumSeq_Coord_Y_non_decreasing;
+    }
+    return undef;
+  }
+
+  #------------
+  # HammingDist
+
   use constant _NumSeq_Coord_HammingDist_min => 0;
   use constant _NumSeq_Coord_HammingDist_integer => 1;
   # sub _NumSeq_Coord_HammingDist_min {
@@ -1614,35 +1675,113 @@ sub characteristic_smaller {
 
   sub _NumSeq_Coord_MinAbs_min {
     my ($self) = @_;
-    my $x_minimum = $self->x_minimum;
-    my $y_minimum = $self->y_minimum;
-    my $x_maximum = $self->x_maximum;
-    my $y_maximum = $self->y_maximum;
     return Math::NumSeq::PlanePathCoord::min
-      (0,
-       (defined $x_minimum && $x_minimum > 0 ? $x_minimum : ()),
-       (defined $y_minimum && $y_minimum > 0 ? $y_minimum : ()),
-       (defined $x_maximum && $x_maximum < 0 ? -$x_maximum : ()),
-       (defined $y_maximum && $y_maximum < 0 ? -$y_maximum : ()));
+      ($self->_NumSeq_Coord_AbsX_min,
+       $self->_NumSeq_Coord_AbsY_min);
+  }
+  sub _NumSeq_Coord_MinAbs_max {
+    my ($self) = @_;
+    my $absx_maximum = $self->_NumSeq_Coord_AbsX_max;
+    my $absy_maximum = $self->_NumSeq_Coord_AbsY_max;
+    # smaller of the two maxima, or undef if neither bounded
+    return Math::NumSeq::PlanePathCoord::min
+      ((defined $absx_maximum ? $absx_maximum : ()),
+       (defined $absy_maximum ? $absy_maximum : ()));
   }
   *_NumSeq_Coord_MinAbs_integer = \&_NumSeq_Coord_Sum_integer;
 
+  sub _NumSeq_Coord_MaxAbs_non_decreasing {
+    my ($path) = @_;
+    if (! $path->x_negative && ! $path->y_negative) {
+      # X>0 and Y>0 so MaxAbs==Max
+      return $path->_NumSeq_Coord_Max_non_decreasing;
+    }
+    return undef;
+  }
+  sub _NumSeq_Coord_MaxAbs_increasing {
+    my ($path) = @_;
+    if (! $path->x_negative && ! $path->y_negative) {
+      # X>0 and Y>0 so MaxAbs==Max
+      return $path->_NumSeq_Coord_Max_increasing;
+    }
+    return undef;
+  }
 
   #-------------
   # MaxAbs
 
-  *_NumSeq_Coord_MaxAbs_integer = \&_NumSeq_Coord_Sum_integer;
+  sub _NumSeq_Coord_MaxAbs_min {
+    my ($self) = @_;
+    return Math::NumSeq::PlanePathCoord::max
+      ($self->_NumSeq_Coord_AbsX_min,
+       $self->_NumSeq_Coord_AbsY_min);
+  }
   sub _NumSeq_Coord_MaxAbs_max {
-     my ($self) = @_;
-     if (defined (my $x_minimum = $self->x_minimum)
-         && defined (my $y_minimum = $self->y_minimum)
-         && defined (my $x_maximum = $self->x_maximum)
-         && defined (my $y_maximum = $self->y_maximum)) {
-       return Math::NumSeq::PlanePathCoord::max
-         (-$x_minimum, -$y_minimum, $x_maximum, $y_maximum);
-     }
-     return undef;
-   }
+    my ($self) = @_;
+    if (defined (my $x_minimum = $self->x_minimum)
+        && defined (my $y_minimum = $self->y_minimum)
+        && defined (my $x_maximum = $self->x_maximum)
+        && defined (my $y_maximum = $self->y_maximum)) {
+      return Math::NumSeq::PlanePathCoord::max
+        (-$x_minimum, -$y_minimum, $x_maximum, $y_maximum);
+    }
+    return undef;
+  }
+  *_NumSeq_Coord_MaxAbs_integer = \&_NumSeq_Coord_Sum_integer;
+
+  #-------------
+  # AbsX
+
+  sub _NumSeq_Coord_AbsX_min {
+    my ($self) = @_;
+    # if positive min or negative max then 0 is not crossed and have an AbsX
+    # min which is bigger than 0
+    { my $x_minimum = $self->x_minimum;
+      if (defined $x_minimum && $x_minimum > 0) { return $x_minimum; }
+    }
+    { my $x_maximum = $self->x_maximum;
+      if (defined $x_maximum && $x_maximum < 0) { return - $x_maximum; }
+    }
+    return 0;
+  }
+  sub _NumSeq_Coord_AbsX_max {
+    my ($self) = @_;
+    # if bounded above and below then have an AbsX
+    if (defined (my $x_minimum = $self->x_minimum)) {
+      if (defined (my $x_maximum = $self->x_maximum)) {
+        return Math::NumSeq::PlanePathCoord::max
+          (abs($x_minimum), abs($x_maximum));
+      }
+    }
+    return undef;
+  }
+
+  #-------------
+  # AbsY
+
+  sub _NumSeq_Coord_AbsY_min {
+    my ($self) = @_;
+    # if positive min or negative max then 0 is not crossed and have an AbsY
+    # min which is bigger than 0
+    { my $y_minimum = $self->y_minimum;
+      if (defined $y_minimum && $y_minimum > 0) { return $y_minimum; }
+    }
+    { my $y_maximum = $self->y_maximum;
+      if (defined $y_maximum && $y_maximum < 0) { return - $y_maximum; }
+    }
+    return 0;
+  }
+  sub _NumSeq_Coord_AbsY_max {
+    my ($self) = @_;
+    # if bounded above and below then have an AbsY
+    if (defined (my $y_minimum = $self->y_minimum)) {
+      if (defined (my $y_maximum = $self->y_maximum)) {
+        return Math::NumSeq::PlanePathCoord::max
+          (abs($y_minimum), abs($y_maximum));
+      }
+    }
+    return undef;
+  }
 
   #-------------
 
@@ -1738,7 +1877,7 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_LeafDistance_integer => 1;
   use constant _NumSeq_Coord_LeafDistance_min => 0;
   use constant _NumSeq_Coord_LeafDistance_max => 0;
- 
+
   #--------------------------
   sub _NumSeq_Coord_SubHeight_min {
     my ($path) = @_;
@@ -1791,6 +1930,10 @@ sub characteristic_smaller {
 }
 
 { package Math::PlanePath::SquareSpiral;
+  sub _NumSeq_Coord_MaxAbs_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'wider'} == 0);
+  }
   use constant _NumSeq_Coord_oeis_anum =>
     { 'wider=0,n_start=1' =>
       { X       => 'A174344',
@@ -1806,8 +1949,12 @@ sub characteristic_smaller {
       },
     };
 }
-# { package Math::PlanePath::GreekKeySpiral;
-# }
+{ package Math::PlanePath::GreekKeySpiral;
+  sub _NumSeq_Coord_MaxAbs_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'turns'} == 0);  # when same as SquareSpiral
+  }
+}
 { package Math::PlanePath::PyramidSpiral;
   use constant _NumSeq_Coord_oeis_anum =>
     { 'n_start=0' =>
@@ -1849,6 +1996,7 @@ sub characteristic_smaller {
 
   # X!=Y when wider odd
   *_NumSeq_Coord_HammingDist_min = \&_NumSeq_Coord_Parity_min;
+  *_NumSeq_Coord_MaxAbs_min = \&_NumSeq_Coord_Parity_min;
 }
 # { package Math::PlanePath::HexSpiralSkewed;
 # }
@@ -1865,8 +2013,9 @@ sub characteristic_smaller {
 # }
 # { package Math::PlanePath::CretanLabyrinth;
 # }
-# { package Math::PlanePath::SquareArms;
-# }
+{ package Math::PlanePath::SquareArms;
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # successive squares
+}
 # { package Math::PlanePath::DiamondArms;
 # }
 { package Math::PlanePath::SacksSpiral;
@@ -1887,6 +2036,8 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_X_integer => 0;
   use constant _NumSeq_Coord_Y_integer => 0;
   use constant _NumSeq_AbsDiff_min_is_infimum => 1;
+  use constant _NumSeq_MinAbs_min_is_infimum => 1;
+  use constant _NumSeq_MaxAbs_min_is_infimum => 1;
 
   sub _NumSeq_Coord_Radius_min {
     my ($self) = @_;
@@ -2118,10 +2269,9 @@ sub characteristic_smaller {
     my ($self) = @_;
     return ($self->{'points'} eq 'odd' ? 1 : 0);
   }
-  sub _NumSeq_Coord_Parity_min {
-    my ($self) = @_;
-    return ($self->{'points'} eq 'odd' ? 1 : 0);
-  }
+  *_NumSeq_Coord_Parity_min = \&_NumSeq_Coord_HammingDist_min;
+  *_NumSeq_Coord_MaxAbs_min = \&_NumSeq_Coord_HammingDist_min;
+
   sub _NumSeq_Coord_Parity_max {
     my ($self) = @_;
     return ($self->{'points'} eq 'even' ? 0 : 1);
@@ -2170,12 +2320,15 @@ sub characteristic_smaller {
 
   sub _NumSeq_Coord_HammingDist_min {
     my ($self) = @_;
-    return ($self->{'points'} eq 'odd' ? 1 : 0);
+    return ($self->{'points'} eq 'odd' ? 1 : 0);      # X!=Y when odd
   }
-  sub _NumSeq_Coord_Parity_min {
+  *_NumSeq_Coord_Parity_min = \&_NumSeq_Coord_HammingDist_min;
+  sub _NumSeq_Coord_MaxAbs_min {
     my ($self) = @_;
-    return ($self->{'points'} eq 'odd' ? 1 : 0);
+    return ($self->{'points'} eq 'odd' || $self->{'points'} eq 'hex_centred'
+            ? 1 : 0);
   }
+
   sub _NumSeq_Coord_Parity_max {
     my ($self) = @_;
     return ($self->{'points'} eq 'odd' || $self->{'points'} eq 'all' ? 1 : 0);
@@ -2281,7 +2434,7 @@ sub characteristic_smaller {
   }
 
   use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
-  
+
   {
     my %_NumSeq_Coord_Parity_min = (PQ => 1, # one odd one even, so odd always
                                     AB => 1, # odd,even so odd always
@@ -2460,8 +2613,14 @@ sub characteristic_smaller {
   # };
 }
 { package Math::PlanePath::ChanTree;
-  # X=1,Y=1 doesn't occur, only X=1,Y=2 or X=2,Y=1
-  use constant _NumSeq_Coord_Max_min => 2;
+
+  sub _NumSeq_Coord_Max_min {
+    my ($self) = @_;
+    # except in k=2 Calkin-Wilf, point X=1,Y=1 doesn't occur, only X=1,Y=2
+    # or X=2,Y=1
+    return ($self->{'k'} == 2 ? 1 : 2);
+  }
+  *_NumSeq_Coord_MaxAbs_min = \&_NumSeq_Coord_Max_min;
 
   use constant _NumSeq_Coord_SubHeight_min => undef;
   use constant _NumSeq_Coord_LeafDistance_max => undef;
@@ -2689,6 +2848,7 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_Parity_max => 0;  # even always
 }
 { package Math::PlanePath::KochPeaks;
+  use constant _NumSeq_Coord_MaxAbs_min => 1;  # odd always
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_Parity_min => 1;  # odd always
   use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
@@ -2697,12 +2857,14 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_Y_integer => 0;
   use constant _NumSeq_Coord_BitAnd_integer => 1; # only Y non-integer
   use constant _NumSeq_Coord_TRSquared_min => 3*4/9; # minimum X=0,Y=2/3
+  use constant _NumSeq_Coord_MaxAbs_min => 2/3; # at N=3
   use constant _NumSeq_Coord_TRadius_min => sqrt(_NumSeq_Coord_TRSquared_min);
   use constant _NumSeq_Coord_GCD_integer => 0;
 }
 { package Math::PlanePath::KochSquareflakes;
   use constant _NumSeq_Coord_X_integer => 0;
   use constant _NumSeq_Coord_Y_integer => 0;
+  use constant _NumSeq_Coord_MaxAbs_min => 1/2; # at N=1
   use constant _NumSeq_Coord_Sum_integer => 1;
   use constant _NumSeq_Coord_SumAbs_integer => 1;
   use constant _NumSeq_Coord_DiffXY_integer => 1;
@@ -2740,6 +2902,7 @@ sub characteristic_smaller {
   }
   # Max==Y for align!=diagonal
   *_NumSeq_Coord_Max_non_decreasing = \&_NumSeq_Coord_Y_non_decreasing;
+  *_NumSeq_Coord_MaxAbs_non_decreasing = \&_NumSeq_Coord_Y_non_decreasing;
 
   sub _NumSeq_Coord_Sum_non_decreasing {
     my ($self) = @_;
@@ -2856,6 +3019,7 @@ sub characteristic_smaller {
 { package Math::PlanePath::DragonRounded;
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
+  use constant _NumSeq_Coord_MaxAbs_min => 1; # X!=Y
 }
 # { package Math::PlanePath::DragonMidpoint;
 # }
@@ -2938,6 +3102,10 @@ sub characteristic_smaller {
 
   *_NumSeq_Coord_Min_max = \&x_maximum;
   *_NumSeq_Coord_Max_increasing=\&_NumSeq_Coord_Y_increasing; # height=1 Max=Y
+  sub _NumSeq_Coord_Max_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'width'} <= 2);
+  }
 
   sub _NumSeq_Coord_Sum_non_decreasing {
     my ($self) = @_;
@@ -3030,6 +3198,10 @@ sub characteristic_smaller {
 
   *_NumSeq_Coord_Min_max = \&y_maximum;
   *_NumSeq_Coord_Max_increasing=\&_NumSeq_Coord_X_increasing; # height=1 Max=X
+  sub _NumSeq_Coord_Max_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'height'} <= 2);
+  }
 
   *_NumSeq_Coord_Sum_increasing         = \&_NumSeq_Coord_X_increasing;
   sub _NumSeq_Coord_Sum_non_decreasing {
@@ -3128,9 +3300,9 @@ sub characteristic_smaller {
        BitXor      => 'A003987',  # cf A006582 X xor Y diagonal totals
        GCD         => 'A109004',  # GCD(x,y) by diagonals, (0,0) at n=0
        Min         => 'A004197',  # X,Y>=0, runs 0toNto0,0toNNto0
-       MinAbs      => 'A004197',
+       MinAbs      => 'A004197',  #  MinAbs=Min
        Max         => 'A003984',
-       MaxAbs      => 'A003984',
+       MaxAbs      => 'A003984',  #  MaxAbs=Max
        HammingDist => 'A101080',
        # OEIS-Other: A002262 planepath=Diagonals,n_start=0 coordinate_type=X
        # OEIS-Other: A025581 planepath=Diagonals,n_start=0 coordinate_type=Y
@@ -3183,9 +3355,9 @@ sub characteristic_smaller {
      { Product => 'A003991', # X*Y starting (1,1) n=1
        GCD     => 'A003989', # GCD by diagonals starting (1,1) n=1
        Min     => 'A003983', # X,Y>=1
-       MinAbs  => 'A003983',
+       MinAbs  => 'A003983', #   MinAbs=Min
        Max     => 'A051125', # X,Y>=1
-       MaxAbs  => 'A051125',
+       MaxAbs  => 'A051125', #   MaxAbs=Max
        IntXY   => 'A004199', # X>=0,Y>=0, X/Y round towards zero
        # OEIS-Catalogue: A003991 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=Product
        # OEIS-Catalogue: A003989 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=GCD
@@ -3230,9 +3402,9 @@ sub characteristic_smaller {
         BitOr       => 'A003986',  # X bitor Y, cf A006583 diagonal totals
         BitXor      => 'A003987',  # cf A006582 X xor Y diagonal totals
         Min         => 'A004197',  # runs 0toNto0,0toNNto0
-        MinAbs      => 'A004197',
+        MinAbs      => 'A004197',  # MinAbs=Min
         Max         => 'A003984',
-        MaxAbs      => 'A003984',
+        MaxAbs      => 'A003984',  # MaxAbs=Max
         HammingDist => 'A101080',
         # OEIS-Other: A003056 planepath=DiagonalsAlternating,n_start=0 coordinate_type=Sum
         # OEIS-Other: A003056 planepath=DiagonalsAlternating,n_start=0 coordinate_type=SumAbs
@@ -3258,7 +3430,7 @@ sub characteristic_smaller {
     { 'direction=down,n_start=0' =>
       { X       => 'A055087',  # 0, 0,1, 0,1, 0,1,2, 0,1,2, etc
         Min     => 'A055087',  # X<=Y so Min=X
-        MinAbs  => 'A055087',
+        MinAbs  => 'A055087',  #   MinAbs=Min
         Sum     => 'A055086',  # reps floor(n/2)+1
         SumAbs  => 'A055086',  #   same
         DiffYX  => 'A082375',  # step=2 k to 0
@@ -3300,7 +3472,7 @@ sub characteristic_smaller {
       { DiffXY  => 'A196199', # runs -n to n
         AbsDiff => 'A053615', # runs n..0..n
         Max     => 'A000196', # n repeated 2n+1 times, floor(sqrt(N))
-        MaxAbs  => 'A000196',
+        MaxAbs  => 'A000196', #  MaxAbs=Max
         # OEIS-Other: A196199 planepath=Corner,n_start=0 coordinate_type=DiffXY
         # OEIS-Other: A053615 planepath=Corner,n_start=0 coordinate_type=AbsDiff
         # OEIS-Other: A000196 planepath=Corner,n_start=0 coordinate_type=Max
@@ -3325,7 +3497,12 @@ sub characteristic_smaller {
     return ($self->{'step'} <= 1
             || ($self->{'step'} == 2 && $self->{'align'} eq 'centre')
             || $self->{'align'} eq 'left');
+  }
 
+  sub _NumSeq_Coord_MaxAbs_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'step'} <= 1
+            || ($self->{'step'} == 2 && $self->{'align'} eq 'centre'));
   }
 
   *_NumSeq_Coord_Sum_increasing = \&_NumSeq_Coord_Y_increasing;
@@ -3410,6 +3587,7 @@ sub characteristic_smaller {
                     Min       => 'A000004',  # Min=X
                     Y         => 'A001477',  # integers Y=0,1,2,etc
                     Max       => 'A001477',  # Max=Y
+                    MaxAbs    => 'A001477',  # MaxAbs=Max
                     Sum       => 'A001477',  # Sum=Y
                     DiffYX    => 'A001477',  # DiffYX=Y
                     DiffXY    => 'A001489',  # negatives 0,-1,-2,etc
@@ -3426,6 +3604,7 @@ sub characteristic_smaller {
                     # OEIS-Other: A000004 planepath=PyramidRows,step=0,n_start=0 coordinate_type=Min
                     # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=Y
                     # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=Max
+                    # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=MaxAbs
                     # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=Sum
                     # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=DiffYX
                     # OEIS-Other: A001489 planepath=PyramidRows,step=0,n_start=0 coordinate_type=DiffXY
@@ -3455,7 +3634,8 @@ sub characteristic_smaller {
          { X        => 'A002262',  # 0, 0,1, 0,1,2, etc (Diagonals)
            Min      => 'A002262',  # X<=Y always
            Y        => 'A003056',  # 0, 1,1, 2,2,2, 3,3,3,3 (Diagonals)
-           Max      => 'A003056',  # Y>=X always
+           Max      => 'A003056',  #  Max=Y as Y>=X always
+           MaxAbs   => 'A003056',  #  MaxAbs=Max as Y>=0 always
            DiffYX   => 'A025581',  # descending N to 0 (Diagonals)
            AbsDiff  => 'A025581',  #   absdiff same
            Sum      => 'A051162',  # triangle X+Y for X=0 to Y inclusive
@@ -3474,6 +3654,7 @@ sub characteristic_smaller {
        # OEIS-Other: A002262 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Min
        # OEIS-Other: A003056 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Y
        # OEIS-Other: A003056 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Max
+       # OEIS-Other: A003056 planepath=PyramidRows,step=1,n_start=0 coordinate_type=MaxAbs
        # OEIS-Other: A025581 planepath=PyramidRows,step=1,n_start=0 coordinate_type=DiffYX
        # OEIS-Other: A025581 planepath=PyramidRows,step=1,n_start=0 coordinate_type=AbsDiff
        # OEIS-Other: A051162 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Sum
@@ -3632,6 +3813,7 @@ sub characteristic_smaller {
   *_NumSeq_Coord_DiffXY_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_DiffYX_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_AbsDiff_increasing = \&_NumSeq_Coord_X_increasing;
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
 
   sub _NumSeq_Coord_X_non_decreasing {
     my ($self) = @_;
@@ -3709,6 +3891,11 @@ sub characteristic_smaller {
 
   use constant _NumSeq_Coord_Y_non_decreasing => 1;   # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max=Y
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
+  sub _NumSeq_Coord_MinAbs_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'sign'} > 0); # yes when to the right
+  }
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'align=left,n_start=0' =>
@@ -3812,6 +3999,7 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_AbsDiff_non_decreasing => 1; # Y-X >= 0 always
   use constant _NumSeq_Coord_GCD_increasing => 1; # GCD==Y
 
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
   sub _NumSeq_Coord_Parity_max {
     my ($path) = @_;
     return ($path->{'align'} eq 'centre' ? 1 : 0);
@@ -3965,21 +4153,25 @@ sub characteristic_smaller {
 { package Math::PlanePath::CellularRule::OddSolid;
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max=Y
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
   use constant _NumSeq_Coord_Parity_max => 0; # always even points
 }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max=Y
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
   use constant _NumSeq_Coord_IntXY_min => -1;
 }
 { package Math::PlanePath::CellularRule57;
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max=Y
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
   use constant _NumSeq_Coord_IntXY_min => -1;
 }
 { package Math::PlanePath::CellularRule190;
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max=Y
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
   use constant _NumSeq_Coord_IntXY_min => -1;
 }
 { package Math::PlanePath::UlamWarburton;
@@ -4081,9 +4273,11 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_oeis_anum =>
     { 'n_start=0' =>
       { X      => 'A038567',  # fractions denominator
-        Max    => 'A038567',  # same as X since Y <= X
+        Max    => 'A038567',  #  Max=X since Y <= X
+        MaxAbs => 'A038567',  #  MaxAbs=Max
         # OEIS-Catalogue: A038567 planepath=CoprimeColumns coordinate_type=X
         # OEIS-Other:     A038567 planepath=CoprimeColumns coordinate_type=Max
+        # OEIS-Other:     A038567 planepath=CoprimeColumns coordinate_type=MaxAbs
       },
 
       'n_start=0,i_start=1' =>
@@ -4092,16 +4286,17 @@ sub characteristic_smaller {
       },
 
       'n_start=1' =>
-      { Y   => 'A038566',  # fractions numerator
-        Min => 'A038566',  # same as Y since Y <= X
+      { Y      => 'A038566',  # fractions numerator
+        Min    => 'A038566',  #  Min=Y since Y <= X
+        MinAbs => 'A038566',  #  MinAbs=Min
         # OEIS-Catalogue: A038566 planepath=CoprimeColumns,n_start=1 coordinate_type=Y
         # OEIS-Other:     A038566 planepath=CoprimeColumns,n_start=1 coordinate_type=Min
+        # OEIS-Other:     A038566 planepath=CoprimeColumns,n_start=1 coordinate_type=MinAbs
       },
     };
 }
 { package Math::PlanePath::DivisibleColumns;
   use constant _NumSeq_Coord_X_non_decreasing => 1; # columns across
-  use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max==X
 
   sub _NumSeq_Coord_IntXY_min {
     my ($self) = @_;
@@ -4129,19 +4324,25 @@ sub characteristic_smaller {
             :                   0); # at X=1,Y=1
   }
 
+  use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max==X
+  sub _NumSeq_Coord_MaxAbs_min { return $_[0]->x_minimum } # Max=X
+
   use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'divisor_type=all,n_start=1' =>
-      { X     => 'A061017',  # n appears divisors(n) times
-        Max   => 'A061017',  # X since Y <= X
-        Y     => 'A027750',  # triangle divisors of n
-        Min   => 'A027750',  # Y since Y <= X
-        GCD   => 'A027750',  # Y since Y is a divisor of X
-        IntXY => 'A056538',  # divisors in reverse order, X/Y give high to low
+      { X      => 'A061017',  # n appears divisors(n) times
+        Max    => 'A061017',  #  Max=X since Y <= X
+        MaxAbs => 'A061017',  #  MaxAbs=Max
+        Y      => 'A027750',  # triangle divisors of n
+        Min    => 'A027750',  #  Min=Y since Y <= X
+        MinAbs => 'A027750',  #  MinAbs=Min
+        GCD    => 'A027750',  # Y since Y is a divisor of X
+        IntXY  => 'A056538',  # divisors in reverse order, X/Y give high to low
         Numerator => 'A056538', # same as int(X/Y)
         # OEIS-Catalogue: A061017 planepath=DivisibleColumns,n_start=1 coordinate_type=X
         # OEIS-Other:     A061017 planepath=DivisibleColumns,n_start=1 coordinate_type=Max
+        # OEIS-Other:     A061017 planepath=DivisibleColumns,n_start=1 coordinate_type=MaxAbs
         # OEIS-Catalogue: A027750 planepath=DivisibleColumns,n_start=1 coordinate_type=Y
         # OEIS-Other:     A027750 planepath=DivisibleColumns,n_start=1 coordinate_type=Min
         # OEIS-Other:     A027750 planepath=DivisibleColumns,n_start=1 coordinate_type=GCD
@@ -4253,6 +4454,7 @@ sub characteristic_smaller {
       my ($self) = @_;
       return $_NumSeq_Coord_HammingDist_min{$self->{'L_fill'}} || 0;
     }
+    *_NumSeq_Coord_MaxAbs_min = \&_NumSeq_Coord_HammingDist_min;
   }
 
   # Not quite, A112539 OFFSET=1 versus start N=0 here
@@ -4384,6 +4586,7 @@ sub characteristic_smaller {
 { package Math::PlanePath::ToothpickUpist;
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # X<=Y so max=Y
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
 
   use constant _NumSeq_Coord_LeafDistance_max => 9;
 }
@@ -4437,6 +4640,11 @@ sub characteristic_smaller {
       return $_NumSeq_Coord_LeafDistance_max{$self->{'parts'}} || 2;
     }
   }
+}
+
+{ package Math::PlanePath::HTree;
+  use constant _NumSeq_Coord_Depth_non_decreasing => 0;
+  use constant _NumSeq_Coord_NumSiblings_non_decreasing => 1;
 }
 
 #------------------------------------------------------------------------------
@@ -4511,6 +4719,8 @@ sort of geometric interpretation or are related to fractions X/Y.
     "Y"            Y coordinate
     "Min"          min(X,Y)
     "Max"          max(X,Y)
+    "MinAbs"       min(abs(X),abs(Y))
+    "MaxAbs"       max(abs(X),abs(Y))
     "Sum"          X+Y sum
     "SumAbs"       abs(X)+abs(Y) sum
     "Product"      X*Y product
@@ -4538,21 +4748,61 @@ sort of geometric interpretation or are related to fractions X/Y.
 
 =head2 Min and Max
 
-"Min" and "Max" are the minimum or maximum of X and Y.
+"Min" and "Max" are the minimum or maximum of X and Y.  The geometric
+interpretation of "Min" is to select X at any point above the X=Y diagonal
+or Y for any point below.  Conversely "Max" is Y above and X below.  On the
+X=Y diagonal itself X=Y=Min=Max.
 
-The geometric interpretation of "Min" is to select X at any point above the
-X=Y diagonal or Y for any point below.  Conversely "Max" is Y above and X
-below.  On the X=Y diagonal itself X=Y=Min=Max.
-
-    Max=Y       / X=Y diagonal
-    Min=X      /
-            | /
+    Max=Y      / X=Y diagonal
+    Min=X   | /
             |/
          ---o----
            /|
-          / |
-         /        Max=X
-        /         Min=Y
+          / |     Max=X
+         /        Min=Y
+
+X<Gnomon>Min and Max can also be interpreted as counting which gnomon shaped
+line the X,Y falls on.
+
+    | | | |     Min=gnomon           2 ------------.  Max=gnomon
+    | | | |                          1 ----------. |
+    | | | |      ...                 0 --------o | |
+    | | |  ------ 1                 -1 ------. | | |
+    | | o-------- 0                 ...      | | | |
+    |  ---------- -1                         | | | |
+     ------------ -2                         | | | |
+
+=head2 MinAbs
+
+X<Gnomon>MinAbs = min(abs(X),abs(Y)) can be interpreted geometrically as
+counting gnomons successively away from the origin.  This is like Min above,
+but within the quadrant containing X,Y.
+
+         | | | | |          MinAbs=gnomon counted away from the origin
+         | | | | |
+    2 ---  | | |  ---- 2
+    1 -----  |  ------ 1
+    0 -------o-------- 0
+    1 -----  |  ------ 1
+    2 ---  | | |  ---- 2
+         | | | | |
+         | | | | |
+
+=head2 MaxAbs
+
+MaxAbs = max(abs(X),abs(Y)) can be interpreted geometrically as counting
+successive squares around the origin.
+
+    +-----------+       MaxAbs=which square
+    | +-------+ |
+    | | +---+ | |
+    | | | o | | |
+    | | +---+ | |
+    | +-------+ |
+    +-----------+
+
+For example L<Math::PlanePath::SquareSpiral> loops around in squares and so
+its MaxAbs is unchanged until it steps out to the next bigger square.
 
 =head2 Sum and Diff
 
@@ -4595,10 +4845,11 @@ DiffYX is positive in C<CellularRule> which is above X=Y.
 
 =head2 SumAbs
 
-"SumAbs" = abs(X)+abs(Y) is similar to the projection described above for
+X<Diamonds>"SumAbs" = abs(X)+abs(Y) is similar to the projection described above for
 Sum or Diff, but SumAbs projects onto the central diagonal of whichever
-quadrant contains the X,Y, or equivalently is a numbering of anti-diagonals
-within that quadrant.  Those anti-diagonals make a diamond shape,
+quadrant contains the X,Y.  Or equivalently it's a numbering of
+anti-diagonals within that quadrant, so numbering which diamond shape the
+X,Y falls on.
 
          |
         /|\       SumAbs = which diamond X,Y falls on
@@ -4610,12 +4861,12 @@ within that quadrant.  Those anti-diagonals make a diamond shape,
         \|/
          |
 
-As an example, the C<DiamondSpiral> path follows around such diamonds, thus
-keeping SumAbs unchanged until completing a loop and stepping out to the
-next bigger one.
+As an example, the C<DiamondSpiral> path loops around on such diamonds, so
+its SumAbs is unchanged until completing a loop and stepping out to the next
+bigger.
 
-SumAbs is also a "taxi-cab" or "Manhatten" distance, being how far to travel
-through a square-grid city to get to X,Y.
+X<Taxi cab>X<Manhatten>SumAbs is also a "taxi-cab" or "Manhatten" distance,
+being how far to travel through a square-grid city to get to X,Y.
 
     SumAbs = taxi-cab distance, by any square-grid travel
 

@@ -45,15 +45,13 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
-use Math::PlanePath::Base::Digits
-  'bit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 # use Smart::Comments;

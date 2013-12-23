@@ -31,284 +31,31 @@ use Math::PlanePath::Base::Digits
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
-{
-  # OEIS grep matrices repeatedly
-  use lib 'xt'; require MyOEIS;
-  require Math::BigInt;
-
-  my $coordinates_choices = Math::PlanePath::PythagoreanTree
-    ->parameter_info_hash->{'coordinates'}->{'choices'};
-  my $zero = Math::BigInt->new(0);
-
-  require Math::NumSeq::PlanePathN;
-  # Math::NumSeq::PlanePathN::_bigint()->new(0);
-
-  my @nlists;
-  foreach my $digit (0 .. 2) {
-    foreach my $depth (1 .. 10) {
-      push @{$nlists[$digit]}, ternarytree_join_lowtohigh([($digit) x $depth], $zero);
-    }
-    print join(',', @{$nlists[$digit]}),"\n";
-  }
-
-  foreach my $tree_type ('UAD', 'FB', 'UMT') {
-    foreach my $matrix ($tree_type eq 'UMT' ? 2 : 0 .. 2) {
-
-      my %seen_coord_name;
-      foreach my $coordinates (@$coordinates_choices) {
-        my $path = Math::PlanePath::PythagoreanTree->new(tree_type => $tree_type,
-                                                         coordinates => $coordinates);
-        foreach my $coord (1, 2, 3) {
-          my $coord_name = ($coord & 1 ? substr($coordinates,0,1) : '')
-            . ($coord & 2 ? substr($coordinates,1,1) : '');
-          next if $seen_coord_name{$coord_name}++;
-
-          my @values;
-          foreach my $n (@{$nlists[$matrix]}) {
-            my @xy = $path->n_to_xy($n);
-            if ($coord & 1) { push @values, $xy[0]; }
-            if ($coord & 2) { push @values, $xy[1]; }
-            ### @xy
-          }
-          print MyOEIS->grep_for_values
-            (array => \@values,
-             name => "$tree_type matrix=$matrix coord=$coord_name ($coord of $coordinates)");
-        }
-      }
-    }
-  }
-  exit 0;
-
-  sub ternarytree_join_lowtohigh {
-    my ($aref, $zero) = @_;
-    return ((3+$zero)**scalar(@$aref) + 1)/2    # tree_depth_to_n()
-      + digit_join_lowtohigh($aref,3,$zero);  # digits within this depth
-  }
-}
 
 {
-  # possible matrices
-
-  require Math::PlanePath::GcdRationals;
-  *gcd = \&Math::PlanePath::GcdRationals::_gcd;
-
-  # 1
-  # 1 + 3 = 4
-  # 1 + 3 + 9 = 13
-  # 1 + 3 + 9 + 27 = 40
-  my @p;
-  my @q;
-  my @pq;
-  {
-    my $path = Math::PlanePath::PythagoreanTree->new(coordinates => 'PQ');
-    foreach my $i (0 .. 120) {
-      ($p[$i],$q[$i]) = $path->n_to_xy($path->n_start + $i);
-      $pq[$i] = "$p[$i],$q[$i]";
-    }
-    $#pq = 13;
-  }
-  # {
-  #   foreach my $p (2 .. 18) {
-  #     foreach my $q (1 .. 18) {
-  #       next unless pq_acceptable($p,$q);
-  #       push @p, $p;
-  #       push @q, $q;
-  #       push @pq, "$p,$q";
-  #     }
-  #   }
-  # }
-
-  my $term_min = -4;
-  my $term_max = 4;
-  my @term_list;
-  for (my $term = $term_min; $term <= $term_max; $term += 0.5) {
-    push @term_list, $term;
-  }
-  my @matrices;
-  foreach my $a (@term_list) {
-    foreach my $b (@term_list) {
-      foreach my $c (@term_list) {
-        foreach my $d (@term_list) {
-          my $m = [$a,$b,$c,$d];
-          next unless mm_acceptable($m);
-          push @matrices, $m;
-        }
-      }
-    }
-  }
-  print "matrices ",scalar(@matrices),"\n";
-
-  foreach my $m (@matrices) {
-    if (mm_non_integer($m)) {
-      print "non-integer ",mm_string($m),"\n";
-    }
-  }
-  sub mm_non_integer {
-    my ($m) = @_;
-    return ! (is_integer($m->[0]) && is_integer($m->[1])
-              && is_integer($m->[2]) && is_integer($m->[3]));
-  }
-  sub is_integer {
-    my ($n) = @_;
-    return $n == int($n);
-  }
-
-  my $mm_count = 5;
-  my @mm_indices = (0 .. $mm_count-1);
- MM_LIST: for (;;) {
-    {
-      my @mm_list = map {$matrices[$_]} @mm_indices;
-      if (m3_coverage(@mm_list)) {
-        print m3_string(@mm_list),"\n";
-      }
-    }
-    my $pos = $mm_count-1;
-    for (;;) {
-      $mm_indices[$pos]++;
-      if ($mm_indices[$pos] <= $#matrices - ($mm_count-1 - $pos)) {
-        last;
-      }
-      $pos--;
-      if ($pos < 0) {
-        last MM_LIST;
-      }
-    }
-    while (++$pos < $mm_count) {
-      $mm_indices[$pos] = $mm_indices[$pos-1] + 1;
-    }
-  }
-
-  no Smart::Comments;
-  sub pq_acceptable {
-    my ($p,$q) = @_;
-    unless (is_integer($p)) {
-      ### not integer p ...
-      return 0;
-    }
-    unless (is_integer($q)) {
-      ### not integer q ...
-      return 0;
-    }
-    return ($p > $q
-            && $q >= 1
-            && ($p % 2) != ($q % 2)
-            && gcd($p,$q) == 1);
-  }
-  sub mm_acceptable {
-    my ($m) = @_;
-    ### mm_acceptable(): mm_string($m).'  '.mm_name($m)
-    foreach my $i (0 .. $#p) {
-      my ($p,$q) = mm_descend($m, $p[$i],$q[$i]);
-      return 0 unless pq_acceptable($p,$q);
-    }
-    return 1;
-  }
-
-  sub m3_coverage {
-    my @mm_list = @_;
-    ### m3_coverage(): m3_string(@mm_list)
-    {
-      my %seen;
-      my @pending_p = (2);
-      my @pending_q = (1);
-      for (1 .. 6) {
-        my @new_pending_p;
-        my @new_pending_q;
-        while (@pending_p) {
-          my $p = pop @pending_p;
-          my $q = pop @pending_q;
-          if ($seen{"$p,$q"}++) {
-            ### duplicate p,q ...
-            return 0;
-          }
-          foreach my $m (@mm_list) {
-            my ($new_p,$new_q) = mm_descend($m,$p,$q);
-            push @new_pending_p, $new_p;
-            push @new_pending_q, $new_q;
-          }
-        }
-        @pending_p = @new_pending_p;
-        @pending_q = @new_pending_q;
-      }
-      # foreach my $pq (@pq) {
-      #   if (! $seen{$pq}) {
-      #     return 0;
-      #   }
-      # }
-    }
-    if (1) {
-    PQ: foreach my $i (1 .. $#p) {
-        my $p = $p[$i];
-        my $q = $q[$i];
-        foreach my $m (@mm_list) {
-          if (mm_upward($m, $p,$q)) { next PQ; }
-        }
-        ### no upward for p,q: "p=$p q=$q"
-        return 0;
-      }
-    }
-    return 1;
-  }
-
-  sub mm_descend {
-    my ($m, $p,$q) = @_;
-    ### assert: @_ == 3
-    ### assert: @$m == 4
-    ### assert: defined $m->[0]
-    ### assert: defined $m->[1]
-    ### assert: defined $m->[2]
-    ### assert: defined $m->[3]
-    ### assert: defined $p
-    ### assert: defined $q
-    return ($m->[0]*$p + $m->[1]*$q,
-            $m->[2]*$p + $m->[3]*$q);
-  }
-  # (a b)(p)  inverse (d -b)
-  # (c d)(q)          (-c a) / det
-  # det = ad-bc
-  sub mm_upward {
-    my ($m, $p,$q) = @_;
-    my $det = mm_determinant($m);
-    my $ap = $m->[3]*$p - $m->[1]*$q;
-    my $aq = - $m->[2]*$p + $m->[0]*$q;
-    if (! is_integer($ap)) { return 0; }
-    if (! is_integer($aq)) { return 0; }
-    if ($ap % $det || $aq % $det) { return 0; }
-    $ap /= $det;
-    $aq /= $det;
-    if (! pq_acceptable($ap,$aq)) {
-      return 0;
-    }
-    return 1;
-  }
-  sub mm_determinant {
-    my ($m) = @_;
-    return ($m->[0] * $m->[3] - $m->[1] * $m->[2]);
-  }
-  sub m3_string {
-    my (@mm_list) = @_;
-    return join('  ',map {mm_string($_)} @mm_list)
-      .'  '.join('',map {mm_name($_)} @mm_list);
-  }
-  sub mm_string {
-    my ($m) = @_;
-    return $m->[0].','.$m->[1].','.$m->[2].','.$m->[3];
-  }
-  BEGIN {
-    my %mm_name = ('2,-1,1,0' => "U",
-                   '2,1,1,0' => "A",
-                   '1,2,0,1' => "D",
-                   '1,1,0,2' => "K1",
-                   '2,0,1,-1' => "K2",
-                   '2,0,1,1' => "K3");
-    sub mm_name {
-      my ($m) = @_;
-      return $mm_name{join (',',@$m)} || '.';
-    }
+  # powers
+  foreach my $k (0 .. 41) {
+    print 3**$k,"\n";
   }
   exit 0;
 }
 
+{
+  # repeated "U" or "M1" on initial P=2,Q=1
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+     # tree_type => 'UAD',
+     tree_type => 'FB',
+     coordinates => 'PQ',
+    );
+  foreach my $depth (0 .. 5) {
+    my $n = $path->tree_depth_to_n($depth);
+    my ($x,$y) = $path->n_to_xy($n);
+    print "depth=$depth N=$n  P=$x / Q=$y\n";
+  }
+  exit 0;
+}
 {
   # X,Y list
 
@@ -374,18 +121,18 @@ use Math::PlanePath::Base::Digits
 }
 
 {
-  # TKU parent/child
+  # TMU parent/child
   foreach my $n (1 .. 40) {
     if (n_is_row_start($n)) { print "\n"; }
     my $n_str = n_to_pythagstr($n);
-    my ($p,$q) = tku_n_to_pq($n);
-    my @pq_children = tku_pq_children($p,$q);
+    my ($p,$q) = tmu_n_to_pq($n);
+    my @pq_children = tmu_pq_children($p,$q);
     my ($p1,$q1,$p2,$q2,$p3,$q3) = @pq_children;
     print "$n = $n_str  $p,$q   children $p1,$q1  $p2,$q2  $p3,$q3\n";
     while (@pq_children) {
       my $child_p = shift @pq_children;
       my $child_q = shift @pq_children;
-      my ($parent_p,$parent_q) = tku_pq_parent($child_p,$child_q);
+      my ($parent_p,$parent_q) = tmu_pq_parent($child_p,$child_q);
       if ($parent_p != $p || $parent_q != $q) {
         print "oops\n";
       }
@@ -393,13 +140,13 @@ use Math::PlanePath::Base::Digits
   }
   exit 0;
 
-  sub tku_pq_children {
+  sub tmu_pq_children {
     my ($p,$q) = @_;
     return ($p+3*$q, 2*$q,  # T
-            2*$p, $p-$q,    # K2 (2p, p-q)
+            2*$p, $p-$q,    # M2 (2p, p-q)
             2*$p-$q, $p);   # "U" = (2p-q, p)
   }
-  sub tku_pq_parent {
+  sub tmu_pq_parent {
     my ($p,$q) = @_;
     if ($p > 2*$q) {
       if ($p % 2) {
@@ -411,7 +158,7 @@ use Math::PlanePath::Base::Digits
         $q /= 2;
         $p -= 3*$q;
       } else {
-        # K2 2  0   p -> 2p        p > 2q,     p even, q odd
+        # M2 2  0   p -> 2p        p > 2q,     p even, q odd
         #    1 -1   q -> p-q       det=-2
         # inverse -1  0 / -2 = 1/2  0
         #         -1  2        1/2 -1
@@ -448,7 +195,7 @@ use Math::PlanePath::Base::Digits
 }
 
 {
-  # UAD to TKU
+  # UAD to TMU
   my $uad = Math::PlanePath::PythagoreanTree->new (tree_type => 'UAD',
                                                    coordinates => 'PQ');
   foreach my $n (1 .. 40) {
@@ -472,7 +219,7 @@ use Math::PlanePath::Base::Digits
           $p -= 3*$q;
           push @ndigits, 1;
         } else {
-          $p /= 2;   # K2
+          $p /= 2;   # M2
           $q = $p - $q;
           push @ndigits, 2;
         }
@@ -492,9 +239,9 @@ use Math::PlanePath::Base::Digits
   # A = 2,1, 1,0
   # D = 1,2, 0,1
 
-  # K1 = 1,1, 0,2
-  # K2 = 2,0, 1,-1
-  # K3 = 2,0, 1,1
+  # M1 = 1,1, 0,2
+  # M2 = 2,0, 1,-1
+  # M3 = 2,0, 1,1
 
   # p+2q = unchanged
   # p+q = odd
@@ -523,26 +270,26 @@ use Math::PlanePath::Base::Digits
   # D  1  2   p -> p+2q      p > 3q         big p
   #    0  1   q -> q         det=1
 
-  #   K1       K2        K3
+  #   M1       M2        M3
   # 1,1,0,2  2,0,1,-1  2,0,1,1
   #
-  # K1 1 1    p -> p+q       p > 2q,  p odd, q even
+  # M1 1 1    p -> p+q       p > 2q,  p odd, q even
   #    0 2    q -> 2q        det=2
   #
-  # K2 2  0   p -> 2p        p > 2q,  p even, q odd
+  # M2 2  0   p -> 2p        p > 2q,  p even, q odd
   #    1 -1   q -> p-q       det=-2
   #
-  # K3 2  0   p -> 2p        2q > p,  small p,  p even, q odd
+  # M3 2  0   p -> 2p        2q > p,  small p,  p even, q odd
   #    1  1   q -> p+q       det=2
 
-  #             U        K2
+  #             U        M2
   # 1,3,0,2  2,-1,1,0  2,0,1,-1
   #
   #
   # T  1 3    p -> p+3q      p > 2q,     p odd, q even
   #    0 2    q -> 2q        det=2
   #
-  # K2 2  0   p -> 2p        p > 2q,     p even, q odd
+  # M2 2  0   p -> 2p        p > 2q,     p even, q odd
   #    1 -1   q -> p-q       det=-2
   #
   # U  2  1   p -> 2p-q      2q > p > q  small p
@@ -555,7 +302,7 @@ use Math::PlanePath::Base::Digits
   my $len = 0;
   foreach my $n (1 .. 40) {
     if (n_is_row_start($n)) { print "\n"; }
-    my ($p,$q) = tku_n_to_pq($n);
+    my ($p,$q) = tmu_n_to_pq($n);
     my $uad_n = n_to_pythagstr($uad->xy_to_n($p,$q));
     my $fb_n = n_to_pythagstr($fb->xy_to_n($p,$q));
     my $n_str = n_to_pythagstr($n);
@@ -568,7 +315,7 @@ use Math::PlanePath::Base::Digits
     my ($pow, $exp) = round_down_pow (2*$n-1, 3);
     return ($n == ($pow+1)/2);
   }
-  sub tku_n_to_pq {
+  sub tmu_n_to_pq {
     my ($n) = @_;
     my $p = 2;
     my $q = 1;
@@ -577,7 +324,7 @@ use Math::PlanePath::Base::Digits
         $p += 3*$q;    # T
         $q *= 2;
       } elsif ($digit == 1) {
-        $q = $p-$q;                   # (2p, p-q)  K2
+        $q = $p-$q;                   # (2p, p-q)  M2
         $p *= 2;
       } else {
         ($p,$q) = (2*$p-$q, $p);      # "U" = (2p-q, p)
@@ -685,24 +432,9 @@ use Math::PlanePath::Base::Digits
   }
   exit 0;
 }
+
 {
-  # repeated "U" or "K1" on initial P=2,Q=1
-  require Math::BaseCnv;
-  my $path = Math::PlanePath::PythagoreanTree->new
-    (
-     # tree_type => 'UAD',
-     tree_type => 'FB',
-     coordinates => 'PQ',
-    );
-  foreach my $depth (0 .. 5) {
-    my $n = $path->tree_depth_to_n($depth);
-    my ($x,$y) = $path->n_to_xy($n);
-    print "depth=$depth N=$n  P=$x / Q=$y\n";
-  }
-  exit 0;
-}
-{
-  # repeated "K1" as p,q matrix
+  # repeated "M1" as p,q matrix
   # P+(2^k-1)*Q, 2^k*Q
   # applied to P=2,Q=1
   # 2+(2^k-1) = 2^k + 1, 2^k

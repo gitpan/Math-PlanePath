@@ -34,7 +34,7 @@ use Carp;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -1043,7 +1043,13 @@ The children are the cells turned on adjacent to C<$n> at the next level.
 The way points are numbered means that when there's multiple children
 they're consecutive N values, for example at N=6 the children are 10,11,12.
 
-=item C<@nums = $path-E<gt>tree_num_children_list($n)>
+=back
+
+=head2 Tree Descriptive Methods
+
+=over
+
+=item C<@nums = $path-E<gt>tree_num_children_list()>
 
 Return a list of the possible number of children at the nodes of C<$path>.
 This is the set of possible return values from C<tree_n_num_children()>.

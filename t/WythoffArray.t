@@ -33,7 +33,7 @@ require Math::PlanePath::WythoffArray;
 # VERSION
 
 {
-  my $want_version = 112;
+  my $want_version = 113;
   ok ($Math::PlanePath::WythoffArray::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::WythoffArray->VERSION,  $want_version,

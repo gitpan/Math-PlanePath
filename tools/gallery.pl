@@ -44,6 +44,15 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['htree-big.png',
+    'math-image --path=HTree --values=LinesTree --scale=6 --size=196 --offset=2,2 --figure=point'],
+   ['htree-small.png',
+    'math-image --path=HTree --values=LinesTree --scale=4 --size=32 --offset=2,2'],
+
+   ['pythagorean-tree-uard-rows-pq.png',
+    'math-image --path=PythagoreanTree,tree_type=UArD,digit_order=LtoH,coordinates=PQ --lines --scale=14 --size=200 --figure=point'],
+   ['pythagorean-tree-uard-rows.png',
+    'math-image --path=PythagoreanTree,tree_type=UArD,digit_order=LtoH --lines --scale=1 --size=200 --figure=point'],
    ['pythagorean-tree-umt-big.png',
     'math-image --path=PythagoreanTree,tree_type=UMT --values=LinesTree --scale=4 --size=200'],
    ['pythagorean-tree-fb-big.png',

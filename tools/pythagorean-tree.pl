@@ -27,7 +27,7 @@ use 5.010;
 use strict;
 use Math::PlanePath::PythagoreanTree;
 
-foreach my $tree_type ('UAD','FB','UMT') {
+foreach my $tree_type ('UAD','UArD','FB','UMT') {
   my $str = <<"HERE";
     tree_type => "$tree_type"
 
@@ -45,7 +45,7 @@ foreach my $tree_type ('UAD','FB','UMT') {
 
 HERE
     my $path = Math::PlanePath::PythagoreanTree->new(tree_type => $tree_type,
-                                                    coordinates => 'PQ');
+                                                    coordinates => 'AB');
     $str =~ s{(\d+)}
              {
                my ($x,$y) = $path->n_to_xy($1);

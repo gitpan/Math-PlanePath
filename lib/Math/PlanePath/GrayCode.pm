@@ -19,17 +19,9 @@
 
 # math-image --path=GrayCode,apply_type=N --all --output=numbers_dash --size=28x19
 
-
-# A055975 gray code first diffs
-# A048641 gray code cumulative
-# A048642 gray code partial products
-#
-# A195467 anti-diagonal powers of gray permutation
-# A173318 runs partial sums
-# A005811 count 1 bits in gray code (dragon curve total turn)
-#
-# A147995 strange hopping walk
-
+# C. Faloutsos, Gray Codes for Partial Match and Range Queries, IEEE
+# Trans. on Software Engineering (TSE), Vol. 14, No. 10, pp.  1381-1393,
+# Oct. 1988.  http://dx.doi.org/10.1109/32.6184
 
 package Math::PlanePath::GrayCode;
 use 5.004;
@@ -39,7 +31,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 112;
+$VERSION = 113;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -353,12 +345,12 @@ sub _digits_to_gray_modular {
 sub _digits_from_gray_reflected {
   my ($aref, $radix) = @_;
 
-  $radix -= 1;
+  $radix -= 1;                   # radix-1
   my $reverse = 0;
   foreach my $digit (reverse @$aref) {  # high to low
     if ($reverse & 1) {
       $reverse ^= $digit;        # before this reversal
-      $digit = $radix - $digit;  # radix-1 - digit
+      $digit = $radix - $digit;  # radix-1 - digit, mutate array
     } else {
       $reverse ^= $digit;
     }
@@ -393,9 +385,9 @@ Math::PlanePath::GrayCode -- Gray code coordinates
 
 =head1 DESCRIPTION
 
-X<Faloutsos, Christos>This is a mapping of N to X,Y using Gray codes.  The
-default is the form by Christos Faloutsos which is an X,Y split in binary
-reflected Gray code.
+X<Faloutsos, Christos>X<Gray code>This is a mapping of N to X,Y using Gray
+codes.  The default is the form by Christos Faloutsos which is an X,Y split
+in binary reflected Gray code.
 
       7  |  63-62 57-56 39-38 33-32
          |      |  |        |  |
