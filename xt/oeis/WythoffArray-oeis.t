@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -621,7 +621,7 @@ MyOEIS::compare_values
 
 #------------------------------------------------------------------------------
 # A143299 number of Zeckendorf 1-bits in row Y
-# cf A007895 which is the fibbinary bit count
+# cf A007895 which is the fibbinary bit count Math::NumSeq::FibbinaryBitCount
 
 MyOEIS::compare_values
   (anum => 'A143299',

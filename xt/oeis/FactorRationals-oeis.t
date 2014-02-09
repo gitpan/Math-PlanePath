@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -160,8 +160,8 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A011262 -- N at transpose Y/X
-# cf A011264
+# A011262 -- N at transpose Y/X, incr odd powers, decr even powers
+# cf A011264 prime factorization decr odd powers, incr even powers
 
 MyOEIS::compare_values
   (anum => 'A011262',

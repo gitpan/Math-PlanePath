@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -337,11 +337,11 @@ sub path_n_dir {
   my ($path, $n) = @_;
   my ($x,$y) = $path->n_to_xy($n);
   my ($next_x,$next_y) = $path->n_to_xy($n+1);
-  return dxdy_to_dir ($next_x - $x,
+  return dxdy_to_dir4 ($next_x - $x,
                       $next_y - $y);
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
-sub dxdy_to_dir {
+sub dxdy_to_dir4 {
   my ($dx, $dy) = @_;
   if ($dx > 0) { return 0; }  # east
   if ($dx < 0) { return 2; }  # west

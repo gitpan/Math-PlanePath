@@ -16,8 +16,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=QuintetCentres --lines --scale=10
-# math-image --path=QuintetCentres --all --output=numbers_dash
+# Boundary of unit squares:
+# 4*3^n
 
 
 package Math::PlanePath::QuintetCentres;
@@ -29,7 +29,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

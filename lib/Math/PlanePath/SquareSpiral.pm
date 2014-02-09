@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -837,9 +837,9 @@ L<https://oeis.org/wiki/Ulam's_spiral>
       A090928    permutation N at rotate +180
       A090929    permutation N at rotate +270
       A090930    permutation N at clockwise spiralling
-      A020703    permutation N at rotate +90 and clockwise
-      A090861    permutation N at rotate +180 and clockwise
-      A090915    permutation N at rotate +270 and clockwise
+      A020703    permutation N at rotate +90 and go clockwise
+      A090861    permutation N at rotate +180 and go clockwise
+      A090915    permutation N at rotate +270 and go clockwise
       A185413    permutation N at 1-X,Y
                    being rotate +180, offset X+1, clockwise
 
@@ -898,7 +898,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

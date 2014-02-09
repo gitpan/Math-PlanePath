@@ -22,16 +22,75 @@ use strict;
 use warnings;
 use Math::PlanePath::KochSquareflakes;
 
+# uncomment this to run the ### lines
+# use Smart::Comments;
 
-# horiz: 1, 4, 14, 48, 164, 560, 1912, 6528, 22288, 76096, 259808, 887040
-# A007070 a(n+1) = 4*a(n) - 2*a(n-1), starting 1,4
-#
-# diag:  1, 3, 10, 34, 116, 396, 1352, 4616, 15760, 53808, 183712, 627232
-# A007052 a(n+1) = 4*a(n) - 2*a(n-1), starting 1,3
-#
 
 {
+  # area
+  #
+  # start diag[0] = 0
+  # start straight[0] = 4
+  # diag[n+1]     = 2*straight[n] + 2*diag[n]
+  # straight[n+1] = 2*straight[n] + 2*diag[n]
+  #
+  #
+  
+  require Math::Geometry::Planar;
+  my $path = Math::PlanePath::KochSquareflakes->new;
+  my @values;
+  my $prev_a_log = 0;
+  my $prev_len_log = 0;
+
+  foreach my $level (1 .. 7) {
+    my $n_level = (4**($level+1) - 1) / 3;
+    my $n_end = $n_level + 4**$level;
+    my @points;
+    foreach my $n ($n_level .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @points, [$x,$y];
+    }
+    ### @points
+    my $polygon = Math::Geometry::Planar->new;
+    $polygon->points(\@points);
+    my $a = $polygon->area;
+    my $len = $polygon->perimeter;
+
+    my $a_log = log($a);
+    my $len_log = log($len);
+
+    my $d_a_log = $a_log - $prev_a_log;
+    my $d_len_log = $len_log - $prev_len_log;
+    my $f = $d_a_log / $d_len_log;
+
+    my $formula = area_by_formula($level);
+
+    print "$level  $a $formula\n";
+    # print "$level  $d_len_log  $d_a_log   $f\n";
+    push @values, $a;
+
+    $prev_a_log = $a_log;
+    $prev_len_log = $len_log;
+  }
+  shift @values;
+  use lib 'xt'; require MyOEIS;
+  print MyOEIS->grep_for_values(array => \@values);
+  exit 0;
+
+  sub area_by_formula {
+    my ($n) = @_;
+    return (9**$n - 4**$n)/5;
+    # return (4 * (9**$n - 4**$n)/5 + 16**$n);
+  }
+}
+{
   # max extents of a single side
+
+  # horiz: 1, 4, 14, 48, 164, 560, 1912, 6528, 22288, 76096, 259808, 887040
+  # A007070 a(n+1) = 4*a(n) - 2*a(n-1), starting 1,4
+  #
+  # diag:  1, 3, 10, 34, 116, 396, 1352, 4616, 15760, 53808, 183712, 627232
+  # A007052 a(n+1) = 4*a(n) - 2*a(n-1), starting 1,3
 
   # A007070   max horiz dist from ring start pos     4,14,48,164  side width
   # A206374   N of the max position                  2,9,37,149   corner

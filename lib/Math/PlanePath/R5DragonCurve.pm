@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -16,10 +16,17 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# boundary B[k] = 4*3^k - 2
+# dB[k] = B[k+1] - B[k]
+#       = 4*3*3^k - 2 - (4*3^k - 2)
+#       = (4*3 - 4)*3^k
+#       = 8*3^k
+# 5*B[k] - B[k]
+#   = 4*B[k]   shortfall length
+# 2*B[k]+4     new touching points
+#   = 8*3^k      in four joins
+# 2*3^k in each join
 
-# math-image --path=R5DragonCurve --lines --scale=20
-#
-# math-image --path=R5DragonCurve --all --output=numbers
 
 
 package Math::PlanePath::R5DragonCurve;
@@ -30,7 +37,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -247,7 +254,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint radix Jorg Arndt Arndt's fxtbook
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint radix Jorg Arndt Arndt's fxtbook PlanePath min xy TerdragonCurve arctan gt lt undef diff abs dX dY
 
 =head1 NAME
 
@@ -327,14 +334,15 @@ replication is
 
     Nlevel = 5^level
 
-That point is at arctan(2/1)=63.43 degrees further around for each level,
+Each such point is at arctan(2/1)=63.43 degrees further around from the
+previous,
 
     Nlevel     X,Y     angle (degrees)
     ------    -----    -----
-      1        1,0        0
-      5        2,1       63.4
-     25       -3,4      126.8
-    125      -11,-2     190.3
+      1        1,0         0
+      5        2,1        63.4
+     25       -3,4      2*63.4 = 126.8
+    125      -11,-2     3*63.4 = 190.3
 
 =head2 Arms
 
@@ -365,37 +373,31 @@ all four begin.  Every edge between the points is traversed once.
 The little "S" shapes of the N=0to5 base shape tile the plane with 2x1
 bricks and 1x1 holes in the following pattern,
 
-     |         |    |    |    |         |    |    |    |
-     |---------+---------|    |---------+---------|    |-
-     |    |    |         |    |    |    |         |    |
-     |    |    |         |    |    |    |         |    |
-    ------|    |---------+---------|    |---------+------
-          |    |    |    |         |    |    |    |
-          |    |    |    |         |    |    |    |
-    ------+---------|    |---------+---------|    |------
-     |    |         |    |    |    |         |    |    |
-     |    |         |    |    |    |         |    |    |
-    -|    |---------+---------|    |---------+---------|
-     |    |    |    |         |    |    |    |         |
-     |    |    |    |         |    |    |    |         |
-    -+---------|    |---------o---------|    |---------+-
-     |         |    |    |    |         |    |    |    |
-     |         |    |    |    |         |    |    |    |
-     |---------+---------|    |---------+---------|    |-
-     |    |    |         |    |    |    |         |    |
-     |    |    |         |    |    |    |         |    |
-    ------|    |---------+---------|    |---------+------
-          |    |    |    |         |    |    |    |
-          |    |    |    |         |    |    |    |
-    ------+---------|    |---------+---------|    |------
-     |    |         |    |    |    |         |    |    |
-     |    |         |    |    |    |         |    |    |
-    -|    |---------+---------|    |---------+---------|
-     |    |    |    |         |    |    |    |         |
+    +--+-----|  |--+--+-----|  |--+--+---
+    |  |     |  |  |  |     |  |  |  |   
+    |  |-----+-----|  |-----+-----|  |---
+    |  |  |  |     |  |  |  |     |  |  |
+    +-----|  |-----+-----|  |-----+-----+
+    |     |  |  |  |     |  |  |  |     |
+    +-----+-----|  |-----+-----|  |-----+
+    |  |  |     |  |  |  |     |  |  |  |
+    ---|  |-----+-----|  |-----+-----|  |
+       |  |  |  |     |  |  |  |     |  |
+    ---+-----|  |-----o-----|  |-----+---
+    |  |     |  |  |  |     |  |  |  |   
+    |  |-----+-----|  |-----+-----|  |---
+    |  |  |  |     |  |  |  |     |  |  |
+    +-----|  |-----+-----|  |-----+-----+
+    |     |  |  |  |     |  |  |  |     |
+    +-----+-----|  |-----+-----|  |-----+
+    |  |  |     |  |  |  |     |  |  |  |
+    ---|  |-----+-----|  |-----+-----|  |
+       |  |  |  |     |  |  |  |     |  |
+    ---+--+--|  |-----+--+--|  |-----+--+
 
-This is simply the curve with segment N=2mod5 to N=3mod5 omitted from each
-mod5 block.  In each 2x1 block the "S" traverses 4 of the 6 edges and the
-way the curve meshes together traverses the other 2 edges in another brick,
+This is the curve with each segment N=2mod5 to N=3mod5 omitted.  Each 2x1
+block has 6 edges.  The "S" within traverses 4 of them and the way the
+blocks mesh meshes together traverses the other 2 edges by another brick,
 possibly a brick on another arm of the curve.
 
 This tiling is also for example
@@ -510,11 +512,313 @@ of each digit when N is written in base 5,
 
     direction = (sum direction for each digit) * 90 degrees
 
-For example N=13 is base5 23 so direction=(2+1)*90 = 270 degrees, ie. south.
+For example N=13 in base 5 is "23" so digit=2 direction=2 plus digit=3
+direction=1 gives direction=(2+1)*90 = 270 degrees, ie. south.
 
 Because there's no reversals etc in the replications there's no state to
 maintain when considering the digits, just a plain sum of direction for each
 digit.
+
+=head2 Boundary Length
+
+The length of the boundary of the curve points N=0 to N=5^k inclusive is
+
+    boundary B[k] = 4*3^k - 2
+                  = 2, 10, 34, 106, 322, 970, 2914, ...
+
+The boundary follows the curve edges around from the origin until returning
+there.  So the single line segment N=0 to N=1 is boundary length 2, or the
+"S" shape of N=0 to N=5 is length 10.
+
+                        4---5
+                        |       boundary[1]=10
+    boundary[0]=2       3---2
+                            |
+    0---1               0---1
+
+The first "S" shape is 5x the previous length but thereafter the way the
+curve touches itself makes the boundary shorter (growing just over 3x as can
+be seen from the power 3^k in B).
+
+The boundary formula can be calculated from the way the curve meets when it
+replicates.  Consider the level N=0 to N=5^k and take its boundary length in
+two parts as a short side R and an inner curving part U.
+
+        R          R[k] = side boundary
+      4---5        U[k] = inner curve boundary
+    R | U
+      3---2        initial R[1] = 1
+        U | R              U[1] = 3
+      0---1
+        R
+
+The curve is shown here as plain lines but becomes fatter and wiggly at
+higher replications.  Points 1 and 2 are on the right side boundary, and
+similarly 3 and 4 on the left side boundary, so in this breakdown the points
+where U and R parts meet are on the boundary.  The total is
+
+    B[k] = 4*R[k] + 2*U[k]
+
+The curve is symmetric on its left and right sides so R is half the total
+boundary of the preceding level,
+
+    R[k] = B[k-1] / 2
+
+Which gives
+
+    R[k+1] = 2*R[k] + U[k]
+
+When curve replicates to the next level N=5^k the boundary length becomes,
+
+        R
+      *---5
+    R | U       R       R           R[k+1] = 2*R[k] +   U[k]
+      *---*   *---2   *---*         U[k+1] =   R[k] + 2*U[k]
+        U | U |   | U |   | R
+      4---*---*---*---*---1         # eg. 0 to 1 on the right for R[k+1]
+    R |   | U |   | U | U           #     0 to 3 on the left for U[k+1]
+      *---*   3---*   *---*
+        R       R       U | R
+                      0---*
+                        R
+
+This expansion for R[k+1] is the same as obtained from symmetry of the
+total.  Then U from 0 to 3 gives a second recurrence.  The two together can
+then eliminate U by substituting the former into the latter,
+
+    U[k] = R[k+1] - 2*R[k]                       # from R[k+1] formula
+
+    R[k+2]-2*R[k+1] = 2*(R[k+1]-2*R[k]) + R[k]   # from U[k+1] formula
+    R[k+2] = 4*R[k+1] - 3*R[k]
+
+Then from R[k]=B[k-1]/2 this recurrence for R becomes the same recurrence
+for the total B,
+
+    B[k+1] = 4*B[k] - 3*B[k-1]
+
+It can be verified by induction that the initial B[0]=2, B[1]=10 and this
+recurrence are satisfied by S<B[k]=4*3^k - 2>.
+
+=cut
+
+# boundary = 2,10,34,106,322,970,2914
+#          = A079004
+#        a(n) = 3*a(n-1) + 4
+#        a(n) = 4*3^n - 2
+#      diff = 8, 24,72,216,648,1944,5832    = 8*3^n = A005051
+
+# R[k] = B[k-1] / 2
+# B[k] = 2*U[k] + 4*R[k]
+# U[k+1] = 2*U[k] +   R[k]
+# R[k+1] =   U[k] + 2*R[k]
+# B[k+1] = 2*(2*U[k] + R[k]) + 4*(U[k] + 2*R[k])
+#        = 8*U[k] + 10*R[k]
+#
+# U[1] = 3
+# R[1] = 1
+# B[1] = 4+2*3 = 10
+#
+# U[2] = 2*3+1 = 7
+# R[2] = 3+2*1 = 5
+# B[2] = 4*5+2*7 = 34
+#
+# U[k] = R[k+1] - 2*R[k]
+# B[k] = 2*(R[k+1] - 2*R[k]) + 4*R[k]
+#      = 2*R[k+1]
+#
+# U[k+1] = 2*U[k] + R[k]
+# R[k+2] - 2*R[k+1] = 2*(R[k+1] - 2*R[k]) + R[k]
+# R[k+2] = 2*R[k+1] + 2*R[k+1] - 4*R[k] + R[k]
+# R[k+2] = 4*R[k+1] - 3*R[k]
+# B[k+2] = 4*B[k+1] - 3*B[k]    from B[k-1] = 2 * R[k]
+#
+# 4*(4*3^(k+1) - 2) - 3*(4*3^k - 2)
+#   = 4*4*3^(k+1) - 8 - 3*4*3^k + 6
+#   = 4*4*3^(k+1) - 4*3^(k+1) - 2
+#   = 3*4*3^(k+1) - 2
+#   = 4*3^(k+2) - 2
+
+# 2*R[k] - U[k] = 3*R[k-1]
+# U[k] = 2*R[k] - 3*R[k-1]
+# R[k] = 2*R[k-1] + 2*R[k-1] - 3*R[k-2]
+#      = 4*R[k-1] - 3*R[k-2]
+#
+# 2*U[k] - R[k] = 3*U[k-1]
+# R[k] = 2*U[k] - 3*U[k-1]
+# U[k] = 2*U[k-1] + 2*U[k-1] - 3*U[k-2]
+#      = 4*U[k-1] - 3*U[k-2]
+#
+# B[k] = 4*R[k] + 2*U[k]
+#      = 4*(4*R[k-1] - 3*R[k-2]) + 2*(4*U[k-1] - 3*U[k-2])
+#      = 4*4*R[k-1] - 4*3*R[k-2] + 2*4*U[k-1] - 2*3*U[k-2]
+#      = 4*4*R[k-1] + 2*4*U[k-1] - 4*3*R[k-2] - 2*3*U[k-2]
+#      = 4*(4*R[k-1] + 2*U[k-1]) - 3*(4*R[k-2] + 2*U[k-2])
+# B[k] = 4*B[k-1] - 3*B[k-2]
+# starting B[0] = 2, B[1] = 10
+# 4*10 - 3*2 = 34
+# 4*34 - 3*10 = 106
+# 4*106 - 3*34 = 322
+#
+# B[k] = 4*B[k-1] - 3*B[k-2]
+#      = 4*(4*B[k-2] - 3*B[k-3]) - 3*B[k-2]
+#      = (4*4 - 3)*B[k-2] - 3*B[k-3]
+#      = (4*4 - 3)*(4*B[k-3] - 3*B[k-4]) - 3*B[k-3]
+#      = ((4*4 - 3)*4 - 3)*B[k-3] - (4*4 - 3)*3*B[k-4]
+#
+# B[k] - B[k-1] = (4*B[k-1] - 3*B[k-2]) - (4*B[k-2] - 3*B[k-3])
+#               = 4*B[k-1] - 3*B[k-2] - 4*B[k-2] + 3*B[k-3]
+#               = 4*B[k-1] - 7*B[k-2] + 3*B[k-3]
+# B[k] - B[k-1] = (4*B[k-1] - 3*B[k-2]) - 3*B[k-2]
+#               = 4*B[k-1] - 6*B[k-2]
+
+=head2 Area
+
+The area enclosed by the curve from N=0 to N=5^k inclusive is
+
+    area[k] = (5^k - 2*3^k + 1)/2
+            = 0, 0, 4, 36, 232, 1320, 7084, 36876, 188752, ...
+
+=cut
+
+# perl -e '$,=", "; print map{(5**$_ - 2*3**$_ + 1)/2} 0 .. 8'
+# Pari: for(k=0,8,print((5^k - 2*3^k + 1)/2,","))
+
+=pod
+
+The area can be calculated in a similar way to the boundary.  Consider the
+level N=0 to N=5^k and take its area in two parts as a short side R to the
+right and an inner curving part U
+
+        R          R[k] = side area
+      4---5        U[k] = inner curve area
+    R | U
+      3---2        initial R[0]=0,R[1]=0  U[0]=0,U[1]=0
+        U | R
+      0---1        A[k] = 4*R[k] + 2*U[k]
+        R
+
+As per above, point 1 on the right boundary of the curve.  Area R is the
+region between the line 0--1 and the right boundary of the curve around from
+0 to 1.  This boundary in fact dips back to the left side of the 0--1 line.
+When that happens it's reckoned as a negative area.  A similar negative area
+happens to U.
+
+             ___   <-- negative area when other side of the line
+            /   \
+      0----/-----1
+       \  /          line 0 to 1
+        --           curve right boundary
+
+The total area is the six parts
+
+    A[k] = 4*R[k] + 2*U[k]
+
+The curve is symmetric on its left and right sides so R itself is in fact
+half the total area of the preceding level,
+
+    R[k] = A[k-1] / 2
+
+Which gives
+
+    R[k+1] = 2*R[k] + U[k]
+
+When curve replicates to the next level N=5^k the pattern of new U and R is
+the same as the boundary above, except the four newly enclosed squares are
+of interest for the area.
+
+        R
+      *---5                         square edge length sqrt(5)^(k-2)
+    R | U       R       R           square area = 5^(k-2)
+      *---*   *---2   *---*
+        U | U |   | U |   | R
+      4---*---*---*---*---1
+    R |   | U |   | U | U
+      *---*   3---*   *---*
+        R       R       U | R
+                      0---*
+                        R
+
+The size of the squares grows by the sqrt(5) replication factor.  The
+25-point replication shown is edge length 1.  Hence square=5^(k-2).
+
+The line 0 to 1 passes through 3/4 of a square,
+
+         ..... 1
+         .    /      line dividing each square
+         .   | .     into two parts 1/4 and 3/4
+         .   / . 
+         *..|..*
+         .  /  .
+         . |   .
+          /    .
+         0 .....
+
+The area for R[k+1] is that to the right of the line 0--1.  This is first
++3/4 of a square with a further two R on its outside, then -3/4 of a square
+with a U pushing out (reducing that negative).
+
+    R[k+1] = 3/4*square + 2*R[k] - 3/4*square + U[k]
+           = 2*R[k] + U[k]
+
+This is the same recurrence as obtained above from the symmetry R[k] =
+A[k-1]/2.
+
+The area for U[k+1] is that on left of the U shaped line 0-1-2-3,
+
+    U[k+1] = -3/4*square + U[k] + 3/4*square
+             + 2*square + U[k] + R[k]
+    U[k+1] = R[k] + 2*U[k] + 2*5^(k-2}           # square = 5^(k-2)
+
+It will be noticed for R that the first 3/4 square has the left side dipping
+in.  For R it's still counted as a full +3/4 square.  In U it's a -3/4 which
+gives a total area of just what's between the left and right curve
+boundaries.
+
+=cut
+
+U[0] = 0    R[0] = 0
+U[1] = 0    R[1] = 0
+
+R[2] = 2*0 +   0 = 0
+U[2] =   0 + 2*0 + 2*5^0 = 2
+area[2] = 2*U+4*R = 4
+
+R[3] = 2*0 +   2 = 2
+U[3] =   0 + 2*2 + 2*5^1 = 14
+area[2] = 2*14+4*2 = 36
+
+=pod
+
+U is eliminated by substituting the R[k+1] recurrence into the U[k+1]
+
+    U[k] = R[k+1] - 2*R[k]      # from the R[k+1] formula
+
+    R[k+2]-2*R[k+1] = 2*(R[k+1]-2*R[k]) + R[k] + 2*5^(k-1)
+    R[k+2] = 4*R[k+1] - 3*R[k] + 2*5^(k-1)
+
+Then from R[k] = A[k-1]/2 the total area is
+
+    A[k+2] = 4*A[k+1] - 3*A[k] + 4*5^k      # k>=2
+
+This is the same as boundary calculation above but an extra 4*5^(k-2) which
+are the 4 squares fully enclosed when the curve replicates.
+
+=cut
+
+# A[0] = 0
+# A[1] = 0
+# A[2] = 4*0 - 3*0 + 4*5^0 = 4
+# A[3] = 4*4 - 3*0 + 4*5^1 = 36
+# A[4] = 4*36 - 3*4 + 4*5^2 = 232
+
+=pod
+
+It can be verified by induction that the initial A[0]=0, A[1]=0 and this
+recurrence are satisfied by A[k]= S<(5^k - 2*3^k + 1)/2> given above.  It's
+also possible to eliminate the power with the following form.  (Both
+per OEIS A007798 below.)
+
+    A[k+2] = 8*A[k+1] - 15*A[k] + 4
 
 =head1 OEIS
 
@@ -527,7 +831,23 @@ L<http://oeis.org/A175337> (etc)
 =back
 
     A175337    next turn 0=left,1=right
-                (n=0 is the turn at N=1)
+                 (n=0 is the turn at N=1)
+
+    A079004    boundary length N=0 to 5^k, skip initial 7,10
+                 being 4*3^k - 2
+    A048473    boundary, one side, N=0 to 5^k
+                 being half whole, 2*3^n - 1
+    A198859    boundary, one side, N=0 to 25^k
+                 being even levels, 2*9^n-1
+    A198963    boundary, one side, N=0 to 5*25^k
+                 being odd levels, 6*9^n-1
+
+    A007798    1/2 * area enclosed N=0 to 5^k
+    A016209    1/4 * area enclosed N=0 to 5^k
+    A005058    1/2 * new area N=5^k to N=5^(k+1)
+                 being area increments, 5^n - 3^n
+    A005059    1/4 * new area N=5^k to N=5^(k+1)
+                  (5^n - 3^n)/2
 
     arms=1 and arms=3
       A059841    abs(dX), being 1,0 repeating
@@ -548,7 +868,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2012, 2013 Kevin Ryde
+Copyright 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

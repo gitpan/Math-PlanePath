@@ -35,7 +35,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 *_divrem = \&Math::PlanePath::_divrem;
 @ISA = ('Math::PlanePath');

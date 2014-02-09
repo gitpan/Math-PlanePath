@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,8 +22,9 @@
 # math-image --path=CellularRule --all --output=numbers --size=80x50
 
 # Maybe:
-# @rules = Math::PlanePath::CellularRule->rule_to_list($rule)
+# @rules = Math::PlanePath::CellularRule->rule_equiv_list($rule)
 #   list of equivalents
+# $bool = Math::PlanePath::CellularRule->rules_are_equiv($rule1,$rule2)
 # $rule = Math::PlanePath::CellularRule->rule_to_first($rule)
 #   first equivalent
 # $bool = Math::PlanePath::CellularRule->rules_are_mirror($rule1,$rule2)
@@ -39,7 +40,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -948,21 +949,94 @@ sub rect_to_n_range {
 # 000,001,010,100 = 0,1,2,4 used always
 # if 000=1 then 111 used
 
+sub _UNDOCUMENTED__rule_is_finite {
+  my ($class, $rule) = @_;
+  # zeros 1,0,0  ->   bit4     # total 16 finites
+  #       0,1,0  ->   bit2
+  #       0,0,1  ->   bit1
+  #       0,0,0  ->   bit0
+  return ($rule & ((1<<4)|(1<<2)|(1<<1)|(1<<0))) == 0;
+}
+
+sub _any_101 {
+  my ($rule) = @_;
+  # or 0,0,0  ->   bit0  1    & 111 == 011
+  #    0,1,0  ->   bit2  0
+  #    0,0,1  ->   bit1  1
+  # or 0,0,0  ->   bit0  1    & 111 == 011
+  #    0,1,0  ->   bit2  0
+  #    1,0,0  ->   bit4  1
+  return ($rule & 1) || ($rule & 0x16) == 0x16;
+}
+sub _any_110 {
+  my ($rule) = @_;
+}
+sub _any_011 {
+  my ($rule) = @_;
+}
+sub _any_111 {
+  my ($rule) = @_;
+  return ($rule & 1) || ($rule & 0x16) == 0x16;
+}
+
+# $bool = Math::PlanePath::CellularRule->_NOTWORKING__rules_are_equiv($rule)
+sub _NOTWORKING__rules_are_equiv {
+  my ($class, $a,$b) = @_;
+
+  my $a_low = $a & 0x17;
+
+  # same 1,0,0  ->   bit4      # 00010111 = 0x17
+  #      0,1,0  ->   bit2
+  #      0,0,1  ->   bit1
+  #      0,0,0  ->   bit0
+  return 0 unless $a_low == ($b & 0x17);
+
+  # if 1,0,0  ->   bit4  1      # & 00010111 = 10010
+  #    0,1,0  ->   bit2  0
+  #    0,0,1  ->   bit1  1
+  #    0,0,0  ->   bit0  any
+  # or 1,0,0  ->   bit4  0      # & 00010111 = 00101
+  #    0,1,0  ->   bit2  1
+  #    0,0,1  ->   bit1  any
+  #    0,0,0  ->   bit0  1
+  # or 1,0,0  ->   bit4  any    # & 00010111 = 00101
+  #    0,1,0  ->   bit2  1
+  #    0,0,1  ->   bit1  0
+  #    0,0,0  ->   bit0  1
+  # then
+  # same 1,0,1  ->  bit5     # 01001000 = 0x48
+  if ($a_low == 0x12 || $a_low == 5) {
+    return 0 unless ($a & (1<<5)) == ($b & (1<<5));
+  }
+
+  return 1;
+}
+
 # $bool = Math::PlanePath::CellularRule->rule_is_symmetric($rule)
-# sub _NOTWORKING__rule_is_symmetric {
-#   my ($class, $rule) = @_;
-# }
+sub _NOTWORKING__rule_is_symmetric {
+  my ($class, $rule) = @_;
+  return ($class->_UNDOCUMENTED__rule_is_finite($rule)  # single cell
+          ||
+          # same 1,1,0  ->  bit6   # if it is ever reached
+          #      0,1,1  ->  bit3
+          (($rule & (1<<6)) >> 3) == ($rule & (1<<3))
+          &&
+          # same 1,0,0  ->  bit4   # if it is ever reached
+          #      0,0,1  ->  bit1
+          (($rule & (1<<4)) >> 3) == ($rule & (1<<1)));
+}
 
-# =item C<$mirror_rule = Math::PlanePath::CellularRule-E<gt>rule_mirror ($rule)>
+# =item C<$mirror_rule = Math::PlanePath::CellularRule-E<gt>rule_to_mirror ($rule)>
 #
-# Return the rule number which is the horizontal mirror image of C<$rule>.
-# This is a swap of bits 3E<lt>-E<gt>6 and 1E<lt>-E<gt>4.
-
-# If the pattern is symmetric then the returned C<$mirror_rule> will
-# generate the same pattern even though its value is different.  This occurs
-# if the bits never occur in the pattern and so don't affect the result.
+# Return a rule number which is a horizontal mirror image of C<$rule>.  This
+# is a swap of bits 3E<lt>-E<gt>6 and 1E<lt>-E<gt>4.
 #
-sub _NOTWORKING__rule_mirror {
+# If the pattern is already symmetric then the returned C<$mirror_rule> will
+# generate the same pattern, though its value might be different.  This
+# occurs if some bits in the rule value never occur and so don't affect the
+# result.
+#
+sub _UNDOCUMENTED__rule_to_mirror {
   my ($class, $rule) = @_;
 
   # 7,6,5,4,3,2,1,0
@@ -977,7 +1051,8 @@ sub _NOTWORKING__rule_mirror {
           # swap 1,0,0   ->   bit4
           #      0,0,1   ->   bit1
           | (($rule & (1<<4)) >> 3)
-          | (($rule & (1<<1)) << 3));
+          | (($rule & (1<<1)) << 3)
+         );
 }
 
 
@@ -988,7 +1063,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 113;
+  $VERSION = 114;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1173,7 +1248,7 @@ sub _NOTWORKING__rule_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 113;
+  $VERSION = 114;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1256,7 +1331,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 113;
+  $VERSION = 114;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1621,6 +1696,29 @@ cell the return is C<undef>.
 
 =back
 
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path can be found in the OEIS index
+
+=over
+
+L<http://oeis.org/wiki/Index_to_OEIS:_Section_Ce#cell>
+
+=back
+
+and in addition the following
+
+=over
+
+L<http://oeis.org/A061579> (etc)
+
+=back
+
+    rule=50,58,114,122,178,186,242,250, 179
+      (solid every second cell)
+      A061579     permutation N at -X,Y (mirror horizontal)
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -1634,15 +1732,13 @@ L<Cellular::Automata::Wolfram>
 
 L<http://mathworld.wolfram.com/ElementaryCellularAutomaton.html>
 
-L<http://oeis.org/wiki/Index_to_OEIS:_Section_Ce#cell>
-
 =head1 HOME PAGE
 
 L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

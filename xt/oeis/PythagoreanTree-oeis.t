@@ -36,6 +36,88 @@ use Math::PlanePath::PythagoreanTree;
 
 
 #------------------------------------------------------------------------------
+# A002315 NSW numbers, sum Pell(2k)-Pell(2k-1), is row P-Q
+MyOEIS::compare_values
+  (anum => 'A002315',
+   max_count => 11,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');
+     for (my $depth = 0; @got < $count; $depth++) {
+       my $x_total = 0;
+       foreach my $n ($path->tree_depth_to_n($depth)
+                      .. $path->tree_depth_to_n_end($depth)) {
+         my ($x,$y) = $path->n_to_xy($n);
+         $x_total += $x - $y;
+       }
+       push @got, $x_total;
+     }
+     return \@got;
+   });
+
+# A001541 is row P+Q
+MyOEIS::compare_values
+  (anum => 'A001541',
+   max_count => 11,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');
+     for (my $depth = 0; @got < $count; $depth++) {
+       my $x_total = 0;
+       foreach my $n ($path->tree_depth_to_n($depth)
+                      .. $path->tree_depth_to_n_end($depth)) {
+         my ($x,$y) = $path->n_to_xy($n);
+         $x_total += $x + $y;
+       }
+       push @got, $x_total;
+     }
+     return \@got;
+   });
+
+# A001653 odd Pells, is row Q total
+MyOEIS::compare_values
+  (anum => 'A001653',
+   max_count => 11,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');
+     for (my $depth = 0; @got < $count; $depth++) {
+       my $x_total = 0;
+       foreach my $n ($path->tree_depth_to_n($depth)
+                      .. $path->tree_depth_to_n_end($depth)) {
+         my ($x,$y) = $path->n_to_xy($n);
+         $x_total += $y;
+       }
+       push @got, $x_total;
+     }
+     return \@got;
+   });
+
+# A001542 even Pell, is row P total
+MyOEIS::compare_values
+  (anum => 'A001542',
+   max_count => 11,
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');
+     for (my $depth = 0; @got < $count; $depth++) {
+       my $x_total = 0;
+       foreach my $n ($path->tree_depth_to_n($depth)
+                      .. $path->tree_depth_to_n_end($depth)) {
+         my ($x,$y) = $path->n_to_xy($n);
+         $x_total += $x;
+       }
+       push @got, $x_total;
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
 # A000244 = 3^n is N of A repeatedly in middle of row
 
 MyOEIS::compare_values

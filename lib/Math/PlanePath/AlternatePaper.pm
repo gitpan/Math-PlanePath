@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -16,11 +16,41 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# ENHANCE-ME:
+# AlternatePaper boundary (by powers full ):
+# 12,20,28,44,60,92,124,188,252,380,508,764,1020
+# [HALF]
+# A027383
+# a(2n) = 3*2^n-2 = A033484(n);                                                     
+# a(2n-1) = 2^(n+1)-2 = A000918(n+1)
+
+# ENHANCE-ME:
+# AlternatePaper area (by powers full diffs):
+# 1,2,6,12,28,56,120,240,496,992,2016,4032,8128
+# match 1,2,6,12,28,56,120,240,496,992,2016,4032,8128
+# A122746 G.f.: 1/((1-2*x)*(1-2*x^2)).
+# a(n) = 2^(n-1)-2^floor((n-1)/2)
+
+
 # Explanation ...
 # 'arms=4' =>
 # { dSum  => 'A020985', # GRS
 #   # OEIS-Other: A020985 planepath=AlternatePaper,arms=4 delta_type=dSum
 # },
+
+# area to 4^k
+# match 3,21,105,465,1953
+# A134057 Binomial(2^n-1,2) = (2^n-1)(2^n-2)/2
+# area to 2*4^k
+# A060867 Number of n X n matrices over GF(2) with rank 1.
+# A060867 ,1,9,49,225,961,39
+#
+# boundary to 4^k
+# match 8,20,44,92,188,380,764
+# A131128 Binomial transform of [1, 1, 5, 1, 5, 1, 5,...].
+# boundary to 2*4^k
+# A028399 2^n - 4.
+
 
 
 package Math::PlanePath::AlternatePaper;
@@ -42,7 +72,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -1359,7 +1389,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

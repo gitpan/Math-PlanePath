@@ -26,7 +26,15 @@
 ;
 ; The commented out "dragon.chamfer 256" is an alternative plot with
 ; the corners rounded off to help see the shape.
-
+;
+;
+; See also:
+;
+; Mark Horney, "Fractals I: Making Recursion Visible", Logo Exchange,
+; Volume 9, number 1, pages 23-29.  "Fractals.
+;
+; Mark Horney, "Fractals II: Representation, Logo Exchange, Volume 9,
+; number 2, pages 26-29.  "Fractals.
 
 
 

@@ -15,6 +15,7 @@ devel/beta-omega.pl
 devel/bigint-lite.pl
 devel/bignums.pl
 devel/biguv.pl
+devel/c-curve-wx24.pl
 devel/c-curve.pl
 devel/cellular-rule-oeis.pl
 devel/cellular-rule-xpm.pl
@@ -57,6 +58,7 @@ devel/gosper-side.pl
 devel/graph.pl
 devel/gray.pl
 devel/greek-key.pl
+devel/grep-values.pl
 devel/grid.pl
 devel/hex-arms.pl
 devel/hexhypot.pl
@@ -111,7 +113,6 @@ devel/multiple-rings.pl
 devel/number-fraction.pl
 devel/numseq.pl
 devel/peano.pl
-devel/permutations.pl
 devel/pixel-rings.pl
 devel/pythagorean.pl
 devel/quadric.pl
@@ -130,6 +131,7 @@ devel/sierpinski-triangle.pl
 devel/square-spiral.gnuplot
 devel/square-spiral.pl
 devel/staircase-alternating.pl
+devel/t-square.pl
 devel/terdragon.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
@@ -499,6 +501,9 @@ xt/oeis/ZOrderCurve-oeis.t
 xt/PixelRings-image.t
 xt/PlanePath-subclasses.t
 xt/pod-lists.t
+xt/slow/CCurve-slow.t
+xt/slow/CellularRule-slow.t
+xt/slow/DragonCurve-slow.t
 xt/slow/GcdRationals-slow.t
 xt/slow/NumSeq-PlanePathCoord.t
 xtools/my-check-copyright-years.sh

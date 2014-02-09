@@ -18,8 +18,11 @@
 
 # Maybe:
 #
-# $bool = $path->rect_to_n_range_is_always_exact()
 # $bool = $path->is_tree()
+
+# ($depth,$offset) = $path->tree_n_to_depth_and_offset
+#
+# $bool = $path->rect_to_n_range_is_always_exact()
 # $bool = $path->tree_n_to_subheight_is_infinite()
 #    identifying the infinite spines only
 #
@@ -71,6 +74,7 @@
 # $path->xy_to_n_list_maximum
 # $path->xy_next_in_rect($x,$y, $x1,$y1,$x2,$y2)
 #    return ($x,$y) or empty
+# $path->xy_to_dxdy() or dxdy_list if multiple maybe
 #
 # xy_unique_n_start
 # figures_disjoint
@@ -90,7 +94,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 113;
+$VERSION = 114;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;

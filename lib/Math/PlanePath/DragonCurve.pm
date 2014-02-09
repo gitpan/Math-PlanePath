@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -50,6 +50,8 @@
 #     = 102 = 1100110 = 2*(3*16^k-1)/15 -> 2/5
 #   N
 
+# http://wiki.tcl.tk/10745  recursive curves
+
 
 package Math::PlanePath::DragonCurve;
 use 5.004;
@@ -58,7 +60,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1194,6 +1196,309 @@ but instead pick out a bit and the one above it each time.
 At the end of bit processing any "previous bit" in state is no longer needed
 and can be masked out to lookup the final four dx, dy, next dx, next dy.
 
+=head2 Boundary Length
+
+The boundary length of the curve N=0 to N=2^k inclusive is given by a recurrence relation
+
+    B[k+4] = 2*B[k+3] - B[k+2] + 2*B[k+1] - 2*B[k]    for k >= 0
+    starting B[0] =  2
+             B[1] =  4
+             B[2] =  8
+             B[3] = 16
+    2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036, ...
+
+=cut
+
+# k=0 recurrence 2*16 - 8 + 2*4 - 2*2 = 28  yes
+
+=pod
+
+The first few boundary lengths double with N=2^k but when the curve begins
+to touch itself the boundary is less than 2x.  This happens at B[4]=28
+onwards.
+
+The boundary formula can be obtained by taking the curve in five types of
+section,
+
+                  R                           initial values
+      8       5 <--- 4                    k    L  R  T  U  V
+      |       ^      |                   ---  -- -- -- -- --
+   R  |   U   |   V  |  T                 0    1  1  2  3  3
+      v       |      v                    1    2  2  4  6
+      7 <---- 6      3 <--- 2             2    4  4     8
+          L                 |             3    8  8    12
+                        U   |  L          4      16    20
+                            v
+                     0 ---> 1
+                        R
+
+L and R are the left and right sides of the curve so the total is
+
+    total boundary  B[k] = L[k] + R[k]
+
+The other parts T, U and V are because the points measured from must be on
+the boundary.  The way the curve touches itself within the "U" part means
+only 0 and 3 are on the left boundary and so a measurement must be made
+between those only.  Similarly T and V.
+
+The arrowheads drawn show the direction of the curve section in its
+replication.  Sections U and V have different directions within their "U"
+shape and so are not the same.  If rotated to upright then U has positions
+odd,even whereas V is even,odd,
+
+    even odd  even odd      odd even
+      8   5     0   3        3   6
+      | U |     | U |        | V |
+      7---6     1---2        4---5
+
+The curve expands from 8 sections to 16 sections in the following pattern.
+(Drawn here turned 45-degrees to stay horizontal and vertical.)
+
+                        R              R
+                    * <--- 4       * <--- 2
+                    ^      |       ^      |
+                  L |      |   U   |   V  |  T
+                    |      v       |      v
+                    5 ---> * <---- 3      * <--- 1
+                           ^                     |
+                        V  |  T              U   |  L
+                           |                     v
+            8       * <--- 6              0 ---> *
+            |       ^                        R
+          R |   U   |  T
+            v       |
+            * <---  7
+                L
+
+=cut
+
+# A single segment expands as follows to give recurrences for L and R.
+# R[k+1]=R[k]+L[k] is the "unfolding" described above.  Upon unfolding the
+# left side L[k] adds to the right for the next level.
+#
+#                               1           L[k+1] = T[k]
+#                               |           R[k+1] = R[k] + L[k]
+#                            T  | L
+#        L                      v           initial R[0] = 1
+#     0 ---> 1           0 ---> *                   L[0] = 1
+#        R                  R
+#
+# T expands to a U and an R.
+#
+#                           2
+#                           |
+#                         R |
+#                           v
+#             2             * <--- 1        T[k+1] = U[k] + R[k]
+#             |                    |
+#          T  |                 U  |        initial
+#             v                    v        T[0] = 2
+#      0 ---> 1             0 ---> *
+#
+# U expands to a U and a V.
+#
+#                      * <--- 2
+#                      ^      |
+#                      |  V   |
+#                      |      v
+#      3 <--- 2        3      * <--- 1      U[k+1] = U[k] + V[k]
+#             |                      |
+#          U  |                   U  |      initial
+#             v                      v      U[0] = 3
+#      0 ---> 1               0 ---> *
+#
+# V expands to a T because the curve touches itself and so closes off the "U"
+# shape.  The effect is that the V values are V[0]=3 thereafter the T values
+# V[1]=T[0], V[2]=T[1], etc.
+#
+#                             5 <--- *
+#                             |      |
+#                             |      |
+#                             v      v
+#      6 <--- 5        6 ---> * ---> 4      V[k+1] = T[k]
+#             |               ^
+#          V  |            T  |             initial V[0]=3
+#             v               |
+#      3 ---> 4               3
+
+=pod
+
+It can be seen R -> R+L, L -> T, T -> U+R, U -> U+V, and V->T.  For V (3 to
+6) the curve touches itself and so closes off some boundary leaving just T.
+The effect is that the V values are V[0]=3 and thereafter the T values
+V[1]=T[0], V[2]=T[1], etc.
+
+These expansions can be written as recurrences
+
+    R[k+1] = R[k] + L[k]           for k >= 0
+    L[k+1] = T[k]
+    T[k+1] = R[k] + U[k]
+    U[k+1] = U[k] + V[k]
+    V[k+1] = T[k]
+
+L[k+1]=T[k] and V[k+1]=T[k] so L[k]=V[k] for kE<gt>=1.  Replace V by L to
+eliminate V.  This is only for kE<gt>=1 since for k=0 L[0]=1 and V[0]=3 are
+not equal.
+
+    R[k+1] = R[k] + L[k]           for k >= 1
+    L[k+1] = T[k]
+    T[k+1] = R[k] + U[k]
+    U[k+1] = U[k] + L[k]
+
+Then replace T[k] by L[k+1] to eliminate T.  (The resulting
+L[k+1]=R[k-1]+U[k-1] is also two expansions of the left side, as shown
+further below.)
+
+    R[k+1] = R[k] + L[k]           for k >= 1
+    L[k+1] = R[k-1] + U[k-1]
+    U[k+1] = U[k] + L[k]
+
+The second equation gives U[k-1]=L[k+1]-R[k-1].  Substitute that twice into
+the third equation to eliminate U,
+
+    R[k+1] = R[k] + L[k]                      for k >= 1
+    L[k+3]-R[k+1] = L[k+2]-R[k] + L[k]
+
+Finally the first equation gives L[k]=R[k+1]-R[k] which eliminates L from
+the second.  The result is a fourth-order recurrence for R
+
+    R[k+4] = 2*R[k+3] - R[k+2] + 2*R[k+1] - 2*R[k]     k >= 1
+    starting R[0] =  1
+             R[1] =  2
+             R[2] =  4
+             R[3] =  8
+             R[4] = 16
+    1, 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036, ...
+
+The recurrence is only for kE<gt>=1 as noted.  At k=0 it would give R[4]=14
+but that's incorrect, N=0 to N=16 has right side boundary R[4]=16.
+
+=cut
+
+# k=0 recurrence 2*8 - 4 + 2*2 - 2*1 = 14   no
+# k=1 recurrence 2*16 - 8 + 2*4 - 2*2 = 28  yes
+
+#  R[k+4]-R[k+3]-R[k+1] = R[k+3]-R[k+2]-R[k] + R[k+1]-R[k]
+
+=pod
+
+The total boundary B[k]=R[k]+L[k] is the same as R[k+1]=R[k]+L[k], so the
+total boundary is the same as the right side boundary of the next bigger
+level.  Because it's R[k+1] the recurrence for B given at the start of the
+section becomes for kE<gt>=0.
+
+    B[k] = R[k+1]         for k>=0
+         = 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, ...
+
+L can be obtained by by rearranging the R[k+4] recurrence to pair up
+R[k+1]-R[k].  (which is the boundary increment from k to k+1.)
+
+    R[k+4]-R[k+3] = R[k+3]-R[k+2] + 2*(R[k+1]-R[k])
+
+Then L[k]=R[k+1]-R[k] as from above gives a recurrence for L, this time a
+third-order.
+
+    L[k+3] = L[k+2] + 2*L[k]       for k >= 1
+    starting L[0] = 1
+             L[1] = 2
+             L[2] = 4
+             L[3] = 8
+    1, 2, 4, 8, 12, 20, 36, 60, 100, 172, 292, 492, 836, 1420, ...
+
+=cut
+
+# k=0 recurrence L[3] = 4 + 2*1 = 6   no
+# k=1 recurrence L[4] = 8 + 2*2 = 12  yes
+
+=pod
+
+U can be obtained by eliminating L and R in a similar way to what was done
+for R above.  The result is the same recurrence as R but with different
+initial values.
+
+    U[k+4] = 2*U[k+3] - U[k+2] + 2*U[k+1] - 2*U[k]     for k >= 1
+    starting U[0] =  3
+             U[1] =  6
+             U[2] =  8
+             U[3] = 12
+             U[4] = 20
+    3, 6, 8, 12, 20, 32, 52, 88, 148, 248, 420, 712, 1204, 2040, ...
+
+=cut
+
+# k=0 recurrence U[4] = 2*12 - 8 + 2*6 - 2*3 = 22 no
+# k=1 recurrence U[5] = 2*20 - 12 + 2*8 - 2*6 = 32 yes
+
+=pod
+
+Or U can be obtained by considering a left side expansion U in terms of an
+L,R difference (and this is also in the substitutions made above).
+
+                                        *      4
+    L[k+2] = U[k] + R[k]                |      |
+                                        |    R |
+    so                           R[k+2] |      v
+                                        |      3 <--- 2
+    U[k] = L[k+2] - R[k]                |             |
+                                        |          U  |
+                                        v             v
+                                        *      0 ---> 1
+
+=cut
+
+  # R[k+1] = R[k] + L[k]
+  # L[k+1] = R[k-1] + U[k-1]        R[k-1] = L[k+1]-U[k-1]
+  # U[k+1] = U[k] + L[k]            L[k] = U[k+1]-U[k]
+  #
+  # L[k+3]-U[k+1] = L[k+2]-U[k] + L[k]
+  # U[k+4]-U[k+3] -U[k+1] = U[k+3]-U[k+2] -U[k] + U[k+1]-U[k]
+  # U[k+4] = U[k+3] U[k+1] + U[k+3]-U[k+2] -U[k] + U[k+1]-U[k]
+  # U[k+4] = 2*U[k+3] - U[k+2] + 2*U[k+1] - 2*U[k]
+  #
+  # R[k+4] = 2*R[k+3] - R[k+2] + 2*R[k+1] - 2*R[k]
+
+=pod
+
+X<Chang, Angel>X<Zhang, Tianrong>A boundary calculation for the curve as a
+fractal of infinite descent can also be found in Chang and Zhang,
+
+=over
+
+Angel Chang and Tianrong Zhang, "The Fractal Geometry of the Boundary of
+Dragon Curves", Journal of Recreational Mathematics, volume 30, number 1,
+1999-2000, pages 9-22.
+L<http://www.coiraweb.com/poignance/math/Fractals/Dragon/Bound.html>
+L<http://stanford.edu/~angelx/pubs/dragonbound.pdf>
+
+=back
+
+=head2 Area
+
+The area enclosed by the dragon curve N=0 to N=2^k, written in terms of the
+boundary B[k], is
+
+    A[k] = 2^(k-1) - B[k]/4
+         = 0, 0, 0, 0, 1, 4, 11, 28, 67, 152, 335, 724, 1539, ...
+
+This can be calculated using the fact that each enclosed unit square has its
+four sides traversed precisely once each.  Imagine each line segment as a
+diamond shape made from two right triangles
+
+      *
+     / \         2 triangles each line segment
+    0---1
+     \ /
+      *
+
+If a line segment is on the curve boundary then the outside triangle does
+not count towards the area.  Subtract 1 for each of them.
+
+    triangles = 2*2^k - B[k]
+
+Four triangles make up a unit square, so
+
+    area[k] = triangles/4 = 2^(k-1) - B[k]/4
+
 =head1 OEIS
 
 The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences in
@@ -1218,11 +1523,6 @@ L<http://oeis.org/A014577> (etc)
     A014709   next turn, 2=left,1=right
     A014710   next turn, 1=left,2=right
 
-These numerous turn sequences differ only in having left or right
-represented as 0, 1, -1, etc, and possibly "extra" initial 0 or 1 at n=0
-arising from the definitions and the first turn being at n=N=1.  The "next
-turn" forms begin at n=0 for the turn at N=1 and so are the turn at N=n+1.
-
     A005811   total turn
     A088748   total turn + 1
     A164910   cumulative [total turn + 1]
@@ -1236,6 +1536,21 @@ turn" forms begin at n=0 for the turn at N=1 and so are the turn at N=n+1.
     A003460   turns N=1 to N=2^n-1 packed as bits 1=left,0=right
                 low to high, then written in octal
 
+    A146559   X at N=2^k, for k>=1, being Re((i+1)^k)
+    A009545   Y at N=2^k, for k>=1, being Im((i+1)^k)
+
+    A227036   boundary length N=0 to N=2^k
+                also boundary length of right side to N=2^(k+1)
+    A203175   boundary length left side N=0 to N=2^k
+                also differences of total boundary
+    A003230   area enclosed N=0 to N=2^k
+    A003478    area differences (increments)
+
+The numerous turn sequences differ only in having left or right represented
+as 0, 1, -1, etc, and possibly "extra" initial 0 or 1 at n=0 arising from
+the definitions and the first turn being at n=N=1.  The "next turn" forms
+begin at n=0 for the turn at N=1 and so are the turn at N=n+1.
+
 The run lengths A088431 and A007400 are from a continued fraction expansion
 of an infinite sum
 
@@ -1246,9 +1561,6 @@ of an infinite sum
 X<Shallit, Jeffrey>X<Kmosek>Jeffrey Shallit and independently M. Kmosek show
 how continued fraction terms which are repeated in reverse give rise to this
 sort of power sum,
-
-    A146559   X at N=2^k, for k>=1, being Re((i+1)^k)
-    A009545   Y at N=2^k, for k>=1, being Im((i+1)^k)
 
 =over
 
@@ -1292,13 +1604,15 @@ L<Math::PlanePath::ComplexPlus>,
 L<Math::PlanePath::CCurve>,
 L<Math::PlanePath::AlternatePaper>
 
+L<http://rosettacode.org/wiki/Dragon_curve>
+
 =head1 HOME PAGE
 
 L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

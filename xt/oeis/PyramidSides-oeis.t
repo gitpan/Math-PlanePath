@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 2;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,6 +32,23 @@ use Math::PlanePath::PyramidSides;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
+
+
+#------------------------------------------------------------------------------
+# A020703 - permutation N at -X,Y
+
+MyOEIS::compare_values
+  (anum => 'A020703',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidSides->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n (-$x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A004201 -- N for which X>=0

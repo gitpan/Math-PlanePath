@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -48,7 +48,6 @@ use Math::Trig 'pi';
   $planepath = "OneOfEight,parts=wedge";
   $planepath = "QuadricIslands";
   $planepath = "WunderlichSerpentine";
-  $planepath = "SacksSpiral";
   $planepath = "ComplexMinus,realpart=3";
   $planepath = "UlamWarburton,parts=4";
   $planepath = "ToothpickTreeByCells,parts=two_horiz";
@@ -84,23 +83,31 @@ use Math::Trig 'pi';
   $planepath = "VogelFloret";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
   $planepath = "PythagoreanTree,coordinates=MC,tree_type=UMT";
-  $planepath = "HTree";
+  $planepath = "R5DragonMidpoint";
+  $planepath = "OctagramSpiral";
+  $planepath = "Columns,height=6";
+  $planepath = "SacksSpiral";
+  $planepath = "CellularRule,rule=6";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                # delta_type => 'dX',
                                                # delta_type => 'Dir4',
-                                               #delta_type => 'dRadius',
+                                               delta_type => 'dTRadius',
                                                # delta_type => 'dRSquared',
-                                                delta_type => 'dDiffXY',
+                                               # delta_type => 'dDiffXY',
                                                # delta_type => 'TDir6',
                                                # delta_type => 'dAbsDiff',
                                               );
   # my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
   #                                             turn_type => 'Turn4',
   #                                            );
-  my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                                  delta_type => 'dX');
-  my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                                  delta_type => 'dY');
+  my $dx_seq = Math::NumSeq::PlanePathCoord->new (planepath => $planepath,
+                                                  coordinate_type => 'X');
+  my $dy_seq = Math::NumSeq::PlanePathCoord->new (planepath => $planepath,
+                                                  coordinate_type => 'Y');
+  # my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+  #                                                 delta_type => 'dX');
+  # my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+  #                                                 delta_type => 'dY');
   my $min = 99;
   my $max = -99;
   for (1 .. 10000000) {
@@ -137,6 +144,8 @@ use Math::Trig 'pi';
         $i,$ri, $value,
           $prev_dx,$prev_dy,
             $dx,$dy, $f;
+      my $slope_dy_dx = ($dx == 0 ? 0 : $dy/$dx);
+      printf "     dy/dx=%.5f\n", $slope_dy_dx;
     }
   }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -47,10 +47,10 @@ sub path_n_turn {
 sub path_n_dir {
   my ($path, $n) = @_;
   my ($dx,$dy) = $path->n_to_dxdy($n) or die "Oops, no point at ",$n;
-  return dxdy_to_dir ($dx, $dy);
+  return dxdy_to_dir4 ($dx, $dy);
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
-sub dxdy_to_dir {
+sub dxdy_to_dir4 {
   my ($dx, $dy) = @_;
   if ($dx > 0) { return 0; }  # east
   if ($dx < 0) { return 2; }  # west
@@ -59,8 +59,38 @@ sub dxdy_to_dir {
 }
 
 #------------------------------------------------------------------------------
+# A035263 - morphism turn 0=straight, 1=not-straight
+
+MyOEIS::compare_values
+  (anum => 'A035263',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'CCurve',
+                                                 turn_type => 'LSR');
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       my ($i,$value) = $seq->next;
+       push @got, $value == 0 ? 0 : 1;
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => 'A035263',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       push @got, (count_low_0_bits($n) + 1) % 2;
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
 # A096268 - morphism turn 1=straight,0=not-straight
-#   but OFFSET=0 is turn at N=1
+#   but OFFSET=0 is turn at N=1, so "next turn"
 
 MyOEIS::compare_values
   (anum => 'A096268',
@@ -76,6 +106,48 @@ MyOEIS::compare_values
      }
      return \@got;
    });
+
+MyOEIS::compare_values
+  (anum => 'A096268',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 0; @got < $count; $n++) {
+       push @got, count_low_1_bits($n) % 2;
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A096268',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 0; @got < $count; $n++) {
+       push @got, count_low_0_bits($n+1) % 2;
+     }
+     return \@got;
+   });
+
+sub count_low_1_bits {
+  my ($n) = @_;
+  my $count = 0;
+  while ($n % 2) {
+    $count++;
+    $n = int($n/2);
+  }
+  return $count;
+}
+
+sub count_low_0_bits {
+  my ($n) = @_;
+  if ($n == 0) { die; }
+  my $count = 0;
+  until ($n % 2) {
+    $count++;
+    $n /= 2;
+  }
+  return $count;
+}
 
 #------------------------------------------------------------------------------
 # A104488 -- num Hamiltonian groups

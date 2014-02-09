@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -40,7 +40,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::HIndexing';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
-  $path_class = 'Math::PlanePath::CCurve';
   $path_class = 'Math::PlanePath::NxN';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
@@ -159,6 +158,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ToothpickUpist';
   $path_class = 'Math::PlanePath::HTree';
   $path_class = 'Math::PlanePath::PythagoreanTree';
+  $path_class = 'Math::PlanePath::CCurve';
   
   my $lo = 0;
   my $hi = 41;

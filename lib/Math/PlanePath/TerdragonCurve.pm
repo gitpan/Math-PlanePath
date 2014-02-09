@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -17,13 +17,10 @@
 
 
 
-# math-image --path=TerdragonCurve --lines --scale=20
-#
-# math-image --path=TerdragonCurve --all --scale=10
-
 # cf A106154 terdragon 6 something
 #    A105499 terdragon permute something
-
+#     1->{2,1,2}, 2->{1,3,1}, 3->{3,2,3}.
+#     212323212131212131212323212323131323212323212323
 
 
 package Math::PlanePath::TerdragonCurve;
@@ -44,7 +41,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -459,14 +456,13 @@ Then N=6 to N=9 is a plain horizontal, which is the angle of N=2 to N=3,
             \
        0-----1
 
-Notice N=5 is a repeat of point X=1,Y=1 which is also N=2, and then N=7
-repeats the N=4 position X=2,Y=2.  Each point repeats up to 3 times.  Inner
-points are 3 times and on the edges of the curve area up to 2 times.  The
-first tripled point is X=1,Y=3 which can be seen above as N=8, N=11 and
-N=14.
+Notice X=1,Y=1 is visited twice, as N=2 and N=5.  Similarly X=2,Y=2 as N=4
+and N=7.  Each point can repeat up to 3 times.  "Inner" points are 3 times
+and on the edges of the curve area up to 2 times.  The first tripled point
+is X=1,Y=3 which as shown above is N=8, N=11 and N=14.
 
-The curve never crosses itself.  The vertices touch as little triangular
-corners and no edges repeat.
+The curve never crosses itself.  The vertices touch as triangular corners
+and no edges repeat.
 
 The shape is the same as the C<GosperSide>, but the turns here are by 120
 degrees each whereas the C<GosperSide> is by 60 degrees each.  The extra
@@ -480,21 +476,21 @@ replication is
 
     Nlevel = 3^level
 
-That point is at level*30 degrees around (as reckoned with the usual
-Y*sqrt(3) for a triangular grid, per L<Math::PlanePath/Triangular Lattice>).
+That point is at level*30 degrees around (as reckoned with Y*sqrt(3) for a
+triangular grid).
 
-    Nlevel     X,Y     angle (degrees)
-    ------    -----    -----
-      1        1,0        0
-      3        3,1       30
-      9        3,3       60
-     27        0,6       90
-     81       -9,9      120
-    243      -27,9      150
-    729      -54,0      180
+    Nlevel      X, Y     Angle (degrees)
+    ------    -------    -----
+       1        1, 0        0
+       3        3, 1       30
+       9        3, 3       60
+      27        0, 6       90
+      81       -9, 9      120
+     243      -27, 9      150
+     729      -54, 0      180
 
 The following is points N=0 to N=3^6=729 going half-circle around to 180
-degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
+degrees.  The N=0 origin is marked "0" and the N=729 end is marked "E".
 
 =cut
 
@@ -513,7 +509,7 @@ degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
                             * * * * * * * * * * * * * * * * * * *
                            * * * * * * * * * * * *   * *   * * *
                       * *   * * * * * * * * * * * *           * *
-     * e           * * * * * * * * * * * * * * * *           o *
+     * E           * * * * * * * * * * * * * * * *           0 *
     * *           * * * * * * * * * * * *   * *
      * * *   * *   * * * * * * * * * * * *
     * * * * * * * * * * * * * * * * * * *
@@ -528,15 +524,14 @@ degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
 =head2 Tiling
 
 The little "S" shapes of the base figure N=0 to N=3 can be thought of as a
-parallelogram
+rhombus
 
        2-----3
       .     .
      .     .
     0-----1
 
-The "S" shapes of each 3 points make a tiling of the plane with those
-parallelograms
+The "S" shapes of each 3 points make a tiling of the plane with those rhombi
 
         \     \ /     /   \     \ /     /
          *-----*-----*     *-----*-----*
@@ -564,8 +559,8 @@ L<http://tilingsearch.org/HTML/data23/C07A.html>
 
 =head2 Arms
 
-The curve fills a sixth of the plane and six copies mesh together perfectly
-rotated by 60, 120, 180, 240 and 300 degrees.  The C<arms> parameter can
+The curve fills a sixth of the plane and six copies rotated by 60, 120, 180,
+240 and 300 degrees mesh together perfectly.  The C<arms> parameter can
 choose 1 to 6 such curve arms successively advancing.
 
 For example C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the
@@ -587,7 +582,7 @@ second, N=2,8,14,20 the third, etc.
                  /          \             /           \
 
 With six arms every X,Y point is visited three times, except the origin 0,0
-where all six begin.  Every edge between the points is traversed once.
+where all six begin.  Every edge between points is traversed once.
 
 =head1 FUNCTIONS
 
@@ -648,17 +643,18 @@ degree angles.
 
     dX,dY
     -----
-     2, 0        dX minimum -1, maximum +2   arms == 1
-    -1, 1        dY minimum -1, maximum +1
+     2, 0        dX minimum = -1, maximum = +2  for arms=1
+    -1, 1        dY minimum = -1, maximum = +1
      1,-1
 
-For 2 or more arms the second arm is rotated by 60 degrees so giving
-additional combinations for a total six
+For 2 or more arms the second arm is rotated by 60 degrees so giving the
+following additional combinations, for a total six.  This changes the dX,dY
+minima.
 
     dX,dY also
     -----
-    -2, 0        dX minimum -2, maximum +2   arms >= 2
-     1, 1        dY minimum -1, maximum +1
+    -2, 0        dX minimum = -2, maximum = +2   arms >= 2
+     1, 1        dY minimum = -1, maximum = +1
     -1,-1
 
 =back
@@ -668,9 +664,10 @@ additional combinations for a total six
 =head2 N to X,Y
 
 There's no reversals or reflections in the curve so C<n_to_xy()> can take
-the digits of N either low to high or high to low applying what's in effect
-powers of the N=3 position.  The current code goes low to high using i,j,k
-coordinates as described in L<Math::PlanePath/Triangular Calculations>.
+the digits of N either low to high or high to low and apply what is
+effectively powers of the N=3 position.  The current code goes low to high
+using i,j,k coordinates as described in L<Math::PlanePath/Triangular
+Calculations>.
 
     si = 1    # position of endpoint N=3^level
     sj = 0    #    where level=number of digits processed
@@ -697,17 +694,17 @@ coordinates as described in L<Math::PlanePath/Triangular Calculations>.
 The digit handling is a combination of rotate and offset,
 
     digit==1                   digit 2
-    rotate and offset          offset at si,sj,sk rotated 
+    rotate and offset          offset at si,sj,sk rotated
 
          ^                          2------>
-          \                            
-           \                          \ 
+          \
+           \                          \
     *---  --1                  *--   --*
 
-The calculation can also be thought of as using w=1/2+I*sqrt(3)/2, a complex
-sixth root of unity.  i is the real part, j in the w direction (60 degrees),
-and k in the w^2 direction (120 degrees).  si,sj,sk increase as if
-multiplied by w+1.
+The calculation can also be thought of in term of w=1/2+I*sqrt(3)/2, a
+complex number sixth root of unity.  i is the real part, j in the w
+direction (60 degrees), and k in the w^2 direction (120 degrees).  si,sj,sk
+increase as if multiplied by w+1.
 
 =head2 Turn
 
@@ -715,16 +712,15 @@ At each point N the curve always turns 120 degrees either to the left or
 right, it never goes straight ahead.  If N is written in ternary then the
 lowest non-zero digit gives the turn
 
-   ternary
-   lowest
-   non-zero     Turn
-   --------     ----
-      1         left
-      2         right
+   ternary lowest
+   non-zero digit     turn
+   --------------     -----
+         1            left
+         2            right
 
-Essentially at N=3^level or N=2*3^level the turn follows the shape at that 1
-or 2 point.  The first and last unit step in each level are in the same
-direction, so the next level shape gives the turn.
+At N=3^level or N=2*3^level the turn follows the shape at that 1 or 2 point.
+The first and last unit step in each level are in the same direction, so the
+next level shape gives the turn.
 
        2*3^k-------3^(k+1)
           \
@@ -736,16 +732,19 @@ direction, so the next level shape gives the turn.
 The next turn, ie. the turn at position N+1, can be calculated from the
 ternary digits of N similarly.  The lowest non-2 digit gives the turn.
 
-   ternary
-   lowest
-   non-2       Turn
-   -------     ----
-      0        left
-      1        right
+   ternary lowest
+     non-2 digit       turn
+   --------------      -----
+          0            left
+          1            right
 
 If N is all 2s then the lowest non-2 is taken to be a 0 above the high end.
 For example N=8 is 22 ternary so considered 022 for lowest non-2 digit=0 and
-turn left after the segment at N=8, ie. at N=9 turn left.
+turn left after the segment at N=8, ie. at point N=9 turn left.
+
+This rule works for the same reason as the plain turn above.  The next turn
+of N is the plain turn of N+1 and adding +1 turns trailing 2s into trailing
+0s and increments the 0 or 1 digit above them to be 1 or 2.
 
 =head2 Total Turn
 
@@ -758,6 +757,9 @@ For example N=12 is ternary 110 which has two 1s so the cumulative turn at
 that point is 2*120=240 degrees, ie. the segment N=16 to N=17 is at angle
 240.
 
+The segments for digit 0 or 2 are in the "current" direction unchanged.  The
+segment for digit 1 is rotated +120 degrees.
+
 =head2 X,Y to N
 
 The current code applies C<TerdragonMidpoint> C<xy_to_n()> to calculate six
@@ -767,9 +769,10 @@ C<xy_to_n_list()>.
 
 The six edges are three going towards the point and three going away.  The
 midpoint calculation gives N-1 for the towards and N for the away.  Is there
-a good way to tell which edge is the smallest?  Or just which 3 edges lead
-away?  It might be directions 0,2,4 for the even arms and 1,3,5 for the odd
-ones, but the boundary of those areas is tricky.
+a good way to tell which edge will be the smaller?  Or just which 3 edges
+lead away?  It would be directions 0,2,4 for the even arms and 1,3,5 for the
+odd ones, but identifying the boundaries of those arms to know which is
+which is tricky.
 
 =head2 X,Y Visited
 
@@ -777,6 +780,198 @@ When arms=6 all "even" points of the plane are visited.  As per the
 triangular representation of X,Y this means
 
     X+Y mod 2 == 0        "even" points
+
+=head2 Boundary Length
+
+The length of the boundary of the terdragon on points N=0 to N=3^k
+inclusive, taking each line segment as length 1, is
+
+    boundary[k] = / 2      if k=0     (N=0 to N=1)
+                  \ 3*2^k  if k>=1    (N=0 to N=3^k)
+                = 2, 6, 12, 24, 48, ...
+
+The boundary follows the curve edges around from the origin until returning
+there.  So the single line segment N=0 to N=1 is boundary length 2, or the
+"S" shape of N=0 to N=3 is length 6.  This first "S" is 3x the length of the
+preceding but thereafter the way the curve touches itself means the boundary
+grows by less than that (only 2x per level).
+
+The boundary formula can be calculated from the way the curve meets when it
+replicates.  Consider the level N=0 to N=3^(k-1) and take its boundary
+length in two parts as a short side R on the right and the "V" shaped
+indentation L on the left.  These are shown as plain lines here but are
+wiggly as the curve becomes bigger and fatter.
+
+             R         R[k] = right side boundary length
+          2-----3      L[k] = left side boundary length
+           \ L       initial
+         L  \          R[0] = 1
+       0-----1         L[0] = 2
+          R          boundary[k+1] = 2*R[k] + 2*L[k]
+                       boundary[1] = 6
+
+By symmetry the two sides of the terdragon are the same length, so the total
+boundary is twice the right side,
+
+    boundary[k] = 2*R[k+1]
+
+When the curve is tripled out to the next level N=3^k the boundary length
+does not triple because the sides marked "===" in the following diagram
+enclose lengths 2*R and 2*L which would have been boundary, leaving only 4*R
+and 4*L.
+
+             R          for k >= 0
+          *-----3       R[k+1] = R[k] + L[k]    # per 0 to 1
+           \ L          L[k+1] = R[k] + L[k]    # per 0 to 2
+          L \
+       2=====@        
+        \   / \ R     
+      R  \ /   \        initial boundary[1] = 6
+          @=====1       so  boundary[k]
+           \ L          except boundary[0] = 2
+          L \
+       0-----*
+         R
+
+The two recurrences for R and L are the same, so R[k]=L[k] for k>=1 and
+hence
+
+    R[k+1] = 2*R[k]                    k >= 1
+
+    boundary[k] = 2*boundary[k-1]      k >= 2
+                = 3*2^k          from initial boundary[1] = 6
+
+=head2 Area
+
+The area enclosed by the curve from N=0 to N=3^k inclusive is
+
+    area[k] = / 0                      if k=0
+              \ 2*(3^(k-1) - 2^(k-1))  if k >=1
+            = 0, 0, 2, 10, 38, 130, 422, 1330, 4118, ...
+
+=cut
+
+# perl -e '$,=", "; print map{2*(3**($_-1)-2**($_-1))} 1 .. 8'
+# Pari: for(n=1,8,print(2*(3^(n-1)-2^(n-1)),","))
+
+=pod
+
+The area can be calculated from the number of line segments less the
+boundary segments.  Imagine an equilateral triangle on each side of a line
+segment
+
+       *      
+      / \       triangular area each side of line 0--1
+     /   \
+    0-----1
+     \   /
+      \ /
+       *
+
+A line which is on the boundary of the curve should count as only 1
+triangle, not 2.  Then the area inside the curve will have 3 triangles
+overlapping in each area, one for each line segment surrounding, so divide
+by 3.
+
+              2*3^k - boundary[k]
+    area[k] = ------------------- = 2*(3^(k-1) + 2^(k-1))
+                      3
+
+This works because the inside of the curve always has every edge traversed
+exactly once and hence always 3 line segments surrounding each enclosed
+triangle.
+
+=head2 Area vs Rhombus
+
+The area of the curve approaches the area of a rhombus made of two triangles
+between the endpoints.
+
+       *-----N
+      . \   .          side = sqrt(3)^k
+     .   \ .           rhombus area = 2 * side^2 = 2*3^k
+    O-----*
+
+    terdragon    2*(3^k - 2^k)
+    --------- =  ------------- -> 1 as k->infinity
+    rhombus          2*3^k
+
+This is as if the area of the A-B and C-D endpoints became negligible and
+only the centre triangles above mattered.
+
+This ratio is exact when the terdragon is reckoned as a fractal with unit
+length and infinitely smaller wiggles, ie. the area of the dragon is the
+same as the area of the rhombus.
+
+=head2 Area by Replication
+
+The area can also be calculated directly from the replication.  When the
+curve triplicates the area enclosed by the end two copies A-B and C-D are
+unchanged.  In the middle two triangles of area 2*3^k are enclosed.
+
+       *-----D
+        \              A[k] = 2 * A[k-1]     # AB and CD
+         \                  + 2 * 3^(k-2)    # centre triangles
+    C-----f                 - 2 * A[k-2]/2   # Cf, Be insides
+     \   / \                + 2 * A[k-2]/2   # Ce, Bf outsides
+      \ /   \
+       e-----B              = 2*A[k-1] + 2*3^(k-2)
+        \
+         \             sum to
+    A-----*            A[k] = 2*(3^(k-1) - 2^(k-1))
+
+=cut
+
+# A[0] to N=1   0
+# A[1] to N=2   0
+# A[2] to N=9   k=2; 2*0 + 2*3^(k-2) == 2
+# A[2] to N=27  k=3; 2*2 + 2*3^(k-2) == 10
+# A[2] to N=81  k=4; 2*10 + 2*3^(k-2) == 38
+
+=pod
+
+The centre triangles duplicate the area on the underside of the C-f curve
+segment and upper side of the B-e segment.  The terdragon is symmetric on
+the two sides of the line between its endpoints so the part on the upper
+side is half the curve, so subtract 2*A[k-2]/2.
+
+But then there are 2 similar half curve A[k-2]/2 areas on the outer sides of
+the B-f and C-e segments to be added.  Those extra insides and omitted
+outsides cancel out.
+
+=cut
+
+# A[k] = 2^1*3^(k-1) + 2^2*3^(k-2) + ... + 2^k*3^0
+#      = 2* (3^k - 2^k)/(3-2)
+#
+#            *
+#           / \       area = base^2
+#   *      *---*
+#  / \    / \ / \
+# *---*  *---*---*
+#
+#       *-----D
+#        \
+#         \
+#    *-----*                  R[3] = -1+1+1 = 1
+#     \   / \                 L[3] = -1+1-1+1+1+1 = 4
+#      \ /   \                A[3] = 2R+2L = 10
+#       *-----*     *
+#        \   / \   / \
+#         \ /   \ /   \
+#    C-----*-----*-----B
+#     \   / \   / \
+#      \ /   \ /   \
+#       *     *-----*
+#              \   / \
+#               \ /   \
+#                *-----*
+#                 \
+#                  \
+#             A-----*
+#
+#  2*(3^k - 2^k) / 3^k -> 2
+
+=pod
 
 =head1 OEIS
 
@@ -799,6 +994,10 @@ L<http://oeis.org/A080846> (etc)
     A038502   strip trailing ternary 0s,
                 taken mod 3 is turn 1=left,2=right
 
+A189673 and A026179 start with extra initial values arising from their
+morphism definition.  That can be skipped to consider the turns starting
+with a left turn at N=1.
+
     A026225   N positions of left turns,
                 being (3*i+1)*3^j so lowest non-zero digit is a 1
     A026179   N positions of right turns (except initial 1)
@@ -807,9 +1006,9 @@ L<http://oeis.org/A080846> (etc)
     A062756   total turn, count ternary 1s
     A005823   N positions where total turn == 0, ternary no 1s
 
-A189673 and A026179 start with extra initial values arising from their
-morphism definition.  That can be skipped to consider the turns starting
-with a left turn at N=1.
+    A007283   boundary length N=0 to N=3^k for k>=1, being 3*2^k
+    A056182   area enclosed N=0 to N=3^k, being 2*(3^k-2^k)
+    A081956     same
 
 =head1 SEE ALSO
 
@@ -821,13 +1020,17 @@ L<Math::PlanePath::GosperSide>
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::R5DragonCurve>
 
+Larry Riddle's Terdragon page, for boundary and area calculations of the
+terdragon as an infinite fractal
+L<http://ecademy.agnesscott.edu/~lriddle/ifs/heighway/terdragon.htm>
+
 =head1 HOME PAGE
 
 L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

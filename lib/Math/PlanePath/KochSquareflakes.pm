@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -601,8 +601,8 @@ For example,
       2      21      84
       3      85     340
 
-X<Lucas Sequence>The Xstart,Ystart position of the Nstart corner ends up
-being a Lucas sequence,
+X<Lucas Sequence>The Xstart,Ystart position of the Nstart corner is a Lucas
+sequence,
 
     Xstart(0) = -0.5
     Xstart(1) = -2

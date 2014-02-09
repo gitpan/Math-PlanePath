@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -40,8 +40,6 @@ use Math::PlanePath::CellularRule;
 #use Smart::Comments '###';
 
 
-MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
-
 sub streq_array {
   my ($a1, $a2) = @_;
   if (! ref $a1 || ! ref $a2) {
@@ -58,6 +56,22 @@ sub streq_array {
   return (@$a1 == @$a2);
 }
 
+
+#------------------------------------------------------------------------------
+# A061579 - permutation N at -X,Y
+
+MyOEIS::compare_values
+  (anum => 'A061579',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CellularRule->new (n_start => 0, rule => 50);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n (-$x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 

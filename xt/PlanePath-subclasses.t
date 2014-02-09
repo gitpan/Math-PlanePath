@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -50,6 +50,8 @@ my @modules = (
                # elsewhere and are skipped if not available to test
 
                # module list begin
+
+               'CCurve',
 
                '*HTree',
 
@@ -621,8 +623,6 @@ my @modules = (
                'PixelRings',
                'HilbertSpiral',
 
-               'CCurve',
-
                'DiamondArms',
                'SquareArms',
                'HexArms',
@@ -804,7 +804,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 113;
+my $want_version = 114;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

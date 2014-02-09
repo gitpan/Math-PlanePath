@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -834,6 +834,7 @@ L<http://oeis.org/A023531> (etc)
       A000290    N on X=Y diagonal, extra initial 0
       A002522    N on X=-Y North-West diagonal (start row), Y^2+1
       A004201    N for which X>=0, ie. right hand half
+      A020703    permutation N at -X,Y
     step=2, n_start=0
       A005563    N on X=Y diagonal, Y*(Y+2)
       A000290    N on X=-Y North-West diagonal (start row), Y^2
@@ -858,6 +859,7 @@ L<http://oeis.org/A023531> (etc)
       A084849    N on Y axis
       A001844    N on X=Y diagonal (North-East)
       A058331    N on X=-Y North-West diagonal
+      A221217    permutation N at -X,Y
     step=4, n_start=0
       A014105    N on Y axis, the second hexagonal numbers
       A046092    N on X=Y diagonal, 4*triangular numbers
@@ -899,7 +901,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

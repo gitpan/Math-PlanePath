@@ -15,13 +15,15 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+# area
+
 package Math::PlanePath::PowerArray;
 use 5.004;
 use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -265,6 +267,46 @@ even, or if Y=0or3 mod 4 then the N values are all odd.
          +----------------------------------------------------
              X=0        1        2        3        4        5
 
+=head2 Boundary Length
+
+The points N=1 to N=2^k-1 inclusive have a boundary length
+
+    boundary = 2^k + 2k
+
+For example N=1 to N=7 is
+
+    +---+
+    | 7 |
+    +   +
+    | 5 |
+    +   +---+
+    | 3   6 |
+    +       +---+
+    | 1   2   4 |
+    +---+---+---+
+
+The height is the odd numbers, so 2^(k-1).  The width is the power k.  So
+total boundary 2*height+2*width = 2^k + 2k.
+
+If N=2^k is included then it's on the X axis and so add 2, for boundary =
+2^k + 2k + 2.
+
+For other radix the calculation is similar
+
+    boundary = 2 * (radix-1) * radix^(k-1) + 2*k
+
+For example radix=3, N=1 to N=8 is
+
+    8 
+    7 
+    5 
+    4 
+    2  6
+    1  3
+
+The height is the non-multiples of the radix, so (radix-1)/radix * radix^k.
+The width is the power k again.  So total boundary = 2*height+2*width.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
@@ -396,6 +438,12 @@ L<http://oeis.org/A007814> (etc)
       A135764    permutation N by diagonals, downwards
       A075300    permutation N-1 by diagonals, upwards
       A117303    permutation N at transpose X,Y
+
+      A100314    boundary length for N=1 to N=2^k-1 inclusive
+                   being  2^k+2k
+      A131831      same, after initial 1
+      A052968    half boundary length N=1 to N=2^k inclusive
+                   being  2^(k-1)+k+1
 
     radix=3
       A007949    X coordinate, power-of-3 dividing N

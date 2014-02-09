@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 18;
+plan tests => 20;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -50,15 +50,6 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
-# with Y reckoned increasing upwards
-sub dxdy_to_direction {
-  my ($dx, $dy) = @_;
-  if ($dx > 0) { return 0; }  # east
-  if ($dx < 0) { return 2; }  # west
-  if ($dy > 0) { return 1; }  # north
-  if ($dy < 0) { return 3; }  # south
-}
-
 # return 1 for left, 0 for right
 sub path_n_turn {
   my ($path, $n) = @_;
@@ -74,10 +65,10 @@ sub path_n_dir {
   my ($path, $n) = @_;
   my ($dx,$dy) = $path->n_to_dxdy($n)
     or die "Oops, no point at ",$n;
-  return dxdy_to_dir ($dx, $dy);
+  return dxdy_to_dir4 ($dx, $dy);
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
-sub dxdy_to_dir {
+sub dxdy_to_dir4 {
   my ($dx, $dy) = @_;
   if ($dx > 0) { return 0; }  # east
   if ($dx < 0) { return 2; }  # west
@@ -85,6 +76,36 @@ sub dxdy_to_dir {
   if ($dy < 0) { return 3; }  # south
 }
 
+
+#------------------------------------------------------------------------------
+# A003230 enclosed area to N <= 2^k
+
+MyOEIS::compare_values
+  (anum => 'A003230',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 4; @got < $count; $k++) {
+       push @got, MyOEIS::path_enclosed_area ($dragon, 2**$k);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A227036 boundary length N <= 2^k
+
+MyOEIS::compare_values
+  (anum => 'A227036',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($dragon, 2**$k);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A038189 -- bit above lowest 1, is 0=left,1=right

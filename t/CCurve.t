@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -19,15 +19,16 @@
 
 use 5.004;
 use strict;
+use List::Util 'min','max';
 use Test;
-plan tests => 150;
+plan tests => 269;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::CCurve;
 
@@ -38,7 +39,7 @@ my $path = Math::PlanePath::CCurve->new;
 # VERSION
 
 {
-  my $want_version = 113;
+  my $want_version = 114;
   ok ($Math::PlanePath::CCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CCurve->VERSION,  $want_version,
@@ -60,6 +61,110 @@ my $path = Math::PlanePath::CCurve->new;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# xy_to_n_list()
+
+{
+  my @data = (
+              # close points
+              [ -2,-2, [] ],
+              [ -2,-1, [] ],
+              [ -2,0, [] ],
+              [ -2,1, [] ],
+              [ -2,2, [8] ],
+
+              [ -1,-2, [] ],
+              [ -1,-1, [] ],
+              [ -1,0, [] ],
+              [ -1,1, [] ],
+              [ -1,2, [] ],
+
+              [ 0,-2, [] ],
+              [ 0,-1, [] ],
+              [ 0,0, [0] ],
+              [ 0,1, [] ],
+              [ 0,2, [4] ],
+
+              [ 1,-2, [] ],
+              [ 1,-1, [] ],
+              [ 1,0, [1] ],
+              [ 1,1, [2] ],
+              [ 1,2, [3] ],
+
+              [ 2,-2, [] ],
+              [ 2,-1, [] ],
+              [ 2,0, [] ],
+              [ 2,1, [] ],
+              [ 2,2, [] ],
+
+              # doubled, tripled, quadrupled from the POD
+              [  -2,  3, [7,9] ],
+              [  18, -7, [189, 279, 281] ],
+              [ -32, 55, [1727, 1813, 2283, 2369] ],
+             );
+  foreach my $elem (@data) {
+    my ($x,$y, $want_n_aref) = @$elem;
+    my $want_n_str = join(',', @$want_n_aref);
+    {
+      my @got_n_list = $path->xy_to_n_list($x,$y);
+      ok (scalar(@got_n_list), scalar(@$want_n_aref),
+          "xy_to_n_list($x,$y) length");
+      my $got_n_str = join(',', @got_n_list);
+      ok ($got_n_str, $want_n_str,
+          "xy_to_n_list($x,$y) values");
+    }
+    {
+      my $got_n = $path->xy_to_n($x,$y);
+      ok ($got_n, $want_n_aref->[0]);
+    }
+    {
+      my @got_n = $path->xy_to_n($x,$y);
+      ok (scalar(@got_n), 1);
+      ok ($got_n[0], $want_n_aref->[0]);
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
+# extents claimed in the POD
+
+{
+  my @want_h = (0,1,3,7,15,31);
+  my @want_w = (0,0,1,3, 7,15);
+  my @want_l = (0,0,0,1, 3, 7);
+  foreach my $k (0 .. $#want_h) {
+    my $rot = $k % 4;
+    my $len = 2**$k;
+    my $l = 0;
+    my $w1 = 0;
+    my $w2 = 0;
+    my $h = 0;
+    ### $rot
+    ### $len
+
+    foreach my $n (0 .. 4**$k) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      ### at: "$x,$y  n=$n"
+
+      foreach (1 .. $rot) {
+        ($x,$y) = ($y,-$x);  # rotate -90
+      }
+      ### rotated: "$x,$y"
+      # now endpoints X=0,Y=0 to X=2^k,Y=0 and going into Y negative
+
+      $l = max($l,$y);
+      $h = max($h,-$y);
+      $w1 = max($w1,-$x);
+      $w2 = max($w2,$x-$len);
+    }
+
+    ok ($h == $want_h[$k], 1, "h[$k]");
+    ok ($l == $want_l[$k], 1);
+    ok ($w1 == $want_w[$k], 1);
+    ok ($w2 == $want_w[$k], 1);
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -280,46 +385,6 @@ sub count_low_1_bits {
   }
 }
 
-
-#------------------------------------------------------------------------------
-# xy_to_n_list()
-
-{
-  my @data = (
-              [ 0,1, [] ],
-              [ -1,0, [] ],
-              [ -1,-1, [] ],
-              [ 1,-1, [] ],
-
-              [ 0,0, [0] ],
-              [ 1,0, [1] ],
-              [ 1,1, [2] ],
-              [ 1,2, [3] ],
-
-              [ -2,3, [7,9] ],
-             );
-  foreach my $elem (@data) {
-    my ($x,$y, $want_n_aref) = @$elem;
-    my $want_n_str = join(',', @$want_n_aref);
-    {
-      my @got_n_list = $path->xy_to_n_list($x,$y);
-      ok (scalar(@got_n_list), scalar(@$want_n_aref),
-         "xy_to_n_list($x,$y) length");
-      my $got_n_str = join(',', @got_n_list);
-      ok ($got_n_str, $want_n_str,
-         "xy_to_n_list($x,$y) values");
-    }
-    {
-      my $got_n = $path->xy_to_n($x,$y);
-      ok ($got_n, $want_n_aref->[0]);
-    }
-    {
-      my @got_n = $path->xy_to_n($x,$y);
-      ok (scalar(@got_n), 1);
-      ok ($got_n[0], $want_n_aref->[0]);
-    }
-  }
-}
 
 #------------------------------------------------------------------------------
 exit 0;

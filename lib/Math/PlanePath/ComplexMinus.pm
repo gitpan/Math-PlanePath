@@ -19,6 +19,10 @@
 # math-image --path=ComplexMinus --lines --scale=10
 # math-image --path=ComplexMinus --all --output=numbers_dash --size=80x50
 
+# Penney numerals in tcl
+# http://wiki.tcl.tk/10761
+
+
 package Math::PlanePath::ComplexMinus;
 use 5.004;
 use strict;
@@ -27,7 +31,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

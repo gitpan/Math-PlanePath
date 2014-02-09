@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # MyOEIS.pm is shared by several distributions.
 #
@@ -362,7 +362,7 @@ sub stripped_grep {
 
   my $orig_str = $str;
   my $abs = '';
-  foreach my $mung ('none', 'negate', 'abs', 'half') {
+  foreach my $mung ('none', 'negate', 'abs', 'half', 'quarter') {
     if ($ret) { last; }
 
     if ($mung eq 'none') {
@@ -379,6 +379,14 @@ sub stripped_grep {
       }
       $str = join (',', map {$_/2} split /,/, $orig_str);
       $abs = "[HALF]\n";
+
+    } elsif ($mung eq 'quarter') {
+      if ($str =~ /[13579](,|$)/) {
+        ### not all even to halve ...
+        next;
+      }
+      $str = join (',', map {$_/2} split /,/, $orig_str);
+      $abs = "[QUARTER]\n";
 
     } elsif ($mung eq 'abs') {
       $str = $orig_str;
@@ -469,7 +477,7 @@ sub constant_array {
 
 =over
 
-=item C<$mon = Math::OEIS::Names-E<gt>new(key =E<gt> value, ...)>
+=item C<$nobj = Math::OEIS::Names-E<gt>new(key =E<gt> value, ...)>
   
 Create and return a new C<Math::OEIS::Names> object to read an OEIS "names"
 file.  The optional key/value parameters can be
@@ -485,12 +493,16 @@ filehandle can be given.
 
 For a given C<$anum> string such as "A000001" return the sequence name
 as a string, or if not found then C<undef>.
+
+C<$name> may contain non-ASCII characters.  In Perl 5.8 and higher C<$name>
+is decoded to Perl wide chars, in earlier Perl C<$name> is the native
+encoding of the names file (which is UTF-8).
   
-=item C<$filename = $mon-E<gt>filename()>
+=item C<$filename = $nobj-E<gt>filename()>
 
 =item C<$filename = Math::OEIS::Names-E<gt>filename()>
   
-Return the names filename from a given C<$mon> object, or the default
+Return the names filename from a given C<$nobj> object, or the default
 filename if called as a class method C<Math::OEIS::Names>.
 
 =back  
@@ -559,6 +571,10 @@ similar database if it exists and is up-to-date.
     return ($1, $2)
   }
 
+  use constant::defer _HAVE_ENCODE => sub {
+    eval { require Encode; 1 } || 0;
+  };
+
   sub anum_to_name {
     my ($self, $anum) = @_;
     ### $anum
@@ -581,6 +597,9 @@ similar database if it exists and is up-to-date.
     my ($got_anum, $name) = $self->line_split($line);
     if ($got_anum ne $anum) { return undef; }
 
+    if (_HAVE_ENCODE) {
+      $name = Encode::decode('utf8', $name, Encode::FB_PERLQQ());
+    }
     return $name;
   }
 }
@@ -792,5 +811,181 @@ filename if called as a class method C<Math::OEIS::Stripped>.
 # my @values = Math::OEIS::Stripped->anum_to_values('A000129');
 # ### @values
 
+#------------------------------------------------------------------------------
+
+# Return the area enclosed by the curve N=n_start() to N <= $n_limit.
+#
+# lattice_type => 'triangular'
+#    Means take the six-way triangular lattice points as adjacent and
+#    measure in X/2 and Y*sqrt(3)/2 so that the points are unit steps.
+#
+sub path_enclosed_area {
+  my ($path, $n_limit, %options) = @_;
+  ### path_enclosed_area() ...
+  my $points = path_boundary_points($path, $n_limit, %options);
+  ### $points
+  if (@$points <= 2) {
+    return 0;
+  }
+  require Math::Geometry::Planar;
+  my $polygon = Math::Geometry::Planar->new;
+  $polygon->points($points);
+  return $polygon->area;
+}
+
+{
+  my %lattice_type_to_divisor = (square => 1,
+                                 triangular => 4);
+
+  # Return the length of the boundary of the curve N=n_start() to N <= $n_limit.
+  #
+  # lattice_type => 'triangular'
+  #    Means take the six-way triangular lattice points as adjacent and
+  #    measure in X/2 and Y*sqrt(3)/2 so that the points are unit steps.
+  #
+  sub path_boundary_length {
+    my ($path, $n_limit, %options) = @_;
+    ### path_boundary_length(): "n_limit=$n_limit"
+
+    my $points = path_boundary_points($path, $n_limit, %options);
+    ### $points
+
+    my $lattice_type = ($options{'lattice_type'} || 'square');
+    my $triangular_mult = ($lattice_type eq 'triangular' ? 3 : 1);
+    my $divisor = ($options{'divisor'} || $lattice_type_to_divisor{$lattice_type});
+    my $side = ($options{'side'} || 'all');
+    ### $divisor
+
+    my $boundary = 0;
+    foreach my $i (($side eq 'all' ? 0 : 1)
+                   ..
+                   $#$points) {
+      ### hypot: ($points->[$i]->[0] - $points->[$i-1]->[0])**2 + $triangular_mult*($points->[$i]->[1] - $points->[$i-1]->[1])**2
+
+      $boundary += sqrt(((  $points->[$i]->[0] - $points->[$i-1]->[0])**2
+                         + $triangular_mult
+                         * ($points->[$i]->[1] - $points->[$i-1]->[1])**2)
+                        / $divisor);
+    }
+    ### $boundary
+    return $boundary;
+  }
+}
+{
+  my @dir4_to_dxdy = ([1,0], [0,1], [-1,0], [0,-1]);
+  my @dir6_to_dxdy = ([2,0], [1,1], [-1,1], [-2,0], [-1,-1], [1,-1]);
+  my %lattice_type_to_dirtable = (square => \@dir4_to_dxdy,
+                                  triangular => \@dir6_to_dxdy);
+
+  # Return arrayref of points [ [$x,$y], ..., [$to_x,$to_y]]
+  # which are the points on the boundary of the curve from $x,$y to
+  # $to_x,$to_y inclusive.
+  #
+  # lattice_type => 'triangular'
+  #    Means take the six-way triangular lattice points as adjacent.
+  #
+  sub path_boundary_points_ft {
+    my ($path, $n_limit, $x,$y, $to_x,$to_y, %options) = @_;
+    ### path_boundary_points_ft(): "$x,$y to $to_x,$to_y"
+
+    my $lattice_type = ($options{'lattice_type'} || 'square');
+    my $dirtable = $lattice_type_to_dirtable{$lattice_type};
+    my $dirmod = scalar(@$dirtable);
+    my @points;
+    my $dir = $options{'dir'} // ($dirmod - 1);
+    my $dirrev = $dirmod / 2 - 1;
+    my @n_list = $path->xy_to_n_list($x,$y)
+      or die "Oops, no n_list at $x,$y";
+    ### initial: "dir=$dir  n_list=".join(',',@n_list)
+
+  TOBOUNDARY: for (;;) {
+      foreach my $i (1 .. $dirmod) {
+        my ($dx,$dy) = @{$dirtable->[($dir + $i) % $dirmod]};
+        my @next_n_list = $path->xy_to_n_list($x+$dx,$y+$dy);
+        if (! any_consecutive(\@n_list, \@next_n_list, $n_limit)) {
+          ### is boundary: "dxdy = $dx, $dy"
+          last TOBOUNDARY;
+        }
+      }
+      my ($dx,$dy) = @{$dirtable->[$dir]};
+      if ($x == $to_x && $y == $to_y) {
+        $to_x -= $dx;
+        $to_y -= $dy;
+      }
+      $x -= $dx;
+      $y -= $dy;
+      ### towards boundary: "$x, $y"
+    }
+
+    for (;;) {
+      ### at: "$x, $y"
+      push @points, [$x,$y];
+      $dir -= $dirrev;
+      $dir %= $dirmod;
+      foreach (1 .. $dirmod) {
+        my ($dx,$dy) = @{$dirtable->[$dir]};
+        my @next_n_list = $path->xy_to_n_list($x+$dx,$y+$dy);
+        ### consider: "dir=$dir  next_n_list=".join(',',@next_n_list)
+        if (any_consecutive(\@n_list, \@next_n_list, $n_limit)) {
+          @n_list = @next_n_list;
+          $x += $dx;
+          $y += $dy;
+          last;
+        }
+        $dir = ($dir+1) % $dirmod;
+      }
+      if ($x == $to_x && $y == $to_y) {
+        ### stop at: "$x,$y"
+        unless ($x == $points[0][0] && $y == $points[0][1]) {
+          push @points, [$x,$y];
+        }
+        last;
+      }
+    }
+    return \@points;
+  }
+}
+
+# Return arrayref of points [ [$x1,$y1], [$x2,$y2], ... ]
+# which are the points on the boundary of the curve N=n_start() to N <= $n_limit
+# The final point should be taken to return to the initial $x1,$y1.
+#
+# lattice_type => 'triangular'
+#    Means take the six-way triangular lattice points as adjacent.
+#
+sub path_boundary_points {
+  my ($path, $n_limit, %options) = @_;
+  ### path_boundary_points(): "n_limit=$n_limit"
+  ### %options
+
+  my $x = 0;
+  my $y = 0;
+  my $to_x = $x;
+  my $to_y = $y;
+  if ($options{'side'} && $options{'side'} eq 'right') {
+    ($to_x,$to_y) = $path->n_to_xy($n_limit);
+
+  } elsif ($options{'side'} && $options{'side'} eq 'left') {
+    ($x,$y) = $path->n_to_xy($n_limit);
+  }
+  return path_boundary_points_ft($path, $n_limit, $x,$y, $to_x,$to_y, %options);
+}
+
+# $aref and $bref are arrayrefs of N values.
+# Return true if any pair of values $aref->[a], $bref->[b] are consecutive.
+# Values in the arrays which are > $n_limit are ignored.
+sub any_consecutive {
+  my ($aref, $bref, $n_limit) = @_;
+  foreach my $a (@$aref) {
+    next if $a > $n_limit;
+    foreach my $b (@$bref) {
+      next if $b > $n_limit;
+      if (abs($a-$b) == 1) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
 1;
 __END__

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -275,8 +275,9 @@ L<http://oeis.org/A196199> (etc)
       A002522    N on X negative axis, x^2+1
       A033951    N on X=Y diagonal, 4d^2+3d+1
       A004201    N for which X>=0, ie. right hand half
-
-    n_start=0
+      A020703    permutation N at -X,Y
+ 
+   n_start=0
       A196199    X coordinate, runs -n to +n
       A053615    abs(X), runs n to 0 to n
       A000196    abs(X)+abs(Y), floor(sqrt(N)),
@@ -297,7 +298,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

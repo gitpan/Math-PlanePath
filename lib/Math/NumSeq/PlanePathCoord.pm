@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -84,7 +84,7 @@ use List::Util;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -128,7 +128,8 @@ use constant::defer parameter_info_array =>
                    'IsLeaf','IsNonLeaf',
 
                    # Maybe:
-                   'MinAbsTri','MaxAbsTri',
+                   # 'RowOffset',
+                   # 'MinAbsTri','MaxAbsTri',
                    # 'AbsX',
                    # 'AbsY',
                    # 'DiffXY/2',
@@ -145,6 +146,7 @@ use constant::defer parameter_info_array =>
                    # 'NumSurround4d',
                    # 'NumSurround6',
                    # 'NumSurround8',
+                    'NumOverlap',
                   ];
     return [
             _parameter_info_planepath(),
@@ -497,16 +499,25 @@ sub _coordinate_func_DiffYXsquares {
 }
 
 sub _coordinate_func_TRadius {
-  my $rsquared;
-  return (defined ($rsquared = _coordinate_func_TRSquared(@_))
-          ? sqrt($rsquared)
-          : undef);
+  my ($self, $n) = @_;
+  return _path_n_to_tradius ($self->{'planepath_object'}, $n);
 }
 sub _coordinate_func_TRSquared {
   my ($self, $n) = @_;
-  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+  return _path_n_to_trsquared ($self->{'planepath_object'}, $n);
+}
+sub _path_n_to_tradius {
+  my ($path, $n) = @_;
+  # TRadius = sqrt(x^2+3*y^2)
+  my $trsquared = _path_n_to_trsquared($path,$n);
+  return (defined $trsquared ? sqrt($trsquared) : undef);
+}
+sub _path_n_to_trsquared {
+  my ($path, $n) = @_;
+  # TRSquared = x^2+3*y^2
+  my ($x, $y) = $path->n_to_xy($n)
     or return undef;
-  return $x*$x + 3*$y*$y;
+  return $x*$x + $y*$y*3;
 }
 
 sub _coordinate_func_Depth {
@@ -806,6 +817,18 @@ sub _path_n_surround_count {
   return $count;
 }
 
+sub _coordinate_func_NumOverlap {
+  my ($self, $n) = @_;
+  my ($x,$y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return _path_xy_to_n_count($self->{'planepath_object'}, $x,$y);
+}
+sub _path_xy_to_n_count {
+  my ($path, $x,$y) = @_;
+  my @n_list = $path->xy_to_n_list($x,$y);
+  return scalar(@n_list) - 1;
+}
+
 # rounding towards zero
 sub _coordinate_func_IntXY {
   my ($self, $n) = @_;
@@ -1024,6 +1047,31 @@ sub _coordinate_func_MinAbsTri {
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
     or return undef;
   return min(abs($x+$y),abs($x-$y),abs(2*$y));
+}
+
+#----------------
+# experimental
+
+sub _coordinate_func_RowOffset {
+  my ($self, $n) = @_;
+  return path_n_to_row_offset ($self->{'planepath_object'}, $n);
+}
+sub path_n_to_row_offset {
+  my ($path, $n) = @_;
+  my $depth = $path->tree_n_to_depth($n);
+  if (! defined $depth) { return undef; }
+
+  my ($n_row, $n_end) = $path->tree_depth_to_n_range($depth);
+  if ($n_end - $n_row + 1 == $path->tree_depth_to_width($depth)) {
+    return $n - $n_row;
+  }
+  my $ret = 0;
+  foreach my $i ($n_row .. $n - 1) {
+    if ($path->tree_n_to_depth($i) == $depth) {
+      $ret++;
+    }
+  }
+  return $ret;
 }
 
 use Math::PlanePath::GcdRationals;
@@ -1907,6 +1955,7 @@ sub characteristic_smaller {
   }
   use constant _NumSeq_Coord_RootN_integer => 1;
 
+  #--------------------------
   sub _NumSeq_Coord_IsLeaf_min {
     my ($path) = @_;
     # if num_children>0 occurs then that's a non-leaf node so IsLeaf=0 occurs
@@ -1927,6 +1976,9 @@ sub characteristic_smaller {
   }
   use constant _NumSeq_Coord_IsLeaf_integer => 1;
   use constant _NumSeq_Coord_IsNonLeaf_integer => 1;
+
+  #--------------------------
+  use constant _NumSeq_Coord_RowOffset_min => 0;
 }
 
 { package Math::PlanePath::SquareSpiral;
@@ -2260,7 +2312,7 @@ sub characteristic_smaller {
 # { package Math::PlanePath::FilledRings;
 # }
 { package Math::PlanePath::Hypot;
-  *_NumSeq_Coord_TRSquared_min = \&rsquared_minimum;
+  sub _NumSeq_Coord_TRSquared_min { $_[0]->rsquared_minimum }
 
   # in order of radius so monotonic, but always have 4x duplicates or more
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
@@ -2280,7 +2332,7 @@ sub characteristic_smaller {
 { package Math::PlanePath::HypotOctant;
   use constant _NumSeq_Coord_IntXY_min => 1;  # triangular X>=Y so X/Y >= 1
 
-  *_NumSeq_Coord_TRSquared_min = \&rsquared_minimum;
+  sub _NumSeq_Coord_TRSquared_min { $_[0]->rsquared_minimum }
   sub _NumSeq_Coord_BitXor_min {
     my ($self) = @_;
     # "odd" always has X!=Ymod2 so differ in low bit
@@ -2871,7 +2923,7 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_DiffYX_integer => 1;
   use constant _NumSeq_Coord_AbsDiff_integer => 1;
   use constant _NumSeq_Coord_BitXor_integer => 1; # 0.5 xor 0.5 cancels out
-  use constant _NumSeq_Coord_TRSquared_min => 1; # X=0.5,Y=0.5
+  use constant _NumSeq_Coord_TRSquared_min => 1; # X=1/2, Y=1/2
   use constant _NumSeq_Coord_TRSquared_integer => 1;
   use constant _NumSeq_Coord_GCD_integer => 0;  # GCD(1/2,1/2)=1/2
 }
@@ -3100,7 +3152,7 @@ sub characteristic_smaller {
             : 0);
   }
 
-  *_NumSeq_Coord_Min_max = \&x_maximum;
+  sub _NumSeq_Coord_Min_max { $_[0]->x_maximum }
   *_NumSeq_Coord_Max_increasing=\&_NumSeq_Coord_Y_increasing; # height=1 Max=Y
   sub _NumSeq_Coord_Max_non_decreasing {
     my ($self) = @_;
@@ -3196,7 +3248,7 @@ sub characteristic_smaller {
 
   *_NumSeq_Coord_Y_non_decreasing       = \&_NumSeq_Coord_X_increasing;
 
-  *_NumSeq_Coord_Min_max = \&y_maximum;
+  sub _NumSeq_Coord_Min_max { $_[0]->y_maximum }
   *_NumSeq_Coord_Max_increasing=\&_NumSeq_Coord_X_increasing; # height=1 Max=X
   sub _NumSeq_Coord_Max_non_decreasing {
     my ($self) = @_;
@@ -5027,7 +5079,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

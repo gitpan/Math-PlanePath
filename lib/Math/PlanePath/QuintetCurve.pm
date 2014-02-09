@@ -16,8 +16,9 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=QuintetCurve --lines --scale=10
-# math-image --path=QuintetCurve --all --output=numbers_dash
+# Boundary of unit squares:
+# 2*(4*3^n+1)   cf A199108 = 4*3^n+1
+
 
 
 package Math::PlanePath::QuintetCurve;
@@ -25,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()

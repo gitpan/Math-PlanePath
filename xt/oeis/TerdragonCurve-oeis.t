@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -45,6 +45,38 @@ sub ternary_digit_above_low_zeros {
   }
   return ($n % 3);
 }
+
+#------------------------------------------------------------------------------
+# A056182 enclosed area is 2*(3^(k-1)-2^(k-1)) for points N <= 3^k
+
+MyOEIS::compare_values
+  (anum => 'A056182',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 1; @got < $count; $k++) {
+       push @got, MyOEIS::path_enclosed_area ($path, 3**$k,
+                                              lattice_type => 'triangular');
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A007283 boundary length is 3*2^k for points N <= 3^k
+
+MyOEIS::compare_values
+  (anum => 'A007283',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (3); # path initial boundary=2 vs bvalues=3
+     for (my $k = 1; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($path, 3**$k,
+                                                lattice_type => 'triangular');
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A136442 1,1,0,1,1,0,1,0,0,1,1,0,1,1,0,1,0,0,1,1,0,1,0,0,

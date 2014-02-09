@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -59,11 +59,12 @@ sub want_coordinate {
   # return 0 unless $type =~ /sumabs|absdiff/i;
   # return 0 unless $type =~ /d[XY]/;
   # return 0 unless $type =~ /^dAbsDiff/;
+  return 0 unless $type =~ /TR/;
 #  return 0 unless $type =~ /RSquared|Radius/;
   # return 0 unless $type =~ /Left|Right|LSR|SLR|SRL/;
   # return 0 unless $type =~ /Dir4|Dir6/;
   # return 0 unless $type =~ /LeafDistance/;
-   return 0 unless $type =~ /Min|Max/;
+#   return 0 unless $type =~ /Min|Max/;
   # return 0 unless $type =~ /dSum|dDiffXY|Absd|d[XY]/;
   # return 0 unless $type =~ /^(X|Y|Sum|DiffXY|dX|dY|AbsdX|AbsdY|dSum|dDiffXY|Dir4)$/;
 
@@ -402,101 +403,19 @@ my @modules = (
 
                # module list begin
 
-               'KochCurve',
-               'KochPeaks',
-               
-               'ChanTree,k=2',
-               'ChanTree',
-               'ChanTree,k=4',
-               'ChanTree,k=5',
-               'ChanTree,k=6',
-               'ChanTree,k=7',
-               'ChanTree,k=2,n_start=1',
-               'ChanTree,n_start=1',
-               'ChanTree,k=4,n_start=1',
-               'ChanTree,k=5,n_start=1',
-               
-               'CoprimeColumns',
-               'DivisibleColumns',
-               'DivisibleColumns,divisor_type=proper',
-               
-               'FractionsTree',
-
-               'GreekKeySpiral',
-               'GreekKeySpiral,turns=0',
-               'GreekKeySpiral,turns=1',
-               'GreekKeySpiral,turns=3',
-               'GreekKeySpiral,turns=4',
-               'GreekKeySpiral,turns=5',
-               'GreekKeySpiral,turns=6',
-               'GreekKeySpiral,turns=7',
-               'GreekKeySpiral,turns=8',
-               'GreekKeySpiral,turns=37',
-               
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=diagonal',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,n_start=37,align=right',
-               'SierpinskiTriangle,n_start=37,align=left',
-               'SierpinskiTriangle,n_start=37,align=diagonal',
-               
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-               
-               'SquareSpiral',
-               'SquareSpiral,wider=1',
-               'SquareSpiral,wider=2',
-               'SquareSpiral,wider=3',
-               'SquareSpiral,wider=4',
-               'SquareSpiral,wider=5',
-               'SquareSpiral,wider=6',
-               'SquareSpiral,wider=37',
-               'SquareSpiral,n_start=37',
-               'SquareSpiral,n_start=37,wider=1',
-               'SquareSpiral,n_start=37,wider=2',
-               'SquareSpiral,n_start=37,wider=3',
-               'SquareSpiral,n_start=37,wider=4',
-               'SquareSpiral,n_start=37,wider=5',
-               'SquareSpiral,n_start=37,wider=6',
-               'SquareSpiral,n_start=37,wider=37',
-               
-               'CellularRule,rule=6',   # left 1,2 line
-               'CellularRule,rule=6,n_start=0',
-               'CellularRule,rule=6,n_start=37',
                'CellularRule,rule=20',  # right 1,2 line
                'CellularRule,rule=20,n_start=0',
                'CellularRule,rule=20,n_start=37',
                'CellularRule,rule=14',  # left 2 cell line
                'CellularRule,rule=14,n_start=0',
                'CellularRule,rule=14,n_start=37',
+               'CellularRule,rule=6',   # left 1,2 line
+               'CellularRule,rule=6,n_start=0',
+               'CellularRule,rule=6,n_start=37',
                'CellularRule,rule=84',  # right 2 cell line
                'CellularRule,rule=84,n_start=0',
                'CellularRule,rule=84,n_start=37',
 
-               'AztecDiamondRings',
-               'DiamondArms',
-               'SquareArms',
-               'HexArms',
-               
-               '*ToothpickUpist',
-               
-               'Hypot',
-               'Hypot,points=even',
-               'Hypot,points=odd',
-               'HypotOctant',
-               'HypotOctant,points=even',
-               'HypotOctant,points=odd',
-               
-               'TriangularHypot',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
-               'TriangularHypot,points=hex',
-               'TriangularHypot,points=hex_rotated',
-               'TriangularHypot,points=hex_centred',
-               
                'PyramidRows',
                'PyramidRows,step=0',
                'PyramidRows,step=1',
@@ -525,6 +444,275 @@ my @modules = (
                'PyramidRows,align=left,step=7',
                'PyramidRows,align=left,step=37',
                
+               'Rows,width=1',
+               'Rows,width=2',
+               'Rows,width=3',
+               'Rows,width=4',
+               'Rows,width=6',
+               'Rows,width=15',
+               'Rows',
+               'Columns,height=1',
+               'Columns,height=2',
+               'Columns,height=3',
+               'Columns,height=4',
+               'Columns,height=6',
+               'Columns,height=15',
+               'Columns',
+               
+               'OctagramSpiral',
+               'OctagramSpiral,n_start=0',
+               'OctagramSpiral,n_start=37',
+ 
+               'Staircase',
+               'Staircase,n_start=0',
+               'Staircase,n_start=37',
+               'StaircaseAlternating',
+               'StaircaseAlternating,n_start=0',
+               'StaircaseAlternating,n_start=37',
+               'StaircaseAlternating,end_type=square',
+               'StaircaseAlternating,end_type=square,n_start=0',
+               'StaircaseAlternating,end_type=square,n_start=37',
+               
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+               
+               'PyramidSides',
+               
+               'CornerReplicate',
+               
+               'LTiling',
+               'LTiling,L_fill=left',
+               'LTiling,L_fill=upper',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
+               
+               'VogelFloret',
+               'VogelFloret,rotation_type=sqrt2',
+               'VogelFloret,rotation_type=sqrt3',
+               'VogelFloret,rotation_type=sqrt5',
+               'SacksSpiral',
+               'TheodorusSpiral',
+               'ArchimedeanChords',
+
+               'DragonCurve',
+               'DragonCurve,arms=2',
+               'DragonCurve,arms=3',
+               'DragonCurve,arms=4',
+               'DragonRounded',
+               'DragonRounded,arms=2',
+               'DragonRounded,arms=3',
+               'DragonRounded,arms=4',
+               'DragonMidpoint',
+               'DragonMidpoint,arms=2',
+               'DragonMidpoint,arms=3',
+               'DragonMidpoint,arms=4',
+               
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=4',
+               'TerdragonCurve,arms=5',
+               'TerdragonCurve,arms=6',
+               
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
+               
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=4',
+               'TerdragonMidpoint,arms=5',
+               'TerdragonMidpoint,arms=6',
+               
+               
+               'HexSpiral',
+               'HexSpiral,wider=1',
+               'HexSpiral,wider=2',
+               'HexSpiral,wider=3',
+               'HexSpiral,wider=4',
+               'HexSpiral,wider=5',
+               'HexSpiral,wider=37',
+               'HexSpiralSkewed',
+               'HexSpiralSkewed,wider=1',
+               'HexSpiralSkewed,wider=2',
+               'HexSpiralSkewed,wider=3',
+               'HexSpiralSkewed,wider=4',
+               'HexSpiralSkewed,wider=5',
+               'HexSpiralSkewed,wider=37',
+               
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+               
+               'TriangularHypot',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'TriangularHypot,points=hex',
+               'TriangularHypot,points=hex_rotated',
+               'TriangularHypot,points=hex_centred',
+               
+               'AztecDiamondRings',
+               'DiamondArms',
+               'SquareArms',
+               'HexArms',
+               
+               'PentSpiral',
+               'PentSpiral,n_start=0',
+               'PentSpiral,n_start=37',
+               'PentSpiralSkewed',
+               'PentSpiralSkewed,n_start=0',
+               'PentSpiralSkewed,n_start=37',
+
+               'SierpinskiArrowhead',
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+               
+               'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+               
+               'KochCurve',
+               'KochPeaks',
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+               
+               'SquareSpiral',
+               'SquareSpiral,wider=1',
+               'SquareSpiral,wider=2',
+               'SquareSpiral,wider=3',
+               'SquareSpiral,wider=4',
+               'SquareSpiral,wider=5',
+               'SquareSpiral,wider=6',
+               'SquareSpiral,wider=37',
+               'SquareSpiral,n_start=37',
+               'SquareSpiral,n_start=37,wider=1',
+               'SquareSpiral,n_start=37,wider=2',
+               'SquareSpiral,n_start=37,wider=3',
+               'SquareSpiral,n_start=37,wider=4',
+               'SquareSpiral,n_start=37,wider=5',
+               'SquareSpiral,n_start=37,wider=6',
+               'SquareSpiral,n_start=37,wider=37',
+               
+               'GreekKeySpiral',
+               'GreekKeySpiral,turns=0',
+               'GreekKeySpiral,turns=1',
+               'GreekKeySpiral,turns=3',
+               'GreekKeySpiral,turns=4',
+               'GreekKeySpiral,turns=5',
+               'GreekKeySpiral,turns=6',
+               'GreekKeySpiral,turns=7',
+               'GreekKeySpiral,turns=8',
+               'GreekKeySpiral,turns=37',
+               
+               'CellularRule,rule=16', # right line
+               'CellularRule,rule=16,n_start=0',
+               'CellularRule,rule=16,n_start=37',
+               'CellularRule,rule=24', # right line
+               'CellularRule,rule=48', # right line
+               
+               'CellularRule,rule=2',  # left line
+               'CellularRule,rule=2,n_start=0',
+               'CellularRule,rule=2,n_start=37',
+               'CellularRule,rule=10', # left line
+               'CellularRule,rule=34', # left line
+               
+               'CellularRule,rule=4',  # centre line
+               'CellularRule,rule=4,n_start=0',
+               'CellularRule,rule=4,n_start=37',
+               'CellularRule,rule=12', # centre line
+               'CellularRule,rule=36', # centre line
+               
+               'CellularRule,rule=206', # left solid
+               'CellularRule,rule=206,n_start=0',
+               'CellularRule,rule=206,n_start=37',
+               
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+               
+               'CellularRule,rule=60',
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=220,n_start=0',
+               'CellularRule,rule=220,n_start=37',
+               'CellularRule,rule=222', # solid
+               
+               'MultipleRings,step=0',
+               'MultipleRings,ring_shape=polygon,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,ring_shape=polygon,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,ring_shape=polygon,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+               
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=4',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=9',
+               'MultipleRings,ring_shape=polygon,step=10',
+               'MultipleRings,ring_shape=polygon,step=11',
+               'MultipleRings,ring_shape=polygon,step=12',
+               'MultipleRings,ring_shape=polygon,step=13',
+               'MultipleRings,ring_shape=polygon,step=14',
+               'MultipleRings,ring_shape=polygon,step=15',
+               'MultipleRings,ring_shape=polygon,step=16',
+               'MultipleRings,ring_shape=polygon,step=17',
+               'MultipleRings,ring_shape=polygon,step=18',
+               'MultipleRings,ring_shape=polygon,step=37',
+               
+               'ChanTree,k=2',
+               'ChanTree',
+               'ChanTree,k=4',
+               'ChanTree,k=5',
+               'ChanTree,k=6',
+               'ChanTree,k=7',
+               'ChanTree,k=2,n_start=1',
+               'ChanTree,n_start=1',
+               'ChanTree,k=4,n_start=1',
+               'ChanTree,k=5,n_start=1',
+               
+               'CoprimeColumns',
+               'DivisibleColumns',
+               'DivisibleColumns,divisor_type=proper',
+               
+               'FractionsTree',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=diagonal',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,n_start=37,align=right',
+               'SierpinskiTriangle,n_start=37,align=left',
+               'SierpinskiTriangle,n_start=37,align=diagonal',
+               
+               '*ToothpickUpist',
+               
                '*HTree',
 
                'PythagoreanTree,tree_type=UMT',
@@ -549,100 +737,12 @@ my @modules = (
                'PythagoreanTree,tree_type=FB,coordinates=SC',
                'PythagoreanTree,tree_type=FB,coordinates=MC',
                
-               'Rows,width=1',
-               'Rows,width=2',
-               'Rows,width=6',
-               'Rows,width=15',
-               'Rows',
-               'Columns,height=1',
-               'Columns,height=2',
-               'Columns,height=6',
-               'Columns,height=15',
-               'Columns',
-               
-               'VogelFloret',
-               'VogelFloret,rotation_type=sqrt2',
-               'VogelFloret,rotation_type=sqrt3',
-               'VogelFloret,rotation_type=sqrt5',
-               'SacksSpiral',
-               'TheodorusSpiral',
-               'ArchimedeanChords',
-
-               'HexSpiral',
-               'HexSpiral,wider=1',
-               'HexSpiral,wider=2',
-               'HexSpiral,wider=3',
-               'HexSpiral,wider=4',
-               'HexSpiral,wider=5',
-               'HexSpiral,wider=37',
-               'HexSpiralSkewed',
-               'HexSpiralSkewed,wider=1',
-               'HexSpiralSkewed,wider=2',
-               'HexSpiralSkewed,wider=3',
-               'HexSpiralSkewed,wider=4',
-               'HexSpiralSkewed,wider=5',
-               'HexSpiralSkewed,wider=37',
-               
-               'DragonCurve',
-               'DragonCurve,arms=2',
-               'DragonCurve,arms=3',
-               'DragonCurve,arms=4',
-               'DragonRounded',
-               'DragonRounded,arms=2',
-               'DragonRounded,arms=3',
-               'DragonRounded,arms=4',
-               'DragonMidpoint',
-               'DragonMidpoint,arms=2',
-               'DragonMidpoint,arms=3',
-               'DragonMidpoint,arms=4',
-               
-               'R5DragonCurve',
-               'R5DragonCurve,arms=2',
-               'R5DragonCurve,arms=3',
-               'R5DragonCurve,arms=4',
-               'R5DragonMidpoint',
-               'R5DragonMidpoint,arms=2',
-               'R5DragonMidpoint,arms=3',
-               'R5DragonMidpoint,arms=4',
-               
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=4',
-               'TerdragonCurve,arms=5',
-               'TerdragonCurve,arms=6',
-               
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=4',
-               'TerdragonRounded,arms=5',
-               'TerdragonRounded,arms=6',
-               
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=4',
-               'TerdragonMidpoint,arms=5',
-               'TerdragonMidpoint,arms=6',
-               
-               
                'FlowsnakeCentres',
                'FlowsnakeCentres,arms=2',
                'FlowsnakeCentres,arms=3',
                'Flowsnake',
                'Flowsnake,arms=2',
                'Flowsnake,arms=3',
-               
-               'PyramidSides',
-               
-               'CornerReplicate',
-               
-               'LTiling',
-               'LTiling,L_fill=left',
-               'LTiling,L_fill=upper',
-               'LTiling,L_fill=ends',
-               'LTiling,L_fill=all',
                
                'ImaginaryBase',
                'ImaginaryBase,radix=3',
@@ -716,23 +816,6 @@ my @modules = (
                'DiagonalRationals',
                'DiagonalRationals,direction=up',
                
-               'SierpinskiArrowhead',
-               'SierpinskiArrowhead,align=right',
-               'SierpinskiArrowhead,align=left',
-               'SierpinskiArrowhead,align=diagonal',
-               
-               'SierpinskiArrowheadCentres',
-               'SierpinskiArrowheadCentres,align=right',
-               'SierpinskiArrowheadCentres,align=left',
-               'SierpinskiArrowheadCentres,align=diagonal',
-               
-               'PentSpiral',
-               'PentSpiral,n_start=0',
-               'PentSpiral,n_start=37',
-               'PentSpiralSkewed',
-               'PentSpiralSkewed,n_start=0',
-               'PentSpiralSkewed,n_start=37',
-
                'HeptSpiralSkewed',
                'HeptSpiralSkewed,n_start=0',
                'HeptSpiralSkewed,n_start=37',
@@ -750,20 +833,6 @@ my @modules = (
                '*ToothpickSpiral,n_start=0',
                '*ToothpickSpiral,n_start=37',
                
-               'Staircase',
-               'Staircase,n_start=0',
-               'Staircase,n_start=37',
-               'StaircaseAlternating',
-               'StaircaseAlternating,n_start=0',
-               'StaircaseAlternating,n_start=37',
-               'StaircaseAlternating,end_type=square',
-               'StaircaseAlternating,end_type=square,n_start=0',
-               'StaircaseAlternating,end_type=square,n_start=37',
-               
-               'OctagramSpiral',
-               'OctagramSpiral,n_start=0',
-               'OctagramSpiral,n_start=37',
- 
                'ComplexPlus',
                'ComplexPlus,realpart=2',
                'ComplexPlus,realpart=3',
@@ -875,40 +944,6 @@ my @modules = (
                'CellularRule190',
                'CellularRule190,mirror=1',
                'CellularRule190,mirror=1,n_start=0',
-               
-               'CellularRule,rule=16', # right line
-               'CellularRule,rule=16,n_start=0',
-               'CellularRule,rule=16,n_start=37',
-               'CellularRule,rule=24', # right line
-               'CellularRule,rule=48', # right line
-               
-               'CellularRule,rule=2',  # left line
-               'CellularRule,rule=2,n_start=0',
-               'CellularRule,rule=2,n_start=37',
-               'CellularRule,rule=10', # left line
-               'CellularRule,rule=34', # left line
-               
-               'CellularRule,rule=4',  # centre line
-               'CellularRule,rule=4,n_start=0',
-               'CellularRule,rule=4,n_start=37',
-               'CellularRule,rule=12', # centre line
-               'CellularRule,rule=36', # centre line
-               
-               'CellularRule,rule=206', # left solid
-               'CellularRule,rule=206,n_start=0',
-               'CellularRule,rule=206,n_start=37',
-               
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=18,n_start=0',
-               'CellularRule,rule=18,n_start=37',
-               
-               'CellularRule,rule=60',
-               'CellularRule,rule=18,n_start=0',
-               'CellularRule,rule=18,n_start=37',
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=220,n_start=0',
-               'CellularRule,rule=220,n_start=37',
-               'CellularRule,rule=222', # solid
                
                'AlternatePaper',
                'AlternatePaper,arms=2',
@@ -1146,37 +1181,6 @@ my @modules = (
                # 'Diagonals,x_start=-3,y_start=6,direction=up',
                # 'Diagonals,x_start=-3,y_start=-6,direction=up',
 
-               'MultipleRings,step=0',
-               'MultipleRings,ring_shape=polygon,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,ring_shape=polygon,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,ring_shape=polygon,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-               
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=4',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=9',
-               'MultipleRings,ring_shape=polygon,step=10',
-               'MultipleRings,ring_shape=polygon,step=11',
-               'MultipleRings,ring_shape=polygon,step=12',
-               'MultipleRings,ring_shape=polygon,step=13',
-               'MultipleRings,ring_shape=polygon,step=14',
-               'MultipleRings,ring_shape=polygon,step=15',
-               'MultipleRings,ring_shape=polygon,step=16',
-               'MultipleRings,ring_shape=polygon,step=17',
-               'MultipleRings,ring_shape=polygon,step=18',
-               'MultipleRings,ring_shape=polygon,step=37',
-               
                'Corner',
                'Corner,wider=1',
                'Corner,wider=2',
@@ -1257,8 +1261,17 @@ foreach (@modules) { s/^\*// }
         }
         my $i_end = $i_start + $i_limit;
         ### $i_limit
+
+        my @i_extra;
+        if (my $delta_type = $seq->{'delta_type'}) {
+          foreach my $m ('min','max') {
+            if (my $coderef = $planepath_object->can("_NumSeq_Delta_${delta_type}_${m}_n")) {
+              push @i_extra, $planepath_object->$coderef();
+            }
+          }
+        }
         
-        foreach my $i ($i_start .. $i_end) {
+        foreach my $i ($i_start .. $i_end, @i_extra) {
           my $value = $seq->ith($i);
           ### $i
           ### $value

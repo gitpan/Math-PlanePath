@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -41,7 +41,343 @@ use lib 'xt';
 
 
 {
-  # LLRR
+  # bridge points, points which are on both left and right boundary
+  # 0,1,2,3,4,5,6, 12,13, 26,27, 51,52, 101,102, 204,205, 410,411,
+  # 819,820, 1637,1638, 3276,3277, 6554,6555
+  #
+  # evens A007910 G.f.: 1/((1-2*x)*(1+x^2)).
+  # odds  A133190 a(n)=2a(n-1)-a(n-2)+2a(n-3).
+
+  require Math::NumSeq::PlanePathCoord;
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $prev = -1;
+  my @n_right_list = (0);
+  my @n_left_list = (0);
+  my $dir_right = 0;
+  my $dir_left = 0;
+  my $x_right = 0;
+  my $y_right = 0;
+  my $x_left = 0;
+  my $y_left = 0;
+  my $pos_right = 0;
+  my $pos_left = 0;
+
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  my $any_consecutive = sub {
+    my ($aref, $bref) = @_;
+    foreach my $a (@$aref) {
+      foreach my $b (@$bref) {
+        if (abs($a-$b) == 1) {
+          return 1;
+        }
+      }
+    }
+    return 0;
+  };
+
+  my $advance_right = sub {
+    ### advance_right() ...
+    $dir_right = ($dir_right - 1) % 4;  # perhaps boundary turn right
+    for (;;) {
+      ### $dir_left
+      my $dx = $dir4_to_dx[$dir_right];
+      my $dy = $dir4_to_dy[$dir_right];
+      my @next_n_list = $path->xy_to_n_list($x_right+$dx,$y_right+$dy);
+      if ($any_consecutive->(\@n_right_list, \@next_n_list)) {
+        @n_right_list = @next_n_list;
+        $x_right += $dx;
+        $y_right += $dy;
+        $pos_right++;
+        return;
+      }
+      $dir_right = ($dir_right + 1) % 4;
+    }
+  };
+  my $advance_left = sub {
+    ### advance_left() ...
+    $dir_left = ($dir_left + 1) % 4;  # perhaps boundary turn left
+    for (;;) {
+      ### $dir_left
+      my $dx = $dir4_to_dx[$dir_left];
+      my $dy = $dir4_to_dy[$dir_left];
+      my @next_n_list = $path->xy_to_n_list($x_left+$dx,$y_left+$dy);
+      if ($any_consecutive->(\@n_left_list, \@next_n_list)) {
+        @n_left_list = @next_n_list;
+        $x_left += $dx;
+        $y_left += $dy;
+        $pos_left++;
+        return;
+      }
+      $dir_left = ($dir_left - 1) % 4;
+    }
+  };
+
+  my @values;
+  for (;;) {
+    ### at: "n_list_right=".join(',',@n_right_list)."  n_list_left=".join(',',@n_left_list)
+    if (@n_right_list == 1 && @n_left_list == 1
+        && $n_right_list[0] == $n_left_list[0]) {
+      my $n = $n_right_list[0];
+      last if $n > 10000;
+      if ($n > $prev+1) {
+        print "\n";
+      } else {
+      }
+      if ($n % 2) {
+      } else {
+        push @values, $pos_right;
+      }
+      printf "%3d %8b   %b %b\n", $n,$n, $pos_left,$pos_right;
+      $prev = $n;
+      &$advance_right();
+      &$advance_left();
+
+    } elsif ($n_right_list[0] < $n_left_list[0]) {
+      &$advance_right();
+    } else {
+      &$advance_left();
+    }
+  }
+  while ($values[0] < 20) { shift @values };
+  print join(',',@values),"\n";
+  require MyOEIS;
+  print MyOEIS->grep_for_values(array => \@values);
+  exit 0;
+
+  # use constant SURROUND_4 => [ 1,0, 0,1, -1,0, 0,-1 ];
+  # sub path_n_is_bridge {
+  #   my ($path, $n) = @_;
+  #   my @n_list = $path->xy_to_n_list($path->n_to_xy($n));
+  #   return @n_list == 1
+  #     && Math::NumSeq::PlanePathCoord::_path_n_surround_count($path,$n,SURROUND_4) == 2;
+  # }
+}
+{
+  # L,R,T,U,V by path boundary
+  require MyOEIS;
+  $| = 1;
+  # L
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $part ('A','B','L','R','T','U','V') {
+    print "$part ";
+    my $name = "${part}_from_path";
+    my $coderef = __PACKAGE__->can($name) || die $name;
+    my @values;
+    foreach my $k (0 .. 14) {
+      my $value = $coderef->($path,$k);
+      push @values, $value;
+      print "$value,";
+      #      if ($value < 10) { print "\n",join(' ',map{join(',',@$_)} @$points),"\n"; }
+    }
+    print "\n";
+
+    shift @values;
+    shift @values;
+    shift @values;
+    shift @values;
+    shift @values;
+    print MyOEIS->grep_for_values(array => \@values,
+                                  name => $part);
+    print "\n";
+  }
+
+  exit 0;
+
+  sub A_from_path {
+    my ($path, $k) = @_;
+    return MyOEIS::path_enclosed_area($path, 2**$k);
+  }
+  sub B_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit);
+    return scalar(@$points);
+  }
+  sub L_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'left');
+    return scalar(@$points) - 1;
+  }
+  sub R_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'right');
+    return scalar(@$points) - 1;
+  }
+  sub T_from_path {
+    my ($path, $k) = @_;
+    # 2 to 4
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(2*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(4*$n_limit);
+    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 2);
+    return scalar(@$points) - 1;
+  }
+  sub U_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(3*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(0);
+    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 1);
+    return scalar(@$points) - 1;
+  }
+  sub V_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(6*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(3*$n_limit);
+    my $points = MyOEIS::path_boundary_points_ft($path, 8*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 0);
+    return scalar(@$points) - 1;
+  }
+}
+{
+  require MyOEIS;
+
+  # 3 8  area=2 boundary=8 right
+  #    count=9  0,0 1,0 1,1 0,1 0,2 -1,2 -1,1 -2,1 -2,2
+  # 4 16  area=4 boundary=16 right
+  # 5 32  area=9 boundary=28 right
+  # 6 64  area=20 boundary=48 right
+  # 7 128  area=43 boundary=84 right
+  # 8 256  area=92 boundary=144 right
+  # 9 512  area=195 boundary=244 right
+  # 10 1024  area=408 boundary=416 right
+  # 11 2048  area=847 boundary=708 right
+  # 12 4096  area=1748 boundary=1200 right
+  # 13 8192  area=3587 boundary=2036 right
+
+  # 3 8  area=2 boundary=8 left
+  #    count=9  -2,2 -2,1 -1,1 -1,2 0,2 0,1 1,1 1,0 0,0
+  # 4 16  area=3 boundary=12 left
+  # 5 32  area=5 boundary=20 left
+  # 6 64  area=9 boundary=36 left
+  # 7 128  area=15 boundary=60 left
+  # 8 256  area=25 boundary=100 left
+  # 9 512  area=43 boundary=172 left
+  # 10 1024  area=73 boundary=292 left
+  # 11 2048  area=123 boundary=492 left
+  # 12 4096  area=209 boundary=836 left
+  # 13 8192  area=355 boundary=1420 left
+
+  # Left boundary/2
+  # A203175  a(n) = a(n-1) + 2*a(n-3)
+
+  # Right boundary
+  # A227036 = whole boundary
+  # because R[k+1] = R[k]+L[k] = B[k-1]
+
+  my ($R,$L,$T,$U,$V);
+  $R = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 1; }
+    { if ($k == 1) { return 2; }
+      if ($k == 2) { return 4; }
+      if ($k == 3) { return 8; }
+      if ($k == 4) { return 16; }
+      # R[k+4] = 2*R[k+3]  -R[k+2] + 2*R[k+1] - 2*R[k]      ok
+      return 2*$R->($k-1) - $R->($k-2) + 2*$R->($k-3) - 2*$R->($k-4);
+
+      return $R->($k-1) - $R->($k-1) + $R->($k-2) + $R->($k-1) - $R->($k-2) + $R->($k-3) + $R->($k-1)-$R->($k-2) - $R->($k-4) + $R->($k-3)-$R->($k-4);
+      return 2*$R->($k-1) - $R->($k-2) + 2*$R->($k-3) - 2*$R->($k-4); }
+    return $R->($k-1) + $L->($k-1);
+  };
+  $L = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 1; }
+
+
+    { if ($k == 1) { return 2; }
+      if ($k == 2) { return 4; }
+      if ($k == 3) { return 8; }
+
+      # L[k+3] =        L[k+2] +         2*L[k]     ok
+      return $L->($k-1) + 2*$L->($k-3);
+
+      # L[k+3]-R[k+1] = L[k+2]-R[k] + L[k]   ok
+      return $R->($k-2) + $L->($k-1) - $R->($k-3) + $L->($k-3); }
+
+    { if ($k == 1) { return 2; }
+      return $R->($k-2) + $U->($k-2); }
+    return $T->($k-1);
+  };
+  $T = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 2; }
+    return $R->($k-1) + $U->($k-1);
+  };
+  $U = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 3; }
+    # return $U->($k-1) + $L->($k-1);
+    return $U->($k-1) + $V->($k-1);
+  };
+  my $U2 = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 3; }
+    { if ($k == 1) { return 6; }
+      if ($k == 2) { return 8; }
+      if ($k == 3) { return 12; }
+      if ($k == 4) { return 20; }
+      # U[k+4] = 2*U[k+3]  -U[k+2] + 2*U[k+1] - 2*U[k]      ok
+      return 2*$U->($k-1) - $U->($k-2) + 2*$U->($k-3) - 2*$U->($k-4);
+    }
+    # return $U->($k-1) + $L->($k-1);
+    return $U->($k-1) + $V->($k-1);
+  };
+  my $U_from_LsubR = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    return $L->($k+2) - $R->($k);
+  };
+  $V = sub {
+    my ($k) = @_;
+    if ($k == 0) { return 3; }
+    return $T->($k-1);
+  };
+  my $B = sub {
+    my ($k) = @_;
+    return $R->($k) + $L->($k);
+  };
+
+  foreach my $k (0 .. 15) {
+    print $U->($k),", ";
+  }
+  print "\n";
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $k (0 .. 15) {
+    my $p = MyOEIS::path_boundary_length($path, 2**$k);
+    my $b = $B->($k);
+    my $r = $R->($k);
+    my $l = $L->($k);
+    my $t = $T->($k);
+    my $u = $U->($k);
+    my $u2 = $U2->($k);
+    my $u_lr = $U_from_LsubR->($k);
+    my $v = $V->($k);
+    print "$k $p   $b  R=$r L=$l T=$t U=$u,$u2,$u_lr V=$v\n";
+  }
+  exit 0;
+}
+
+{
+  # LLRR variation
+
   my $reverse = sub {
     my ($str) = @_;
     $str = reverse $str;
@@ -78,7 +414,7 @@ use lib 'xt';
 # {
 #                 [0,1,S  1,1,SW      1,0,W   0,0,-  ]);
 #                 [1,1,SW 0,1,S       0,0,-   1,0,W  ],
-# 
+#
 #                 [1,0,W  0,0,-       0,1,S   1,1,SW ],
 # my @yx_adj_x = ([0,0,-  1,0,W       1,1,SW  0,1,S  ],
 # }
@@ -353,15 +689,15 @@ use lib 'xt';
 
 # {
 #   # X,Y recurrence n = 2^k + rem
-#   # X+iY(n) = (i+1)^k + (i+1)^k + 
+#   # X+iY(n) = (i+1)^k + (i+1)^k +
 #   my $w = 8;
 #   my $path = Math::PlanePath::DragonCurve->new;
 #   foreach my $n (0 .. 1000) {
 #     my ($x,$y) = $path->n_to_xy($n);
-#     
+#
 #   }
 #   exit 0;
-# 
+#
 sub high_bit {
   my ($n) = @_;
   my $bit = 1;
@@ -1518,7 +1854,7 @@ sub high_bit {
     # printf "%2d %8b %8b   %8b %8b\n",
     #   $k, abs($wmin), $wmax, $submax, $submin;
   }
-  exit 0;    
+  exit 0;
 }
 
 

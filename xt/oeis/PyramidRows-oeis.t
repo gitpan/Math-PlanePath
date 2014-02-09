@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 use Test;
 use List::Util 'sum';
-plan tests => 5;
+plan tests => 13;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -34,6 +34,36 @@ use Math::PlanePath::PyramidRows;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A020703 - step=2 permutation N at -X,Y
+
+MyOEIS::compare_values
+  (anum => 'A020703',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidRows->new (n_start => 1, step => 2);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n (-$x,$y);
+     }
+     return \@got;
+   });
+
+# A221217 - step=4 permutation N at -X,Y
+MyOEIS::compare_values
+  (anum => 'A221217',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidRows->new (n_start => 1, step => 4);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n (-$x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A053615 -- distance to pronic is abs(X)

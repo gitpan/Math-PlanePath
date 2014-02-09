@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -44,11 +44,10 @@ my %seen_filename;
 
 foreach my $elem
   (
-   ['htree-big.png',
-    'math-image --path=HTree --values=LinesTree --scale=6 --size=196 --offset=2,2 --figure=point'],
-   ['htree-small.png',
-    'math-image --path=HTree --values=LinesTree --scale=4 --size=32 --offset=2,2'],
-
+   ['pythagorean-tree-ltoh.png',
+    'math-image --path=PythagoreanTree,digit_order=LtoH --values=LinesTree --scale=2 --size=200'],
+   ['pythagorean-tree-big.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
    ['pythagorean-tree-uard-rows-pq.png',
     'math-image --path=PythagoreanTree,tree_type=UArD,digit_order=LtoH,coordinates=PQ --lines --scale=14 --size=200 --figure=point'],
    ['pythagorean-tree-uard-rows.png',
@@ -57,8 +56,6 @@ foreach my $elem
     'math-image --path=PythagoreanTree,tree_type=UMT --values=LinesTree --scale=4 --size=200'],
    ['pythagorean-tree-fb-big.png',
     'math-image --path=PythagoreanTree,tree_type=FB --values=LinesTree --scale=4 --size=200'],
-   ['pythagorean-tree-big.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
    ['pythagorean-points-sm-big.png',
     'math-image --path=PythagoreanTree,coordinates=SM --all --scale=1 --size=150'],
    ['pythagorean-points-sc-big.png',
@@ -73,6 +70,12 @@ foreach my $elem
     'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
    ['pythagorean-points-big.png',
     'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
+
+
+   ['htree-big.png',
+    'math-image --path=HTree --values=LinesTree --scale=6 --size=196 --offset=2,2 --figure=point'],
+   ['htree-small.png',
+    'math-image --path=HTree --values=LinesTree --scale=4 --size=32 --offset=2,2'],
 
 
 

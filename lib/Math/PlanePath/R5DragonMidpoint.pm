@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -31,7 +31,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,7 +42,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -168,7 +168,7 @@ sub xy_to_n {
 
     my $k = 3*(10*($y%10) + ($x%10));
 
-    ### at: "$x,$y (k=$k)  n=$n  digit=$yx_to_digdxdy[$k]  offset=$yx_to_digdxdy[$k+1],$yx_to_digdxdy[$k+2] to ".($x+$yx_to_digdxdy[$k+1]).",".($y+$yx_to_digdxdy[$k+2])
+    ### at: "x=$x,y=$y (k=$k)  ndigits=".join(',',@ndigits)."  digit=$yx_to_digdxdy[$k]  offset=$yx_to_digdxdy[$k+1],$yx_to_digdxdy[$k+2] to ".($x+$yx_to_digdxdy[$k+1]).",".($y+$yx_to_digdxdy[$k+2])
 
     push @ndigits, $yx_to_digdxdy[$k++]; # ndigit
     $x += $yx_to_digdxdy[$k++];          # dx
@@ -179,8 +179,8 @@ sub xy_to_n {
     # = (x+iy)*(1-2i) / 5
     # = (x+2y +i(y-2x)) / 5
     #
-    ### assert: ($x+2*$y) % 5 == 0
-    ### assert: ($y-2*$x) % 5 == 0
+    ### assert: abs($x + 2 * $y) % 5 == 0
+    ### assert: abs($y - 2 * $x) % 5 == 0
 
     ($x,$y) = (($x+2*$y) / 5,    # divide 1+2i
                ($y-2*$x) / 5);
@@ -408,7 +408,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2012, 2013 Kevin Ryde
+Copyright 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

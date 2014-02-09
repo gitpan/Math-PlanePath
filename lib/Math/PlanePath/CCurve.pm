@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,6 +22,14 @@
 # N=2^e0+2^e1+...+2^e(t-1)+2^et  e0 high bit
 # pos = (i+1)^e0 + i*(i+1)^e1 + ... + i^(t-1)*(i+1)^e(t-1) + i^t*(i+1)^et
 
+# Levy Plane or space curves and surfaces consisting of parts similar to the
+# whole.  In Edgar classics on fractals pp 181-239.
+
+# * Bailey, Kim, Strichartz Inside the Levy Dragon, AMM 109 2002 689-703
+#   http://www.jstor.org/stable/3072395
+#   http://www.mathlab.cornell.edu/twk6
+#   http://www.mathlab.cornell.edu/%7Etwk6/program.html
+
 
 package Math::PlanePath::CCurve;
 use 5.004;
@@ -29,7 +37,7 @@ use strict;
 use List::Util 'min','max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 113;
+$VERSION = 114;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -43,7 +51,11 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'round_down_pow',
   'bit_split_lowtohigh',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
+
+# uncomment this to run the ### lines
+# use Smart::Comments;
 
 
 # Not sure about this yet ... 2 or 4 ?
@@ -144,6 +156,7 @@ sub n_to_xy {
 # len/2 + len/4-1
 
 my @digit_to_rot = (-1, 1, 0, 1);
+my @dir4_to_dsdd = ([1,-1],[1,1],[-1,1],[-1,-1]);
 
 sub xy_to_n {
   return scalar((shift->xy_to_n_list(@_))[0]);
@@ -154,87 +167,70 @@ sub xy_to_n_list {
 
   $x = round_nearest($x);
   $y = round_nearest($y);
-
-  my ($len,$k_limit) = _rect_to_k ($x,$y, $x,$y);
-  if (is_infinite($k_limit)) {
-    return $k_limit;  # infinity
-  }
-
-  ### $len
-  ### $k_limit
-  ### assert: $len==(0*$x*$y + 2) ** $k_limit
-
-  my $arms_count = $self->{'arms'};
   my $zero = $x*0*$y;
+
+  ($x,$y) = ($x + $y, $y - $x);  # sum and diff
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
+
   my @n_list;
+  foreach my $dsdd (@dir4_to_dsdd) {
+    my ($ds,$dd) = @$dsdd;
+    ### attempt: "ds=$ds  dd=$dd"
+    my $s = $x;  # sum X+Y
+    my $d = $y;  # diff Y-X
+    my @nbits;
 
-  foreach my $arm (0 .. $arms_count-1) {
-    my @digits = (-1);
-    my $tx = 0;
-    my $ty = 0;
-    my $rot = $k_limit + 1+2*$arm;
-    my @extents = ($len + int($len/2 - 1));
-
-    ### initial extent: $extents[0]
-
-    for (;;) {
-      my $digit = ++$digits[-1];
-      ### at: "digits=".join(',',@digits)."  txty=$tx,$ty   len=$len rot=$rot"
-
-      if ($digit > 3) {
-        pop @digits;
-        if (! @digits) {
-          ### @n_list
-          last;
-        }
-        ### end of this digit, backtrack ...
-        $len *= 2;
-        $rot--;
-        next;
+    until ($s >= -1 && $s <= 1 && $d >= -1 && $d <= 1) {
+      ### at: "s=$s, d=$d   nbits=".join('',reverse @nbits)
+      my $bit = $s % 2;
+      push @nbits, $bit;
+      if ($bit) {
+        $s -= $ds;
+        $d -= $dd;
+        ($ds,$dd) = ($dd,-$ds); # rotate -90
       }
 
-      ### $digit
-      ### rot increment: $digit_to_rot[$digit]
-      $rot += $digit_to_rot[$digit];
+      # divide 1/(1+i) = (1-i)/(1^2 - i^2)
+      #                = (1-i)/2
+      # so multiply (s + i*d) * (1-i)/2
+      #   s = (s + d)/2
+      #   d = (d - s)/2
+      #
+      ### assert: (($s+$d)%2)==0
 
-      if ($#digits >= $k_limit) {
-        ### low digit ...
-        if ($x == $tx && $y == $ty) {
-          ### found: _digit_join_hightolow (\@digits, 4, $zero)
-          push @n_list,
-            _digit_join_hightolow (\@digits, 4, $zero)
-              * $arms_count + $arm;
-        }
-      } elsif (max(abs($x-$tx),abs($y-$ty)) <= $extents[$#digits]) {
-        ### within extent, descend ...
-        push @digits, -1;
-        $len /= 2;
-        $extents[$#digits] ||= ($len + int($len/2 - 1));
-
-        ### new len: $len
-        ### digit pos: $#digits
-        ### new extent: $extents[$#digits]
-
-        next;
-      }
-
-      ### step txty: "rot=".($rot&3)
-      if ($rot & 2) {
-        if ($rot & 1) {
-          $ty -= $len;
-        } else {
-          $tx -= $len;
-        }
-      } else {
-        if ($rot & 1) {
-          $ty += $len;
-        } else {
-          $tx += $len;
-        }
-      }
+      # this form avoids overflow near DBL_MAX
+      my $odd = $s % 2;
+      $s -= $odd;
+      $d -= $odd;
+      $s /= 2;
+      $d /= 2;
+      ($s,$d) = ($s+$d+$odd, $d-$s);
     }
+
+    # five final positions
+    #      .   0,1   .       ds,dd
+    #           |
+    #    -1,0--0,0--1,0
+    #           |
+    #      .   0,-1  .
+    #
+    ### end: "s=$s d=$d  ds=$ds dd=$dd"
+
+    # last step must be East dx=1,dy=0
+    unless ($ds == 1 && $dd == -1) { next; }
+
+    if ($s == $ds && $d == $dd) {
+      push @nbits, 1;
+    } elsif ($s != 0 || $d != 0) {
+      next;
+    }
+    # ended s=0,d=0 or s=ds,d=dd, found an N
+    push @n_list, digit_join_lowtohigh(\@nbits, 2, $zero);
+    ### found N: "$n_list[-1]"
   }
-  return @n_list;
+  ### @n_list
+  return sort {$a<=>$b} @n_list;
 }
 
 # f = (1 - 1/sqrt(2) = .292
@@ -436,18 +432,288 @@ This is an integer version of the Levy "C" curve.
      -7     -6     -5     -4     -3     -2     -1     X=0     1
 
 The initial segment N=0 to N=1 is repeated with a turn +90 degrees left to
-give N=1 to N=2.  Then N=0to2 is repeated likewise turned +90 degrees to
-make N=2to4.  And so on doubling each time.
+give N=1 to N=2.  Then N=0to2 is repeated likewise turned +90 degrees and
+placed at N=2 to make N=2to4.  And so on doubling each time.
 
-The 90 degree rotation is always relative to the initial N=0to1 direction
-along the X axis.  So at any N=2^level the turn is +90 making the direction
-upwards at each of N=1,2,4,8,16,etc.
+The 90 degree rotation is the same at each repetition, so the segment at
+N=2^k is the initial N=0to1 turned +90 degrees.  This means at
+N=1,2,4,8,16,etc the direction is always upwards.
 
-The curve crosses itself and repeats some X,Y positions.  The first doubled
-point is X=-2,Y=3 which is both N=7 and N=9.  The first tripled point is
-X=18,Y=-7 which is N=189, N=279 and N=281.  The number of repeats at a given
-point is always finite but as N increases there's points where that number
-of repeats becomes ever bigger (is that right?).
+If 2^k is the highest 1-bit in N then the X,Y position can be written in
+complex numbers as
+
+    XY(N) = XY(2^k) + i*XY(r)          N = 2^k + r with r<2^k
+          = (1+i)^k + i*XY(r)
+
+The effect is a change of base from binary to base 1+i but with a power of i
+on each term.  Suppose the 1-bits in N are at positions k, k1, k2, etc, then
+
+    XY(N) = b^k               N= 2^k + 2^(k1) + 2^(k2) + ... in binary
+          + b^k1 * i          base b=1+i
+          + b^k2 * i^2
+          + b^k3 * i^3
+          + ...
+
+Notice the power of i is not the bit position k, but rather the count of how
+many 1-bits are above the position.  This calculation is straightforward but
+the resulting structure of boundary and shapes enclosed has many different
+parts.
+
+=head2 Level Ranges 4^k
+
+The X,Y extents of the path through to Nlevel=2^k can be expressed as a
+width and height measured relative to the endpoints.
+
+       *------------------*       <-+
+       |                  |         |
+    *--*                  *--*      | height h[k]
+    |                        |      |
+    *   N=4^k         N=0    *    <-+
+    |     |            |     |      | below l[k] 
+    *--*--*            *--*--*    <-+
+
+    ^-----^            ^-----^    Extents to N=4^k
+     width     2^k      width
+      w[k]               w[k]
+
+    <------------------------>
+        total width -> 2
+
+N=4^k is on either the X or Y axis and for the extents here it's taken
+rotated as necessary to be horizontal.  k=2 N=4^2=16 shown above is already
+horizontal.  The next level k=3 N=64=4^3 would be rotated -90 degrees to be
+horizontal.
+
+The width w[k] is measured from the N=0 and N=4^k endpoints.  It doesn't
+include the 2^k length between those endpoints.  The two ends are symmetric
+so the extent is the same for each.
+
+    h[k] = 2^k - 1                     0,1,3,7,15,31,etc
+
+    w[k] = /  0            for k=0
+           \  2^(k-1) - 1  for k>=1    0,0,1,3,7,15,etc
+
+    l[k] = /  0            for k<=1
+           \  2^(k-2) - 1  for k>=2    0,0,0,1,3,7,etc
+
+The initial N=0 to N=0 to N=64 shown above is k=3.  h[3]=7 is the X=-7
+horizontal.  l[3]=1 is the X=1 horizontal.  w[3]=3 is the vertical Y=3, and
+also Y=-11 which is 3 below the endpoint N=64 at Y=8.
+
+Expressed as a fraction of the 2^k distance between the endpoints the
+extents approach total 2 wide by 1.25 high,
+
+       *------------------*       <-+
+       |                  |         |  1
+    *--*                  *--*      |         total
+    |                        |      |         height
+    *   N=4^k         N=0    *    <-+         1+1/4
+    |     |            |     |      |  1/4
+    *--*--*            *--*--*    <-+
+
+    ^-----^            ^-----^  
+      1/2        1       1/2   total width 2
+
+The extent formulas can be found by considering the self-similar blocks.
+The initial k=0 is a single line segment and all its extents are 0.
+
+                          h[0] = 0
+          N=1 ----- N=0
+                          l[0] = 0
+                    w[0] = 0
+
+Thereafter the replication overlap as
+
+       +-------+---+-------+
+       |       |   |       |    
+    +------+   |   |   +------+
+    |  | D |   | C |   | B |  |        <-+
+    |  +-------+---+-------+  |          | 2^(k-1)
+    |      |           |      |          | previous
+    |      |           |      |          | level ends
+    |    E |           | A    |        <-+
+    +------+           +------+
+
+         ^---------------^
+        2^k this level ends
+
+    w[k] =           max (h[k-1], w[k-1])  # right of A,B
+    h[k] = 2^(k-1) + max (h[k-1], w[k-1])  # above B,C,D
+    l[k] = max w[k-1], l[k-1]-2^(k-1)      # below A,E
+
+Since h[k]=2^(k-1)+w[k] have S<h[k] E<gt> w[k]> for kE<gt>=1 and with the
+initial h[0]=w[k]=0 have h[k]E<gt>=w[k] always.  So the max of those two
+is h.
+
+    h[k] = 2^(k-1) + h[k-1]  giving h[k] = 2^k-1     for k>=1
+    w[k] = h[k-1]            giving w[k] = 2^(k-1)-1 for k>=1
+
+The max for l[k] is always w[k-1] as l[k] is never big enough that the parts
+B-C and C-D can extend down past their 2^(k-1) vertical position.
+(l[0]=w[0]=0 and thereafter by induction l[k]E<lt>=w[k].)
+
+    l[k] = w[k-1]   giving l[k] = 2^(k-2)-1 for k>=2
+
+=head2 Repeated Points
+
+The curve crosses itself and repeats some X,Y positions up to 4 times.  The
+first doubled, tripled and quadrupled points are
+
+     visits     first X,Y       N
+    ---------   ---------    ----------------------
+        2        -2,  3         7,    9
+        3        18, -7       189,  279,  281
+        4       -32, 55      1727, 1813, 2283, 2369
+
+=cut
+
+# binary
+#     2        -10,     11        111,      1001
+#                                  3          2
+#     3      10010,   -111   10111101, 100010111, 100011001
+#                                 6         5         4
+#     4    -100000, 110111   11010111111,  11100010101,
+#                           100011101011, 100101000001
+#                                9, 6, 7, 4
+
+=pod
+
+Each line segment between integer points is traversed at most 2 times, once
+forward and once backward.  There's 4 such lines reaching each integer point
+and so the points are visited at most 4 times.
+
+As per L</Direction> below the direction of the curve is given by the count
+of 1-bits in N.  Since no line is repeated each of the N values at a given
+X,Y have a different count 1-bits mod 4.  For example N=7 is 3 1-bits and
+N=9 is 2 1-bits.  The full counts need not be consecutive, as for example
+N=1727 is 9 1-bits and N=2369 is 4 1-bits.
+
+The maximum 2 segment traversals can be seen from the way the curve
+replicates.  Suppose the entire plane had all line segments traversed
+forward and backward.
+
+      v |         v |
+    --   <--------   <-
+     [0,1]       [1,1]           [X,Y] = integer points
+    ->   -------->   --          each edge traversed
+      | ^         | ^            forward and backward
+      | |         | |
+      | |         | |
+      v |         v |
+    --   <--------   <--
+     [0,0]       [1,0]
+    ->   -------->   --
+      | ^         | ^
+
+Then when each line segment expands on the right the result is the same
+pattern of traversals when viewed rotated by 45-degrees and scaled by factor
+sqrt(2).
+
+     \ v / v        \ v  / v
+      [0,1]           [1,1]
+     / / ^ \         ^ / ^ \
+    / /   \ \       / /   \ \
+           \ \     / /
+            \ v   / v
+             [1/2,1/2]
+            ^ /   ^ \
+           / /     \ \
+    \ \   / /       \ \   / /
+     \ v / v         \ v / v
+      [0,0]            1,0
+     ^ / ^ \         ^ / ^ \
+
+The curve is a subset of this pattern.  It begins as a single line segment
+which has this pattern and thereafter the pattern preserves itself.  Hence
+at most 2 segment traversals in the curve.
+
+=head2 Tiling
+
+The segment traversal argument above can also be made by taking the line
+segments as triangles which are a quarter of a unit square with peak
+pointing to the right of the traversal direction.
+
+       to  *
+           ^\
+           | \
+           |  \   triangle peak
+           |  /
+           | /
+           |/
+      from *
+
+These triangles in the two directions tile the plane.  On expansion each
+splits into 2 halves in new positions.  Those parts don't overlap and the
+plane is still tiled.  See for example Larry Riddle's pages
+
+=over
+
+L<http://www.agnesscott.edu/lriddle/levy.html>
+L<http://www.agnesscott.edu/lriddle/tiling.html>
+
+=back
+
+For the integer version of the curve this kind of tiling can be used to
+combine copies of the curve so that each every point is visited precisely 4
+times.  The h[k], w[k] and l[k] extents above are less than the 2^k endpoint
+length, so a square of side 2^k can be fully tiled with copies of the curve
+at each corner,
+
+             | ^         | ^
+             | |         | |               24 copies of the curve
+             | |         | |               to visit all points of the
+             v |         v |               inside square precisely
+    <-------    <--------   <--------      4 times each
+              *           *
+    -------->   -------->   -------->      points N=0 to N=4^k-1
+             | ^         | ^               rotated and shifted
+             | |         | |               suitably
+             | |         | |
+             v |         v |
+    <--------   <--------   <--------
+              *           *
+    --------    -------->   -------->
+             | ^         | ^
+             | |         | |
+             | |         | |
+             v |         v |
+
+The four innermost copies of the curve cover most of the inside square, but
+the other copies surrounding them loop into the square and fill in the
+remainder to make 4 visits at every point.
+
+=cut
+
+# If doing this tiling note that only points N=0 to N=4^k-1 are used.  If
+# N=4^k was included then it would duplicate the N=0 at the "*" endpoints,
+# resulting in 8 visits there rather than the intended 4.
+
+=pod
+
+It's interesting to note that a set of 8 curves at the origin only covers
+the axes with 4-fold visits,
+
+                   _ _ _
+             | ^              8 arms at the origin
+             | |              cover only X,Y axes
+             v |              with 4-visits
+    <--------   <--------
+             0,0              away from the axes
+    --------    -------->     some points < 4 visits
+             | ^
+             | |
+             v |
+
+The S<"_ _ _"> line shown which is part of the 24-pattern above but omitted
+here.  This line is at Y=2^k.  The extents described above mean that it
+extends down to Y=2^k - h[k] = 2^k-(2^k-1)=1, so it visits some points in
+row Y=1 and higher.  Omitting the curve means there are YE<gt>=1 not visited
+4 times.  Similarly YE<lt>=-1 and XE<lt>-1 and XE<gt>=+1.
+
+This means that if the path had some sort of "arms" of multiple curves
+extending from the origin then it would visit all points on the axes X=0 Y=0
+a full 4 times, but there would be infinitely many points off the axes
+without full 4 visits.
 
 =head1 FUNCTIONS
 
@@ -471,7 +737,16 @@ integer positions.
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
 Return the point number for coordinates C<$x,$y>.  If there's nothing at
-C<$x,$y> then return C<undef>.
+C<$x,$y> then return C<undef>.  If C<$x,$y> is visited more than once then
+return the smallest C<$n> which visits it.
+
+=item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
+
+Return a list of N point numbers at coordinates C<$x,$y>.  If there's
+nothing at C<$x,$y> then return an empty list.
+
+A given C<$x,$y> is visited at most 4 times so the returned list is at most
+4 values.
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -507,13 +782,12 @@ For example N=8 is binary 0b100 which is 2 low 0-bits for turn=(2-1)*90=90
 degrees to the right.
 
 When N is odd there's no low zero bits and the turn is always (0-1)*90=-90
-to the right in that case, which means every second turn is 90 degrees to
-the left.
+to the right, so every second turn is 90 degrees to the left.
 
 =head2 Next Turn
 
-The turn at the point following N, ie. at N+1, can be calculated from the
-bits of N by counting the low 1-bits,
+The turn at the point following N, ie. at N+1, can be calculated by counting
+the low 1-bits of N,
 
     next turn right = (count_low_1_bits(N) - 1) * 90degrees
 
@@ -526,17 +800,17 @@ This works simply because low 1-bits like ..0111 increment to low 0-bits
 
 =head2 N to dX,dY
 
-C<n_to_dxdy()> is implemented using the direction described above.  If N is
-an integer then count mod 4 gives the direction for dX,dY.
+C<n_to_dxdy()> is implemented using the direction described above.  For
+integer N the count mod 4 gives the direction for dX,dY.
 
     dir = count_1_bits(N) mod 4
     dx = dir_to_dx[dir]    # table 0 to 3
     dy = dir_to_dy[dir]
 
-For fractional N the direction at int(N)+1 can be obtained from the
-direction at int(N) by applying the turn at int(N)+1, that being the low
-1-bits of N per L</Next Turn> above.  Those two directions can then be
-combined per L<Math::PlanePath/N to dX,dY -- Fractional>.
+For fractional N the direction at int(N)+1 can be obtained from combining
+the direction at int(N) and the turn at int(N)+1, that being the low 1-bits
+of N per L</Next Turn> above.  Those two directions can then be combined as
+described in L<Math::PlanePath/N to dX,dY -- Fractional>.
 
     # apply turn to make direction at Nint+1
     turn = count_low_1_bits(N) - 1      # N integer part
@@ -546,8 +820,8 @@ combined per L<Math::PlanePath/N to dX,dY -- Fractional>.
     dx += Nfrac * (dir_to_dx[dir] - dx)
     dy += Nfrac * (dir_to_dy[dir] - dy)
 
-A tiny optimization can be made by working the "-1" of the turn formula into
-a +90 degree rotation of the C<dir_to_dx[]> and C<dir_to_dy[]> parts by a
+A small optimization can be made by working the "-1" of the turn formula
+into a +90 degree rotation of the C<dir_to_dx[]> and C<dir_to_dy[]> parts by
 swap and sign change,
 
     turn_plus_1 = count_low_1_bits(N)     # on N integer part
@@ -559,27 +833,128 @@ swap and sign change,
 
 =head2 X,Y to N
 
-The N values at a given X,Y can be found by traversing the curve.  At a
-given digit position if X,Y is within the curve extents at that level and
-position then descend to consider the next lower digit position, otherwise
-step to the next digit at the current digit position.
+The N values at a given X,Y can be found by taking terms low to high from
+the complex number formula (as given above),
 
-It's convenient to work in base-4 digits since that keeps the digit steps
-straight rather than diagonals.  The maximum extent of the curve at a given
-even numbered level is
+    X+iY = b^k            N = 2^k + 2^(k1) + 2^(k2) + ... in binary
+         + b^k1 * i       base b=1+i
+         + b^k2 * i^2
+         + ...
 
-    k = level/2
-    Lmax(level) = 2^k + floor(2^(k-1) - 1);
+If the lowest term is b^0 then X+iY has X+Y odd.  If the lowest term is not
+b^0 but instead some power b^n then X+iY has X+Y even.  This is because a
+multiple of b=1+i,
 
-For example k=2 is level=4, N=0 to N=2^4=16 has extent Lmax=2^2+2^1-1=5.
-That extent can be seen at points N=13,N=14,N=15.
+    X+iY = (x+iy)*(1+i)
+         = (x-y) + (x+y)i
+    so X=x-y Y=x+y
+    sum X+Y = 2x is even   if X+iY a multiple of 1+i
 
-The extents width-ways and backwards are shorter and using them would
-tighten the traversal, cutting off some unnecessary descending.  But the
-calculations are then a little trickier.
+So the lowest bit of N is found by
 
-The first N found by this traversal is the smallest.  Continuing the search
-gives all the N which are the target X,Y.
+    bit = (X+Y) mod 2
+
+If bit=1 then a power i^p is to be subtracted from X+iY.  p is how many
+1-bits are above that point, and this is not yet known.  It represents a
+direction to move X,Y to put it on an even position.  It's also the
+direction of the step N-2^l to N, where 2^l is the lowest 1-bit of N.
+
+The reduction should be attempted with p as each of the four possible
+directions N,S,E,W.  Some or all will lead to an N.  For quadrupled points
+(such as X=-32, Y=55 described above) all four will lead to an N.
+
+    for p 0 to 3
+      dX,dY = i^p   # directions [1,0]  [0,1]  [-1,0]  [0,-1]
+
+      loop until X,Y = [0,0] or [1,0] or [-1,0] or [0,1] or [0,-1] 
+      {
+        bit = X+Y mod 2       # bits of N from low to high
+        if bit == 1 {
+          X -= dX             # move to "even" X+Y == 0 mod 2
+          Y -= dY
+          (dX,dY) = (dY,-dX)         # rotate -90
+        }
+        (X,Y) = (X+Y)/2, (Y-X)/2   # divide (X+iY)/(1+i)
+      }
+      if not (dX=1 and dY=0)
+        wrong final direction, try next p
+      if X=dX and Y=dY
+        further high 1-bit for N
+        found an N
+      if X=0 and Y=0
+        found an N
+
+The loop ends at one of the five points
+
+            0,1
+             |
+    -1,0 -- 0,0 -- 1,0
+             |
+            0,-1
+
+It's not possible to wait for X=0,Y=0 to be reached because some dX,dY
+directions will step infinitely among the four non-zeros.  Only the case
+X=dX,Y=dY is sure to reach 0,0.
+
+The successive p decrements which are dX,dY rotate -90 must end at p == 0
+mod 4 for highest term in the X+iY formula having i^0=1.  This means must
+end dX=1,dY=0 East.
+
+The number of 1-bits in N is == p mod 4.  So the order the N values are
+obtained follows the order the p directions are attempted.  In general the N
+values will not be smallest to biggest N so a little sort is necessary if
+that's desired.
+
+It can be seen that sum X+Y is used for the bit calculation and then again
+in the divide by 1+i.  It's convenient to write the whole loop in terms of
+sum S=X+Y and difference D=Y-X.
+
+    for dS = +1 or -1      # four directions
+      for dD = +1 or -1    #
+        S = X+Y
+        D = Y-X
+
+        loop until -1 <= S <= 1 and -1 <= D <= 1 {
+          bit = S mod 2       # bits of N from low to high
+          if bit == 1 {
+            S -= dS              # move to "even" S+D == 0 mod 2
+            D -= dD
+            (dS,dD) = (dD,-dS)   # rotate -90
+          }
+          (S,D) = (S+D)/2, (D-S)/2   # divide (S+iD)/(1+i)
+        }
+        if not (dS=1 and dD=-1)
+          wrong final direction, try next dS,dD direction
+        if S=dS and D=dD
+          further high 1-bit for N
+          found an N
+        if S=0 and D=0
+          found an N
+
+The effect of S=X+Y, D=Y-D is to rotate by -45 degrees and use every second
+point of the plane.
+
+    D= 2                      X=0,Y=2       .              rotate -45
+
+    D= 1            X=0,Y=1      .       X=1,Y=2       .
+
+    D= 0  X=0,Y=0      .      X=1,Y=1       .       X=2,Y=2
+
+    D=-1            X=1,Y=0      .       X=2,Y=1       .
+
+    D=-2                      X=2,Y=0       .
+
+           S=0        S=1       S=2        S=3        S=4
+
+The final five points described above are then in a 3x3 block at the origin.
+The four in-between points S=0,D=1 etc don't occur so ranges tests
+-1E<lt>=SE<lt>=1 and -1E<lt>=DE<lt>=1 can be used.
+
+     S=-1,D=1      .      S=1,D=1
+                
+        .       S=0,D=0      .   
+                
+     S=-1,D=-1     .      S=1,D=-1
 
 =head1 OEIS
 
@@ -595,17 +970,23 @@ L<http://oeis.org/A179868> (etc)
     A010059   abs(dX), count1bits(N) mod 2
     A010060   abs(dY), count1bits(N)+1 mod 2, being Thue-Morse
 
-    A000120   total turn, being count 1-bits
+    A000120   direction, being total turn, count 1-bits
     A179868   direction 0to3, count 1-bits mod 4
 
-    A096268   turn 1=straight,0=left or right
-    A007814   turn-1 to the right, being count low 0-bits
+    A035263   turn 0=straight or 180, 1=left or right,
+                being (count low 0-bits + 1) mod 2
+    A096268   next turn 1=straight or 180, 0=left or right,
+                being count low 1-bits mod 2
+    A007814   turn-1 to the right,
+                being count low 0-bits
 
     A003159   N positions of left or right turn, ends even num 0 bits
     A036554   N positions of straight or 180 turn, ends odd num 0 bits
 
     A146559   X at N=2^k, being Re((i+1)^k)
     A009545   Y at N=2^k, being Im((i+1)^k)
+
+    A191689   fractal dimension of the boundary
 
 =head1 SEE ALSO
 
@@ -614,7 +995,7 @@ L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::AlternatePaper>,
 L<Math::PlanePath::KochCurve>
 
-L<ccurve(6x)> back end of L<xscreensaver(1)> displaying the C curve (and
+L<ccurve(6x)> back-end of L<xscreensaver(1)> displaying the C curve (and
 various other dragon curve and Koch curves).
 
 =head1 HOME PAGE
@@ -623,7 +1004,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
