@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,6 +42,8 @@ use Math::PlanePath::Base::Digits
 
 use constant n_start => 0;
 use constant xy_is_visited => 1;
+use constant _UNDOCUMENTED__x_negative_at_n => 3;
+use constant _UNDOCUMENTED__y_negative_at_n => 4;
 
 #     10        7
 #         2  8  5  6
@@ -279,7 +281,7 @@ This tiling corresponds to expressing a complex integer X+i*Y in base b=2+i
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-where each digit a[i] is +/-1 or +/-1,
+where each digit a[i] is
 
     a[i] digit     N digit
     ----------     -------
@@ -327,7 +329,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

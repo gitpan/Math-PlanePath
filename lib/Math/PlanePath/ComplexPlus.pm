@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -77,6 +77,23 @@ use constant parameter_info_array =>
     },
   ];
 
+# b=i+r
+# theta = atan(1/r)
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  if ($self->{'realpart'} == 1) { return 8; }
+  return $self->{'norm'} ** _ceil((2*atan2(1,1)) / atan2(1,$self->{'realpart'}));
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  if ($self->{'realpart'} == 1) { return 32; }
+  return $self->{'norm'} ** _ceil((4*atan2(1,1)) / atan2(1,$self->{'realpart'}));
+}
+sub _ceil {
+  my ($x) = @_;
+  my $int = int($x);
+  return ($x > $int ? $int+1 : $int);
+}
 
 sub absdx_minimum {
   my ($self) = @_;
@@ -294,9 +311,10 @@ C<DragonCurve>,
 
 =head2 Real Part
 
-C<realpart =E<gt> $r> selects another r for complex base b=i+r.  For example
+Option C<realpart =E<gt> $r> selects another r for complex base b=i+r.  For
+example
 
-    realpart=>2
+    realpart => 2
                                      45 46 47 48 49      8
                                40 41 42 43 44            7
                          35 36 37 38 39                  6
@@ -310,20 +328,19 @@ C<realpart =E<gt> $r> selects another r for complex base b=i+r.  For example
      ^
     X=0 1  2  3  4  5  6  7  8  9 10
 
-N is broken into a base norm=r*r+1 digits, ie. digits 0 to r*r inclusive.
+N is broken into digits of a base norm=r*r+1, ie. digits 0 to r*r inclusive.
 
     norm = r*r + 1
     Nstart = 0
     Nlevel = norm^level - 1
 
-The low digit of N makes horizontal runs of r*r+1 many points, such as N=0
-to N=4, then N=5 to N=9 etc above.  In the default r=1 these runs are 2
-long.  For r=2 shown above they're 2*2+1=5 long, or r=3 would be 3*3+1=10,
-etc.
+The low digit of N makes horizontal runs of r*r+1 many points, such as above
+N=0 to N=4, then N=5 to N=9, etc.  In the default r=1 these runs are 2 long.
+For r=2 shown above they're 2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
 
-The offset in each run such as the N=5 shown is i+r, ie. Y=1,X=r.  Then the
-offset for the next level is (i+r)^2 = (2r*i + r^2-1) so N=25 begins at
-Y=2*r=4, X=r*r-1=3.  In general each level adds an angle
+The offset for each successive run is i+r, ie. Y=1,X=r such as the N=5 shown
+above.  Then the offset for the next level is (i+r)^2 = (2r*i + r^2-1) so
+N=25 begins at Y=2*r=4, X=r*r-1=3.  In general each level adds an angle
 
     angle = atan(1/r)
     Nlevel_angle = level * angle
@@ -393,7 +410,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

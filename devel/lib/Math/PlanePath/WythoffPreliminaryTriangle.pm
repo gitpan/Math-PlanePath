@@ -1,4 +1,4 @@
-# Copyright 2013 Kevin Ryde
+# Copyright 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -38,7 +38,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -289,13 +289,14 @@ in various forms,
 
 =over
 
-L<http://oeis.org/A035614> (etc)
+L<http://oeis.org/A165360> (etc)
 
 =back
 
     A165360     X
     A165359     Y
     A166309     N by rows
+    A173027     N on Y axis
 
 =head1 SEE ALSO
 
@@ -304,11 +305,11 @@ L<Math::PlanePath::WythoffArray>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2013 Kevin Ryde
+Copyright 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

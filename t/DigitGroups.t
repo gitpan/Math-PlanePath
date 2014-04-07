@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -53,7 +53,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 114;
+  my $want_version = 115;
   ok ($Math::PlanePath::DigitGroups::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DigitGroups->VERSION,  $want_version,

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -75,6 +75,21 @@ use constant dx_minimum => -1;     # NSEW+diagonals
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_eight;
+{
+  my %_UNDOCUMENTED__dxdy_list_at_n = (A1    => 201,
+                                       D2    => 329,
+                                       B2    => 201,
+                                       B1rev => 201,
+                                       D1rev => 329,
+                                       A2rev => 201,
+                                      );
+  sub _UNDOCUMENTED__dxdy_list_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__dxdy_list_at_n{$self->{'start_shape'}};
+  }
+}
+
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;
 use constant ddiffxy_minimum => -2;
@@ -642,7 +657,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

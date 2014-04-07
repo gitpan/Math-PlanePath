@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -47,6 +47,8 @@ use constant parameter_info_array =>
       description => 'Whether to direct the sides of the square inward, rather than outward.',
     } ];
 
+use constant _UNDOCUMENTED__x_negative_at_n => 1;
+use constant _UNDOCUMENTED__y_negative_at_n => 1;
 use constant sumabsxy_minimum => 1;
 use constant rsquared_minimum => 0.5; # minimum X=0.5,Y=0.5
 
@@ -659,7 +661,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

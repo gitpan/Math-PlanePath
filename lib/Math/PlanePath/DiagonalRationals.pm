@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -112,20 +112,18 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### DiagonalRationals n_to_xy(): $n
 
-  if (2*($n-$self->{'n_start'}) < -1) {
+  if (2*($n - $self->{'n_start'}) < -1) {
     ### before n_start ...
     return;
   }
   my ($x,$y) = $self->Math::PlanePath::CoprimeColumns::n_to_xy($n+1)
     or return;
-  ### CoprimeColumns: "x=$x y=$y"
+  ### CoprimeColumns returned: "x=$x y=$y"
 
   $x -= $y;
-  if ($self->{'direction'} eq 'up') {
-    return ($x,$y);
-  } else {
-    return ($y,$x);
-  }
+  ### shear to: "x=$x y=$y"
+
+  return ($x,$y);
 }
 
 # Note: shared by FactorRationals
@@ -144,10 +142,8 @@ sub xy_is_visited {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### DiagonalRationals xy_to_n(): "$x,$y"
-  if ($self->{'direction'} eq 'up') {
-    ($x,$y) = ($y,$x);
-  }
-  my $n = Math::PlanePath::CoprimeColumns::xy_to_n($self,$x+$y,$x);
+
+  my $n = Math::PlanePath::CoprimeColumns::xy_to_n($self,$x+$y,$y);
 
   # not the N=0 at Xcol=1,Ycol=1 which is Xdiag=1,Ydiag=0
   if (defined $n && $n > $self->{'n_start'}) {
@@ -250,7 +246,7 @@ cumulative totient,
     cumulative_totient(K) =  sum   totient(i)
                              i=1
 
-=head2 Direction
+=head2 Direction Up
 
 Option C<direction =E<gt> 'up'> reverses the order within each diagonal to
 count upward from the X axis.
@@ -263,15 +259,15 @@ count upward from the X axis.
 
     direction => "up"
 
-     8 |   27    
-     7 |   21 26 
-     6 |   17         
-     5 |   11 16 20 25   
-     4 |    9    15    24 
-     3 |    5  8    14 19   
-     2 |    3     7    13    23  
+     8 |   27
+     7 |   21 26
+     6 |   17
+     5 |   11 16 20 25
+     4 |    9    15    24
+     3 |    5  8    14 19
+     2 |    3     7    13    23
      1 |    1  2  4  6 10 12 18 22
-    Y=0|                                 
+    Y=0|
        +---------------------------
        X=0  1  2  3  4  5  6  7  8
 
@@ -376,9 +372,12 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::DiagonalRationals-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::DiagonalRationals-E<gt>new (n_start =E<gt> $n)>
+=item C<$path = Math::PlanePath::DiagonalRationals-E<gt>new (direction =E<gt> $str, n_start =E<gt> $n)>
 
-Create and return a new path object.
+Create and return a new path object.  C<direction> (a string) can be
+
+    "down"     (the default)
+    "up"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -436,7 +435,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

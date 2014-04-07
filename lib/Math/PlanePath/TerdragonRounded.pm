@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -48,6 +48,20 @@ use constant n_start => 0;
   = \&Math::PlanePath::TerdragonCurve::parameter_info_array;
 *new = \&Math::PlanePath::TerdragonCurve::new;
 
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef, 24, 7, 2, 2, 2, 2);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef, 316, 145, 32, 11, 4, 4);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
 use constant sumabsxy_minimum => 2; # X=2,Y=0
 sub rsquared_minimum {
   my ($self) = @_;
@@ -60,6 +74,7 @@ use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_six;
 use constant absdx_minimum => 1;
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;
@@ -249,14 +264,14 @@ This is a version of the terdragon curve with rounded-off corners,
      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
     -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
 
-The plain C<TerdragonCurve> is tripled in size and two points on each edge
-are visited by the C<TerdragonRounded> here.
+The plain C<TerdragonCurve> is tripled in size and two points on each 3-long
+edge are visited by the C<TerdragonRounded> here.
 
 =head2 Arms
 
 Multiple copies of the curve can be selected, each advancing successively.
-Like the main terdragon the rounded curve is 1/6 of the plane and 6 arms
-rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
+The curve is 1/6 of the plane (like the plain terdragon) and 6 arms rotated
+by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
 
 C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (the
 curve shown above), then N=1,7,13,19 the second copy rotated 60 degrees,
@@ -280,7 +295,7 @@ N=2,8,14,20 the third rotated 120, etc.
       /        \        /        \        /        \        /
     44          26----20           2     1          12    65
       \                                            /        \
-       50----56           9     3     .     0-----6          59----53
+       50----56           9-----3     .     0-----6          59----53
                \        /                                            \
     ...         62    15           4     5          23----29          47
       \        /        \        /        \        /        \        /
@@ -336,8 +351,9 @@ L<Math::PlanePath::TerdragonCurve>,
 L<Math::PlanePath::TerdragonMidpoint>,
 L<Math::PlanePath::DragonRounded>
 
-X<Arndt, Jorg>Jorg Arndt C<http://www.jjj.de/fxt/#fxtbook> section 1.31.4
-"Terdragon and Hexdragon", where this rounded terdragon is called hexdragon.
+X<Arndt, Jorg>X<fxtbook>Jorg Arndt C<http://www.jjj.de/fxt/#fxtbook> section
+1.31.4 "Terdragon and Hexdragon", where this rounded terdragon is called
+hexdragon.
 
 =head1 HOME PAGE
 
@@ -345,7 +361,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2012, 2013 Kevin Ryde
+Copyright 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

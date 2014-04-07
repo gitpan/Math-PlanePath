@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 206;
+plan tests => 236;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::CoprimeColumns;
 # VERSION
 
 {
-  my $want_version = 114;
+  my $want_version = 115;
   ok ($Math::PlanePath::CoprimeColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CoprimeColumns->VERSION,  $want_version,
@@ -79,7 +79,7 @@ require Math::PlanePath::CoprimeColumns;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::CoprimeColumns->parameter_info_list;
-  ok (join(',',@pnames), 'n_start');
+  ok (join(',',@pnames), 'direction,n_start');
 }
 
 
@@ -136,50 +136,66 @@ foreach my $x (1 .. 100) {
 # first few points
 
 {
-  my @data = ([ 0,  1,1 ],
-              [ 1,  2,1 ],
+  my @elems = ([ [],
+                 [ 0,  1,1 ],
+                 [ 1,  2,1 ],
 
-              [ 2,  3,1 ],
-              [ 3,  3,2 ],
+                 [ 2,  3,1 ],
+                 [ 3,  3,2 ],
 
-              [ 4,  4,1 ],
-              [ 5,  4,3 ],
+                 [ 4,  4,1 ],
+                 [ 5,  4,3 ],
 
-              [ 6,  5,1 ],
-              [ 7,  5,2 ],
-              [ 8,  5,3 ],
-              [ 9,  5,4 ],
+                 [ 6,  5,1 ],
+                 [ 7,  5,2 ],
+                 [ 8,  5,3 ],
+                 [ 9,  5,4 ],
 
-              [ 10,  6,1 ],
-              [ 11,  6,5 ],
+                 [ 10,  6,1 ],
+                 [ 11,  6,5 ],
 
-              [ 12,  7,1 ],
+                 [ 12,  7,1 ],
 
-              [ -0.5,   1,  .5 ],
-              [ -0.25,  1,  .75 ],
-              [ .25,    1, 1.25 ],
-             );
-  my $path = Math::PlanePath::CoprimeColumns->new;
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "n_to_xy() x at n=$n");
-    ok ($got_y, $want_y, "n_to_xy() y at n=$n");
-  }
+                 [ -0.5,   1,  .5 ],
+                 [ -0.25,  1,  .75 ],
+                 [ .25,    1, 1.25 ],
+               ],
 
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    next unless $want_n==int($want_n);
-    my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
-  }
+               [ [ direction => 'down' ],
 
-  foreach my $elem (@data) {
-    my ($n, $x, $y) = @$elem;
-    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-    next unless $n==int($n);
-    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+                 [ 2,  3,2 ],
+                 [ 3,  3,1 ],
+
+                 [ 6,  5,4 ],
+                 [ 7,  5,3 ],
+                 [ 8,  5,2 ],
+                 [ 9,  5,1 ],
+               ],
+              );
+  foreach my $elem (@elems) {
+    my ($options_aref, @data) = @$elem;
+    my $path = Math::PlanePath::CoprimeColumns->new (@$options_aref);
+    foreach my $elem (@data) {
+      my ($n, $want_x, $want_y) = @$elem;
+      my ($got_x, $got_y) = $path->n_to_xy ($n);
+      ok ($got_x, $want_x, "n_to_xy() x at n=$n");
+      ok ($got_y, $want_y, "n_to_xy() y at n=$n");
+    }
+
+    foreach my $elem (@data) {
+      my ($want_n, $x, $y) = @$elem;
+      next unless $want_n==int($want_n);
+      my $got_n = $path->xy_to_n ($x, $y);
+      ok ($got_n, $want_n, "n at x=$x,y=$y");
+    }
+
+    foreach my $elem (@data) {
+      my ($n, $x, $y) = @$elem;
+      my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+      next unless $n==int($n);
+      ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+    }
   }
 }
 

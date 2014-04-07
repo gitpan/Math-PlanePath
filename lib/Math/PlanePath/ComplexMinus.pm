@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,6 +22,9 @@
 # Penney numerals in tcl
 # http://wiki.tcl.tk/10761
 
+# cf A003476 = boundary length of i-1 ComplexMinus
+# is same as DragonCurve single points N=0 to N=2^k inclusive
+
 
 package Math::PlanePath::ComplexMinus;
 use 5.004;
@@ -31,7 +34,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,7 +46,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -58,6 +61,15 @@ use constant parameter_info_array =>
       description => 'Real part r in the i-r complex base.',
     } ];
 
+
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->{'norm'};
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->{'norm'} ** 2;
+}
 
 sub absdx_minimum {
   my ($self) = @_;
@@ -197,6 +209,37 @@ sub rect_to_n_range {
                * $self->{'norm'} ** ($self->{'realpart'} > 1
                                      ? 4
                                      : 8)));
+}
+
+#------------------------------------------------------------------------------
+
+sub _UNDOCUMENTED_level_to_figure_boundary {
+  my ($self, $level) = @_;
+  ### _UNDOCUMENTED_level_to_figure_boundary(): "level=$level realpart=$self->{'realpart'}"
+
+  if ($level < 0) { return undef; }
+  if (is_infinite($level)) { return $level; }
+
+  my $b0 = 4;
+  if ($level == 0) { return $b0; }
+
+  my $norm = $self->{'norm'};
+  my $b1 = 2*$norm + 2;
+  if ($level == 1) { return $b1; }
+
+  # 2*(norm-1)*(realpart + 2) + 4;
+  # = 2*(n*r + 2*n -r - 2) + 4
+  # = 2*n*r + 4n -2r - 4 + 4
+  # = 2*n*r + 4n -2r
+  my $realpart = $self->{'realpart'};
+  my $b2 = 2*($norm-1)*($realpart + 2) + 4;
+
+  my $f1 = $norm - 2*$realpart;
+  my $f2 = 2*$realpart - 1;
+  foreach (3 .. $level) {
+    ($b2,$b1,$b0) = ($f2*$b2 + $f1*$b1 + $norm*$b0, $b2, $b1);
+  }
+  return $b2;
 }
 
 1;
@@ -398,8 +441,8 @@ would be almost as easy too, requiring just sign changes if k odd.
 
 =head2 Boundary Length
 
-X<Gilbert, William J.>The length of the boundary of the first norm^k many
-points, ie. N=0 to N=norm^k-1 inclusive, is calculated in
+X<Gilbert, William J.>The length of the boundary of unit squares for the
+first norm^k many points, ie. N=0 to N=norm^k-1 inclusive, can be found in
 
 =over
 
@@ -409,12 +452,13 @@ L<http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf>
 
 =back
 
-The boundary formula is a 3rd-order recurrence.  For the twindragon case,
+The boundary formula is a 3rd-order recurrence.  For the twindragon case it
+is
 
     realpart=1
     boundary[k] = boundary[k-1] + 2*boundary[k-3]
 
-    4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, ...
+    = 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, ...
 
 The first three boundaries are as follows.  Then the recurrence gives the
 next boundary[3] = 10+2*4 = 18.
@@ -435,11 +479,12 @@ next boundary[3] = 10+2*4 = 18.
                                        | 0   1 |
                                        +---+---+
 
-Gilbert calculates the boundary of any i-r by taking it in three parts A,B,C
-and showing how in the next replication level those boundary parts transform
-into multiple copies of the preceding level parts.  The replication is
-easier to visualize for a bigger "r" than for the twindragon because in
-bigger r it's clearer how the A, B and C parts differ.  The replications are
+Gilbert calculates the boundary of any i-r by taking the boundary in three
+parts A,B,C and showing how in the next replication level those boundary
+parts transform into multiple copies of the preceding level parts.  The
+replication is easier to visualize for a bigger "r" than for the twindragon
+because in bigger r it's clearer how the A, B and C parts differ.  The
+length replication are
 
     A -> A * (2*realpart-1)             + C * 2*realpart
     B -> A * (realpart^2-2*realpart+2)  + C * (realpart-1)^2
@@ -452,17 +497,18 @@ bigger r it's clearer how the A, B and C parts differ.  The replications are
 
     total boundary = A+B+C
 
-For the twindragon case realpart=1 these A,B,C are already in the form of a
+For the twindragon realpart=1 these A,B,C are already in the form of a
 recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B, per the formula above.  For
-other real parts a little matrix rearrangement gives the recurrence
+other real parts a little matrix rearrangement turns the A,B,C parts into
+recurrence
 
     boundary[k] = boundary[k-1] * (2*realpart - 1)   
                 + boundary[k-2] * (norm - 2*realpart)
                 + boundary[k-3] * norm               
 
     starting from
-      boundary[0] = 4           (ie. a single square cell)
-      boundary[1] = 2*norm + 2
+      boundary[0] = 4               # single square cell
+      boundary[1] = 2*norm + 2      # oblong of norm many cells
       boundary[2] = 2*(norm-1)*(realpart+2) + 4
 
 For example
@@ -470,10 +516,10 @@ For example
     realpart=2
     boundary[k] = 3*boundary[k-1] + 1*boundary[k-2] + 5*boundary[k-1]
 
-    4, 12, 36, 140, 516, 1868, 6820, 24908, ...
+    = 4, 12, 36, 140, 516, 1868, 6820, 24908, ...
 
 If calculating for large k values then the matrix form can be powered up
-rather than repeated additions.  (As usual for all such recurrences.)
+rather than repeated additions.  (As usual for all such linear recurrences.)
 
 =head1 FUNCTIONS
 
@@ -540,9 +586,9 @@ from
          = Y*(r*r+1)
          = Y*norm
 
-Notice Ynew is the quotient from (X+Y*r)/norm rounded towards negative
-infinity.  Ie. in the division "X+Y*r mod norm" which calculates the digit,
-the quotient is Ynew and the remainder is the digit.
+Notice Ynew is the quotient from (X+Y*r)/norm rounded downwards (towards
+negative infinity).  Ie. in the division "X+Y*r mod norm" which calculates
+the digit, the quotient is Ynew and the remainder is the digit.
 
 =cut
 
@@ -572,7 +618,7 @@ L<http://oeis.org/A066321> (etc)
 
 =back
 
-    realpart=1 (the default)
+    realpart=1 (twindragon, the default)
       A066321    N on X axis, being the base i-1 positive reals
       A066323    N on X axis, in binary
       A066322    diffs (N at X=16k+4) - (N at X=16k+3)
@@ -595,7 +641,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

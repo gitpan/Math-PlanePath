@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -305,12 +305,13 @@ coprime.  The steps left or right are encoded/decoded as an N value.
 
 =head2 Kepler Tree
 
-X<Kepler, Johannes>The default and only tree currently is by Johannes Kepler.
+X<Kepler, Johannes>The default and only tree currently is by Kepler.
 
 =over
 
-"Harmonices Mundi", Book III.  Excerpt of translation by Aiton, Duncan and
-Field at L<http://ndirty.cute.fi/~karttu/Kepler/a086592.htm>
+Johannes Kepler, "Harmonices Mundi", Book III.  Excerpt of translation by
+Aiton, Duncan and Field at
+L<http://ndirty.cute.fi/~karttu/Kepler/a086592.htm>
 
 =back
 
@@ -488,7 +489,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

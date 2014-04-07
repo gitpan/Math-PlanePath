@@ -50,8 +50,31 @@
 #     = 102 = 1100110 = 2*(3*16^k-1)/15 -> 2/5
 #   N
 
-# http://wiki.tcl.tk/10745  recursive curves
 
+# Martin Gardner, "The Dragon Curve and Other Problems (Mathematical
+# Games)", Scientific American, March 1967 (addenda from readers April and
+# July).
+#
+# Reprinted in "Mathematical Magic Show", 1978.
+
+# Chandler Davis and Donald Knuth,
+# "Number Representations and Dragon Curves - I", C. Davis & D. E. Knuth,
+# Journal Recreational Math., volume 3, number 2 (April 1970), pages 66-81.
+# 16 pages
+#
+# Chandler Davis and Donald Knuth,
+# "Number Representations and Dragon Curves - II", C. Davis & D. E. Knuth,
+# Journal Recreational Math., volume 3, number 3 (July 1970), pages 133-149.
+# 17 pages
+#
+# Revised in "Selected Papers on Fun and Games", 2010, pages 571-603 with
+# addendum pages 603-614.
+# http://trove.nla.gov.au/version/50039930
+# 32+12=44 pages
+
+# Sze-Man Ngai and Nhu Nguyen, "The Heighway Dragon Revisited", Discrete and
+# Computational Geometry, May 2003 volume 29, issue 4, pages 603-623
+# http://www.math.nmsu.edu/~nnguyen/23paper.ps
 
 package Math::PlanePath::DragonCurve;
 use 5.004;
@@ -60,7 +83,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -75,7 +98,7 @@ use Math::PlanePath::Base::Digits
 use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 
@@ -92,10 +115,33 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          description => 'Arms',
                                        } ];
 
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef, 5,5,5,6);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef, 14,11,8,7);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
+{
+  my @_UNDOCUMENTED__dxdy_list_at_n = (undef, 5, 5, 5, 3);
+  sub _UNDOCUMENTED__dxdy_list_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
+  }
+}
 use constant dsumxy_minimum => -1; # straight only
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -1;
@@ -520,6 +566,133 @@ sub rect_to_n_range {
 # }
 
 
+#------------------------------------------------------------------------------
+
+{
+  my @_UNDOCUMENTED_level_to_left_line_boundary = (1,2,4);
+  sub _UNDOCUMENTED_level_to_left_line_boundary {
+    my ($self, $level) = @_;
+    if ($level < 0) { return undef; }
+    if ($level <= 2) { return $_UNDOCUMENTED_level_to_left_line_boundary[$level]; }
+    if (is_infinite($level)) { return $level; }
+
+    my $l0 = 2;
+    my $l1 = 4;
+    my $l2 = 8;
+    foreach (4 .. $level) {
+      ($l2,$l1,$l0) = ($l2 + 2*$l0, $l2, $l1);
+    }
+    return $l2;
+  }
+}
+
+{
+  my @level_to_right_line_boundary = (1,2,4,8,undef);
+  sub _UNDOCUMENTED_level_to_right_line_boundary {
+    my ($self, $level) = @_;
+    if ($level < 0) { return undef; }
+    if ($level <= 3) { return $level_to_right_line_boundary[$level]; }
+    if (is_infinite($level)) { return $level; }
+
+    my $r0 =  2;
+    my $r1 =  4;
+    my $r2 =  8;
+    my $r3 = 16;
+    foreach (5 .. $level) {
+      ($r3,$r2,$r1,$r0) = (2*$r3 - $r2 + 2*$r1 - 2*$r0,  $r3, $r2, $r1);
+    }
+    return $r3;
+  }
+}
+sub _UNDOCUMENTED_level_to_line_boundary {
+  my ($self, $level) = @_;
+  if ($level < 0) { return undef; }
+  return $self->_UNDOCUMENTED_level_to_right_line_boundary($level+1);
+}
+
+sub _UNDOCUMENTED_level_to_u_left_line_boundary {
+  my ($self, $level) = @_;
+  if ($level < 0) { return undef; }
+  return ($level == 0 ? 3
+          : $self->_UNDOCUMENTED_level_to_right_line_boundary($level) + 4);
+}
+sub _UNDOCUMENTED_level_to_u_right_line_boundary {
+  my ($self, $level) = @_;
+  if ($level < 0) { return undef; }
+  return ($self->_UNDOCUMENTED_level_to_right_line_boundary($level)
+          + $self->_UNDOCUMENTED_level_to_right_line_boundary($level+1));
+}
+sub _UNDOCUMENTED_level_to_u_line_boundary {
+  my ($self, $level) = @_;
+  if ($level < 0) { return undef; }
+  return ($self->_UNDOCUMENTED_level_to_u_left_line_boundary($level)
+          + $self->_UNDOCUMENTED_level_to_u_right_line_boundary($level));
+}
+
+sub _UNDOCUMENTED_level_to_enclosed_area {
+  my ($self, $level) = @_;
+  # A[k] = 2^(k-1) - B[k]/4
+  if ($level < 0) { return undef; }
+  if ($level == 0) { return 0; } # avoid 2**(-1)
+  return 2**($level-1) - $self->_UNDOCUMENTED_level_to_line_boundary($level) / 4;
+}
+*_UNDOCUMENTED_level_to_doubled_points = \&_UNDOCUMENTED_level_to_enclosed_area;
+
+{
+  my @_UNDOCUMENTED_level_to_single_points = (2,3,5);
+  sub _UNDOCUMENTED_level_to_single_points {
+    my ($self, $level) = @_;
+    if ($level < 0) { return undef; }
+    if ($level <= 2) { return $_UNDOCUMENTED_level_to_single_points[$level]; }
+    if (is_infinite($level)) { return $level; }
+
+    my $l0 = 3;
+    my $l1 = 5;
+    my $l2 = 9;
+    foreach (4 .. $level) {
+      ($l2,$l1,$l0) = ($l2 + 2*$l0, $l2, $l1);
+    }
+    return $l2;
+  }
+}
+
+{
+  my @_UNDOCUMENTED_level_to_enclosed_area_join = (0,0,0,1);
+  sub _UNDOCUMENTED_level_to_enclosed_area_join {
+    my ($self, $level) = @_;
+    if ($level < 0) { return undef; }
+    if ($level <= 3) { return $_UNDOCUMENTED_level_to_enclosed_area_join[$level]; }
+    if (is_infinite($level)) { return $level; }
+
+    my ($j0,$j1,$j2,$j3) = @_UNDOCUMENTED_level_to_enclosed_area_join;
+    $j3 += $level*0;
+    foreach (4 .. $level) {
+      ($j3,$j2,$j1,$j0) = (2*$j3 - $j2 + 2*$j1 - 2*$j0,  $j3, $j2, $j1);
+    }
+    return $j3;
+  }
+}
+
+#------------------------------------------------------------------------------
+# points visited
+
+{
+  my @_UNDOCUMENTED_level_to_visited = (2, 3, 5, 9, 16);
+  sub _UNDOCUMENTED_level_to_visited {
+    my ($self, $level) = @_;
+
+    if ($level < 0) { return undef; }
+    if ($level <= $#_UNDOCUMENTED_level_to_visited) { return $_UNDOCUMENTED_level_to_visited[$level]; }
+    if (is_infinite($level)) { return $level; }
+
+    my ($p0,$p1,$p2,$p3,$p4) = @_UNDOCUMENTED_level_to_visited;
+    foreach (5 .. $level) {
+      ($p4,$p3,$p2,$p1,$p0) = (4*$p4 - 5*$p3 + 4*$p2 - 6*$p1 + 4*$p0,  $p4, $p3, $p2, $p1);
+    }
+    return $p4;
+  }
+}
+
 1;
 __END__
 
@@ -726,7 +899,7 @@ This is the dragon or paper folding curve by Heighway, Harter, et al.
 The curve visits "inside" X,Y points twice.  The first of these is X=-2,Y=1
 which is N=7 and also N=11.  The segments N=6,7,8 and N=10,11,12 have
 touched, but the path doesn't cross itself.  The doubled vertices are all
-like this, touching but not crossing, and no edges repeating.
+like this, touching but not crossing and no edges repeating.
 
 =head2 Arms
 
@@ -842,8 +1015,8 @@ across.
     Lmin = - (2^k - 1)/3 if k even
            - (2^k - 2)/3 if k odd
 
-    Wmax = (2*2^k - 1) / 3 if k even
-           (2*2^k - 2) / 3 if k odd
+    Wmax = (2*2^k - 2) / 3 if k even
+           (2*2^k - 1) / 3 if k odd
 
     Wmin = Lmin
 
@@ -942,7 +1115,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::DragonCurve-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::DragonCurve-E<gt>new (arms =E<gt> 4)>
+=item C<$path = Math::PlanePath::DragonCurve-E<gt>new (arms =E<gt> $int)>
 
 Create and return a new path object.
 
@@ -963,13 +1136,15 @@ Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
 The curve visits an C<$x,$y> twice for various points (all the "inside"
-points).  In the current code the smaller of the two N values is returned.
-Is that the best way?
+points).  The smaller of the two N values is returned.
 
 =item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
 
-Return a list of N point numbers for coordinates C<$x,$y>.  There may be up
-to two Ns for a given C<$x,$y>.
+Return a list of N point numbers for coordinates C<$x,$y>.
+
+The origin 0,0 has C<arms_count()> many N since it's the starting point for
+each arm.  Other points have up to two Ns for a given C<$x,$y>.  If arms=4
+then every C<$x,$y> has exactly two Ns.
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -1025,7 +1200,7 @@ then
     if arm(T) < arms_count()            yes
 
 This works because when two arms touch they approach and leave by a right
-angle, they don't cross.  So two opposite segments S and T identify the two
+angle, without crossing.  So two opposite segments S and T identify the two
 possible arms coming to the X,Y point.
 
            |
@@ -1070,11 +1245,11 @@ This z bit can be picked out with some bit twiddling
     $z = $n & ($mask << 1);    # the bit above it
     $turn = ($z == 0 ? 'left' : 'right');
 
-This sequence is mentioned too in Knuth volume 2 "Seminumerical Algorithms"
-answer to section 4.5.3 question 41 as the "dragon sequence".  It's
+This sequence is in Knuth volume 2 "Seminumerical Algorithms" answer to
+section 4.5.3 question 41 and is called the "dragon sequence".  It's
 expressed there recursively as
 
-    d(0) = 1       # unused, the first turn being at N=1
+    d(0) = 1       # unused, since first turn at N=1
     d(2N) = d(N)   # shift down looking for low 1-bit
     d(4N+1) = 0    # bit above lowest 1-bit is 0
     d(4N+3) = 1    # bit above lowest 1-bit is 1
@@ -1152,13 +1327,13 @@ curve direction south to N=10 (as can be seen in the diagram above).
              so three left turns for direction south
 
 The transitions can also be viewed as a count of how many runs of contiguous
-0s or 1s,
+0s or 1s, up to the highest 1-bit.
 
     1 00 1   three blocks of 0s and 1s
 
-X<Arndt, Jorg>This can be calculated by some bit twiddling with a shift and
-xor to turn transitions into 1-bits which can then be counted, as noted by
-Jorg Arndt (fxtbook section 1.31.3.1 "The Dragon Curve").
+X<Arndt, Jorg>X<fxtbook>This can be calculated by some bit twiddling with a
+shift and xor to turn transitions into 1-bits which can then be counted, as
+per Jorg Arndt (fxtbook section 1.31.3.1 "The Dragon Curve").
 
     total turn = count_1_bits ($n ^ ($n >> 1))
 
@@ -1175,7 +1350,7 @@ plus 1.  For example,
 =head2 N to dX,dY
 
 C<n_to_dxdy()> is the "total turn" per above, or for fractional N then an
-offset according to the "next turn" above.  If you've got the bit twiddling
+offset according to the "next turn" above.  If using the bit twiddling
 operators described then the two can be calculated separately.
 
 The current C<n_to_dxdy()> code tries to support floating point or other
@@ -1188,36 +1363,17 @@ The state encodes
     previous bit     0 or 1  (the bit above the current bit)
 
 The "next turn" remembers the bit above lowest 0 seen so far (or 0
-initially).  The "total turn" counts 0-E<gt>1 or 1-E<gt>0 transitions.  For
-both the "previous bit" shows when there's a transition, or what bit is
-above when a 0 is seen.  It also works not to have this held in the state
-but instead pick out a bit and the one above it each time.
+initially).  The "total turn" counts 0-E<gt>1 or 1-E<gt>0 transitions.  The
+"previous bit" shows when there's a transition, or what bit is above when a
+0 is seen.  It also works not to have this previous bit in the state but
+instead pick out two bits each time.
 
 At the end of bit processing any "previous bit" in state is no longer needed
 and can be masked out to lookup the final four dx, dy, next dx, next dy.
 
-=head2 Boundary Length
+=head2 Boundary Parts
 
-The boundary length of the curve N=0 to N=2^k inclusive is given by a recurrence relation
-
-    B[k+4] = 2*B[k+3] - B[k+2] + 2*B[k+1] - 2*B[k]    for k >= 0
-    starting B[0] =  2
-             B[1] =  4
-             B[2] =  8
-             B[3] = 16
-    2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036, ...
-
-=cut
-
-# k=0 recurrence 2*16 - 8 + 2*4 - 2*2 = 28  yes
-
-=pod
-
-The first few boundary lengths double with N=2^k but when the curve begins
-to touch itself the boundary is less than 2x.  This happens at B[4]=28
-onwards.
-
-The boundary formula can be obtained by taking the curve in five types of
+Boundary lengths can be obtained by taking the curve in five types of
 section,
 
                   R                           initial values
@@ -1232,24 +1388,40 @@ section,
                      0 ---> 1
                         R
 
-L and R are the left and right sides of the curve so the total is
+L and R are the left and right sides of the curve.  The other parts T, U and
+V are because the points measured must be on the boundary.  The way the
+curve touches itself within the "U" part means only 0 and 3 are on the left
+boundary and so a measurement must be made between those only.  Similarly T
+and V.
 
-    total boundary  B[k] = L[k] + R[k]
+The arrowheads drawn show the direction of the curve sub-sections for
+replication.  Sections U and V have different directions and are not the
+same.  If rotated to upright then U has endpoint positions odd,even whereas
+V is even,odd (where odd or even is reckoned by N position along the curve
+and which is also odd or even of the sum X+Y).
 
-The other parts T, U and V are because the points measured from must be on
-the boundary.  The way the curve touches itself within the "U" part means
-only 0 and 3 are on the left boundary and so a measurement must be made
-between those only.  Similarly T and V.
-
-The arrowheads drawn show the direction of the curve section in its
-replication.  Sections U and V have different directions within their "U"
-shape and so are not the same.  If rotated to upright then U has positions
-odd,even whereas V is even,odd,
-
-    even odd  even odd      odd even
-      8   5     0   3        3   6
+    even odd  even odd      odd even          U=even,odd
+      8   5     0   3        3   6            V=odd,even
       | U |     | U |        | V |
       7---6     1---2        4---5
+
+Right-angle boundary points remain boundary points as the curve expands.  In
+the following picture curves ja and jb meet at point j.  When they replicate
+as ac and bd respectively the width and height of those is at most 2/3 of
+the length and so too small to touch j.
+
+                    c
+                    |
+                    |
+    a------j        a------j        ab and cd don't touch j
+           |               |
+           |               |
+           b        d------b
+
+The same applies if j is on the left boundary.  The ac,bd parts are always
+too small to reach back and touch or surround j.  So in the picture above
+the boundary points 0 to 8 remain boundary points when the curve doubles to
+the next replication level.
 
 The curve expands from 8 sections to 16 sections in the following pattern.
 (Drawn here turned 45-degrees to stay horizontal and vertical.)
@@ -1325,7 +1497,7 @@ The curve expands from 8 sections to 16 sections in the following pattern.
 
 It can be seen R -> R+L, L -> T, T -> U+R, U -> U+V, and V->T.  For V (3 to
 6) the curve touches itself and so closes off some boundary leaving just T.
-The effect is that the V values are V[0]=3 and thereafter the T values
+The effect is that the V values are V[0]=3 and thereafter the T values,
 V[1]=T[0], V[2]=T[1], etc.
 
 These expansions can be written as recurrences
@@ -1336,67 +1508,12 @@ These expansions can be written as recurrences
     U[k+1] = U[k] + V[k]
     V[k+1] = T[k]
 
-L[k+1]=T[k] and V[k+1]=T[k] so L[k]=V[k] for kE<gt>=1.  Replace V by L to
-eliminate V.  This is only for kE<gt>=1 since for k=0 L[0]=1 and V[0]=3 are
-not equal.
+Some matrix manipulation can isolate each in terms of others, or as a
+recurrence in itself.  But it's easy enough to take the equations directly.
 
-    R[k+1] = R[k] + L[k]           for k >= 1
-    L[k+1] = T[k]
-    T[k+1] = R[k] + U[k]
-    U[k+1] = U[k] + L[k]
+=head2 Left Boundary
 
-Then replace T[k] by L[k+1] to eliminate T.  (The resulting
-L[k+1]=R[k-1]+U[k-1] is also two expansions of the left side, as shown
-further below.)
-
-    R[k+1] = R[k] + L[k]           for k >= 1
-    L[k+1] = R[k-1] + U[k-1]
-    U[k+1] = U[k] + L[k]
-
-The second equation gives U[k-1]=L[k+1]-R[k-1].  Substitute that twice into
-the third equation to eliminate U,
-
-    R[k+1] = R[k] + L[k]                      for k >= 1
-    L[k+3]-R[k+1] = L[k+2]-R[k] + L[k]
-
-Finally the first equation gives L[k]=R[k+1]-R[k] which eliminates L from
-the second.  The result is a fourth-order recurrence for R
-
-    R[k+4] = 2*R[k+3] - R[k+2] + 2*R[k+1] - 2*R[k]     k >= 1
-    starting R[0] =  1
-             R[1] =  2
-             R[2] =  4
-             R[3] =  8
-             R[4] = 16
-    1, 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036, ...
-
-The recurrence is only for kE<gt>=1 as noted.  At k=0 it would give R[4]=14
-but that's incorrect, N=0 to N=16 has right side boundary R[4]=16.
-
-=cut
-
-# k=0 recurrence 2*8 - 4 + 2*2 - 2*1 = 14   no
-# k=1 recurrence 2*16 - 8 + 2*4 - 2*2 = 28  yes
-
-#  R[k+4]-R[k+3]-R[k+1] = R[k+3]-R[k+2]-R[k] + R[k+1]-R[k]
-
-=pod
-
-The total boundary B[k]=R[k]+L[k] is the same as R[k+1]=R[k]+L[k], so the
-total boundary is the same as the right side boundary of the next bigger
-level.  Because it's R[k+1] the recurrence for B given at the start of the
-section becomes for kE<gt>=0.
-
-    B[k] = R[k+1]         for k>=0
-         = 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, ...
-
-L can be obtained by by rearranging the R[k+4] recurrence to pair up
-R[k+1]-R[k].  (which is the boundary increment from k to k+1.)
-
-    R[k+4]-R[k+3] = R[k+3]-R[k+2] + 2*(R[k+1]-R[k])
-
-Then L[k]=R[k+1]-R[k] as from above gives a recurrence for L, this time a
-third-order.
+The left boundary length L is given by a recurrence
 
     L[k+3] = L[k+2] + 2*L[k]       for k >= 1
     starting L[0] = 1
@@ -1405,62 +1522,800 @@ third-order.
              L[3] = 8
     1, 2, 4, 8, 12, 20, 36, 60, 100, 172, 292, 492, 836, 1420, ...
 
-=cut
+                          (1 + x)*(1 + 2*x^2)
+    generating function   -------------------
+                             1 - x - 2*x^3
 
-# k=0 recurrence L[3] = 4 + 2*1 = 6   no
-# k=1 recurrence L[4] = 8 + 2*2 = 12  yes
+=for Test-Pari-DEFINE gL(x)=(1 + x)*(1 + 2*x^2) / (1 - x - 2*x^3)
 
-=pod
+=for Test-Pari-DEFINE gLplus1(x) = (gL(x)-1)/x    /* L[k+1] stripping first term */
 
-U can be obtained by eliminating L and R in a similar way to what was done
-for R above.  The result is the same recurrence as R but with different
-initial values.
+=for Test-Pari Vec(gL(x) - O(x^14)) == [1, 2, 4, 8, 12, 20, 36, 60, 100, 172, 292, 492, 836, 1420]
 
-    U[k+4] = 2*U[k+3] - U[k+2] + 2*U[k+1] - 2*U[k]     for k >= 1
-    starting U[0] =  3
-             U[1] =  6
-             U[2] =  8
-             U[3] = 12
-             U[4] = 20
-    3, 6, 8, 12, 20, 32, 52, 88, 148, 248, 420, 712, 1204, 2040, ...
+=for Test-Pari k=0; 4 + 2*1 != 8    /* not k=0 recurrence */
+
+=for Test-Pari k=1; 8 + 2*2 == 12
+
+=for Test-Pari (x^4 - 2*x^3 + x^2 - 2*x + 2) / (x^3 - x^2 - 2) == x-1
 
 =cut
 
-# k=0 recurrence U[4] = 2*12 - 8 + 2*6 - 2*3 = 22 no
-# k=1 recurrence U[5] = 2*20 - 12 + 2*8 - 2*6 = 32 yes
+# Left
+# g(x) - (x*g(x) + 2*x^3*g(x)) = 1 + (2-1)*x + (4-2)*x^2 + (8-6)*x^3
+# g(x) = (1 + (2-1)*x + (4-2)*x^2 + (8-6)*x^3) / (1 - x - 2*x^3)
+# g(x) = (1 + x + 2*x^2 + 2*x^3) / (1 - x - 2*x^3)
+# g(x) = (1 + x)*(1+2*x^2) / (1 - x - 2*x^3)
+# g(x) = 1 + (1 + x + 2*x^2 + 2*x^3 - 1 + x + 2*x^3) / (1 - x - 2*x^3)
+# g(x) = 1 + (2*x + 2*x^2 + 4*x^3) / (1 - x - 2*x^3)
+# g(x) = 1 + 2*x * (1 + x + 2*x^2) / (1 - x - 2*x^3)
+# g(x) = 1 + 2*x + 2*x * (1 + x + 2*x^2 - 1 + x + 2*x^3) / (1 - x - 2*x^3)
+# g(x) = 1 + 2*x + 4*x^2 * (1 + x + x^2) / (1 - x - 2*x^3)
+# g(x) = 1 + 2*x + 4*x^2 + 4*x^2 * (1 + x + x^2 - 1 + x + 2*x^3) / (1 - x - 2*x^3)
+# g(x) = 1 + 2*x + 4*x^2 + 4*x^2 * (2*x + x^2 + 2*x^3) / (1 - x - 2*x^3)
+# g(x) = 1 + 2*x + 4*x^2 + 4*x^3 * (2 + x + 2*x^2) / (1 - x - 2*x^3)
 
 =pod
 
-Or U can be obtained by considering a left side expansion U in terms of an
-L,R difference (and this is also in the substitutions made above).
+This is obtained from the equations above by first noticing L[k+1]=T[k] and
+V[k+1]=T[k] so L[k]=V[k] for kE<gt>=1, then substitute T[k+1]=R[k]+U[k] to
+eliminate T, leaving
 
-                                        *      4
+    R[k+1] = R[k] + L[k]
+    U[k+1] = U[k] + L[k]                     for k >= 1
+    L[k+1] = R[k-1] + U[k-1]
+           = R[k-2]+L[k-2] + U[k-2]+L[k-2]   for k >= 3
+           = R[k-2]+U[k-2]  + 2*L[k-2]
+    L[k+1] = L[k-1] + 2*L[k-2]               for k >= 3
+
+which is the recurrence for L above.  The generating function follows from
+the initial values.
+
+The way T[k]=L[k+1] is simply that two inward pointing sub-curves is the
+same as the left side.  T is reckoned as two segments, so this is L[k+1].
+
+                  2
+                  |
+    T[k]=L[k+1]   |
+                  v
+           0 ---> 1
+
+The recurrence can be seen directly in the expansion as follows.  The
+expanded 0 to 3 plus 7 to 8 are the same as the original 0 to 8.  In the
+middle is inserted two extra L[k+1].
+
+              * <--- 4       * <--- 2
+              ^      |       ^      |
+              |      |       |   V  |
+              |      v       |      v
+              5 ---> * <---- 3      * <--- 1
+                     ^                     |
+                     |  L[k+1]         U   |
+                     |                     v
+      8       * <--- 6              0 ---> *
+      |       ^
+    R |       |  L[k+1]
+      v       |
+      * <---  7          extra two L[k+1] on left side
+          L              so L[k+4] = L[k+3] + 2*L[k+1]
+
+The fact that L[k]=V[k] (for kE<gt>=1) is not quite obvious from the
+geometry of their definition, only from the way they expand.  L[0]=1 and
+V[0]=3 differ but thereafter they are the same.
+
+=head2 Right Boundary
+
+The right-side boundary length is given by a recurrence
+
+    R[k+4] = 2*R[k+3] - R[k+2] + 2*R[k+1] - 2*R[k]     k >= 1
+    starting R[0] =  1
+             R[1] =  2
+             R[2] =  4
+             R[3] =  8
+             R[4] = 16
+    = 1, 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036, ...
+
+                            1 + x^2 + 2*x^4
+    generating function  ---------------------
+                         (1 - x - 2*x^3)*(1-x)
+
+The recurrence is only for kE<gt>=1 as noted.  At k=0 it would give R[4]=14
+but that's incorrect, N=0 to N=2^4 has right side boundary R[4]=16.
+
+=for Test-Pari-DEFINE gR(x)=(1 + x^2 + 2*x^4) / ((1 - x - 2*x^3) * (1-x))
+
+=for Test-Pari-DEFINE gRplus1(x)=(gR(x)-1)/x  /* stripping first term so R[k+1] */
+
+=for Test-Pari gR(x) == 1 + x*((4+2*x+4*x^2)/(1-x-2*x^3) - 2/(1-x))
+
+=for Test-Pari gR(x) == 1 + 2*x*((2+x+2*x^2)/(1-x-2*x^3) - 1/(1-x))
+
+=for Test-Pari Vec(gR(x) - O(x^14)) == [1, 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036]
+
+=for Test-Pari k=0; 2*8 - 4 + 2*2 - 2*1 != 16  /* not k=0 recurrence */
+
+=for Test-Pari k=1; 2*16 - 8 + 2*4 - 2*2 == 28  /* yes */
+
+=cut
+
+#  R[k+4]-R[k+3]-R[k+1] = R[k+3]-R[k+2]-R[k] + R[k+1]-R[k]
+#
+# r(x) = 1 + x*g(x)
+# r(x) = (2*x + 2*x^3 + (1 - x - 2*x^3)*(1-x)) / ((1 - x - 2*x^3)*(1-x))
+# r(x) = (1 + x^2 + 2*x^4) / ((1 - x - 2*x^3)*(1-x))
+#      = 1 + x * (2 + 2*x^2) / ((1 - x - 2*x^3)*(1-x))
+# partial fractions
+# r(x) = (A+Bx+Cx^2)/(1 - x - 2*x^3) + D/(1-x)
+#  num = (A+Bx+Cx^2)*(1-x) + D*(1 - x - 2*x^3)
+#      = (A +D) + (B-A -D)*x + (C-B)*x^2 + (-C -2D)*x^3
+# matsolve([1,0,0,1; -1,1,0,-1; 0,-1,1,0; 0,0,-1,-2], [2;0;2;0])
+#
+# r(x) = 1 + x*(4 + 2*x + 4*x^2)/(1 - x - 2*x^3)
+
+=pod
+
+The recurrence can be had from the three equations above.  The second gives
+U[k-1]=L[k+1]-R[k-1].  Substitute that into the third to eliminate U,
+
+    R[k+1] = R[k] + L[k]
+    L[k+3]-R[k+1] = L[k+2]-R[k] + L[k]     for k >= 1
+
+Then the first equation is L[k]=R[k+1]-R[k] and substitute that to
+eliminate L.  The result is the fourth-order recurrence for R above.  The
+generating function follows from it in the usual way.
+
+=head2 Right Boundary by Summation
+
+The right boundary is a cumulative left boundary, as per R[k+1]=R[k]+L[k]
+above.  Substituting repeatedly gives
+
+                                                      i=k-1
+    R[k] = L[k-1] + L[k-2] + ... + L[0] + R[0] = 1 + sum  L[i]
+     for k>=0                                         i=0
+     empty sum if k=0
+
+The usual ways to sum a linear recurrence give the same fourth-order as
+above.  The generating function follows from the summation too by
+multiplying x/(1-x) in the usual way to sum to term k-1, then add 1/(1-x)
+for +1.
+
+             x           1
+    gR(x) = ---*gL(x) + ---
+            1-x         1-x
+
+=for Test-Pari gR(x) ==  x*(1/(1-x) * gL(x)) + 1/(1-x)
+
+The summation arises from the repeated curve unfoldings.  Each unfold copies
+the left side to the right side.  So when level 0 unfolds it puts an L[0]
+onto the right.  Then level 1 expands and copies L[1] onto the right, and so
+on up to L[k].  This doesn't say anything about the nature of L though.
+
+              L[k-2]
+           *----------*             section endpoints on
+   L[k-1] /            \            45-degree angles as
+         /              ...         per "Level Angle" above
+        /                *
+       *                 | L[0]
+       |              *--*
+  L[k] |              R[0]
+       |
+       *
+
+=head2 Total Boundary
+
+The total boundary is a left and a right,
+
+    B[k] = L[k] + R[k]
+         = R[k+1]       for k>=0
+         = 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, ...
+
+                               2 + 2*x^2
+    generating function   ---------------------
+                          (1 - x - 2*x^3)*(1-x)
+
+                              / 2 + x + 2*x^2     1  \
+                          = 2*| -------------- - --- |
+                              \ 1 - x - 2*x^3    1-x /
+
+B[k]=R[k+1] is from the R[k+1]=R[k]+L[k] above, representing one more
+unfolding.  The first term is dropped from the generating function of R and
+that simplifies the numerator.
+
+=for Test-Pari-DEFINE gB(x)=(2 + 2*x^2) / ((1 - x - 2*x^3) * (1-x))
+
+=for Test-Pari gB(x) == gRplus1(x)
+
+=for Test-Pari gB(x) == 2*((2 + x + 2*x^2)/(1-x-2*x^3) - 1/(1-x))
+
+=for Test-Pari Vec(gB(x) - O(x^13)) == [2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036]
+
+=for Test-Pari k=0; 2*16 - 8 + 2*4 - 2*2 == 28
+
+All the boundary lengths start by doubling with N=2^k but when the curve
+begins to touch itself the boundary is then less than double.  For B this
+happens at B[4]=28 onwards.
+
+The characteristic equation of the recurrence for B and for R is
+
+    x^4 - 2*x^3 + x^2 - 2*x + 2 = (x^3 - x^2 - 2) * (x-1)
+
+=for Test-Pari x^4 - 2*x^3 + x^2 - 2*x + 2 == (x^3 - x^2 - 2) * (x-1)
+
+The real root of the cubic can be had from the usual formula as a cube root
+of a square root.  The root is approximately equal to 1.69562 and this shows
+how B grows,
+
+    B[k] = approx 3.6 * 1.69562^k
+
+=cut
+
+# characteristic equation x^3 - x^2 - 2 = 0
+# real root D^(1/3) + (1/9)*D^(-1/3) + 1/3 = 1.6956207695598620
+# where D=28/27 + (1/9)*sqrt(29*3) = 28/27 + sqrt(29/27)
+# per Chang and Zhang
+
+# polroots(x^4 - 2*x^3 + x^2 - 2*x + 2)
+# x^3 + px + q = 0
+# x = cbrt(q/2 + sqrt(p^3/27 + q^2/4)) + cbrt(q/2 - sqrt(p^3/27 + q^2/4))
+#
+# change of variable x=y+1/3; x^3 - x^2 - 2
+# y^3 - 1/3*y - 56/27 = 0
+# p = -1/3; q=-56/27
+# y = (-28/27 + sqrt(29/27))^(1/3) + (-28/27 - sqrt(29/27))^(1/3)
+# x = 1/3 + ...
+
+=pod
+
+=head2 U Boundary
+
+U from the boundary parts above is
+
+    U[k] = /  3          for k=0
+           \  R[k] + 4   for k>=1
+         = 3, 6, 8, 12, 20, 32, 52, 88, 148, 248, 420, 712, 1204, ...
+
+                          3 - x^2 - 4*x^3 - 2*x^4
+    generating function   -----------------------
+                           (1 - x - 2*x^3)*(1-x)
+
+=for Test-Pari-DEFINE gU(x)=(3 - x^2 - 4*x^3 - 2*x^4) / ((1 - x - 2*x^3)*(1-x))
+
+=for Test-Pari-DEFINE gUplus1(x)=(gU(x)-3)/x  /* skipping first term */
+
+=for Test-Pari-DEFINE gOnes(x)=1/(1-x) /* 1,1,1,1,1,1,etc */
+
+=for Test-Pari gUplus1(x) == gRplus1(x) + 4*gOnes(x)  /* skipping first term each */
+
+=for Test-Pari Vec(gU(x) - O(x^14)) == [3, 6, 8, 12, 20, 32, 52, 88, 148, 248, 420, 712, 1204, 2040]
+
+=for Test-Pari k=0; 2*12 - 8 + 2*6 - 2*3 != 20    /* not k=0 recurrence */
+
+=for Test-Pari k=1; 2*20 - 12 + 2*8 - 2*6 == 32
+
+U is a summation of L as per the equation U[k+1]=U[k]+L[k] for k>=1.
+
+                                                      i=k
+    U[k+1] = L[k] + L[k-1] + ... + L[1] + U[1] = 6 + sum  L[i]
+     for k>=1                                         i=1
+
+So U is the same summation as R except for different fixed term U[1]=6
+whereas R[1]=2, hence U[k]=R[k]+4, except not at U[0] as the summation does
+not apply there.  It's also possible to do the substitutions made for R in
+L</Right Boundary> to get U directly from the three equations.
+
+U can also be obtained by considering the left side of a 2-level expansion,
+giving U as an L,R difference.  This is also in the substitution formulas
+above.
+
+                                        4      4
     L[k+2] = U[k] + R[k]                |      |
                                         |    R |
-    so                           R[k+2] |      v
+    so                           L[k+2] |      v
                                         |      3 <--- 2
     U[k] = L[k+2] - R[k]                |             |
                                         |          U  |
                                         v             v
-                                        *      0 ---> 1
+                                        0      0 ---> 1
 
 =cut
 
-  # R[k+1] = R[k] + L[k]
-  # L[k+1] = R[k-1] + U[k-1]        R[k-1] = L[k+1]-U[k-1]
-  # U[k+1] = U[k] + L[k]            L[k] = U[k+1]-U[k]
-  #
-  # L[k+3]-U[k+1] = L[k+2]-U[k] + L[k]
-  # U[k+4]-U[k+3] -U[k+1] = U[k+3]-U[k+2] -U[k] + U[k+1]-U[k]
-  # U[k+4] = U[k+3] U[k+1] + U[k+3]-U[k+2] -U[k] + U[k+1]-U[k]
-  # U[k+4] = 2*U[k+3] - U[k+2] + 2*U[k+1] - 2*U[k]
-  #
-  # R[k+4] = 2*R[k+3] - R[k+2] + 2*R[k+1] - 2*R[k]
+# R[k+1] = R[k] + L[k]
+# L[k+1] = R[k-1] + U[k-1]        R[k-1] = L[k+1]-U[k-1]
+# U[k+1] = U[k] + L[k]            L[k] = U[k+1]-U[k]
+#
+# L[k+3]-U[k+1] = L[k+2]-U[k] + L[k]
+# U[k+4]-U[k+3] -U[k+1] = U[k+3]-U[k+2] -U[k] + U[k+1]-U[k]
+# U[k+4] = U[k+3] U[k+1] + U[k+3]-U[k+2] -U[k] + U[k+1]-U[k]
+# U[k+4] = 2*U[k+3] - U[k+2] + 2*U[k+1] - 2*U[k]
+#
+# R[k+4] = 2*R[k+3] - R[k+2] + 2*R[k+1] - 2*R[k]
 
 =pod
 
+=head2 U Total Boundary
+
+The U shape is a kind of one-and-a-half dragon, as if a dragon curve plus a
+further half dragon.  The U[k] quantity is its left side.  The right side
+and total can be calculated too.
+
+       3 <---- 2
+               |     U shape 1+1/2 dragon
+               v
+       0 ----> 1
+
+The right side of this is
+
+    RU[k] = R[k] + R[k+1]
+          = 3, 6, 12, 24, 44, 76, 132, 228, 388, 660, 1124, ...
+
+                          3 + 3*x^2 + 2*x^4
+    generating function  --------------------
+                         (1 - x - 2*x^3)*(1-x)
+
+=for Test-Pari-DEFINE gRU(x)=(3 + 3*x^2 + 2*x^4) / ((1 - x - 2*x^3)*(1-x))
+
+=for Test-Pari gRU(x) == gR(x)+gRplus1(x)
+
+=for Test-Pari Vec(gRU(x) - O(x^11)) == [3, 6, 12, 24, 44, 76, 132, 228, 388, 660, 1124]
+
+And the total is
+
+    BU[k] = U[k] + RU[k]
+          = /  6                     for k=0
+            \  2*R[k] + R[k+1] + 4   for k>=1
+          = 6, 12, 20, 36, 64, 108, 184, 316, 536, 908, 1544, ...
+
+                          2*(3 + x^2 - 2*x^3)
+    generating function  ---------------------
+                         (1 - x - 2*x^3)*(1-x)
+
+=for Test-Pari-DEFINE gBU(x)=2*(3 + x^2 - 2*x^3) / ((1 - x - 2*x^3)*(1-x))
+
+=for Test-Pari gBU(x) == gU(x)+gRU(x)
+
+=for Test-Pari Vec(gBU(x) - O(x^11)) == [6, 12, 20, 36, 64, 108, 184, 316, 536, 908, 1544]
+
+=head2 Area from Boundary
+
+The area enclosed by the dragon curve from 0 to N is related to the boundary by
+
+    A[N] = N/2 - B[N]/4
+
+At all times the curve has all "inside" line segments traversed exactly once
+so that each unit area has all four sides traversed.  If there was ever an
+area enclosed bigger than a single unit then the curve would have to cross
+itself to traverse the inner lines to produce the "all inside segments
+traversed" pattern of the replications and expansions.
+
+Imagine each line segment as a diamond shape made from a right triangle of
+area 1/4 on each of the two sides.
+
+      *
+     / \         2 triangles
+    0---1        one each side of line segment
+     \ /         each triangle area 1/4
+      *
+
+If a line segment is on the curve boundary then its outside triangle should
+not count towards the area enclosed, so subtract 1 for each unit boundary
+length.  If a segment is both a left and right boundary, such as the initial
+N=0 to N=1 then it counts 2 to B[N] which makes its area 0 which is as
+desired.  So
+
+    triangles = 2*N - B[N]
+
+The triangles are area 1/4 each so
+
+    A[N] = triangles*1/4 = N/2 - B[N]/4
+
+=cut
+
+# four segments to make unit square, but internal segs count twice
+# NonBoundary = N-B
+# A = (N + N-B)/4 = N/2-B/4
+# but what of isolated boundary segs not part of a unit square ???
+
+=pod
+
+=head2 Area
+
+The area enclosed by the dragon curve N=0 to N=2^k can thus be calculated
+from the boundary recurrence B[k] as
+
+    A[k] = 2^(k-1) - B[k]/4
+         = 0, 0, 0, 0, 1, 4, 11, 28, 67, 152, 335, 724, 1539, ...
+
+    A[k+5] = 4*A[k+4] - 5*A[k+3] + 4*A[k+2] - 6*A[k+1] + 4*A[k]
+    starting A[0]=A[1]=A[2]=A[3]=0
+             A[4]=1
+                                    x^4
+    generating function  -----------------------------
+                         (1 - x - 2*x^3)*(1-x)*(1-2*x)
+
+=for Test-Pari-DEFINE gA(x)=x^4 / ((1 - x - 2*x^3)*(1-x)*(1-2*x))
+
+=for Test-Pari-DEFINE gAplus1(x)=gA(x)/x     /* A[k+1] skipping first term */
+
+=for Test-Pari Vec(gA(x) - O(x^13)) == [1, 4, 11, 28, 67, 152, 335, 724, 1539]
+/* no leading zeros from Vec() */
+
+=for Test-Pari-DEFINE gTwoPow(x)=1/(1-2*x) /* 1,2,4,8,16,32,etc */
+
+=for Test-Pari gA(x) == gTwoPow(x)/2 - gB(x)/4
+
+=cut
+
+# area
+# b(x) = (2 + 2*x^2) / ((1 - x - 2*x^3)*(1-x))
+# p(x) = 1/2 / (1-2*x)    for 2^(n-1)
+# g(x) = p(x) - b(x)/4
+# g(x) = 1/2 / (1-2*x) - 1/4 * (2 + 2*x^2) / ((1 - x - 2*x^3)*(1-x))
+# g(x) = x^4 / ((1 - x - 2*x^3)*(1-x)*(1-2*x))
+
+=pod
+
+=cut
+
+# B[k] = 2*2^k - 4*A[k]
+# B[k+4] = 2*B[k+3] - B[k+2] + 2*B[k+1] - 2*B[k]    for k >= 0
+# 2*16*2^k - 4*A[k+4] = 2*(2*8*2^k - 4*A[k+3]) - (2*4*2^k - 4*A[k+2]) + 2*(2*2*2^k - 4*A[k+1]) - 2*(2*2^k - 4*A[k])
+#   32*2^k - 4*A[k+4] =     32*2^k - 8*A[k+3]  -    8*2^k + 4*A[k+2]  +      8*2^k - 8*A[k+1]  - 4*2^k + 4*A[k]
+#            4*A[k+4] =            + 8*A[k+3]             - 4*A[k+2]               + 8*A[k+1]  + 4*2^k - 4*A[k]
+#              A[k+4] =              2*A[k+3]             -   A[k+2]               + 2*A[k+1]  - A[k] + 2^k
+
+=pod
+
+The recurrence form is the usual way to work a power into an existing linear
+recurrence.  Or it can be obtained from the generating function which uses
+1/(1-2x) to get 2^k to subtract from.  The characteristic equation has a new
+factor (x-2) for 2 as a new root, and generating function denominator (1-2x)
+similarly.
+
+    x^5 - 4*x^4 + 5*x^3 - 4*x^2 + 6*x^1 - 4
+    = (x^3 - x^2 - 2) * (x-1) * (x-2)
+
+=for Test-Pari x^5 - 4*x^4 + 5*x^3 - 4*x^2 + 6*x^1 - 4 == (x^3 - x^2 - 2) * (x-1) * (x-2)
+
+=head2 Join Area
+
+When the dragon curve doubles out from N=2^k to N=2^(k+1) the two copies
+enclose the same area each, plus where they meet encloses a further join
+area.  This can be calculated as a difference
+
+     JA[k] = A[k+1] - 2*A[k]      join area when N=2^k doubles
+
+Using the A[k] area formula above gives JA[k] with the same recurrence as
+the boundary formula but different initial values.  In the generating
+function the 1-2*x term in A[k] is eliminated.
+
+     JA[k+4] = 2*JA[k+3] - JA[k+2] + 2*JA[k+1] - 2*JA[k]   k >= 0
+     starting J[0] = 0
+              J[1] = 0
+              J[2] = 0
+              J[3] = 1
+     1, 2, 3, 6, 11, 18, 31, 54, 91, 154, 263, 446, 755, 1282, 2175, ...
+
+                                  x^3
+    generating function  ---------------------
+                         (1 - x - 2*x^3)*(1-x)
+
+=for Test-Pari-DEFINE gJA(x)=x^3 / ((1 - x - 2*x^3)*(1-x))
+
+=for Test-Pari gJA(x) == gA(x)/x - 2*gA(x)         /* A[k+1] - 2*A[k] */
+
+=for Test-Pari Vec(gJA(x) - O(x^18)) == [1, 2, 3, 6, 11, 18, 31, 54, 91, 154, 263, 446, 755, 1282, 2175]
+/* no leading zeros from Vec() */
+
+The B[k]=R[k+1] and difference L[k]=R[k+1]-R[k] from L</Boundary Length>
+above also give
+
+     JA[k] = (R[k+1] - L[k+1])/4
+
+=for Test-Pari gJA(x) == gB(x)/2 - (gB(x)-2)/x/4   /* B[k]/2 - B[k+1]/4 */
+
+=for Test-Pari gJA(x) == (gRplus1(x) - gLplus1(x))/4
+
+The geometric interpretation of this difference form is that if the two
+copies of the curve did not touch at all then their boundary would be
+2*(R[k]+L[k]) = 2*R[k+1].  But the doubled-out boundary is in fact only
+R[k+1]+L[k+1] so the shortfall is
+
+    2*R[k+1] - (R[k+1]+L[k+1]) = R[k+1] - L[k+1]
+
+Then each unit area of join has 4 sides worth of boundary, hence divide by 4
+to JA[k] = (R[k+1]-L[k+1])/4.
+
+=cut
+
+# JoinArea = A[k+1] - 2*A[k]
+#          = 2^(k+1-1) - B[k+1]/4 - 2*(2^(k-1) - B[k]/4)
+#          = 2^k - B[k+1]/4 - (2^k - B[k]/2)
+#          = B[k]/2 - B[k+1]/4
+#          = (2*B[k] - B[k+1])/4
+#          = (B[k] - (B[k+1] - B[k]))/4
+#          = (R[k+1] - (R[k+2] - R[k+1]))/4
+#          = (R[k+1] - L[k+1])/4
+#
+# JA[k] = (2*B[k] - B[k+1])/4
+#       = 2*(2*B[k-1] - B[k-2] + 2*B[k-3] - 2*B[k-4])
+#         - (2*B[k-0] - B[k-1] + 2*B[k-2] - 2*B[k-3])  / 4
+
+=pod
+
+=head2 Double Points from Area
+
+The number of double-visited points is the same as the area enclosed for
+any N.
+
+    Doubled[N] = Area[N]          points 0 to N inclusive
+
+When a new line segment goes to an otherwise unvisited point it does not
+enclose new area and does not newly double a point.
+
+When a line segment does touch an existing point it creates a new doubled
+point and encloses a new unit square area.  As per L</Area by Boundary>
+above the curve only ever closes a single unit square at a time, never a
+bigger area.
+
+=head2 Single Points from Boundary
+
+The number of single-visited points for any N is given by
+
+    Single[N] = Boundary[N]/2 + 1
+
+The single start point N=0 is Single[N]=1 and Boundary[N]=0.  Thereafter
+when a new line segment goes to an otherwise unvisited point it creates 1
+new single and 2 new boundary, maintaining the relation.
+
+When a line segment does touch an existing point that point must be a
+single.  It cannot be a double since no point is visited three times.  So a
+single point becomes a new double, so single count -1.  The following
+picture shows how the boundary is a net -2, maintaining the relation above.
+
+     S <---*   new segment enclose 3 boundary
+     |     |               create 1 new boundary
+     |     |               net -2 boundary
+     *-----*   single point S becomes double, so singles -1
+
+All points are either singles or doubles and the total is
+
+    N+1 = Single[N] + 2*Double[N]         points 0 to N inclusive
+
+So the singles can also be obtained from Double[N]=Area[N] and
+Area[N]=N/2-B[N]/4 above.
+
+    Single[N] = N+1 - 2*Double[N]
+              = N+1 - 2*Area[N]
+              = N+1 - 2*(N/2 - B[N]/4)
+              = 1 + B[N]/2
+
+=head2 Single Points
+
+The singles for N=0 to N=2^k inclusive from the boundary is
+
+    S[k] = 2^k + 1 - 2*(2^(k-1) - B[k]/4)
+         = 1 + B[k]/2
+    = 2, 3, 5, 9, 15, 25, 43, 73, 123, 209, 355, 601, 1019, 1729, ...
+
+    S[k+3] = S[k+2] + 2*S[k]   for k >= 0
+    starting S[0] = 2
+             S[1] = 3
+             S[2] = 5
+                          2 + x + 2*x^2
+    generating function   -------------
+                          1 - x - 2*x^3
+
+=for Test-Pari k=0; 2*2 + 5 == 9
+
+=for Test-Pari k=1; 2*3 + 9 == 15
+
+=for Test-Pari-DEFINE gS(x)=(2 + x + 2*x^2)/(1 - x - 2*x^3)
+
+=for Test-Pari gS(x) == gOnes(x)+gB(x)/2
+
+=for Test-Pari Vec(gS(x) - O(x^14)) == [2, 3, 5, 9, 15, 25, 43, 73, 123, 209, 355, 601, 1019, 1729]
+
+This is the same recurrence as left boundary L[k] but with different initial
+values.  S[0] through S[4] inclusive are S[k]=2^k+1 since for kE<lt>=4 all
+points are singles.  But for k>=5 some points double so there are fewer
+singles.
+
+For the generating function the B[k]/2+1 cancels out the 2* and -1/(1-x) in
+the generating function of B (as per L</Total Boundary> above) leaving just
+the 1-x-2*x^3 denominator.
+
+=head2 Total Points
+
+The total number of distinct points visited by the curve from 0 to N inclusive is
+
+      P[N] = Single[N] + Doubled[N]
+           = N+1 - Doubled[N]
+           = N+1 - A[N]
+
+For points N=0 to N=2^k inclusive the recurrence for A gives
+
+      P[k] = 2^(k-1) + 1 + B[k]/4
+           = 4*P[k-1] - 5*P[k-2] + 4*P[k-3] - 6*P[k-4] + 4*P[k-5]   k>=5
+      starting P[0] =  2
+               P[1] =  3
+               P[2] =  5
+               P[3] =  9
+               P[4] = 16
+      = 2, 3, 5, 9, 16, 29, 54, 101, 190, 361, 690, 1325, 2558, 4961, ...
+
+                           2 - 5*x + 3*x^2 - 4*x^3 + 5*x^4
+      generating function  -------------------------------
+                            (1 - x - 2*x^3)*(1-x)*(1-2*x)
+
+=for Test-Pari (1 - x - 2*x^3)*(1-x)*(1-2*x) == 1 - (4*x - 5*x^2 + 4*x^3 - 6*x^4 + 4*x^5)
+
+=for Test-Pari-DEFINE gP(x)=(2 - 5*x + 3*x^2 - 4*x^3 + 5*x^4)/((1 - x - 2*x^3)*(1-x)*(1-2*x))
+
+=for Test-Pari-DEFINE gPplus1(x) = (gP(x)-2)/x    /* P[k+1] strip first term */
+
+=for Test-Pari gP(x) == gS(x) + gA(x)
+
+=for Test-Pari gP(x) == gTwoPow(x)/2 + gOnes(x) + gB(x)/4
+
+=for Test-Pari gP(x) == gTwoPow(x)+gOnes(x) - gA(x)
+
+=for Test-Pari Vec(gP(x) - O(x^15)) == [2, 3, 5, 9, 16, 29, 54, 101, 190, 361, 690, 1325, 2558, 4961, 9658]
+
+=for Test-Pari k=5; 4*16 - 5*9 + 4*5 - 6*3 + 4*2 == 29
+
+=for Test-Pari k=6; 4*29 - 5*16 + 4*9 - 6*5 + 4*3 == 54
+
+=cut
+
+# Visit[k] = Double[k] + Single[k]
+# Visit[k] = Double[k] + 2^k+1 - 2*Double[k]
+# Visit[k] = 2^k+1 - Double[k]
+# Visit[k] = 2^k+1 - Area[k]
+# Visit[k] = 2^k+1 - (2^(k-1) - B[k]/4)
+# Visit[k] = 2^(k-1) + 1 + B[k]/4
+#
+# points visited
+#  Visit[k+1] = 2*Visit[k] - JoinPoints[k]
+#             = 2*V[k] + (- JP[k])
+#             = 2*V[k] + 2*(2*V[k-1]-JP[k-1]) - (2*V[k-2]-JP[k-2]) + 2*(2*V[k-3]-JP[k-3]) - 2*(2*V[k-4]-JP[k-4])
+#                   - 2*(   2*V[k-1]          -    V[k-2]          +    2*V[k-3]          -    2*V[k-4])
+#             = 2*V[k] + 2*V[k]               - V[k-1]             + 2*V[k-2]             - 2*V[k-3]
+#                         - 4*V[k-1]           + 2*V[k-2]             - 4*V[k-3]             + 4*V[k-4])
+#      V[k+1] = 4*V[k] - 5*V[k-1] + 4*V[k-2] - 6*V[k-3] + 4*V[k-4]
+#      same recurrence as area, diff start values
+#
+# (x^5 - 4*x^4 + 5*x^3 - 4*x^2 + 6*x - 4)
+#   = (x-1)*(x-2)*(x^3 - x^2 - 2)
+
+=pod
+
+This is the same recurrence as the area but with different starting values.
+
+=head2 Join Points
+
+When the curve doubles the two copies have a certain number of join points
+in common.  This is given by
+
+    JP[k] = JA[k] + 1
+          = 2*JP[k-1] - JP[k-2] + 2*JP[k-3] - 2*JP[k-4]   k>=0
+    starting JP[0] = 1
+             JP[1] = 1
+             JP[2] = 1
+             JP[3] = 2
+    = 1, 1, 1, 2, 3, 4, 7, 12, 19, 32, 55, 92, 155, 264, 447, ...
+
+                             1 - x - x^3
+    generating function  ---------------------
+                         (1 - x - 2*x^3)*(1-x)
+
+=for Test-Pari-DEFINE gJP(x)=(1 - x - x^3) / ((1 - x - 2*x^3)*(1-x))
+
+=for Test-Pari gJP(x) == gJA(x) + gOnes(x)
+
+=for Test-Pari Vec(gJP(x) - O(x^15)) == [1, 1, 1, 2, 3, 4, 7, 12, 19, 32, 55, 92, 155, 264, 447]
+
+=cut
+
+# JP[k] = JA[k] + 1
+#       = 2*JA[k-1] - JA[k-2] + 2*JA[k-3] - 2*JA[k-4]   + 1
+#       = 2*(JA[k-1]+1) - (JA[k-2]+1) + 2*(JA[k-3]+1) - 2*(JA[k-4]+1)  +1-2+1-2+2
+# JP[k] = 2*JP[k-1] - JP[k-2] + 2*JP[k-3]- 2*JP[k-4]
+#
+# gJP(x) = x^3 / ((1 - x - 2*x^3)*(1-x))  +  1/(1-x)
+#        = (x^3 + 1 - x - 2*x^3) / ((1 - x - 2*x^3)*(1-x))
+#        = (1 - x - x^3) / ((1 - x - 2*x^3)*(1-x))
+
+=pod
+
+The initial values are 1 because the copies meet at their endpoints only.
+For example N=0to2 becomes N=0to4 and the point N=2 is the single join point
+between the copies.
+
+When a unit area of join is created, two points P and Q from the first and
+second copy touch.  As in the following picture P and Q might be either two
+right angles meeting, or a little U closed off.  In both cases the join
+takes 2 points from each of the two curve copies.
+
+        |                                |
+         \    second            first   /
+    --- P -----*                  *----- P ---
+       \       |                  |       /
+        |      |                  |      | second
+        |       \                 |       \
+        *----- Q ---              *----- Q ---
+    first     \                         \
+               |                         |
+
+The first join point is N=2^k itself, and thereafter each join area square
+adds 1 more join point.  So the total join points is
+
+    JP[k] = JA[k] + 1
+
+Substituting the recurrence for JA and noticing the recurrence coefficients
+add up to -1 so cancelling out the +1 means JP is the same boundary
+recurrence as in B but with yet further different initial values.
+
+The join points are pairs of singles in the previous level which have now
+become doubles, plus the N=2^k endpoint itself.  So JP[k] can be had from
+the newly formed doubles
+
+    JP[k] = 1 + Doubles[k+1] - 2*Doubles[k]
+
+which with Doubles[N]=Area[N] is the same as from JA[k].
+
+=for Test-Pari gJP(x) == gOnes(x) + gAplus1(x) - 2*gA(x)
+
+The join points can also be had from the total points.  If two copies of the
+curve did not touch at all then the total visited points would double.  The
+actual total visited is less and the shortfall is the join points.
+
+    JP[k] = 2*P[k] - P[k+1]       # total points shortfall on doubling
+
+=for Test-Pari gJP(x) == 2*gP(x) - gPplus1(x)
+
+=head2 Twin Dragons
+
+Two dragons placed head to tail mesh perfectly.  The second dragon is
+rotated 180 degrees and the two left sides match.
+
+             9----8    5---4
+             |    |    |   |
+            10--11,7---6   3---2
+                  |            |
+       16   13---12        0---1
+        |    |
+       15---14        14--15
+                       |   |      ^   second copy
+    1---0         12--13  16      |   rotated 180
+    |              |              |   left sides mesh
+    2---3     6---7,11-10             N=0 and N=16
+        |     |    |    |             head to tail
+        4-----5    8----9
+
+The meshing can be starting from an initial 1x1 square.
+
+                          1
+                         ^ ^
+                        /   \           twin dragon
+                      2      0,4        square N=0 to N=2
+    1<---0 2           \     /          each expanding
+    ^      |            v   v           to N=0 to N=4
+    |      |             3 3
+    |      v            ^   ^
+    2 0--->1           /     \
+                     4,0      2
+                        \   /
+                         v v
+                          1
+
+The arrows show the directions the subsequent expansion on the right.  The
+directions are per the odd/even point pattern and as the expansions above
+the enclosed square remains enclosed and all interior segments traversed
+precisely once, which means a perfect meshing.
+
+=head2 Other Formulas
+
 X<Chang, Angel>X<Zhang, Tianrong>A boundary calculation for the curve as a
-fractal of infinite descent can also be found in Chang and Zhang,
+fractal of infinite descent can be found in
 
 =over
 
@@ -1472,37 +2327,10 @@ L<http://stanford.edu/~angelx/pubs/dragonbound.pdf>
 
 =back
 
-=head2 Area
-
-The area enclosed by the dragon curve N=0 to N=2^k, written in terms of the
-boundary B[k], is
-
-    A[k] = 2^(k-1) - B[k]/4
-         = 0, 0, 0, 0, 1, 4, 11, 28, 67, 152, 335, 724, 1539, ...
-
-This can be calculated using the fact that each enclosed unit square has its
-four sides traversed precisely once each.  Imagine each line segment as a
-diamond shape made from two right triangles
-
-      *
-     / \         2 triangles each line segment
-    0---1
-     \ /
-      *
-
-If a line segment is on the curve boundary then the outside triangle does
-not count towards the area.  Subtract 1 for each of them.
-
-    triangles = 2*2^k - B[k]
-
-Four triangles make up a unit square, so
-
-    area[k] = triangles/4 = 2^(k-1) - B[k]/4
-
 =head1 OEIS
 
 The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences in
-various forms (and see C<DragonMidpoint> for its forms too),
+many forms (and see C<DragonMidpoint> for its forms too),
 
 =over
 
@@ -1532,24 +2360,33 @@ L<http://oeis.org/A014577> (etc)
     A007400     2*runlength
 
     A091072   N positions of the left turns, being odd part form 4K+1
-    A126937   points numbered like SquareSpiral (start N=0 and flip Y)
     A003460   turns N=1 to N=2^n-1 packed as bits 1=left,0=right
                 low to high, then written in octal
+    A126937   points numbered like SquareSpiral (start N=0 and flip Y)
 
     A146559   X at N=2^k, for k>=1, being Re((i+1)^k)
     A009545   Y at N=2^k, for k>=1, being Im((i+1)^k)
 
     A227036   boundary length N=0 to N=2^k
-                also boundary length of right side to N=2^(k+1)
-    A203175   boundary length left side N=0 to N=2^k
+                also right boundary length to N=2^(k+1)
+    A203175   left boundary length N=0 to N=2^k
                 also differences of total boundary
-    A003230   area enclosed N=0 to N=2^k
-    A003478    area differences (increments)
+
+    A003230   area enclosed N=0 to N=2^k, for k=4 up
+               same as double points
+    A003478   area increment, for k=4 up
+
+    A003479   join area between N=2^k replications
+    A077949   join area increments
+
+    A003476   single points N=0 to N=2^k inclusive
+                and initial 1 for N=0 to N=0
+    A164395   single points N=0 to N=2^k-1 inclusive, for k=4 up
 
 The numerous turn sequences differ only in having left or right represented
 as 0, 1, -1, etc, and possibly "extra" initial 0 or 1 at n=0 arising from
 the definitions and the first turn being at n=N=1.  The "next turn" forms
-begin at n=0 for the turn at N=1 and so are the turn at N=n+1.
+begin at n=0 for turn at N=1 and so are the turn at N=n+1.
 
 The run lengths A088431 and A007400 are from a continued fraction expansion
 of an infinite sum
@@ -1565,16 +2402,21 @@ sort of power sum,
 =over
 
 Jeffrey Shallit, "Simple Continued Fractions for Some Irrational Numbers",
+Journal of Number Theory, volume 11, 1979, pages 209-217.
+L<http://www.cs.uwaterloo.ca/~shallit/papers.html>
 L<http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps>
 
-=back
+(And which appears in Knuth "Art of Computer Programming", volume 2, section
+4.5.3 exercise 41.)
 
 =cut
 
-# Also in Knuth vol 2 section 4.5.3 exercise 41, from Jeffery Shallit's 1979
-# paper.
+# M. Kmosek, "Rozwiniecie niektorych liczb niewymiernych na ulamki lancuchowe", Master's
+# thesis, Uniwersytet Warszawski, 1979.  -- is that right?
 
 =pod
+
+=back
 
 The A126937 C<SquareSpiral> numbering has the dragon curve and square
 spiralling with their Y axes in opposite directions, as shown in its
@@ -1605,6 +2447,8 @@ L<Math::PlanePath::CCurve>,
 L<Math::PlanePath::AlternatePaper>
 
 L<http://rosettacode.org/wiki/Dragon_curve>
+
+=for comment http://wiki.tcl.tk/10745 recursive curves
 
 =head1 HOME PAGE
 

@@ -51,6 +51,525 @@ my @modules = (
 
                # module list begin
 
+               'MPeaks',
+               'MPeaks,n_start=0',
+               'MPeaks,n_start=37',
+
+               # Math::PlanePath::CellularRule::Two
+               'CellularRule,rule=14',  # left 2 cell line
+               'CellularRule,rule=14,n_start=0',
+               'CellularRule,rule=14,n_start=37',
+               'CellularRule,rule=84',  # right 2 cell line
+               'CellularRule,rule=84,n_start=0',
+               'CellularRule,rule=84,n_start=37',
+
+               '*ToothpickSpiral',
+               '*ToothpickSpiral,n_start=0',
+               '*ToothpickSpiral,n_start=37',
+
+               'WunderlichSerpentine',
+               'WunderlichSerpentine,serpentine_type=100_000_00000',
+               'WunderlichSerpentine,serpentine_type=110_000_00000',
+               'WunderlichSerpentine,serpentine_type=111_000_00000',
+               'WunderlichSerpentine,serpentine_type=10000_00000_00000,radix=5',
+               'WunderlichSerpentine,serpentine_type=11000_00000_00000,radix=5',
+               'WunderlichSerpentine,serpentine_type=11100_00000_00000,radix=5',
+               'WunderlichSerpentine,serpentine_type=11110_00000_00000,radix=5',
+               'WunderlichSerpentine,serpentine_type=11111_00000_00000,radix=5',
+               'WunderlichSerpentine,serpentine_type=11111_10000_00000,radix=5',
+               'WunderlichSerpentine,serpentine_type=11111_11000_00000,radix=5',
+               'WunderlichSerpentine,serpentine_type=000_000_001',
+               'WunderlichSerpentine,serpentine_type=010_000_001',
+               'WunderlichSerpentine,serpentine_type=001_000_001',
+               'WunderlichSerpentine,serpentine_type=000_100_001',
+               'WunderlichSerpentine,serpentine_type=000_000_001,radix=5',
+               'WunderlichSerpentine,serpentine_type=010_000_001,radix=5',
+               'WunderlichSerpentine,serpentine_type=001_000_001,radix=5',
+               'WunderlichSerpentine,serpentine_type=000_100_001,radix=5',
+               'WunderlichSerpentine,radix=2',
+               'WunderlichSerpentine,radix=4',
+               'WunderlichSerpentine,radix=5,serpentine_type=coil', # 111..111
+
+               '*OneOfEight,parts=3side',
+               # '*OneOfEight,parts=side',
+               '*OneOfEight,parts=3mid',
+               '*OneOfEight',
+               '*OneOfEight,parts=1',
+               '*OneOfEight,parts=octant',
+               '*OneOfEight,parts=octant_up',
+               '*OneOfEight,parts=wedge',
+
+               '*LCornerTree,parts=octant_up+1',
+               '*LCornerTree,parts=octant+1',
+               '*LCornerTree,parts=wedge+1',
+               '*LCornerTree,parts=diagonal-1',
+               '*LCornerTree,parts=diagonal',
+               '*LCornerTree,parts=wedge',
+               '*LCornerTree,parts=octant_up',
+               '*LCornerTree,parts=octant',
+               '*LCornerTree', # parts=4
+               '*LCornerTree,parts=1',
+               '*LCornerTree,parts=2',
+               '*LCornerTree,parts=3',
+
+               '*ToothpickTree',
+               '*ToothpickTree,parts=1',
+               '*ToothpickTree,parts=2',
+               '*ToothpickTree,parts=3',
+               '*ToothpickTree,parts=wedge',
+               '*ToothpickTree,parts=two_horiz',
+               '*ToothpickTree,parts=octant',
+               '*ToothpickTree,parts=octant_up',
+
+               'VogelFloret',
+               'ArchimedeanChords',
+               'TheodorusSpiral',
+               'SacksSpiral',
+
+               'AnvilSpiral,n_start=0',
+               'AnvilSpiral,n_start=37',
+               'AnvilSpiral,n_start=37,wider=9',
+               'AnvilSpiral',
+               'AnvilSpiral,wider=1',
+               'AnvilSpiral,wider=2',
+               'AnvilSpiral,wider=9',
+               'AnvilSpiral,wider=17',
+
+               'GreekKeySpiral,turns=0',
+               'GreekKeySpiral,turns=1',
+               'GreekKeySpiral,turns=2',
+               'GreekKeySpiral,turns=3',
+               'GreekKeySpiral,turns=4',
+               'GreekKeySpiral,turns=5',
+               'GreekKeySpiral,turns=6',
+               'GreekKeySpiral,turns=7',
+               'GreekKeySpiral,turns=8',
+               'GreekKeySpiral,turns=9',
+               'GreekKeySpiral,turns=10',
+               'GreekKeySpiral,turns=11',
+               'GreekKeySpiral,turns=37',
+
+               'SquareSpiral,n_start=0',
+               'SquareSpiral,n_start=37',
+               'SquareSpiral,wider=5,n_start=0',
+               'SquareSpiral,wider=5,n_start=37',
+               'SquareSpiral,wider=6,n_start=0',
+               'SquareSpiral,wider=6,n_start=37',
+               'SquareSpiral',
+               'SquareSpiral,wider=1',
+               'SquareSpiral,wider=2',
+               'SquareSpiral,wider=3',
+               'SquareSpiral,wider=4',
+               'SquareSpiral,wider=5',
+               'SquareSpiral,wider=6',
+               'SquareSpiral,wider=37',
+
+               '*ToothpickReplicate',
+               '*ToothpickReplicate,parts=1',
+               '*ToothpickReplicate,parts=2',
+               '*ToothpickReplicate,parts=3',
+
+               '*LCornerReplicate',
+
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'CellularRule',
+               'CellularRule,n_start=0',
+               'CellularRule,n_start=37',
+
+               'CellularRule,rule=206', # left solid
+               'CellularRule,rule=206,n_start=0',
+               'CellularRule,rule=206,n_start=37',
+
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+
+               'CellularRule,rule=0',   # blank
+               'CellularRule,rule=60',
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=222', # full solid
+
+               'ComplexRevolving',
+               'ComplexPlus',
+               'ComplexPlus,realpart=2',
+               'ComplexPlus,realpart=3',
+               'ComplexPlus,realpart=4',
+               'ComplexPlus,realpart=5',
+               'ComplexMinus',
+               'ComplexMinus,realpart=2',
+               'ComplexMinus,realpart=3',
+               'ComplexMinus,realpart=4',
+               'ComplexMinus,realpart=5',
+
+               # Math::PlanePath::CellularRule::Line
+               'CellularRule,rule=2',  # left line
+               'CellularRule,rule=2,n_start=0',
+               'CellularRule,rule=2,n_start=37',
+               'CellularRule,rule=4',  # centre line
+               'CellularRule,rule=4,n_start=0',
+               'CellularRule,rule=4,n_start=37',
+               'CellularRule,rule=16', # right line
+               'CellularRule,rule=16,n_start=0',
+               'CellularRule,rule=16,n_start=37',
+
+               'CellularRule,rule=6',   # left 1,2 line
+               'CellularRule,rule=6,n_start=0',
+               'CellularRule,rule=6,n_start=37',
+               'CellularRule,rule=20',  # right 1,2 line
+               'CellularRule,rule=20,n_start=0',
+               'CellularRule,rule=20,n_start=37',
+
+               'TriangularHypot',
+               'TriangularHypot,n_start=0',
+               'TriangularHypot,n_start=37',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'TriangularHypot,points=hex',
+               'TriangularHypot,points=hex_rotated',
+               'TriangularHypot,points=hex_centred',
+
+               'Hypot,n_start=37',
+               'Hypot,points=even,n_start=37',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+
+               'ImaginaryHalf',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=4',
+               'ImaginaryHalf,radix=5',
+               'ImaginaryHalf,radix=37',
+               'ImaginaryHalf,digit_order=XXY,radix=3',
+               'ImaginaryHalf,digit_order=YXX,radix=3',
+               'ImaginaryHalf,digit_order=XnXY,radix=3',
+               'ImaginaryHalf,digit_order=XnYX,radix=3',
+               'ImaginaryHalf,digit_order=YXnX,radix=3',
+               'ImaginaryHalf,digit_order=XXY,radix=3',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=diagonal',
+
+               'PyramidRows,align=right',
+               'PyramidRows,align=right,step=0',
+               'PyramidRows,align=right,step=1',
+               'PyramidRows,align=right,step=3',
+               'PyramidRows,align=right,step=4',
+               'PyramidRows,align=right,step=5',
+               'PyramidRows,align=right,step=37',
+               'PyramidRows,align=left',
+               'PyramidRows,align=left,step=0',
+               'PyramidRows,align=left,step=1',
+               'PyramidRows,align=left,step=3',
+               'PyramidRows,align=left,step=4',
+               'PyramidRows,align=left,step=5',
+               'PyramidRows,align=left,step=37',
+               'PyramidRows',
+               'PyramidRows,step=0',
+               'PyramidRows,step=1',
+               'PyramidRows,step=3',
+               'PyramidRows,step=4',
+               'PyramidRows,step=5',
+               'PyramidRows,step=37',
+               'PyramidRows,step=0,n_start=37',
+               'PyramidRows,step=1,n_start=37',
+               'PyramidRows,step=2,n_start=37',
+               'PyramidRows,align=right,step=5,n_start=37',
+               'PyramidRows,align=left,step=3,n_start=37',
+
+               'TriangleSpiralSkewed',
+               'TriangleSpiralSkewed,n_start=0',
+               'TriangleSpiralSkewed,n_start=37',
+               'TriangleSpiralSkewed,skew=right',
+               'TriangleSpiralSkewed,skew=right,n_start=0',
+               'TriangleSpiralSkewed,skew=right,n_start=37',
+               'TriangleSpiralSkewed,skew=up',
+               'TriangleSpiralSkewed,skew=up,n_start=0',
+               'TriangleSpiralSkewed,skew=up,n_start=37',
+               'TriangleSpiralSkewed,skew=down',
+               'TriangleSpiralSkewed,skew=down,n_start=0',
+               'TriangleSpiralSkewed,skew=down,n_start=37',
+
+               'TriangleSpiral',
+               'TriangleSpiral,n_start=0',
+               'TriangleSpiral,n_start=37',
+
+               'KnightSpiral',
+               'KnightSpiral,n_start=0',
+               'KnightSpiral,n_start=37',
+
+               'CubicBase',
+               'CubicBase,radix=3',
+               'CubicBase,radix=4',
+               'CubicBase,radix=37',
+
+               'UlamWarburton',
+               'UlamWarburton,n_start=0',
+               'UlamWarburton,n_start=0,parts=2',
+               'UlamWarburton,n_start=0,parts=1',
+               'UlamWarburton,n_start=37',
+               'UlamWarburton,n_start=37,parts=2',
+               'UlamWarburton,n_start=37,parts=1',
+               'UlamWarburton,parts=2',
+               'UlamWarburton,parts=1',
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,n_start=0',
+               'UlamWarburtonQuarter,n_start=37',
+
+               'ImaginaryBase',
+               'ImaginaryBase,radix=3',
+               'ImaginaryBase,radix=4',
+               'ImaginaryBase,radix=5',
+               'ImaginaryBase,radix=37',
+
+               'AlternatePaperMidpoint',
+               'AlternatePaperMidpoint,arms=2',
+               'AlternatePaperMidpoint,arms=3',
+               'AlternatePaperMidpoint,arms=4',
+               'AlternatePaperMidpoint,arms=5',
+               'AlternatePaperMidpoint,arms=6',
+               'AlternatePaperMidpoint,arms=7',
+               'AlternatePaperMidpoint,arms=8',
+
+               'CretanLabyrinth',
+
+               'AlternatePaper',
+               'AlternatePaper,arms=2',
+               'AlternatePaper,arms=3',
+               'AlternatePaper,arms=4',
+               'AlternatePaper,arms=5',
+               'AlternatePaper,arms=6',
+               'AlternatePaper,arms=7',
+               'AlternatePaper,arms=8',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
+               'KochCurve',
+               'KochPeaks',
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+
+               'PentSpiral',
+               'PentSpiral,n_start=0',
+               'PentSpiral,n_start=37',
+               'PentSpiralSkewed',
+               'PentSpiralSkewed,n_start=0',
+               'PentSpiralSkewed,n_start=37',
+
+               'DiagonalsAlternating',
+               'DiagonalsAlternating,n_start=0',
+               'DiagonalsAlternating,n_start=37',
+               'DiagonalsAlternating,x_start=5',
+               'DiagonalsAlternating,x_start=2,y_start=5',
+
+               'CellularRule54',
+               'CellularRule54,n_start=0',
+               'CellularRule54,n_start=37',
+
+               'CellularRule57',
+               'CellularRule57,n_start=0',
+               'CellularRule57,n_start=37',
+               'CellularRule57,mirror=1',
+               'CellularRule57,mirror=1,n_start=0',
+               'CellularRule57,mirror=1,n_start=37',
+
+               'CellularRule190',
+               'CellularRule190,n_start=0',
+               'CellularRule190,n_start=37',
+               'CellularRule190,mirror=1',
+               'CellularRule190,mirror=1,n_start=0',
+               'CellularRule190,mirror=1,n_start=37',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=4',
+               'TerdragonMidpoint,arms=5',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=4',
+               'TerdragonCurve,arms=5',
+               'TerdragonCurve,arms=6',
+
+               'DivisibleColumns',
+               'DivisibleColumns,n_start=37',
+               'DivisibleColumns,divisor_type=proper',
+               'CoprimeColumns',
+               'CoprimeColumns,n_start=37',
+
+               'SierpinskiCurve',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+
+               'SierpinskiCurveStair',
+               'SierpinskiCurveStair,diagonal_length=2',
+               'SierpinskiCurveStair,diagonal_length=3',
+               'SierpinskiCurveStair,diagonal_length=4',
+               'SierpinskiCurveStair,arms=2',
+               'SierpinskiCurveStair,arms=3,diagonal_length=2',
+               'SierpinskiCurveStair,arms=4',
+               'SierpinskiCurveStair,arms=5',
+               'SierpinskiCurveStair,arms=6,diagonal_length=5',
+               'SierpinskiCurveStair,arms=7',
+               'SierpinskiCurveStair,arms=8',
+               'HIndexing',
+
+               'DiamondArms',
+               'SquareArms',
+               'HexArms',
+
+               'PixelRings',
+               'HilbertSpiral',
+
+               'Flowsnake',
+               'Flowsnake,arms=2',
+               'Flowsnake,arms=3',
+               'FlowsnakeCentres',
+               'FlowsnakeCentres,arms=2',
+               'FlowsnakeCentres,arms=3',
+
+               'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+               'SierpinskiArrowhead',
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+
+               'AR2W2Curve',
+               'AR2W2Curve,start_shape=D2',
+               'AR2W2Curve,start_shape=B2',
+               'AR2W2Curve,start_shape=B1rev',
+               'AR2W2Curve,start_shape=D1rev',
+               'AR2W2Curve,start_shape=A2rev',
+               'BetaOmega',
+               'KochelCurve',
+               'CincoCurve',
+               'WunderlichMeander',
+
+               'PeanoCurve',
+               'PeanoCurve,radix=2',
+               'PeanoCurve,radix=4',
+               'PeanoCurve,radix=5',
+               'PeanoCurve,radix=17',
+
+               'Rows',
+               'Rows,width=1',
+               'Rows,width=2',
+               'Rows,n_start=0',
+               'Rows,width=37,n_start=0',
+               'Rows,width=37,n_start=123',
+               'Columns',
+               'Columns,height=1',
+               'Columns,height=2',
+               'Columns,n_start=0',
+               'Columns,height=37,n_start=0',
+               'Columns,height=37,n_start=123',
+
+               'HexSpiral',
+               'HexSpiral,n_start=0',
+               'HexSpiral,n_start=37',
+               'HexSpiral,wider=10,n_start=37',
+               'HexSpiral,wider=1',
+               'HexSpiral,wider=2',
+               'HexSpiral,wider=3',
+               'HexSpiral,wider=4',
+               'HexSpiral,wider=5',
+               'HexSpiral,wider=37',
+
+               'HexSpiralSkewed',
+               'HexSpiralSkewed,n_start=0',
+               'HexSpiralSkewed,n_start=37',
+               'HexSpiralSkewed,wider=10,n_start=37',
+               'HexSpiralSkewed,wider=1',
+               'HexSpiralSkewed,wider=2',
+               'HexSpiralSkewed,wider=3',
+               'HexSpiralSkewed,wider=4',
+               'HexSpiralSkewed,wider=5',
+               'HexSpiralSkewed,wider=37',
+
+               'AztecDiamondRings',
+               'AztecDiamondRings,n_start=0',
+               'AztecDiamondRings,n_start=37',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
+
+               'DragonCurve',
+               'DragonCurve,arms=2',
+               'DragonCurve,arms=3',
+               'DragonCurve,arms=4',
+
+               'DragonMidpoint',
+               'DragonMidpoint,arms=2',
+               'DragonMidpoint,arms=3',
+               'DragonMidpoint,arms=4',
+
+               'DragonRounded',
+               'DragonRounded,arms=2',
+               'DragonRounded,arms=3',
+               'DragonRounded,arms=4',
+
+               'Corner',
+               'Corner,wider=1',
+               'Corner,wider=2',
+               'Corner,wider=37',
+               'Corner,n_start=0',
+               'Corner,wider=1,n_start=0',
+               'Corner,wider=2,n_start=0',
+               'Corner,wider=37,n_start=0',
+               'Corner,n_start=37',
+               'Corner,wider=1,n_start=37',
+               'Corner,wider=2,n_start=37',
+               'Corner,wider=13,n_start=37',
+
                'CCurve',
 
                '*HTree',
@@ -85,103 +604,6 @@ my @modules = (
 
                '*ToothpickUpist',
 
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=diagonal',
-
-               'DragonCurve',
-               'DragonCurve,arms=2',
-               'DragonCurve,arms=3',
-               'DragonCurve,arms=4',
-
-               'DragonMidpoint',
-               'DragonMidpoint,arms=2',
-               'DragonMidpoint,arms=3',
-               'DragonMidpoint,arms=4',
-
-               'DragonRounded',
-               'DragonRounded,arms=2',
-               'DragonRounded,arms=3',
-               'DragonRounded,arms=4',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=6',
-
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=4',
-               'TerdragonRounded,arms=5',
-               'TerdragonRounded,arms=6',
-
-               'R5DragonMidpoint',
-               'R5DragonMidpoint,arms=2',
-               'R5DragonMidpoint,arms=3',
-               'R5DragonMidpoint,arms=4',
-
-               'R5DragonCurve',
-               'R5DragonCurve,arms=2',
-               'R5DragonCurve,arms=3',
-               'R5DragonCurve,arms=4',
-
-               'KochCurve',
-               'KochPeaks',
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-
-               'VogelFloret',
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
-               'ArchimedeanChords',
-
-               # '*OneOfEight,parts=side',
-               '*OneOfEight,parts=3mid',
-               '*OneOfEight,parts=3side',
-               '*OneOfEight',
-               '*OneOfEight,parts=1',
-               '*OneOfEight,parts=octant',
-               '*OneOfEight,parts=octant_up',
-               '*OneOfEight,parts=wedge',
-
-               '*ToothpickTree,parts=wedge',
-               '*ToothpickTree,parts=two_horiz',
-               '*ToothpickTree,parts=octant',
-               '*ToothpickTree,parts=octant_up',
-               '*ToothpickTree',
-               '*ToothpickTree,parts=1',
-               '*ToothpickTree,parts=2',
-               '*ToothpickTree,parts=3',
-
-               'MPeaks',
-               'MPeaks,n_start=0',
-               'MPeaks,n_start=37',
-
                'PyramidSides',
                'PyramidSides,n_start=0',
                'PyramidSides,n_start=37',
@@ -197,16 +619,6 @@ my @modules = (
                'Diagonals,x_start=2,y_start=5',
                'Diagonals,direction=up,x_start=2,y_start=5',
 
-               'DiagonalsAlternating',
-               'DiagonalsAlternating,n_start=0',
-               'DiagonalsAlternating,n_start=37',
-               'DiagonalsAlternating,x_start=5',
-               'DiagonalsAlternating,x_start=2,y_start=5',
-
-               'AztecDiamondRings',
-               'AztecDiamondRings,n_start=0',
-               'AztecDiamondRings,n_start=37',
-
                'PyramidSpiral',
                'PyramidSpiral,n_start=0',
                'PyramidSpiral,n_start=37',
@@ -214,16 +626,6 @@ my @modules = (
                'HeptSpiralSkewed',
                'HeptSpiralSkewed,n_start=0',
                'HeptSpiralSkewed,n_start=37',
-               'PentSpiral',
-               'PentSpiral,n_start=0',
-               'PentSpiral,n_start=37',
-               'PentSpiralSkewed',
-               'PentSpiralSkewed,n_start=0',
-               'PentSpiralSkewed,n_start=37',
-
-               'KnightSpiral',
-               'KnightSpiral,n_start=0',
-               'KnightSpiral,n_start=37',
 
                'Staircase',
                'Staircase,n_start=0',
@@ -241,19 +643,6 @@ my @modules = (
 
                'CornerReplicate',
 
-               'UlamWarburton',
-               'UlamWarburton,n_start=0',
-               'UlamWarburton,n_start=0,parts=2',
-               'UlamWarburton,n_start=0,parts=1',
-               'UlamWarburton,n_start=37',
-               'UlamWarburton,n_start=37,parts=2',
-               'UlamWarburton,n_start=37,parts=1',
-               'UlamWarburton,parts=2',
-               'UlamWarburton,parts=1',
-               'UlamWarburtonQuarter',
-               'UlamWarburtonQuarter,n_start=0',
-               'UlamWarburtonQuarter,n_start=37',
-
                'RationalsTree',
                'RationalsTree,tree_type=CW',
                'RationalsTree,tree_type=AYT',
@@ -262,31 +651,7 @@ my @modules = (
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=HCS',
 
-               '*LCornerTree,parts=octant_up+1',
-               '*LCornerTree,parts=octant+1',
-               '*LCornerTree,parts=wedge+1',
-               '*LCornerTree,parts=diagonal-1',
-               '*LCornerTree,parts=diagonal',
-               '*LCornerTree,parts=wedge',
-               '*LCornerTree,parts=octant_up',
-               '*LCornerTree,parts=octant',
-               '*LCornerTree', # parts=4
-               '*LCornerTree,parts=1',
-               '*LCornerTree,parts=2',
-               '*LCornerTree,parts=3',
-
-               '*ToothpickSpiral',
-               '*ToothpickSpiral,n_start=0',
-               '*ToothpickSpiral,n_start=37',
-
                # '*PeninsulaBridge',
-
-               '*ToothpickReplicate',
-               '*ToothpickReplicate,parts=1',
-               '*ToothpickReplicate,parts=2',
-               '*ToothpickReplicate,parts=3',
-
-               '*LCornerReplicate',
 
                'ChanTree',
                'ChanTree,n_start=1234',
@@ -306,238 +671,15 @@ my @modules = (
                'DiagonalRationals,direction=up',
                'DiagonalRationals,direction=up,n_start=37',
 
-               'PyramidRows,align=right',
-               'PyramidRows,align=right,step=0',
-               'PyramidRows,align=right,step=1',
-               'PyramidRows,align=right,step=3',
-               'PyramidRows,align=right,step=4',
-               'PyramidRows,align=right,step=5',
-               'PyramidRows,align=right,step=37',
-               'PyramidRows,align=left',
-               'PyramidRows,align=left,step=0',
-               'PyramidRows,align=left,step=1',
-               'PyramidRows,align=left,step=3',
-               'PyramidRows,align=left,step=4',
-               'PyramidRows,align=left,step=5',
-               'PyramidRows,align=left,step=37',
-               'PyramidRows',
-               'PyramidRows,step=0',
-               'PyramidRows,step=1',
-               'PyramidRows,step=3',
-               'PyramidRows,step=4',
-               'PyramidRows,step=5',
-               'PyramidRows,step=37',
-               'PyramidRows,step=0,n_start=37',
-               'PyramidRows,step=1,n_start=37',
-               'PyramidRows,step=2,n_start=37',
-               'PyramidRows,align=right,step=5,n_start=37',
-               'PyramidRows,align=left,step=3,n_start=37',
-
-               # Math::PlanePath::CellularRule::Line
-               'CellularRule,rule=2',  # left line
-               'CellularRule,rule=2,n_start=0',
-               'CellularRule,rule=2,n_start=37',
-               'CellularRule,rule=4',  # centre line
-               'CellularRule,rule=4,n_start=0',
-               'CellularRule,rule=4,n_start=37',
-               'CellularRule,rule=16', # right line
-               'CellularRule,rule=16,n_start=0',
-               'CellularRule,rule=16,n_start=37',
-
-               'CellularRule,rule=6',   # left 1,2 line
-               'CellularRule,rule=6,n_start=0',
-               'CellularRule,rule=6,n_start=37',
-               'CellularRule,rule=20',  # right 1,2 line
-               'CellularRule,rule=20,n_start=0',
-               'CellularRule,rule=20,n_start=37',
-
-               'CellularRule54',
-               'CellularRule54,n_start=0',
-               'CellularRule54,n_start=37',
-
-               'CellularRule57',
-               'CellularRule57,n_start=0',
-               'CellularRule57,n_start=37',
-               'CellularRule57,mirror=1',
-               'CellularRule57,mirror=1,n_start=0',
-               'CellularRule57,mirror=1,n_start=37',
-
-               'CellularRule190',
-               'CellularRule190,n_start=0',
-               'CellularRule190,n_start=37',
-               'CellularRule190,mirror=1',
-               'CellularRule190,mirror=1,n_start=0',
-               'CellularRule190,mirror=1,n_start=37',
-
-               'CellularRule',
-               'CellularRule,n_start=0',
-               'CellularRule,n_start=37',
-
-               'CellularRule,rule=206', # left solid
-               'CellularRule,rule=206,n_start=0',
-               'CellularRule,rule=206,n_start=37',
-
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=18,n_start=0',
-               'CellularRule,rule=18,n_start=37',
-
-               'CellularRule,rule=14',  # left 2 cell line
-               'CellularRule,rule=14,n_start=0',
-               'CellularRule,rule=14,n_start=37',
-               'CellularRule,rule=84',  # right 2 cell line
-               'CellularRule,rule=84,n_start=0',
-               'CellularRule,rule=84,n_start=37',
-
-               'CellularRule,rule=0',   # blank
-               'CellularRule,rule=60',
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=222', # full solid
-
-               'PeanoCurve',
-               'PeanoCurve,radix=2',
-               'PeanoCurve,radix=4',
-               'PeanoCurve,radix=5',
-               'PeanoCurve,radix=17',
-
-               'TriangleSpiralSkewed',
-               'TriangleSpiralSkewed,n_start=0',
-               'TriangleSpiralSkewed,n_start=37',
-               'TriangleSpiralSkewed,skew=right',
-               'TriangleSpiralSkewed,skew=right,n_start=0',
-               'TriangleSpiralSkewed,skew=right,n_start=37',
-               'TriangleSpiralSkewed,skew=up',
-               'TriangleSpiralSkewed,skew=up,n_start=0',
-               'TriangleSpiralSkewed,skew=up,n_start=37',
-               'TriangleSpiralSkewed,skew=down',
-               'TriangleSpiralSkewed,skew=down,n_start=0',
-               'TriangleSpiralSkewed,skew=down,n_start=37',
-
-               'TriangleSpiral',
-               'TriangleSpiral,n_start=0',
-               'TriangleSpiral,n_start=37',
-
                'WythoffArray',
                'WythoffArray,x_start=1',
                'WythoffArray,y_start=1',
                'WythoffArray,x_start=1,y_start=1',
                'WythoffArray,x_start=5,y_start=7',
 
-               'HexSpiral',
-               'HexSpiral,n_start=0',
-               'HexSpiral,n_start=37',
-               'HexSpiral,wider=10,n_start=37',
-               'HexSpiral,wider=1',
-               'HexSpiral,wider=2',
-               'HexSpiral,wider=3',
-               'HexSpiral,wider=4',
-               'HexSpiral,wider=5',
-               'HexSpiral,wider=37',
-
-               'HexSpiralSkewed',
-               'HexSpiralSkewed,n_start=0',
-               'HexSpiralSkewed,n_start=37',
-               'HexSpiralSkewed,wider=10,n_start=37',
-               'HexSpiralSkewed,wider=1',
-               'HexSpiralSkewed,wider=2',
-               'HexSpiralSkewed,wider=3',
-               'HexSpiralSkewed,wider=4',
-               'HexSpiralSkewed,wider=5',
-               'HexSpiralSkewed,wider=37',
-
-               'Rows',
-               'Rows,width=1',
-               'Rows,width=2',
-               'Rows,n_start=0',
-               'Rows,width=37,n_start=0',
-               'Rows,width=37,n_start=123',
-               'Columns',
-               'Columns,height=1',
-               'Columns,height=2',
-               'Columns,n_start=0',
-               'Columns,height=37,n_start=0',
-               'Columns,height=37,n_start=123',
-
-               'CoprimeColumns',
-               'CoprimeColumns,n_start=37',
-               'DivisibleColumns',
-               'DivisibleColumns,n_start=37',
-               'DivisibleColumns,divisor_type=proper',
-
                'FilledRings',
                'FilledRings,n_start=0',
                'FilledRings,n_start=37',
-
-               'AnvilSpiral,n_start=0',
-               'AnvilSpiral,n_start=37',
-               'AnvilSpiral,n_start=37,wider=9',
-               'AnvilSpiral,wider=17',
-               'AnvilSpiral',
-               'AnvilSpiral,wider=1',
-               'AnvilSpiral,wider=2',
-               'AnvilSpiral,wider=9',
-               'AnvilSpiral,wider=17',
-
-               'Flowsnake',
-               'Flowsnake,arms=2',
-               'Flowsnake,arms=3',
-               'FlowsnakeCentres',
-               'FlowsnakeCentres,arms=2',
-               'FlowsnakeCentres,arms=3',
-
-               'SierpinskiCurve',
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
-               'SierpinskiCurveStair',
-               'SierpinskiCurveStair,diagonal_length=2',
-               'SierpinskiCurveStair,diagonal_length=3',
-               'SierpinskiCurveStair,diagonal_length=4',
-               'SierpinskiCurveStair,arms=2',
-               'SierpinskiCurveStair,arms=3,diagonal_length=2',
-               'SierpinskiCurveStair,arms=4',
-               'SierpinskiCurveStair,arms=5',
-               'SierpinskiCurveStair,arms=6,diagonal_length=5',
-               'SierpinskiCurveStair,arms=7',
-               'SierpinskiCurveStair,arms=8',
-               'HIndexing',
-
-               'ImaginaryHalf',
-               'ImaginaryHalf,radix=3',
-               'ImaginaryHalf,radix=4',
-               'ImaginaryHalf,radix=5',
-               'ImaginaryHalf,radix=37',
-               'ImaginaryHalf,digit_order=XXY',
-               'ImaginaryHalf,digit_order=YXX',
-               'ImaginaryHalf,digit_order=XnXY',
-               'ImaginaryHalf,digit_order=XnYX',
-               'ImaginaryHalf,digit_order=YXnX',
-               'ImaginaryHalf,digit_order=XXY,radix=3',
-
-               'Hypot,n_start=37',
-               'Hypot,points=even,n_start=37',
-               'Hypot',
-               'Hypot,points=even',
-               'Hypot,points=odd',
-               'HypotOctant',
-               'HypotOctant,points=even',
-               'HypotOctant,points=odd',
-
-               'TriangularHypot',
-               'TriangularHypot,n_start=0',
-               'TriangularHypot,n_start=37',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
-               'TriangularHypot,points=hex',
-               'TriangularHypot,points=hex_rotated',
-               'TriangularHypot,points=hex_centred',
 
                'DigitGroups',
                'DigitGroups,radix=3',
@@ -546,16 +688,6 @@ my @modules = (
                'DigitGroups,radix=37',
 
                'HilbertCurve',
-
-               'SierpinskiArrowheadCentres',
-               'SierpinskiArrowheadCentres,align=right',
-               'SierpinskiArrowheadCentres,align=left',
-               'SierpinskiArrowheadCentres,align=diagonal',
-
-               'CubicBase',
-               'CubicBase,radix=3',
-               'CubicBase,radix=4',
-               'CubicBase,radix=37',
 
                'CfracDigits,radix=1',
                'CfracDigits',
@@ -577,32 +709,6 @@ my @modules = (
 
                'GosperIslands',
 
-               'AR2W2Curve',
-               'AR2W2Curve,start_shape=D2',
-               'AR2W2Curve,start_shape=B2',
-               'AR2W2Curve,start_shape=B1rev',
-               'AR2W2Curve,start_shape=D1rev',
-               'AR2W2Curve,start_shape=A2rev',
-               'BetaOmega',
-               'KochelCurve',
-               'CincoCurve',
-               'WunderlichMeander',
-
-               'SacksSpiral',
-               'TheodorusSpiral',
-
-               'ComplexRevolving',
-               'ComplexPlus',
-               'ComplexPlus,realpart=2',
-               'ComplexPlus,realpart=3',
-               'ComplexPlus,realpart=4',
-               'ComplexPlus,realpart=5',
-               'ComplexMinus',
-               'ComplexMinus,realpart=2',
-               'ComplexMinus,realpart=3',
-               'ComplexMinus,realpart=4',
-               'ComplexMinus,realpart=5',
-
                'LTiling',
                'LTiling,L_fill=ends',
                'LTiling,L_fill=all',
@@ -620,13 +726,6 @@ my @modules = (
                'PowerArray,radix=3',
                'PowerArray,radix=4',
 
-               'PixelRings',
-               'HilbertSpiral',
-
-               'DiamondArms',
-               'SquareArms',
-               'HexArms',
-
                'GrayCode',
                'GrayCode,radix=3',
                'GrayCode,radix=4',
@@ -637,13 +736,6 @@ my @modules = (
                'GrayCode,apply_type=sF',
                'GrayCode,apply_type=sT',
                'GrayCode,radix=4,gray_type=modular',
-
-               'WunderlichSerpentine',
-               'WunderlichSerpentine,serpentine_type=100_000_000',
-               'WunderlichSerpentine,serpentine_type=000_000_001',
-               'WunderlichSerpentine,radix=2',
-               'WunderlichSerpentine,radix=4',
-               'WunderlichSerpentine,radix=5,serpentine_type=coil',
 
                'QuintetCurve',
                'QuintetCurve,arms=2',
@@ -665,20 +757,6 @@ my @modules = (
 
                'FractionsTree',
 
-               'AlternatePaper,arms=2',
-               'AlternatePaper',
-               'AlternatePaper,arms=3',
-               'AlternatePaper,arms=4',
-               'AlternatePaper,arms=5',
-               'AlternatePaper,arms=6',
-               'AlternatePaper,arms=7',
-               'AlternatePaper,arms=8',
-
-               'SierpinskiArrowhead',
-               'SierpinskiArrowhead,align=right',
-               'SierpinskiArrowhead,align=left',
-               'SierpinskiArrowhead,align=diagonal',
-
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
                'DiagonalsOctant,n_start=0',
@@ -686,63 +764,7 @@ my @modules = (
                'DiagonalsOctant,n_start=37',
                'DiagonalsOctant,direction=up,n_start=37',
 
-               'Corner',
-               'Corner,wider=1',
-               'Corner,wider=2',
-               'Corner,wider=37',
-               'Corner,n_start=0',
-               'Corner,wider=1,n_start=0',
-               'Corner,wider=2,n_start=0',
-               'Corner,wider=37,n_start=0',
-               'Corner,n_start=37',
-               'Corner,wider=1,n_start=37',
-               'Corner,wider=2,n_start=37',
-               'Corner,wider=13,n_start=37',
-
                'File',
-
-               'SquareSpiral,n_start=0',
-               'SquareSpiral,n_start=37',
-               'SquareSpiral,wider=5,n_start=0',
-               'SquareSpiral,wider=5,n_start=37',
-               'SquareSpiral,wider=6,n_start=0',
-               'SquareSpiral,wider=6,n_start=37',
-               'SquareSpiral',
-               'SquareSpiral,wider=1',
-               'SquareSpiral,wider=2',
-               'SquareSpiral,wider=3',
-               'SquareSpiral,wider=4',
-               'SquareSpiral,wider=5',
-               'SquareSpiral,wider=6',
-               'SquareSpiral,wider=37',
-
-               'ImaginaryBase',
-               'ImaginaryBase,radix=3',
-               'ImaginaryBase,radix=4',
-               'ImaginaryBase,radix=5',
-               'ImaginaryBase,radix=37',
-
-               'GreekKeySpiral',
-               'GreekKeySpiral,turns=0',
-               'GreekKeySpiral,turns=1',
-               'GreekKeySpiral,turns=3',
-               'GreekKeySpiral,turns=4',
-               'GreekKeySpiral,turns=5',
-               'GreekKeySpiral,turns=6',
-               'GreekKeySpiral,turns=7',
-               'GreekKeySpiral,turns=8',
-               'GreekKeySpiral,turns=37',
-
-               'AlternatePaperMidpoint',
-               'AlternatePaperMidpoint,arms=2',
-               'AlternatePaperMidpoint,arms=3',
-               'AlternatePaperMidpoint,arms=4',
-               'AlternatePaperMidpoint,arms=5',
-               'AlternatePaperMidpoint,arms=6',
-               'AlternatePaperMidpoint,arms=7',
-               'AlternatePaperMidpoint,arms=8',
-
-               'CretanLabyrinth',
 
                # module list end
 
@@ -800,11 +822,37 @@ sub module_to_pathobj {
   };
 }
 
+BEGIN {
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  # return the change in figure boundary from N to N+1
+  sub path_n_to_dboundary {
+    my ($path, $n) = @_;
+    $n += 1;
+    my ($x,$y) = $path->n_to_xy($n) or do {
+      if ($n == $path->n_start - 1) {
+        return 4;
+      } else {
+        return undef;
+      }
+    };
+    ### N+1 at: "n=$n  xy=$x,$y"
+    my $dboundary = 4;
+    foreach my $i (0 .. $#dir4_to_dx) {
+      my $an = $path->xy_to_n($x+$dir4_to_dx[$i], $y+$dir4_to_dy[$i]);
+      ### consider: "xy=".($x+$dir4_to_dx[$i]).",".($y+$dir4_to_dy[$i])." is an=".($an||'false')
+      $dboundary -= 2*(defined $an && $an < $n);
+    }
+    ### $dboundary
+    return $dboundary;
+  }
+}
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 114;
+my $want_version = 115;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -921,140 +969,6 @@ my %non_linear_frac = (
                        'Math::PlanePath::SacksSpiral' => 1,
                        'Math::PlanePath::VogelFloret' => 1,
                       );
-
-# possible X,Y deltas
-my $dxdy_square = {
-                   # "square" steps
-                   '1,0'  => 1,  # N
-                   '-1,0' => 1,  # S
-                   '0,1'  => 1,  # E
-                   '0,-1' => 1,  # W
-                  };
-my $dxdy_diagonal = {
-                     # "diagonal" steps
-                     '1,1'   => 1, # NE
-                     '1,-1'  => 1, # NW
-                     '-1,1'  => 1, # SE
-                     '-1,-1' => 1, # SW
-                    };
-my $dxdy_one = {
-                # by one diagonal or square
-                %$dxdy_square,
-                %$dxdy_diagonal,
-               };
-my $dxdy_hex = {
-                # hexagon steps X=+/-2, or diagonally
-                '2,0'   => 1,  # Ex2
-                '-2,0'  => 1,  # Wx2
-                %$dxdy_diagonal,
-               };
-my %class_dxdy_allowed
-  = (
-     'Math::PlanePath::SquareSpiral'   => $dxdy_square,
-     'Math::PlanePath::GreekKeySpiral' => $dxdy_square,
-
-     'Math::PlanePath::PyramidSpiral' => { '-1,1' => 1,  # NE
-                                           '-1,-1' => 1, # SW
-                                           '1,0' => 1,   # E
-                                         },
-     'Math::PlanePath::TriangleSpiral' => { '-1,1' => 1,  # NE
-                                            '-1,-1' => 1, # SW
-                                            '2,0' => 1,   # Ex2
-                                          },
-     'Math::PlanePath::TriangleSpiralSkewed' => { '-1,1' => 1, # NE
-                                                  '0,-1' => 1, # S
-                                                  '1,0'  => 1, # E
-                                                },
-     'Math::PlanePath::TriangleSpiralSkewed,skew=right' => { '0,1' => 1, # N
-                                                             '-1,-1' => 1, # SW
-                                                             '1,0'  => 1, # E
-                                                           },
-     'Math::PlanePath::TriangleSpiralSkewed,skew=up' => { '1,1' => 1, # NE
-                                                          '-1,0' => 1, # W
-                                                          '0,-1' => 1, # S
-                                                        },
-     'Math::PlanePath::TriangleSpiralSkewed,skew=down' => { '1,-1' => 1, # SE
-                                                            '0,1'   => 1, # N
-                                                            '-1,0'  => 1, # W
-                                                          },
-
-     'Math::PlanePath::DiamondSpiral' => { '1,0' => 1,   # E at bottom
-                                           %$dxdy_diagonal,
-                                         },
-     'Math::PlanePath::PentSpiralSkewed' => {
-                                             '-1,1'  => 1, # NW
-                                             '-1,-1' => 1, # SW
-                                             '1,-1'  => 1, # SE
-                                             '1,0'   => 1, # E
-                                             '0,1'   => 1, # N
-                                            },
-
-     'Math::PlanePath::HexSpiral'         => $dxdy_hex,
-     'Math::PlanePath::Flowsnake'         => $dxdy_hex,
-     'Math::PlanePath::FlowsnakeCentres'  => $dxdy_hex,
-     'Math::PlanePath::GosperSide'        => $dxdy_hex,
-
-     # FIXME: 3 directions for arms==1, 6 directions for arms>=2
-     'Math::PlanePath::TerdragonCurve'    => $dxdy_hex,
-     'Math::PlanePath::TerdragonMidpoint' => $dxdy_hex,
-
-     'Math::PlanePath::KochCurve'        => $dxdy_hex,
-     # except for jumps at ends/rings
-     # 'Math::PlanePath::KochPeaks'      => $dxdy_hex,
-     # 'Math::PlanePath::KochSnowflakes' => $dxdy_hex,
-     # 'Math::PlanePath::GosperIslands'  => $dxdy_hex,
-
-     'Math::PlanePath::QuintetCurve'   => $dxdy_square,
-     'Math::PlanePath::QuintetCentres' => $dxdy_one,
-     # Math::PlanePath::QuintetReplicate -- mucho distance
-
-     # 'Math::PlanePath::SierpinskiCurve' => $dxdy_one, # only spacing==1
-     'Math::PlanePath::HIndexing'       => $dxdy_square,
-
-     'Math::PlanePath::HexSpiralSkewed'    => {
-                                               '-1,1' => 1, # NW
-                                               '1,-1' => 1, # SE
-                                               %$dxdy_square,
-                                              },
-     'Math::PlanePath::HeptSpiralSkewed' => {
-                                             '-1,1' => 1,  # NW
-                                             %$dxdy_square,
-                                            },
-     'Math::PlanePath::OctagramSpiral' => $dxdy_one,
-
-     'Math::PlanePath::KnightSpiral' => { '1,2'   => 1,
-                                          '-1,2'  => 1,
-                                          '1,-2'  => 1,
-                                          '-1,-2' => 1,
-                                          '2,1'   => 1,
-                                          '-2,1'  => 1,
-                                          '2,-1'  => 1,
-                                          '-2,-1' => 1,
-                                        },
-     'Math::PlanePath::PixelRings' => {
-                                       %$dxdy_one,
-                                       '2,1' => 1, # from N=5 to N=6
-                                      },
-
-     'Math::PlanePath::HilbertCurve'   => $dxdy_square,
-     'Math::PlanePath::HilbertSpiral'  => $dxdy_square,
-     'Math::PlanePath::PeanoCurve'     => $dxdy_square,
-     'Math::PlanePath::WunderlichSerpentine' => $dxdy_square,
-     'Math::PlanePath::BetaOmega'      => $dxdy_square,
-     'Math::PlanePath::AR2W2Curve'     => $dxdy_one,
-     'Math::PlanePath::DragonCurve'    => $dxdy_square,
-     'Math::PlanePath::DragonMidpoint' => $dxdy_square,
-     'Math::PlanePath::DragonRounded'  => $dxdy_one,
-     'Math::PlanePath::R5DragonCurve'    => $dxdy_square,
-     'Math::PlanePath::R5DragonMidpoint' => $dxdy_square,
-     'Math::PlanePath::CCurve'         => $dxdy_square,
-     'Math::PlanePath::HilbertMidpoint' => { %$dxdy_diagonal,
-                                             '2,0'   => 1,
-                                             '0,2'   => 1,
-                                             '-2,0'   => 1,
-                                             '0,-2'   => 1,
-                                           },
-    );
 
 
 #------------------------------------------------------------------------------
@@ -1186,19 +1100,6 @@ sub pythagorean_diag {
     
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
     
-    my $dxdy_allowed
-      = $class_dxdy_allowed{$class.",skew=".($parameters{'skew'}||'')}
-        || $class_dxdy_allowed{$class};
-    if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
-        && $parameters{'radix'}
-        && ($parameters{'radix'} % 2) == 0) {
-      undef $dxdy_allowed;  # even radix doesn't join up
-    }
-    if ($parameters{'arms'} && $parameters{'arms'} > 1) {
-      # ENHANCE-ME: watch for dxdy within each arm
-      undef $dxdy_allowed;
-    }
-    
     #
     # MyTestHelpers::diag ($mod);
     #
@@ -1231,31 +1132,73 @@ sub pythagorean_diag {
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
-    my $got_arms = $path->arms_count;
-    
-    foreach my $pinfo ($path->parameter_info_list) {
-      if ($pinfo->{'type'} eq 'enum') {
-        my $choices = $pinfo->{'choices'};
-        my $num_choices = scalar(@$choices);
-        if (my $choices_display = $pinfo->{'choices_display'}) {
-          my $num_choices_display = scalar(@$choices_display);
-          if ($num_choices != $num_choices_display) {
-            &$report("parameter info $pinfo->{'name'} choices $num_choices but choices_display $num_choices_display");
+    my $arms_count = $path->arms_count;
+    my $n_start = $path->n_start;
+
+    if ($mod !~ /,/) {
+      # base class only
+
+      my $parameter_info_hash = $path->parameter_info_hash;
+      if (my $pinfo = $parameter_info_hash->{'n_start'}) {
+        $pinfo->{'default'} == $n_start
+          or &$report("parameter info n_start default $pinfo->{'default'} but path->n_start $n_start");
+      }
+      if (my $pinfo = $parameter_info_hash->{'arms'}) {
+        $pinfo->{'default'} == $arms_count
+          or &$report("parameter info arms_count default $pinfo->{'default'} but path->arms_count $arms_count");
+      }
+
+      foreach my $pinfo ($path->parameter_info_list) {
+        if ($pinfo->{'type'} eq 'enum') {
+          my $choices = $pinfo->{'choices'};
+          my $num_choices = scalar(@$choices);
+          if (my $choices_display = $pinfo->{'choices_display'}) {
+            my $num_choices_display = scalar(@$choices_display);
+            if ($num_choices != $num_choices_display) {
+              &$report("parameter info $pinfo->{'name'} choices $num_choices but choices_display $num_choices_display");
+            }
           }
         }
       }
     }
     
-    if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
-      &$report("arms_count()==$got_arms expect $parameters{'arms'}");
+    if ($parameters{'arms'} && $arms_count != $parameters{'arms'}) {
+      &$report("arms_count()==$arms_count expect $parameters{'arms'}");
     }
-    unless ($got_arms >= 1) {
-      &$report("arms_count()==$got_arms should be >=1");
+    unless ($arms_count >= 1) {
+      &$report("arms_count()==$arms_count should be >=1");
     }
     
-    my $arms_count = $path->arms_count;
-    my $n_start = $path->n_start;
+    my $n_limit = $n_start + $limit;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
+    
+    my $x_negative_at_n = $path->_UNDOCUMENTED__x_negative_at_n;
+    if (defined $x_negative_at_n) {
+      $x_negative_at_n >= $n_start
+        or &$report ("_UNDOCUMENTED__x_negative_at_n() = $x_negative_at_n is < n_start=$n_start");
+    }
+    my $y_negative_at_n = $path->_UNDOCUMENTED__y_negative_at_n;
+    if (defined $y_negative_at_n) {
+      $y_negative_at_n >= $n_start
+        or &$report ("_UNDOCUMENTED__y_negative_at_n() = $y_negative_at_n is < n_start=$n_start");
+    }
+    
+    # dxdy_list()
+    #
+    my @dxdy_list = $path->_UNDOCUMENTED__dxdy_list; # list ($dx,$dy, $dx,$dy, ...)
+    @dxdy_list % 2 == 0
+      or &$report ("_UNDOCUMENTED__dxdy_list() not an even number of values");
+    my %dxdy_list;  # keys "$dx,$dy"
+    for (my $i = 0; $i < $#dxdy_list; $i += 2) {
+      $dxdy_list{"$dxdy_list[$i],$dxdy_list[$i+1]"} = 1;
+    }
+    for (my $i = 2; $i < $#dxdy_list; $i += 2) {
+      if (dxdy_cmp ($dxdy_list[$i-2],$dxdy_list[$i-1],
+                    $dxdy_list[$i],$dxdy_list[$i+1]) >= 0) {
+        &$report ("_UNDOCUMENTED__dxdy_list() entries not sorted: $dxdy_list[$i-2],$dxdy_list[$i-1] then $dxdy_list[$i],$dxdy_list[$i+1]");
+      }
+    }
+    
     {
       my ($x,$y) = $path->n_to_xy($n_start);
       if (! defined $x) {
@@ -1536,7 +1479,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1599,7 +1542,7 @@ sub pythagorean_diag {
       #   }
       # }
     }
-
+    
     foreach my $x
       (0,
        pos_infinity_maybe(),
@@ -1620,7 +1563,7 @@ sub pythagorean_diag {
         # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
       }
     }
-
+    
     foreach my $x1 (0,
                     pos_infinity_maybe(),
                     neg_infinity_maybe(),
@@ -1641,7 +1584,7 @@ sub pythagorean_diag {
                           neg_infinity_maybe(),
                           dbl_max_for_class_rect($path),
                           dbl_max_neg_for_class_rect($path)) {
-
+            
             my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
             scalar(@nn) == 2
               or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));
@@ -1650,12 +1593,12 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     my $x_minimum = $path->x_minimum;
     my $x_maximum = $path->x_maximum;
     my $y_minimum = $path->y_minimum;
     my $y_maximum = $path->y_maximum;
-
+    
     my $sumxy_minimum = $path->sumxy_minimum;
     my $sumxy_maximum = $path->sumxy_maximum;
     my $sumabsxy_minimum = $path->sumabsxy_minimum;
@@ -1666,26 +1609,39 @@ sub pythagorean_diag {
     my $absdiffxy_maximum = $path->absdiffxy_maximum;
     my $gcdxy_minimum = $path->gcdxy_minimum;
     my $gcdxy_maximum = $path->gcdxy_maximum;
-
+    
     my %saw_n_to_xy;
     my %count_n_to_xy;
-    my $got_x_negative = 0;
-    my $got_y_negative = 0;
+    my $got_x_negative_at_n;
+    my $got_y_negative_at_n;
     my $got_x_minimum;
     my $got_y_minimum;
-    my ($prev_x, $prev_y);
+    my (@prev_x, @prev_y);
+    my ($dx_minimum, $dy_minimum);
+    my ($dx_maximum, $dy_maximum);
+    my %seen_dxdy;
+    my $seen_dxdy_list_at_n;
     my @n_to_x;
     my @n_to_y;
-    foreach my $n ($n_start .. $n_start + $limit) {
+    foreach my $n ($n_start .. $n_limit) {
       my ($x, $y) = $path->n_to_xy ($n)
         or next;
       $n_to_x[$n] = $x;
       $n_to_y[$n] = $y;
       defined $x or &$report("n_to_xy($n) X undef");
       defined $y or &$report("n_to_xy($n) Y undef");
-
-      if ($x < 0) { $got_x_negative = 1; }
-      if ($y < 0) { $got_y_negative = 1; }
+      my $arm = $n % $arms_count;
+      
+      if ($x < 0) {
+        if (! defined $got_x_negative_at_n) {
+          $got_x_negative_at_n= $n;
+        }
+      }
+      if ($y < 0) {
+        if (! defined $got_y_negative_at_n) {
+          $got_y_negative_at_n= $n;
+        }
+      }
 
       if (defined $x_minimum && $x < $x_minimum) {
         &$report("n_to_xy($n) X=$x below x_minimum=$x_minimum");
@@ -1711,7 +1667,7 @@ sub pythagorean_diag {
       # if (! defined $got_y_maximum || $y < $got_y_maximum) {
       #   $got_y_maximum = $y;
       # }
-
+      
       {
         my $sumxy = $x + $y;
         if (defined $sumxy_minimum && $sumxy < $sumxy_minimum) {
@@ -1730,7 +1686,7 @@ sub pythagorean_diag {
           &$report("n_to_xy($n) abs(X)+abs(Y)=$sumabsxy above sumabsxy_maximum=$sumabsxy_maximum");
         }
       }
-
+      
       {
         my $diffxy = $x - $y;
         if (defined $diffxy_minimum && $diffxy < $diffxy_minimum) {
@@ -1749,7 +1705,7 @@ sub pythagorean_diag {
           &$report("n_to_xy($n) abs(X-Y)=$absdiffxy above absdiffxy_maximum=$absdiffxy_maximum");
         }
       }
-
+      
       {
         my $gcdxy = gcd(abs($x),abs($y));
         if (defined $gcdxy_minimum && $gcdxy < $gcdxy_minimum) {
@@ -1759,7 +1715,7 @@ sub pythagorean_diag {
           &$report("n_to_xy($n) gcd($x,$y)=$gcdxy above gcdxy_maximum=$gcdxy_maximum");
         }
       }
-
+      
       my $xystr = (int($x) == $x && int($y) == $y
                    ? sprintf('%d,%d', $x,$y)
                    : sprintf('%.3f,%.3f', $x,$y));
@@ -1770,35 +1726,48 @@ sub pythagorean_diag {
         }
       }
       $saw_n_to_xy{$xystr} = $n;
-
+      
       my ($dx,$dy);
-      if (defined $prev_x) { $dx = $x - $prev_x; }
-      if (defined $prev_y) { $dy = $y - $prev_y; }
-
-      if ($dxdy_allowed) {
-        if (defined $prev_x) {
-          my $dxdy = "$dx,$dy";
-          $dxdy_allowed->{$dxdy}
-            or &$report ("n=$n dxdy=$dxdy not allowed");
+      if (defined $prev_x[$arm]) { $dx = $x - $prev_x[$arm]; }
+      if (defined $prev_y[$arm]) { $dy = $y - $prev_y[$arm]; }
+      $prev_x[$arm] = $x;
+      $prev_y[$arm] = $y;
+      
+      my $dxdy_str = (defined $dx && defined $dy ? "$dx,$dy" : undef);
+      if (defined $dxdy_str) {
+        if (! defined $seen_dxdy{$dxdy_str}) {
+          $seen_dxdy{$dxdy_str} ||= [$dx,$dy];
+          $seen_dxdy_list_at_n = $n-$arms_count;
         }
-        ($prev_x, $prev_y) = ($x, $y);
+        if (@dxdy_list) {
+          $dxdy_list{$dxdy_str}
+            or &$report ("N=$n dxdy=$dxdy_str not in dxdy_list");
+        }
       }
-
+      if (defined $dx) {
+        if (! defined $dx_maximum || $dx > $dx_maximum) { $dx_maximum = $dx; }
+        if (! defined $dx_minimum || $dx < $dx_minimum) { $dx_minimum = $dx; }
+      }
+      if (defined $dy) {
+        if (! defined $dy_maximum || $dy > $dy_maximum) { $dy_maximum = $dy; }
+        if (! defined $dy_minimum || $dy < $dy_minimum) { $dy_minimum = $dy; }
+      }
+      
       {
+        my $x2 = $x + ($x >= 0 ? .4 : -.4);
+        my $y2 = $y + ($y >= 0 ? .4 : -.4);
         my ($n_lo, $n_hi) = $path->rect_to_n_range
-          (0,0,
-           $x + ($x >= 0 ? .4 : -.4),
-           $y + ($y >= 0 ? .4 : -.4));
+          (0,0, $x2,$y2);
         $n_lo <= $n
-          or &$report ("rect_to_n_range() lo n=$n xy=$xystr, got $n_lo");
+          or &$report ("rect_to_n_range(0,0, $x2,$y2) lo n=$n xy=$xystr, got n_lo=$n_lo");
         $n_hi >= $n
-          or &$report ("rect_to_n_range() hi n=$n xy=$xystr, got $n_hi");
+          or &$report ("rect_to_n_range(0,0, $x2,$y2) hi n=$n xy=$xystr, got n_hi=$n_hi");
         $n_lo == int($n_lo)
-          or &$report ("rect_to_n_range() lo n=$n xy=$xystr, got $n_lo, integer");
+          or &$report ("rect_to_n_range(0,0, $x2,$y2) lo n=$n xy=$xystr, got n_lo=$n_lo, integer");
         $n_hi == int($n_hi)
-          or &$report ("rect_to_n_range() hi n=$n xy=$xystr, got $n_hi, integer");
+          or &$report ("rect_to_n_range(0,0, $x2,$y2) hi n=$n xy=$xystr, got n_hi=$n_hi, integer");
         $n_lo >= $n_start
-          or &$report ("rect_to_n_range(0,0,$x,$y)+.4 n_lo=$n_lo is before n_start=$n_start");
+          or &$report ("rect_to_n_range(0,0, $x2,$y2) n_lo=$n_lo is before n_start=$n_start");
       }
       {
         my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
@@ -1813,7 +1782,7 @@ sub pythagorean_diag {
         $n_lo >= $n_start
           or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
       }
-
+      
       unless ($xy_maximum_duplication > 0) {
         foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
           foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {
@@ -1828,10 +1797,10 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     #--------------------------------------------------------------------------
     ### n_to_xy() fractional ...
-
+    
     unless ($non_linear_frac{$class}
             || defined $n_frac_discontinuity) {
       foreach my $n ($n_start .. $#n_to_x - $arms_count) {
@@ -1854,10 +1823,10 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     #--------------------------------------------------------------------------
     ### n_to_dxdy() ...
-
+    
     if ($path->can('n_to_dxdy') != Math::PlanePath->can('n_to_dxdy')) {
       MyTestHelpers::diag ($mod, ' n_to_dxdy()');
       foreach my $n ($n_start .. $#n_to_x - $arms_count) {
@@ -1874,8 +1843,8 @@ sub pythagorean_diag {
         $want_dy == $got_dy
           or &$report ("n_to_dxdy($n) got_dy=$got_dy want_dy=$want_dy");
       }
-
-      foreach my $n ($n_start .. $n_start + $limit) {
+      
+      foreach my $n ($n_start .. $n_limit) {
         foreach my $offset (0.25, 0.75) {
           my $n = $n + $offset;
           my ($x,$y) = $path->n_to_xy($n);
@@ -1890,10 +1859,10 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     #--------------------------------------------------------------------------
     ### n_to_rsquared() vs X^2,Y^2 ...
-
+    
     if ($path->can('n_to_rsquared') != Math::PlanePath->can('n_to_rsquared')) {
       foreach my $n ($n_start .. $#n_to_x) {
         my $x = $n_to_x[$n];
@@ -1905,10 +1874,10 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     #--------------------------------------------------------------------------
     ### n_to_radius() vs X^2,Y^2 ...
-
+    
     if ($path->can('n_to_radius') != Math::PlanePath->can('n_to_radius')) {
       foreach my $n ($n_start .. $#n_to_x) {
         my $x = $n_to_x[$n];
@@ -1920,17 +1889,34 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
+    #--------------------------------------------------------------------------
+    ### _NOTDOCUMENTED_n_to_figure_boundary() ...
+    
+    if ($path->can('_NOTDOCUMENTED_n_to_figure_boundary')) {
+      my $want = 4;
+      my $bad = 0;
+      foreach my $n ($n_start .. $n_start + 1000) {
+        my $got = $path->_NOTDOCUMENTED_n_to_figure_boundary($n);
+        if ($want != $got) {
+          my ($x,$y) = $path->n_to_xy($n);
+          &$report ("_NOTDOCUMENTED_n_to_figure_boundary() at n=$n,x=$x,y=$y got $got whereas want $want");
+          last if $bad++ > 20;
+        }
+        $want += path_n_to_dboundary($path,$n);
+      }
+    }
+    
     #--------------------------------------------------------------------------
     ### n_to_xy() various bogus values return 0 or 2 values and not crash ...
-
+    
     foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
                    0, 0.4, 0.5, 0.6) {
       my @xy = $path->n_to_xy ($n);
       (@xy == 0 || @xy == 2)
         or &$report ("n_to_xy() n=$n got ",scalar(@xy)," values");
     }
-
+    
     foreach my $elem ([-1,-1, -1,-1],
                      ) {
       my ($x1,$y1,$x2,$y2) = @$elem;
@@ -1942,10 +1928,50 @@ sub pythagorean_diag {
           or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
       }
     }
+    
+    #--------------------------------------------------------------------------
+    ### _UNDOCUMENTED__dxdy_list() completeness ...
+    
+    if (@dxdy_list) {
+      my $dxdy_list_at_n;
+      my $dxdy_num = int(scalar(@dxdy_list)/2);
+      my $seen_dxdy_num = scalar keys %seen_dxdy;
+      $dxdy_list_at_n = $path->_UNDOCUMENTED__dxdy_list_at_n;
+      if (defined $dxdy_list_at_n) {
+        $dxdy_list_at_n >= $n_start
+          or &$report ("_UNDOCUMENTED__dxdy_list_at_n() = $dxdy_list_at_n is < n_start=$n_start");
+        if ($seen_dxdy_num == $dxdy_num) {
+          $seen_dxdy_list_at_n == $dxdy_list_at_n
+            or &$report ("_UNDOCUMENTED__dxdy_list_at_n() = $dxdy_list_at_n but seen_dxdy_list_at_n=$seen_dxdy_list_at_n");
+        }
+      } else {
+        $dxdy_list_at_n = $n_start;
+      }
+      if ($n_limit - $arms_count < $dxdy_list_at_n) {
+        MyTestHelpers::diag ("  skip n_limit=$n_limit <= dxdy_list_at_n=$dxdy_list_at_n");
+      } else {
+        foreach my $dxdy_str (keys %dxdy_list) {
+          if (! $seen_dxdy{$dxdy_str}) {
+            &$report ("_UNDOCUMENTED__dxdy_list() has $dxdy_str not seen to n_limit=$n_limit");
+          }
+        }
+      }
 
+    } else {
+      my $seen_dxdy_count = scalar keys %seen_dxdy;
+      if ($seen_dxdy_count > 0
+          && $seen_dxdy_count <= 10
+          && ($dx_maximum||0) < 4
+          && ($dy_maximum||0) < 4
+          && ($dx_minimum||0) > -4
+          && ($dy_minimum||0) > -4) {
+        MyTestHelpers::diag ("  possible dxdy list: ", join(' ', keys %seen_dxdy));
+      }
+    }
+    
     #--------------------------------------------------------------------------
     ### x negative xy_to_n() ...
-
+    
     foreach my $x (-100, -99) {
       ### $x
       my @n = $path->xy_to_n ($x,-1);
@@ -1953,60 +1979,48 @@ sub pythagorean_diag {
       (scalar(@n) == 1)
         or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
     }
-
+    
     {
-      my $path_x_negative = ($path->x_negative ? 1 : 0);
-      $got_x_negative = ($got_x_negative ? 1 : 0);
-
-      if ($path->isa('Math::PlanePath::GosperSide')
-          || $path->isa('Math::PlanePath::FlowsnakeCentres')
-          || $path->isa('Math::PlanePath::QuintetCentres')
-          || $mod eq 'ImaginaryBase,radix=37'
-          || $mod eq 'ImaginaryHalf,radix=37'
-          || $mod eq 'CubicBase,radix=37'
-          || $mod eq 'ComplexPlus,realpart=2'
+      my $x_negative = ($path->x_negative ? 1 : 0);
+      my $got_x_negative = (defined $got_x_negative_at_n ? 1 : 0);
+      
+      if ($mod eq 'ComplexPlus,realpart=2'
           || $mod eq 'ComplexPlus,realpart=3'
           || $mod eq 'ComplexPlus,realpart=4'
           || $mod eq 'ComplexPlus,realpart=5'
-          || ($mod eq 'GreekKeySpiral' && $limit < 37)
-          || ($mod eq 'GreekKeySpiral,turns=3' && $limit < 65)
-          || ($mod eq 'GreekKeySpiral,turns=4' && $limit < 101)
-          || ($mod eq 'GreekKeySpiral,turns=5' && $limit < 145)
-          || ($mod eq 'GreekKeySpiral,turns=6' && $limit < 197)
-          || $mod eq 'GreekKeySpiral,turns=7'
-          || $mod eq 'GreekKeySpiral,turns=8'
-          || $mod eq 'GreekKeySpiral,turns=37'
          ) {
         # these don't get to X negative in small rectangle
         $got_x_negative = 1;
       }
+      
+      if ($n_limit < (defined $x_negative_at_n ? $x_negative_at_n : $n_start)) {
+        MyTestHelpers::diag ("  skip n_limit=$n_limit <= x_negative_at_n=$x_negative_at_n");
+      } else {
+        ($x_negative == $got_x_negative)
+          or &$report ("x_negative() $x_negative but in rect to n=$limit got $got_x_negative (x_negative_at_n=$x_negative_at_n)");
+      }
+      if (defined $got_x_negative_at_n) {
+        equal($x_negative_at_n, $got_x_negative_at_n)
+          or &$report ("x_negative_at_n() = ",$x_negative_at_n," but got_x_negative_at_n=$got_x_negative_at_n");
+      }
 
-      ($path_x_negative == $got_x_negative)
-        or &$report ("x_negative() $path_x_negative but in rect to n=$limit got $got_x_negative");
+      if (defined $x_negative_at_n && $x_negative_at_n < 0x100_0000) {
+        {
+          my ($x,$y) = $path->n_to_xy($x_negative_at_n);
+          $x < 0 or &$report ("x_negative_at_n()=$x_negative_at_n but xy=$x,$y");
+        }
+        if ($x_negative_at_n > $n_start) {
+          my $n = $x_negative_at_n - 1;
+          my ($x,$y) = $path->n_to_xy($n);
+          $x >= 0 or &$report ("x_negative_at_n()=$x_negative_at_n but at N=$n xy=$x,$y");
+        }
+      }
     }
     {
-      my $path_y_negative = ($path->y_negative ? 1 : 0);
-      $got_y_negative = ($got_y_negative ? 1 : 0);
-
-      if ($path->isa('Math::PlanePath::GosperSide')
-          || $path->isa('Math::PlanePath::FlowsnakeCentres')
-          || ($mod eq 'GreekKeySpiral' && $limit < 55)
-          || ($mod eq 'GreekKeySpiral,turns=3' && $limit < 97)
-          || ($mod eq 'GreekKeySpiral,turns=4' && $limit < 151)
-          || ($mod eq 'GreekKeySpiral,turns=5' && $limit < 217)
-          || ($mod eq 'GreekKeySpiral,turns=6' && $limit < 295)
-          || $mod eq 'GreekKeySpiral,turns=7'
-          || $mod eq 'GreekKeySpiral,turns=8'
-          || $mod eq 'GreekKeySpiral,turns=37'
-          || $mod eq 'SquareSpiral,wider=37'
-          || $mod eq 'HexSpiral,wider=37'
-          || $mod eq 'HexSpiralSkewed,wider=37'
-          || ($mod eq 'ImaginaryBase,radix=3' && $limit < 3**3) # first Y negs
-          || ($mod eq 'ImaginaryBase,radix=4' && $limit < 4**3)
-          || ($mod eq 'ImaginaryBase,radix=5' && $limit < 5**3)
-          || ($mod eq 'ImaginaryBase,radix=37' && $limit < 37**3)
-          || $mod eq 'CubicBase,radix=37'
-          || ($mod eq 'ComplexPlus' && $limit < 32) # first y_neg at N=32
+      my $y_negative = ($path->y_negative ? 1 : 0);
+      my $got_y_negative = (defined $got_y_negative_at_n ? 1 : 0);
+      
+      if (($mod eq 'ComplexPlus' && $limit < 32) # first y_neg at N=32
           || $mod eq 'ComplexPlus,realpart=2'  # y_neg big
           || $mod eq 'ComplexPlus,realpart=3'
           || $mod eq 'ComplexPlus,realpart=4'
@@ -2014,35 +2028,42 @@ sub pythagorean_diag {
           || $mod eq 'ComplexMinus,realpart=3'
           || $mod eq 'ComplexMinus,realpart=4'
           || $mod eq 'ComplexMinus,realpart=5'
-          || ($mod eq 'AnvilSpiral,wider=17' && $limit < 41) # first y_neg at N=41
-          || $mod eq 'TerdragonCurve'
-          || $mod eq 'TerdragonCurve,arms=2'
-          || $mod eq 'TerdragonMidpoint'
-          || $mod eq 'TerdragonMidpoint,arms=2'
-          || $mod eq 'TerdragonRounded'
-          || $mod eq 'TerdragonRounded,arms=2'
-          || $mod eq 'TerdragonRounded,arms=3'
-          || ($mod eq 'AlternatePaper,arms=5' && $limit < 44) # first y_neg at N=44
-          || ($mod eq 'AlternatePaper,arms=8' && $limit < 14) # first y_neg at N=14
-          || $mod eq 'R5DragonCurve'
-          || $mod eq 'R5DragonMidpoint'
-          || $mod eq 'R5DragonMidpoint,arms=2'
          ) {
-        # GosperSide and Flowsnake take a long time to get
+        # GosperSide take a long time to get
         # to Y negative, not reached by the rectangle
         # considered here.  ComplexMinus doesn't get there
         # on realpart==5 or bigger too.
         $got_y_negative = 1;
       }
+      
+      if ($n_limit < (defined $y_negative_at_n ? $y_negative_at_n : $n_start)) {
+        MyTestHelpers::diag ("  skip n_limit=$n_limit <= y_negative_at_n=$y_negative_at_n");
+      } else {
+        ($y_negative == $got_y_negative)
+          or &$report ("y_negative() $y_negative but in rect to n=$limit got $got_y_negative (y_negative_at_n=$y_negative_at_n)");
+      }
+      if (defined $got_y_negative_at_n) {
+        equal($y_negative_at_n, $got_y_negative_at_n)
+          or &$report ("y_negative_at_n() = ",$y_negative_at_n," but got_y_negative_at_n=$got_y_negative_at_n");
+      }
 
-      ($path_y_negative == $got_y_negative)
-        or &$report ("y_negative() $path_y_negative but in rect to n=$limit got $got_y_negative");
+      if (defined $y_negative_at_n && $y_negative_at_n < 0x100_0000) {
+        {
+          my ($x,$y) = $path->n_to_xy($y_negative_at_n);
+          $y < 0 or &$report ("y_negative_at_n()=$y_negative_at_n but xy=$x,$y");
+        }
+        if ($y_negative_at_n > $n_start) {
+          my $n = $y_negative_at_n - 1;
+          my ($x,$y) = $path->n_to_xy($n);
+          $y >= 0 or &$report ("y_negative_at_n()=$y_negative_at_n but at N=$n xy=$x,$y");
+        }
+      }
     }
-
+    
     if ($path->figure ne 'circle'
         # bit slow
         && ! ($path->isa('Math::PlanePath::Flowsnake'))) {
-
+      
       my $x_min = ($path->x_negative ? - int($rect_limit/2) : -2);
       my $y_min = ($path->y_negative ? - int($rect_limit/2) : -2);
       my $x_max = $x_min + $rect_limit;
@@ -2050,7 +2071,13 @@ sub pythagorean_diag {
       my $data;
       foreach my $x ($x_min .. $x_max) {
         foreach my $y ($y_min .. $y_max) {
-          $data->{$y}->{$x} = $path->xy_to_n ($x, $y);
+          my $n = $path->xy_to_n ($x, $y);
+          if (defined $n && $n < $n_start
+              && ! $path->isa('Math::PlanePath::Rows')
+              && ! $path->isa('Math::PlanePath::Columns')) {
+            &$report ("xy_to_n($x,$y) gives n=$n < n_start=$n_start");
+          }
+          $data->{$y}->{$x} = $n;
         }
       }
       #### $data
@@ -2418,6 +2445,10 @@ sub pythagorean_diag {
   ok ($good, 1);
 }
 
+
+#------------------------------------------------------------------------------
+# path calculations
+
 # Return true if the rows of the tree are numbered contiguously, so each row
 # starts immediately following the previous with no overlapping.
 sub path_tree_n_rows_are_contiguous {
@@ -2566,6 +2597,9 @@ sub path_tree_n_to_leafdist_by_search {
 }
 # no Smart::Comments;
 
+#------------------------------------------------------------------------------
+# generic
+
 sub equal {
   my ($x,$y) = @_;
   return ((! defined $x && ! defined $y)
@@ -2603,14 +2637,11 @@ sub gcd {
   }
 }
 
-  sub is_pow2 {
-    my ($n) = @_;
-    my ($pow,$exp) = round_down_pow ($n, 2);
-    return ($n == $pow);
-  }
-
-#------------------------------------------------------------------------------
-# generic
+sub is_pow2 {
+  my ($n) = @_;
+  my ($pow,$exp) = round_down_pow ($n, 2);
+  return ($n == $pow);
+}
 
 sub coderef_is_const {
   my ($coderef) = @_;
@@ -2622,6 +2653,28 @@ CHECK {
   # my $coderef_is_const_check = 1;
   use constant coderef_is_const_check => 1;
   coderef_is_const(\&coderef_is_const_check) or die;
+}
+
+use constant pi => atan2(1,0)*4;
+
+# $a and $b are arrayrefs [$dx,$dy]
+# Return an order +ve,0,-ve between them, first by angle then by length.
+sub dxdy_cmp {
+  my ($a_dx,$a_dy, $b_dx,$b_dy) = @_;
+  return dxdy_cmp_angle($a_dx,$a_dy, $b_dx,$b_dy) || dxdy_cmp_length($a_dx,$a_dy, $b_dx,$b_dy) || 0;
+}
+sub dxdy_cmp_angle {
+  my ($a_dx,$a_dy, $b_dx,$b_dy) = @_;
+  my $a_angle = atan2($a_dy,$a_dx);
+  my $b_angle = atan2($b_dy,$b_dx);
+  if ($a_angle < 0) { $a_angle += 2*pi(); }
+  if ($b_angle < 0) { $b_angle += 2*pi(); }
+  return $a_angle <=> $b_angle;
+}
+sub dxdy_cmp_length {
+  my ($a_dx,$a_dy, $b_dx,$b_dy) = @_;
+  return ($a_dx**2 + $a_dy**2
+          <=> $b_dx**2 + $b_dy**2);
 }
 
 exit 0;

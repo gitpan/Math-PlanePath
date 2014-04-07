@@ -31,7 +31,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -57,10 +57,25 @@ use constant parameter_info_array => [ { name        => 'arms',
                                          description => 'Arms',
                                        } ];
 
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef, 14,5,2,2);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef, 93,35,11,7);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 use constant dsumxy_minimum => -1; # straight only
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -1;

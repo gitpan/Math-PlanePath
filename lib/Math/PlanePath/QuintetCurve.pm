@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -45,6 +45,30 @@ use Math::PlanePath::Base::Digits
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef, 513, 9, 2, 2);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef, 2, 4, 6, 3);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
+
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
+{
+  my @_UNDOCUMENTED__dxdy_list_at_n = (undef, 8, 5, 5, 4);
+  sub _UNDOCUMENTED__dxdy_list_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
+  }
+}
 
 use constant dsumxy_minimum => -1;  # NSEW only
 use constant dsumxy_maximum => 1;
@@ -440,7 +464,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,7 +37,7 @@ BEGIN { MyTestHelpers::nowarnings(); }
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 468)[1];
+my $test_count = (tests => 467)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -217,14 +217,29 @@ ok (floor(Math::BigRat->new('2'))   == 2,  1);
 
     my ($got_x,$got_y) = $path->n_to_xy($n);
     ok ($got_x == $want_x, 1,
-        "DiagonalRationals n_to_xy() from 4/3, X got $got_x want $want_x");
+        "DiagonalRationals n_to_xy() n=$n, got X=$got_x want X=$want_x");
     ok ($got_y == $want_y, 1,
-        "DiagonalRationals n_to_xy() from 4/3, Y got $got_y want $want_y");
+        "DiagonalRationals n_to_xy() n=$n, got Y=$got_y want Y=$want_y");
 
-    my $got_n = $path->xy_to_n($want_x,$want_y);
-    ok ($got_n == 1, 1, 'DiagonalRationals xy_to_n($want_x,$want_y) from 1/2');
+    # my $got_n = $path->xy_to_n($want_x,$want_y);
+    # ok (defined $got_n && $got_n == 1, 1,
+    #     'DiagonalRationals xy_to_n($want_x,$want_y) from 1/2');
   }
+
   {
+    #
+    #      | 1+1/2
+    #      |    \
+    #      |     \
+    #  Y=1 |      1
+    #      |       \
+    #      |        1+1/3
+    #      |         \
+    #      |          1+1/2-eps
+    #      |
+    #      +---------------
+    #             ^
+    #            X=1
     my $n = Math::BigRat->new('4/3');
     my $want_x = Math::BigRat->new('4/3');
     my $want_y = Math::BigRat->new('2/3');

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -71,9 +71,9 @@ use constant::defer parameter_info_array =>
 
                          # 'RSL',
                          # 'Straight',
-                         # 'Turn4',  # Turn4 is 0<=value<4.
+                          'Turn4',  # Turn4 is 0<=value<4.
                          # 'Turn4n',
-                         # 'TTurn6',
+                          'TTurn6',
                         ],
              description => 'Left is 1=left, 0=right or straight.
 Right is 1=right, 0=left or straight.
@@ -490,6 +490,10 @@ sub characteristic_non_decreasing {
         # OEIS-Other: A023531 planepath=TriangleSpiral,n_start=-1 turn_type=LSR
         # OEIS-Other: A023532 planepath=TriangleSpiral,n_start=-1 turn_type=Straight
       },
+
+      # PlanePathTurn planepath=TriangleSpiral,n_start=1,  turn_type=TTurn6
+      # A089799 Expansion of Jacobi theta function theta_2(q^(1/2))/q^(1/8)
+      # is this 2s with runs of 0s ?
     };
 }
 { package Math::PlanePath::TriangleSpiralSkewed;
@@ -1445,6 +1449,7 @@ sub characteristic_non_decreasing {
         # OEIS-Other:     A137893 planepath=TerdragonCurve
         # OEIS-Catalogue: A060236 planepath=GosperSide turn_type=SLR
         # OEIS-Other:     A060236 planepath=TerdragonCurve turn_type=SLR
+        # A060236 would also be a "TTurn3"
 
         # cf A136442 - a(3n)=1, a(3n-1)=0, a(3n+1)=a(n)
         # ternary lowest non-1  0->1 2->0
@@ -1586,6 +1591,16 @@ sub characteristic_non_decreasing {
        # OEIS-Other: A000004 planepath=Rows,width=0
        # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=LSR
      },
+
+     # 4      N=1  turn=2
+     #   \    N=2  turn=4
+     # 2---3
+     #   \
+     # 0---1    
+     'n_start=-1,width=2' =>
+     { TTurn6 => 'A010694', # repeat 2,4 with OFFSET=0
+       # OEIS-Other: A010694 planepath=Rows,width=2,n_start=-1 turn_type=TTurn6
+     },
     };
 }
 { package Math::PlanePath::Columns;
@@ -1679,9 +1694,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_oeis_anum =>
     { 'direction=down,n_start=0,x_start=0,y_start=0' =>
       { Left => 'A129184', # shift of triangle
-        srl  => 'A156319', # triangle 1, 2, 0, 0, 0, ... in each row OFFSET=1
+        SRL  => 'A156319', # triangle 1, 2, 0, 0, 0, ... in each row OFFSET=1
         # OEIS-Catalogue: A129184 planepath=Diagonals,n_start=0
-        # OEIS-Catalogue: A156319 planepath=Diagonals,n_start=0 turn_type=srl
+        # OEIS-Catalogue: A156319 planepath=Diagonals,n_start=0 turn_type=SRL
       },
       'direction=down,n_start=-1,x_start=0,y_start=0' =>
       { Right => 'A023531', # 1 at m(m+3)/2
@@ -1885,30 +1900,6 @@ sub characteristic_non_decreasing {
             : 0);
   }
   *_NumSeq_Turn_SRL_min = \&_NumSeq_Turn_SLR_min;
-
-  use constant _NumSeq_Turn_oeis_anum =>
-    {
-     do {
-       # right line 2, stair step
-       #       |
-       #    3--1
-       #    |   
-       # 3--1   Turn4
-       # |      
-       # *      
-       my $href = { Turn4 => 'A176040', # 3,1 repeating OFFSET=0
-                  };
-       ('rule=84,n_start=-1' => $href,
-        'rule=116,n_start=-1' => $href,
-        'rule=212,n_start=-1' => $href,
-        'rule=244,n_start=-1' => $href)
-         # OEIS-Catalogue: A176040 planepath=CellularRule,rule=84,n_start=-1 turn_type=Turn4
-         # OEIS-Other:     A176040 planepath=CellularRule,rule=116,n_start=-1 turn_type=Turn4
-         # OEIS-Other:     A176040 planepath=CellularRule,rule=212,n_start=-1 turn_type=Turn4
-         # OEIS-Other:     A176040 planepath=CellularRule,rule=244,n_start=-1 turn_type=Turn4
-     },
-
-    };
 }
 { package Math::PlanePath::CellularRule::Line;
   use constant _NumSeq_Turn_Left_max => 0; # straight ahead only
@@ -1965,13 +1956,54 @@ sub characteristic_non_decreasing {
       },
     };
 }
+{ package Math::PlanePath::CellularRule::Two;
+  use constant _NumSeq_Turn_SLR_min => 1; # never straight
+  use constant _NumSeq_Turn_SRL_min => 1; # never straight
+
+  # 5--6                                      6--7
+  #  ^---.                                    |
+  #   4--5       left rule=6               4--5   right rule=84
+  #    ^----.    N=2 turn4=2.5             |      N=2 turn4=1
+  #      2--3    N=3 turn4=             2--3      N=3 turn4=3
+  #       \                             |
+  #         1                           1
+  sub _NumSeq_Turn_Turn4_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left'
+            ? Math::NumSeq::PlanePathTurn::_turn_func_Turn4(1,0, -2,1) # N=3
+            : 1);
+  }
+  sub _NumSeq_Turn_Turn4_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left'
+            ? 2.5
+            : 3);
+  }
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'align=right,n_start=-1' =>
+      {
+       # right line 2, stair step
+       #       |
+       #    3--1
+       #    |
+       # 3--1   Turn4 amounts
+       # |
+       # *
+       Turn4 => 'A176040', # 3,1 repeating OFFSET=0
+      },
+      # OEIS-Catalogue: A176040 planepath=CellularRule,rule=84,n_start=-1 turn_type=Turn4
+      # OEIS-Other:     A176040 planepath=CellularRule,rule=116,n_start=-1 turn_type=Turn4
+      # OEIS-Other:     A176040 planepath=CellularRule,rule=212,n_start=-1 turn_type=Turn4
+      # OEIS-Other:     A176040 planepath=CellularRule,rule=244,n_start=-1 turn_type=Turn4
+    };
+}
 { package Math::PlanePath::CellularRule::OddSolid;
   use constant _NumSeq_Turn_Turn4_max => 2.5; # at N=2
 
   # R 0 0 L  1 0 0 2
-  #  R 0 L    1 0 2  
-  #   R L      1 2    
-  #    .        .      
+  #  R 0 L    1 0 2
+  #   R L      1 2
+  #    .        .
 
   use constant _NumSeq_Turn_oeis_anum =>
     { 'n_start=0' =>
@@ -2380,7 +2412,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -84,7 +84,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -162,6 +162,14 @@ use constant parameter_info_array =>
    },
   ];
 
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return int(.25 / $self->{'rotation_factor'}) + 1;
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return int(.5 / $self->{'rotation_factor'}) + 1;
+}
 sub sumabsxy_minimum {
   my ($self) = @_;
   my ($x,$y) = $self->n_to_xy($self->n_start);
@@ -825,7 +833,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -95,17 +95,6 @@ sub read_values {
   return (\@bvalues, $lo, $filename);
 }
 
-sub oeis_directory {
-  # my ($class) = @_;
-  require File::HomeDir;
-  my $dir = File::HomeDir->my_home;
-  if (! defined $dir) {
-    die 'File::HomeDir says you have no home directory';
-  }
-  require File::Spec;
-  return File::Spec->catdir($dir, 'OEIS');
-}
-
 # with Y reckoned increasing downwards
 sub dxdy_to_direction {
   my ($dx, $dy) = @_;
@@ -362,7 +351,7 @@ sub stripped_grep {
 
   my $orig_str = $str;
   my $abs = '';
-  foreach my $mung ('none', 'negate', 'abs', 'half', 'quarter') {
+  foreach my $mung ('none', 'negate', 'abs', 'half', 'quarter', 'double') {
     if ($ret) { last; }
 
     if ($mung eq 'none') {
@@ -387,6 +376,10 @@ sub stripped_grep {
       }
       $str = join (',', map {$_/2} split /,/, $orig_str);
       $abs = "[QUARTER]\n";
+
+    } elsif ($mung eq 'double') {
+      $str = join (',', map {$_*2} split /,/, $orig_str);
+      $abs = "[DOUBLE]\n";
 
     } elsif ($mung eq 'abs') {
       $str = $orig_str;
@@ -473,73 +466,113 @@ sub constant_array {
 
 #------------------------------------------------------------------------------
 
+=head1 NAME
+
+Math::OEIS - some Online Encyclopedia of Integer Sequences things
+
+=head1 SYNOPSIS
+
 =head1 FUNCTIONS
 
 =over
 
-=item C<$nobj = Math::OEIS::Names-E<gt>new(key =E<gt> value, ...)>
-  
-Create and return a new C<Math::OEIS::Names> object to read an OEIS "names"
-file.  The optional key/value parameters can be
+=item C<@dirs = Math::OEIS-E<gt>directory_list()>
 
-    filename => $filename         default ~/OEIS/names
-    fh       => $filehandle
+Return a list of local OEIS directories to look for downloaded sequences and
+related files.
 
-The default filename is F<~/OEIS/names>, so the F<OEIS> directory under the
-user's home directory.  A different filename can be given, or an open
-filehandle can be given.
-  
-=item C<$name = Math::OEIS::Names-E<gt>anum_to_name($anum)>
+If the C<$ENV{'OEIS_PATH'}> environment variable is set then it's used as a
+list of directories, split on C<:> or C<;> characters.  C<:> separators is
+intended as Unix style, or C<;> for MS-DOS
 
-For a given C<$anum> string such as "A000001" return the sequence name
-as a string, or if not found then C<undef>.
+    OEIS_PATH=/home/foo/OEIS:/var/cache/OEIS
 
-C<$name> may contain non-ASCII characters.  In Perl 5.8 and higher C<$name>
-is decoded to Perl wide chars, in earlier Perl C<$name> is the native
-encoding of the names file (which is UTF-8).
-  
-=item C<$filename = $nobj-E<gt>filename()>
+=head1 ENVIRONMENT VARIABLES
 
-=item C<$filename = Math::OEIS::Names-E<gt>filename()>
-  
-Return the names filename from a given C<$nobj> object, or the default
-filename if called as a class method C<Math::OEIS::Names>.
+=over
 
-=back  
+=item C<OEIS_PATH>
 
-=head2 BUGS
-
-The current implementation is a text file binary search.  For large numbers
-of name lookups an actual database would probably be more efficient.
-Perhaps C<Math::OEIS::Names> could automatically look in an SQLite or
-similar database if it exists and is up-to-date.
+=back
 
 =cut
 
 {
-  package Math::OEIS::Names;
+  package Math::OEIS;
+  use strict;
+
+  sub directory_list {
+    # my ($class) = @_;
+    {
+      my $path = $ENV{'OEIS_PATH'};
+      if (defined $path) {
+        return split /:;/, $path;
+      }
+    }
+    {
+      require File::HomeDir;
+      my $dir = File::HomeDir->my_home;
+      if (defined $dir) {
+        return File::Spec->catdir($dir, 'OEIS');
+      }
+    }
+    return ();
+  }
+
+  sub find_file {
+    my ($class, $filename) = @_;
+    foreach my $dir ($class->directory_list) {
+      my $fullname = File::Spec->catfile ($dir, $filename);
+      if (-e $fullname) {
+        return $fullname;
+      }
+    }
+    return undef;
+  }
+}
+
+#------------------------------------------------------------------------------
+
+{
+  package Math::OEIS::SortedFile;
   use strict;
   use Carp 'croak';
-  use Search::Dict;
-  use File::Spec;
 
-  use base 'Class::Singleton';
-  *_new_instance = \&new;
+  eval q{use Scalar::Util 'weaken'; 1}
+    || eval q{sub weaken { $_[0] = undef }; 1 }
+      || die "Oops, error making a weaken() fallback: $@";
+
+  # Keep track of all instances which exist and on an ithread CLONE re-open
+  # any filehandles in the instances, so they have their own independent file
+  # positions in the new thread.
+  my %instances;
+  sub DESTROY {
+    my ($self) = @_;
+    delete $instances{$self+0};
+  }
+  sub CLONE {
+    my ($class) = @_;
+    foreach my $self (values %instances) {
+      $self->close;
+    }
+  }
 
   sub new {
     my $class = shift;
-    return bless { @_ }, $class;
+    my $self = bless { @_ }, $class;
+    weaken($instances{$self+0} = $self);
+    return $self;
   }
 
   sub default_filename {
     my ($class) = @_;
-    return File::Spec->catfile (MyOEIS->oeis_directory(), 'names');
+    return Math::OEIS->find_file($class->base_filename);
   }
 
   sub filename {
     my ($self) = @_;
     if (ref $self && defined $self->{'filename'}) {
-        return $self->{'filename'};
+      return $self->{'filename'};
     }
     return $self->default_filename;
   }
@@ -553,6 +586,97 @@ similar database if it exists and is up-to-date.
       $fh
     });
   }
+  sub close {
+    my ($self) = @_;
+    if (my $fh = delete $self->{'fh'}) {
+      close $fh
+        or croak "Cannot close ",$self->filename,": ",$!;
+    }
+  }
+
+}
+
+=head1 NAME
+
+Math::OEIS::Names - read the OEIS F<names> file
+
+=head1 SYNOPSIS
+
+ my $name = Math::OEIS::Names->anum_to_name('A123456');
+
+=head1 DESCRIPTION
+
+This is an interface to the OEIS F<names> file.  The F<names> file is each
+A-number and its name.  The name is a single line desciption (perhaps a
+slightly long line).
+
+The F<names> file is sorted by A-number so the lookup is a text file binary
+search.
+
+=head1 FUNCTIONS
+
+=over
+
+=item C<$nobj = Math::OEIS::Names-E<gt>new(key =E<gt> value, ...)>
+
+Create and return a new C<Math::OEIS::Names> object to read an OEIS "names"
+file.  The optional key/value parameters can be
+
+    filename => $filename         default ~/OEIS/names
+    fh       => $filehandle
+
+The default filename is F<~/OEIS/names>, so the F<OEIS> directory under the
+user's home directory.  A different filename can be given, or an open
+filehandle can be given.
+
+=item C<$name = Math::OEIS::Names-E<gt>anum_to_name($anum)>
+
+=item C<$name = $nobj-E<gt>anum_to_name($anum)>
+
+For a given C<$anum> string such as "A000001" return the sequence name
+as a string, or if not found then C<undef>.
+
+C<$name> may contain non-ASCII characters.  In Perl 5.8 and higher C<$name>
+is Perl wide chars.  In earlier Perl C<$name> is the native encoding of the
+names file (which is UTF-8).
+
+=item C<$filename = $nobj-E<gt>filename()>
+
+Return the names filename from a given C<$nobj> object.
+
+=item C<$filename = Math::OEIS::Names-E<gt>default_filename()>
+
+=item C<$filename = $nobj-E<gt>default_filename()>
+
+Return the default filename which is used if no C<filename> or C<fh> option
+is given.  C<default_filename()> can be called either as a class method or
+object method.
+
+=item C<Math::OEIS::Names-E<gt>close()>
+
+=item C<$nobj-E<gt>close()>
+
+=back
+
+=head1 SEE ALSO
+
+C<Math::OEIS::Stripped>
+
+=cut
+
+{
+  package Math::OEIS::Names;
+  use strict;
+  use Carp 'croak';
+  use Search::Dict;
+  use File::Spec;
+
+  use base 'Math::OEIS::SortedFile';
+  use base 'Class::Singleton';
+  *_new_instance = __PACKAGE__->can('new');
+
+  use constant base_filename => 'names';
+
   # return A-number string, or undef
   sub line_to_anum {
     my ($line) = @_;
@@ -612,6 +736,23 @@ similar database if it exists and is up-to-date.
 
 #------------------------------------------------------------------------------
 
+=head1 NAME
+
+Math::OEIS::Stripped - read the OEIS F<stripped> file
+
+=head1 SYNOPSIS
+
+ my @values = Math::OEIS::Names->anum_to_values('A123456');
+
+=head1 DESCRIPTION
+
+This is an interface to the OEIS F<stripped> file.  The F<stripped> file is
+each A-number and its sample values.  There's usually up to about 200
+characters worth of sample values.
+
+The F<stripped> file is sorted by A-number so the lookup is a text file
+binary search.
+
 =head1 FUNCTIONS
 
 =over
@@ -632,28 +773,45 @@ filehandle can be given.
 
 =item C<$str = Math::OEIS::Stripped-E<gt>anum_to_values_str($anum)>
 
+=item C<@values = $mos-E<gt>anum_to_values($anum)>
+
+=item C<$str = $mos-E<gt>anum_to_values_str($anum)>
+
 Return the values from the stripped file for given C<$anum> (a string such
 as "A000001").
 
 C<anum_to_values()> returns a list of values, or no values if not found.
-C<anum_to_values_str()> returns a string like "1,2,3,4" or C<undef> if not
-found.
+Any values bigger than a usual Perl integer are automatically converted to
+C<Math::BigInt> so as to preserve the exact value.
 
-The stripped file has a leading comma on its values list, but this is
-removed from C<anum_to_values_str()> for convenience of subsequent C<split>
-or similar.
+C<anum_to_values_str()> returns a string like "1,2,3,4" or C<undef> if not
+found.  The stripped file has a leading comma on its values list, but this
+is removed for convenience of subsequent C<split> or similar.
 
 Draft sequences have an empty values list ",,".  The return for them is the
 same as "not found", reckoning that it doesn't exist yet.
   
 =item C<$filename = $mos-E<gt>filename()>
 
-=item C<$filename = Math::OEIS::Stripped-E<gt>filename()>
+Return the filename from a given C<$mos> object.
+
+=item C<$filename = Math::OEIS::Stripped-E<gt>default_filename()>
+
+=item C<$filename = $mos-E<gt>default_filename()>
   
-Return the stripped filename from a given C<$mos> object, or the default
-filename if called as a class method C<Math::OEIS::Stripped>.
+Return the default filename which is used if no C<filename> or C<fh> option
+is given.  C<default_filename()> can be called either as a class method or
+object method.
+
+=item C<Math::OEIS::Stripped-E<gt>close()>
+
+=item C<$mos-E<gt>close()>
 
 =back  
+
+=head1 SEE ALSO
+
+C<Math::OEIS::Names>
 
 =cut
 
@@ -664,35 +822,16 @@ filename if called as a class method C<Math::OEIS::Stripped>.
   use Search::Dict;
   use File::Spec;
 
+  use base 'Math::OEIS::SortedFile';
   use base 'Class::Singleton';
-  *_new_instance = \&new;
+  *_new_instance = __PACKAGE__->can('new');
+
+  use constant base_filename => 'stripped';
 
   sub new {
     my $class = shift;
-    return bless { use_bigint => 'if_needed',
-                   @_ }, $class;
-  }
-
-  sub default_filename {
-    my ($class) = @_;
-    return File::Spec->catfile (MyOEIS->oeis_directory(), 'stripped');
-  }
-  sub filename {
-    my ($self) = @_;
-    if (ref $self && defined $self->{'filename'}) {
-        return $self->{'filename'};
-    }
-    return $self->default_filename;
-  }
-
-  sub fh {
-    my ($self) = @_;
-    return ($self->{'fh'} ||= do {
-      my $filename = $self->filename;
-      open my $fh, '<', $filename
-        or croak "Cannot open ",$filename,": ",$!;
-      $fh
-    });
+    return $class->SUPER::new (use_bigint => 'if_needed',
+                               @_);
   }
 
   sub anum_to_values {
@@ -808,6 +947,9 @@ filename if called as a class method C<Math::OEIS::Stripped>.
 
 #------------------------------------------------------------------------------
 
+
+#------------------------------------------------------------------------------
+
 # my @values = Math::OEIS::Stripped->anum_to_values('A000129');
 # ### @values
 
@@ -887,6 +1029,7 @@ sub path_enclosed_area {
   sub path_boundary_points_ft {
     my ($path, $n_limit, $x,$y, $to_x,$to_y, %options) = @_;
     ### path_boundary_points_ft(): "$x,$y to $to_x,$to_y"
+    ### $n_limit
 
     my $lattice_type = ($options{'lattice_type'} || 'square');
     my $dirtable = $lattice_type_to_dirtable{$lattice_type};
@@ -987,5 +1130,124 @@ sub any_consecutive {
   }
   return 0;
 }
+
+# Return the count of single points in the path from N=Nstart to N=$n_end
+# inclusive.  Anything which happends beyond $n_end does not count, so a
+# point which is doubled somewhere beyond $n_end is still reckoned as single.
+#
+sub path_n_to_singles {
+  my ($path, $n_end) = @_;
+  my $ret = 0;
+  foreach my $n ($path->n_start .. $n_end) {
+    my ($x,$y) = $path->n_to_xy($n) or next;
+    my @n_list = $path->xy_to_n_list($x,$y);
+    if (@n_list == 1
+        || (@n_list == 2
+            && $n == $n_list[0]
+            && $n_list[1] > $n_end)) {
+      $ret++;
+    }
+  }
+  return $ret;
+}
+
+# Return the count of doubled points in the path from N=Nstart to N=$n_end
+# inclusive.  Anything which happends beyond $n_end does not count, so a
+# point which is doubled somewhere beyond $n_end is not reckoned as doubled
+# here.
+#
+sub path_n_to_doubles {
+  my ($path, $n_end) = @_;
+  my $ret = 0;
+  foreach my $n ($path->n_start .. $n_end) {
+    my ($x,$y) = $path->n_to_xy($n) or next;
+    my @n_list = $path->xy_to_n_list($x,$y);
+    if (@n_list == 2
+        && $n == $n_list[0]
+        && $n_list[1] <= $n_end) {
+      $ret++;
+    }
+  }
+  return $ret;
+}
+
+# # Return true if the X,Y point at $n is visited only once.
+# sub path_n_is_single {
+#   my ($path, $n) = @_;
+#   my ($x,$y) = $path->n_to_xy($n) or return 0;
+#   my @n_list = $path->xy_to_n_list($x,$y);
+#   return scalar(@n_list) == 1;
+# }
+
+# Return the count of distinct visited points in the path from N=Nstart to
+# N=$n_end inclusive.
+#
+sub path_n_to_visited {
+  my ($path, $n_end) = @_;
+  my $ret = 0;
+  foreach my $n ($path->n_start .. $n_end) {
+    my ($x,$y) = $path->n_to_xy($n) or next;
+    my @n_list = $path->xy_to_n_list($x,$y);
+    if ($n_list[0] == $n) {  # relying on sorted @n_list
+      $ret++;
+    }
+  }
+  return $ret;
+}
+
+#------------------------------------------------------------------------------
+
+sub gf_term {
+  my ($gf_str, $i) = @_;
+  my ($num,$den) = ($gf_str =~ m{(.*)/(.*)}) or die $gf_str;
+  $num = Math::Polynomial->new(poly_parse($num));
+  $den = Math::Polynomial->new(poly_parse($den));
+  my $q;
+  foreach (0 .. $i) {
+    $q = $num->coeff(0) / $den->coeff(0);
+    $num -= $q * $den;
+    $num->coeff(0) == 0 or die;
+  }
+  return $q;
+}
+sub poly_parse {
+  my ($str) = @_;
+  ### poly_parse(): $str
+  unless ($str =~ /^\s*[+-]/) {
+    $str = "+ $str";
+  }
+  my @coeffs;
+  my $end = 0;
+  ### $str
+  while ($str =~ m{\s*([+-])     # +/- between terms
+                   (\s*(-?\d+))? # coefficient
+                   ((\s*\*)?     # optional * multiplier
+                     \s*x        # variable
+                     \s*(\^\s*(\d+))?)?  # optional exponent
+                   \s*
+                }xg) {
+    ### between: $1
+    ### coeff  : $2
+    ### x      : $4
+    $end = pos($str);
+    last if ! defined $2 && ! defined $4;
+    my $coeff = (defined $2 ? $2 : 1);
+    my $power = (defined $7 ? $7
+                 : defined $4 ? 1
+                 : 0);
+    if ($1 eq '-') { $coeff = -$coeff; }
+    $coeffs[$power] += $coeff;
+    ### $coeff
+    ### $power
+    ### $end
+  }
+  ### final coeffs: @coeffs
+  $end == length($str)
+    or die "parse $str fail at pos=$end";
+  foreach (@coeffs) { $_ ||= 0 }
+  require Math::Polynomial;
+  return Math::Polynomial->new(@coeffs);
+}
+
 1;
 __END__

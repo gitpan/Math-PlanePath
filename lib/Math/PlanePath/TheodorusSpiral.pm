@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -43,7 +43,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -57,6 +57,8 @@ use Math::PlanePath::Base::Generic
 
 use constant n_start => 0;
 use constant figure => 'circle';
+use constant _UNDOCUMENTED__x_negative_at_n => 4;
+use constant _UNDOCUMENTED__y_negative_at_n => 7;
 use constant gcdxy_maximum => 1;
 use constant dx_minimum => -1; # supremum when straight
 use constant dx_maximum => 1;  # at N=0
@@ -455,7 +457,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,10 +35,23 @@ use constant xy_is_visited => 1;
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
 
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + 3;
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + 4;
+}
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E at bottom
+                                          1,1,   # NE
+                                          -1,1,  # NW
+                                          -1,-1, # SW
+                                          1,-1); # SE
 use constant absdx_minimum => 1;
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;
@@ -410,7 +423,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

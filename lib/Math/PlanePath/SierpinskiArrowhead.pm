@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -29,7 +29,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -68,6 +68,17 @@ sub x_negative {
   my ($self) = @_;
   return $x_negative{$self->{'align'}};
 }
+{
+  my %_UNDOCUMENTED__x_negative_at_n = (triangular => 3,
+                                        # right      => undef,
+                                        left       => 2,
+                                        # diagonal   => undef,
+                                       );
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n{$self->{'align'}};
+  }
+}
 
 use constant sumxy_minimum => 0;  # triangular X>=-Y
 use Math::PlanePath::SierpinskiTriangle;
@@ -84,6 +95,44 @@ sub dx_maximum {
 }
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+{
+  my %_UNDOCUMENTED__dxdy_list
+    = (triangular  => [ 2,0,   # E   N=4   six directions
+                        1,1,   # NE  N=0
+                        -1,1,  # NW  N=2
+                        -2,0,  # W   N=1
+                        -1,-1, # SW  N=15
+                        1,-1,  # SE  N=6
+                      ],
+       right     => [ 1,0,   # E   N=4
+                      1,1,   # NE  N=0
+                      0,1,   # N   N=2
+                      -1,0,  # W   N=1
+                      -1,-1, # SW  N=15
+                      0,-1,  # S   N=6
+                    ],
+       left      => [ 1,0,    # E   N=4
+                      0,1,    # N   N=0
+                      -1,1,   # NW  N=2
+                      -1,0,   # W   N=1
+                      0,-1,   # S   N=15
+                      1,-1,   # SE  N=6
+                    ],
+       diagonal  => [ 1,0,   # E  N=0
+                      0,1,   # N  N=2
+                      -1,1,  # NW  N=1
+                      -1,0,  # W  N=15
+                      0,-1,  # S  N=6
+                      1,-1,  # SE  N=4
+                    ],
+      );
+  sub _UNDOCUMENTED__dxdy_list {
+    my ($self) = @_;
+    return @{$_UNDOCUMENTED__dxdy_list{$self->{'align'}}};
+  }
+}
+use constant _UNDOCUMENTED__dxdy_list_at_n => 15;
 
 sub absdx_minimum {
   my ($self) = @_;
@@ -744,7 +793,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -31,6 +31,50 @@ use Math::PlanePath::RationalsTree;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+
+{
+  # X,Y list  cf pythag odd,even
+  require Math::PlanePath::RationalsTree;
+  require Math::ContinuedFraction;
+  foreach my $path
+    (Math::PlanePath::RationalsTree->new(tree_type => 'CW'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'SB'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'HCS'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'AYT'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'Drib'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'Bird')
+    ) {
+    print "tree_type $path->{'tree_type'}\n";
+    foreach my $depth (0 .. 6) {
+      foreach my $n ($path->tree_depth_to_n($depth) ..
+                     $path->tree_depth_to_n_end($depth)) {
+        my ($x,$y) = $path->n_to_xy($n);
+        my $flag = '';
+        if ($x%2 != $y%2) {
+          $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
+        }
+        my $octant = '';
+        if ($y < $x) {
+          $octant = 'octant';
+        }
+        unless ($octant && $flag) {
+          $octant = '.';
+          $flag = '';
+        }
+          my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+          my $cfrac_str = $cfrac->to_ascii;
+          printf "N=%5b %2d / %2d   %10s %10s   %25s\n",
+            $n, $x,$y, $flag, $octant, $cfrac_str;
+        if ($octant && $flag) {
+        }
+        $n++;
+      }
+      print "\n";
+    }
+  }
+  exit 0;
+}
 
 {
   # X,Y list CW
@@ -67,7 +111,7 @@ use Smart::Comments;
   require Math::PlanePath::RationalsTree;
   require Math::PlanePath::PythagoreanTree;
   my $pythag = Math::PlanePath::PythagoreanTree->new (coordinates=>'PQ');
-  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'AYT');
   my $oe_total = 0;
   foreach my $depth (0 .. 6) {
     my $oe = 0;
@@ -81,14 +125,16 @@ use Smart::Comments;
         $oe += $flag ? 1 : 0;
       }
       my $octant = '';
-      if ($y < $x) {
+      if ($x >= $y) {
         $octant = 'octant';
+      } else {
       }
       my $pn = $pythag->xy_to_n($x,$y);
       if ($pn) {
         $pn = n_to_pythagstr($pn);
       }
-      printf "N=%2d %2d / %2d   %10s %10s %s\n", $n, $x,$y,
+      printf "N=%2d %2d / %2d   %10s %10s %s\n",
+        $n, $x,$y,
         $flag, $octant, $pn||'';
       $n++;
     }
@@ -108,6 +154,7 @@ use Smart::Comments;
 
   exit 0;
 }
+
 
 {
   # CW successively per Moshe Newman
@@ -853,37 +900,7 @@ use Smart::Comments;
   }
 }
 
-{
-  # X,Y list  cf pythag odd,even
-  require Math::PlanePath::RationalsTree;
-  foreach my $path
-    (Math::PlanePath::RationalsTree->new(tree_type => 'SB'),
-     Math::PlanePath::RationalsTree->new(tree_type => 'CW'),
-     Math::PlanePath::RationalsTree->new(tree_type => 'HCS'),
-     Math::PlanePath::RationalsTree->new(tree_type => 'AYT'),
-     Math::PlanePath::RationalsTree->new(tree_type => 'Drib'),
-     Math::PlanePath::RationalsTree->new(tree_type => 'Bird')) {
-    print "tree_type $path->{'tree_type'}\n";
-    foreach my $depth (0 .. 5) {
-      foreach my $n ($path->tree_depth_to_n($depth) ..
-                     $path->tree_depth_to_n_end($depth)) {
-        my ($x,$y) = $path->n_to_xy($n);
-        my $flag = '';
-        if ($x%2 != $y%2) {
-          $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
-        }
-        my $octant = '';
-        if ($y < $x) {
-          $octant = 'octant';
-        }
-        printf "N=%2d %2d / %2d   %10s %10s\n", $n, $x,$y, $flag, $octant;
-        $n++;
-      }
-      print "\n";
-    }
-  }
-  exit 0;
-}
+
 {
   # HCS runs
   my $path = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');

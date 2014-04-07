@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -29,7 +29,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -56,10 +56,35 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          description => 'Arms',
                                        } ];
 
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef, 112, 9, 2, 2);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef, 2, 4, 6, 7);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
+
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_eight;
+{
+  my @_UNDOCUMENTED__dxdy_list_at_n = (undef, 18, 14, 11, 11);
+  sub _UNDOCUMENTED__dxdy_list_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
+  }
+}
+
 use constant dsumxy_minimum => -2;  # diagonals
 use constant dsumxy_maximum => 2;
 use constant ddiffxy_minimum => -2;
@@ -684,7 +709,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

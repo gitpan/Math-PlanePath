@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -74,6 +74,15 @@ use Math::PlanePath::ZOrderCurve;
 use constant n_start => 0;
 use constant xy_is_visited => 1;
 use constant absdx_minimum => 1;   # X coord always changes
+
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->{'radix'}**2;
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->{'radix'}**3;
+}
 
 sub dir_maximum_dxdy {
   my ($self) = @_;
@@ -589,7 +598,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

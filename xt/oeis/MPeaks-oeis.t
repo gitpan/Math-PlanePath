@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -34,6 +34,51 @@ use Math::PlanePath::MPeaks;
 
 
 #------------------------------------------------------------------------------
+# A049450 -- N on Y axis, n_start=0, extra initial 0
+
+MyOEIS::compare_values
+  (anum => 'A049450',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::MPeaks->new (n_start => 0);
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n (0,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A056106 -- N on Y axis, n_start=1, extra initial 1
+
+MyOEIS::compare_values
+  (anum => 'A056106',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $path = Math::PlanePath::MPeaks->new;
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n (0,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A027599 -- N on Y axis, n_start=2, extra initial 6,2
+
+MyOEIS::compare_values
+  (anum => 'A027599',
+   func => sub {
+     my ($count) = @_;
+     my @got = (6,2);
+     my $path = Math::PlanePath::MPeaks->new (n_start => 2);
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n (0,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A056109 -- N on X negative axis
 
 MyOEIS::compare_values
@@ -59,21 +104,6 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::MPeaks->new;
      for (my $x = 1; @got < $count; $x++) {
        push @got, $path->xy_to_n ($x,0);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A056106 -- N on Y axis
-
-MyOEIS::compare_values
-  (anum => 'A056106',
-   func => sub {
-     my ($count) = @_;
-     my @got = (1);
-     my $path = Math::PlanePath::MPeaks->new;
-     for (my $y = 0; @got < $count; $y++) {
-       push @got, $path->xy_to_n (0,$y);
      }
      return \@got;
    });

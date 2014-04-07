@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,6 +32,28 @@ use MyOEIS;
 
 
 
+{
+  # twindragon cf dragon
+  # diff boundary = left
+  #
+  # 28 -> 50  2*28=56
+  require Math::PlanePath::DragonCurve;
+  my $twindragon = Math::PlanePath::ComplexMinus->new;
+  my $dragon = Math::PlanePath::DragonCurve->new;
+  foreach my $k (0 .. 10) {
+    my $t = $twindragon->_UNDOCUMENTED_level_to_figure_boundary($k);
+    my $dt = $twindragon->_UNDOCUMENTED_level_to_figure_boundary($k) -
+      $twindragon->_UNDOCUMENTED_level_to_figure_boundary($k-1);
+    my $l = $dragon->_UNDOCUMENTED_level_to_left_line_boundary($k);
+    my $r = $dragon->_UNDOCUMENTED_level_to_right_line_boundary($k);
+    my $dr =
+      $dragon->_UNDOCUMENTED_level_to_right_line_boundary($k)
+        + 2*$dragon->_UNDOCUMENTED_level_to_right_line_boundary($k-1);
+    $dr = 2*$r;
+    print "$t dt=$dt $l $r $dr\n";
+  }
+  exit 0;
+}
 {
   # A203181 nxk count endings
   # distinct 10,33,108,342,1096,3501,11199,35821

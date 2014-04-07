@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -88,10 +88,34 @@ use constant parameter_info_array =>
   ];
 
 use constant xy_is_visited => 1;
+
+#    2w+4 -- 2w+3 ----- w+2
+#      |                 |
+#    2w+5      0------- w+1
+#      |     
+#    2w+6 ---
+#                  ^
+#                 X=0
+#
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + ($self->{'wider'} ? 0 : 4);
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + 2*$self->{'wider'} + 6;
+}
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  return $self->n_start + 2*$self->{'wider'} + 4;
+}
+
 use constant dx_minimum => -1; # NSEW straight only
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
 use constant dsumxy_minimum => -1; # NSEW straight only
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -1;
@@ -434,6 +458,41 @@ sub n_to_dxdy {
 #
 #
 
+#------------------------------------------------------------------------------
+
+sub _NOTDOCUMENTED_n_to_figure_boundary {
+  my ($self, $n) = @_;
+  ### _NOTDOCUMENTED_n_to_figure_boundary(): $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
+
+  if ($n < 1) {
+    return undef;
+  }
+
+  my $wider = $self->{'wider'};
+  if ($n <= $wider) {
+    # single block row
+    # +---+-----+----+
+    # | 1 | ... | $n |  boundary = 2*N + 2
+    # +---+-----+----+
+    return 2*$n + 2;
+  }
+
+  my $d = int((sqrt(int(4*$n) + $wider*$wider - 2) - $wider) / 2);
+  ### $d
+  ### $wider
+  ### cmp: $d*($d+1+$wider) + $wider + 1
+
+  if ($n > $d*($d+1+$wider)) {
+    $wider++;
+    ### increment for +2 after turn ...
+  }
+  return 4*$d + 2*$wider + 2;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -797,8 +856,8 @@ L<https://oeis.org/wiki/Ulam's_spiral>
       A079813    abs(dY), being k 0s followed by k 1s
       A063826    direction 1=right,2=up,3=left,4=down
 
-      A027709    boundary length of N points
-      A078633    grid sticks to make N points
+      A027709    boundary length of N unit squares
+      A078633    grid sticks to make N unit squares
 
       A033638    N turn positions (extra initial 1, 1)
       A172979    N turn positions which are primes too

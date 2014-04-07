@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -38,18 +38,18 @@ use MyOEIS;
 
 sub want_anum {
   my ($anum) = @_;
-  # return 0 unless $anum =~ /A062157/;
+  return 0 unless $anum =~ /A208665/;
   # return 0 unless $anum =~ /A151922|A183060/;
   # return 0 unless $anum =~ /A177702|A102283|A131756/;
   return 1;
 }
 sub want_planepath {
   my ($planepath) = @_;
-   return 0 unless $planepath =~ /FactorRationals/;
+  # return 0 unless $planepath =~ /WythoffP/;
   # return 0 unless $planepath =~ /Octag|Pent|Hept/;
   # return 0 unless $planepath =~ /Divis|DiagonalRationals|CoprimeCol/;
   # return 0 unless $planepath =~ /DiamondSpiral/;
-  # return 0 unless $planepath =~ /LCorner/;
+  # return 0 unless $planepath =~ /Coprime/;
   # return 0 unless $planepath =~ /LCorn|RationalsTree/;
   # return 0 unless $planepath =~ /^Corner$/i;
   # return 0 unless $planepath =~ /SierpinskiArrowheadC/;
@@ -151,6 +151,9 @@ sub check_class {
   } elsif ($anum eq 'A051132') {
     # Hypot
     $max_count = 1000;
+  } elsif ($anum eq 'A173027') {
+    # WythoffPreiminaryTriangle
+    $max_count = 3000;
   }
 
   my ($want, $want_i_start) = MyOEIS::read_values ($anum,

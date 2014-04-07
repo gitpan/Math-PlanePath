@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,28 +43,32 @@ use constant n_frac_discontinuity => .5;
 
 use constant x_minimum => 1;
 use constant y_minimum => 1;
-use constant diffxy_minimum => 0; # octant Y<=X so X-Y>=0
+               use constant diffxy_minimum => 0; # octant Y<=X so X-Y>=0
 use constant gcdxy_maximum => 1;  # no common factor
 
 use constant dx_minimum => 0;
 use constant dx_maximum => 1;
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
-# shared by DiagonalRationals
 use constant parameter_info_array =>
-  [ { name        => 'n_start',
-      share_key   => 'n_start_0',
-      type        => 'integer',
-      default     => 0,
-      width       => 3,
-      description => 'Starting N.',
-    },
+  [
+   { name        => 'direction',
+     share_key   => 'direction_updown',
+     display     => 'Direction',
+     type        => 'enum',
+     default     => 'up',
+     choices     => ['up','down'],
+     choices_display => ['Down','Up'],
+     description => 'Number points upwards or downwards in the columns.',
+   },
+   Math::PlanePath::Base::Generic::parameter_info_nstart0(),
   ];
 
 #------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new (@_);
+  $self->{'direction'} ||= 'up';
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
@@ -148,7 +152,7 @@ sub n_to_xy {
   for (;;) {
     if (_coprime($x,$y)) {
       if (--$n < 0) {
-        return ($x, $frac + $y);
+        last;
       }
     }
     if (++$y >= $x) {
@@ -156,6 +160,12 @@ sub n_to_xy {
       return;
     }
   }
+
+  $y += $frac;
+  if ($x >= 2 && $self->{'direction'} eq 'down') {
+    $y = $x - $y;
+  }
+  return ($x, $y);
 }
 
 sub xy_is_visited {
@@ -183,6 +193,10 @@ sub xy_to_n {
       || $y >= $x+($x==1)   # Y<X except X=Y=1 included
       || ! _coprime($x,$y)) {
     return undef;
+  }
+
+  if ($x >= 2 && $self->{'direction'} eq 'down') {
+    $y = $x - $y;
   }
 
   while ($#_x_to_n < $x) {
@@ -336,9 +350,34 @@ totient sums in some way.
 The pattern of coprimes or not within a column is the same going up as going
 down, since X,X-Y has the same coprimeness as X,Y.  This means coprimes
 occur in pairs from X=3 onwards.  When X is even the middle point Y=X/2 is
-not coprime since it has common factor 2, from X=4 onwards.  So there's an
+not coprime since it has common factor 2 from X=4 onwards.  So there's an
 even number of points in each column from X=2 onwards and those cumulative
 totient totals horizontally along X=1 are therefore always even likewise.
+
+=head2 Direction Down
+
+Option C<direction =E<gt> 'down'> reverses the order within each column to
+go downwards to the X axis.
+
+=cut
+
+# math-image --path=CoprimeColumns,direction=down --all --output=numbers --size=50x10
+
+=pod
+
+    direction => "down"
+
+     8 |                           22
+     7 |                        18 23        numbering
+     6 |                     12              downwards
+     5 |                  10 13 19 24            |
+     4 |                6    14    25            |
+     3 |             4  7    15 20               v
+     2 |          2     8    16    26
+     1 |    0  1  3  5  9 11 17 21 27
+    Y=0|
+       +-----------------------------
+       X=0  1  2  3  4  5  6  7  8  9
 
 =head2 N Start
 
@@ -374,9 +413,12 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::CoprimeColumns-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::CoprimeColumns-E<gt>new (n_start =E<gt> $n)>
+=item C<$path = Math::PlanePath::CoprimeColumns-E<gt>new (direction =E<gt> $str, n_start =E<gt> $n)>
 
-Create and return a new path object.
+Create and return a new path object.  C<direction> (a string) can be
+
+    "up"       (the default)
+    "down"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -441,7 +483,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -72,7 +72,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -99,6 +99,24 @@ sub y_negative {
   my ($self) = @_;
   return ($self->{'arms'} >= 5);
 }
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef,
+                                        undef,undef,8,7,
+                                        4,4,4,4);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef,
+                                        undef,undef,undef,undef,
+                                        44,23,13,14);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
 
 sub sumxy_minimum {
   my ($self) = @_;
@@ -117,6 +135,7 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 use constant dsumxy_minimum => -1; # straight only
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -1;
@@ -1364,6 +1383,12 @@ A020991 etc have values N-1, ie. the numbering differs by 1 from the N here,
 since they're based on the A020986 cumulative GRS starting at n=0 for value
 GRS(0).  This matches the turn sequence A106665 starting at n=0 for the
 first turn, whereas for the path here that's N=1.
+
+    arms=2
+      A062880   N on X axis, base 4 digits 0,2 only
+
+    arms=3
+      A001196   N on X axis, base 4 digits 0,3 only
 
 =head1 SEE ALSO
 

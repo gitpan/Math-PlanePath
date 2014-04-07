@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,6 +36,9 @@
 # Return the $x,$y which has ($a,$b).
 # Advance $a,$b if before start of row.
 
+# Carlitz and Hoggart "Fibonacci Representations" FQ vol 10,  1972
+# http://www.fq.math.ca/Scanned/10-1/carlitz1.pdf
+
 
 package Math::PlanePath::WythoffArray;
 use 5.004;
@@ -44,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -612,7 +615,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2012, 2013 Kevin Ryde
+Copyright 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

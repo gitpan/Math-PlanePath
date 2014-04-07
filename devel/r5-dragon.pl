@@ -32,6 +32,90 @@ use lib 'xt';
 # use Smart::Comments;
 
 
+
+{
+  # recurrence
+  # v3 = a*v0 + b*v1 + c*v2
+  #  [v0 v1 v2] [a]   [v3]
+  #  [v1 v2 v3] [b] = [v4]
+  #  [v2 v3 v4] [c]   [v5]
+  #  [a]   [v0 v1 v2] -1   [v1]
+  #  [b] = [v1 v2 v3]    * [v2]
+  #  [c]   [v2 v3 v4]      [v3]
+
+  $|=1;
+  my @array = (
+43,93,200,414,853,1707,3424,6794,13495,26601,52536,103358,203457
+              );
+  # @array = ();
+  # foreach my $k (5 .. 10) {
+  #   push @array, R_formula(2*$k+1);
+  # }
+  # require MyOEIS;
+  # require Math::PlanePath::R5DragonCurve;
+  # my $path = Math::PlanePath::R5DragonCurve->new;
+  # foreach my $k (0 .. 30) {
+  #   my $value = MyOEIS::path_boundary_length($path, 5**$k,
+  #                                            # side => 'left',
+  #                                           );
+  #   last if $value > 10_000;
+  #   push @array, $value;
+  #   print "$value,";
+  # }
+  print "\n";
+  array_to_recurrence_pari(\@array);
+  print "\n";
+  my @recurr = array_to_recurrence(\@array);
+  print join(', ',@recurr),"\n";
+  exit 0;
+
+  sub array_to_recurrence_pari {
+    my ($aref) = @_;
+    my $order = int(scalar(@array)/2); # 2*order-1 = @array-1
+    my $str = "m=[";
+    foreach my $i (0 .. $order-1) {
+      if ($i) { $str .= "; " }
+      foreach my $j (0 .. $order-1) {
+        if ($j) { $str .= "," }
+        $str .= $aref->[$i+$j];
+      }
+    }
+    $str .= "]\n";
+    $str .= "v=[";
+    foreach my $i ($order .. 2*$order-1) {
+      if ($i > $order) { $str .= ";" }
+      $str .= $aref->[$i];
+    }
+    $str .= "];";
+    $str .= "(m^-1)*v\n";
+    print $str;
+    require IPC::Run;
+    IPC::Run::run(['gp'],'<',\$str);
+  }
+  sub array_to_recurrence {
+    my ($aref) = @_;
+    # 2*order-1 = @array-1
+    my $order = int(scalar(@array)/2);
+    require Math::Matrix;
+    my $m = Math::Matrix->new(map {[
+                                    map { $array[$_]
+                                        } $_ .. $_+$order-1
+                                   ]}
+                              0 .. $order-1);
+    print $m;
+    print $m->determinant,"\n";
+
+    my $v = Math::Matrix->new(map {[ $array[$_] ]} $order .. 2*$order-1);
+    print $v;
+
+    $m = $m->invert;
+    print $m;
+
+    $v = $m*$v;
+    print $v;
+    return (map {$v->[$_][0]} reverse 0 .. $order-1);
+  }
+}
 {
   # at N=29
   require Math::NumSeq::PlanePathDelta;

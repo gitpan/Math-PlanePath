@@ -15,6 +15,13 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+Version 115, March 2014
+    - CoprimeColumns new parameter direction=down
+    - MPeaks new parameter n_start
+    - Math::PlanePath::Base::Generic new parameter_info_nstart0()
+
 Version 114, February 2014
     - PlanePathDelta new delta_type=>"dRadius","dRSquared"
     - CCurve xy_to_n() by division instead of search

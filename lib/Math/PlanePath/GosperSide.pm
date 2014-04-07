@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -60,10 +60,23 @@ use constant n_start => 0;
 #                                          description => 'Arms',
 #                                        } ];
 
+use constant _UNDOCUMENTED__x_negative_at_n => 113;
+use constant _UNDOCUMENTED__y_negative_at_n => 11357;
+
 use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_six;
+# 2,0,   # E  N=0
+# 1,1,   # NE  N=1
+# -1,1,   # NW  N=4
+# -2,0,   # W  N=13
+# -1,-1,   # SW  N=40
+# 1,-1,   # SE  N=121
+use constant _UNDOCUMENTED__dxdy_list_at_n => 121;
+
 use constant absdx_minimum => 1;
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;
@@ -298,7 +311,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

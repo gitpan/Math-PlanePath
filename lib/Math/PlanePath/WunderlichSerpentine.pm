@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -86,6 +86,57 @@ use Math::PlanePath::PeanoCurve;
 *dx_maximum = Math::PlanePath::PeanoCurve->can('dx_maximum');
 *dy_minimum = Math::PlanePath::PeanoCurve->can('dy_minimum');
 *dy_maximum = Math::PlanePath::PeanoCurve->can('dy_maximum');
+
+*_UNDOCUMENTED__dxdy_list = Math::PlanePath::PeanoCurve->can('_UNDOCUMENTED__dxdy_list');
+#
+#     bit=0           bit=1
+#  *---  b^2-1 -- b^2 
+#  |               |  
+#  *-------        |
+#          |       |
+#  0 ----- b
+#
+#     bit=0           bit=0
+#  *---  b^2-1 -- b^2 ---- b^2+b-1
+#  |                          |
+#  *-------
+#          |   
+#  0 ----- b
+#
+#  *--------
+#  |
+#  *-------*     bit=1
+#          |
+#  *---  b^2-1
+#  |              
+#  *-------      bit=1
+#          |      
+#  0 ----- b
+#
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  my $radix = $self->{'radix'};
+  my $n = $radix*$radix;
+  if ($self->{'serpentine_array'}->[0]) {
+    foreach my $i (1 .. $self->{'radix'}-1) {
+      if ($self->{'serpentine_array'}->[$i] == 0) {
+        return $n*$i + $radix;
+      }
+    }
+    if ($self->{'serpentine_array'}->[$radix] == 0) {
+      return $n*$radix;
+    } else {
+      return $n*$radix + $radix-1;
+    }
+  } else {
+    if ($self->{'serpentine_array'}->[1]) {
+      return $n;
+    } else {
+      return $n + $radix-1;
+    }
+  }
+}
+
 *dsumxy_minimum = \&dx_minimum;
 *dsumxy_maximum = \&dx_maximum;
 *ddiffxy_minimum = \&dy_minimum;
@@ -736,7 +787,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,7 +36,7 @@ require Math::PlanePath::DivisibleColumns;
 # VERSION
 
 {
-  my $want_version = 114;
+  my $want_version = 115;
   ok ($Math::PlanePath::DivisibleColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DivisibleColumns->VERSION,  $want_version,
@@ -62,7 +62,7 @@ require Math::PlanePath::DivisibleColumns;
 }
 
 #------------------------------------------------------------------------------
-# n_start, x_negative, y_negative
+# n_start(), x_negative(), y_negative()
 
 {
   my $path = Math::PlanePath::DivisibleColumns->new;

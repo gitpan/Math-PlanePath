@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,6 +50,8 @@ use Math::PlanePath::SacksSpiral;
 
 
 use constant n_frac_discontinuity => 0;
+use constant _UNDOCUMENTED__x_negative_at_n => 3;
+use constant _UNDOCUMENTED__y_negative_at_n => 5;
 use constant sumabsxy_minimum => 2; # minimum X=2,Y=0 or X=1,Y=1
 use constant rsquared_minimum => 2; # minimum X=1,Y=1
 
@@ -718,7 +720,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

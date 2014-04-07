@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -39,7 +39,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -219,6 +219,7 @@ sub n_to_xy {
 # all even points when arms==6
 sub xy_is_visited {
   my ($self, $x, $y) = @_;
+  # FIXME
   return 0;
   if ($self->{'arms'} == 6) {
     return xy_is_even($self,$x,$y);
@@ -251,6 +252,7 @@ sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### R7DragonCurve xy_to_n_list(): "$x, $y"
 
+  # FIXME
   return;
 
   $x = round_nearest($x);

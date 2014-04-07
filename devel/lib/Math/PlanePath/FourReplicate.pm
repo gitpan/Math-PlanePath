@@ -1,4 +1,4 @@
-# Copyright 2013 Kevin Ryde
+# Copyright 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -40,7 +40,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

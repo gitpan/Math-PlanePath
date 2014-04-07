@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -141,14 +141,14 @@ sub ddiffxy_maximum {
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down'
-          ? (0,1)   # down, vertical or more
-          : (1,0)); # up, horiz at N=1
+          ? (0,1)   # North, vertical at N=1
+          : (1,0)); # East,  horiz at N=1
 }
 sub dir_maximum_dxdy {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down'
-          ? (1,-1)    # South-East
-          : (2,-1));  # ESE
+          ? (1,-1)    # South-East at N=2
+          : (2,-1));  # ESE        at N=3
 }
 
 # If Xstart>0 or Ystart>0 then the origin is not reached.
@@ -580,7 +580,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

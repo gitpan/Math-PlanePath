@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,6 +53,32 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E       # no N,S
+                                          1,1,   # NE
+                                          -1,1,  # NW
+                                          -1,0,  # W
+                                          -1,-1, # SW
+                                          1,-1); # SE
+# last NW at lower right
+#     2w+4 ------- w+1      
+#       \          /
+#        *  0---- w  *
+#       /             \
+#     2w+6 ---------- 3w+10    w=3; 1+3*w+10=20
+#
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + ($self->{'wider'} ? 0 : 3);
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + 2*$self->{'wider'} + 6;
+}
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  return $self->n_start + 3*$self->{'wider'} + 10;
+}
+
 use constant absdx_minimum => 1;  # abs(dX)=1 always
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;
@@ -75,7 +101,7 @@ sub new {
   return $self;
 }
 
-# [1,2,3,4],[1,12,35,70]
+# [1,2,3,4],[1,12,35,70]   # horizontal
 # N = (6 d^2 - 7 d + 2)
 #   = (6*$d**2 - 7*$d + 2)
 #   = ((6*$d - 7)*$d + 2)
@@ -487,10 +513,7 @@ L<http://oeis.org/A033581> (etc)
       A033568    N on X=Y diagonal, alternate second pents (2*n-1)*(3*n-1)
       A085473    N on south-east diagonal
 
-    wider=2
-      A033581    N on Y axis (6*n^2) except for initial N=2
-
-    n_start=0
+    wider=0, n_start=0
       A211014    N on X axis, 14-gonal numbers of the second kind
       A139267    N on Y axis, 2*octagonal
       A049452    N on X negative, alternate pentagonals
@@ -499,6 +522,18 @@ L<http://oeis.org/A033581> (etc)
       A094159    N on north-west diagonal, 3*hexagonals
       A049453    N on south-west diagonal, alternate second pentagonal
       A195319    N on south-east diagonal, 3*second hexagonals
+
+    wider=1, n_start=0
+      A051866    N on X axis, 14-gonal numbers
+      A049453    N on Y negative, alternate second pentagonal
+      A033569    N on north-west diagonal
+      A085473    N on south-west diagonal
+      A080859    N on Y negative
+      A033570    N on south-east diagonal
+                   alternate pentagonals (2n+1)*(3n+1)
+
+    wider=2, n_start=1
+      A033581    N on Y axis (6*n^2) except for initial N=2
 
 =head1 SEE ALSO
 
@@ -513,7 +548,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

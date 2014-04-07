@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 20;
+plan tests => 23;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -77,6 +77,58 @@ sub dxdy_to_dir4 {
 }
 
 
+
+
+#------------------------------------------------------------------------------
+# A077949 join area increments, ie. first differences
+
+MyOEIS::compare_values
+  (anum => 'A077949',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $prev = 0;
+     for (my $k = 3; @got < $count; $k++) {
+       my $join_area = $dragon->_UNDOCUMENTED_level_to_enclosed_area_join($k);
+       push @got, $join_area - $prev;
+       $prev = $join_area;
+     }
+     return \@got;
+   });
+
+# A003479 join area
+MyOEIS::compare_values
+  (anum => 'A003479',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 3; @got < $count; $k++) {
+       push @got, $dragon->_UNDOCUMENTED_level_to_enclosed_area_join($k);
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A003478 enclosed area increment, ie. first differences
+
+MyOEIS::compare_values
+  (anum => 'A003478',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $prev_area = 0;
+     for (my $k = 4; @got < $count; $k++) {
+       my $area = MyOEIS::path_enclosed_area ($dragon, 2**$k);
+       push @got, $area - $prev_area;
+       $prev_area = $area;
+     }
+     return \@got;
+   });
+
 #------------------------------------------------------------------------------
 # A003230 enclosed area to N <= 2^k
 
@@ -88,6 +140,37 @@ MyOEIS::compare_values
      my @got;
      for (my $k = 4; @got < $count; $k++) {
        push @got, MyOEIS::path_enclosed_area ($dragon, 2**$k);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A164395 single points N=0 to N=2^k-1 inclusive, for k=4 up
+#   is count binary with no substrings equal to 0001 or 0101
+
+MyOEIS::compare_values
+  (anum => 'A164395',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 4; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_singles ($dragon, 2**$k - 1);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A003476 single points N=0 to N=2^k inclusive
+
+MyOEIS::compare_values
+  (anum => 'A003476',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_singles ($dragon, 2**$k);
      }
      return \@got;
    });

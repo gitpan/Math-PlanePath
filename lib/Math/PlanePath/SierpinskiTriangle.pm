@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -52,7 +52,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -77,7 +77,7 @@ use constant parameter_info_array =>
       choices   => ['triangular', 'right', 'left','diagonal'],
       choices_display => ['Triangular', 'Right', 'Left','Diagonal'],
     },
-    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart0(),
   ];
 
 my %x_negative = (triangular => 1,
@@ -87,6 +87,12 @@ my %x_negative = (triangular => 1,
 sub x_negative {
   my ($self) = @_;
   return $x_negative{$self->{'align'}};
+}
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'triangular' || $self->{'align'} eq 'left'
+          ? $self->n_start + 1
+          : undef);
 }
 use constant class_y_negative => 0;
 use constant default_n_start => 0;
@@ -1286,7 +1292,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

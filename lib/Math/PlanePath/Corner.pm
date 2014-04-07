@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -54,7 +54,7 @@ use strict;
 use List::Util 'min';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -62,7 +62,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 
 use constant class_x_negative => 0;
@@ -97,7 +97,8 @@ use constant dsumxy_maximum => 1;  # East along top
 #            = -wider - 2*k - 1  unbounded negative
 use constant ddiffxy_maximum => 1; # East along top
 
-use constant dir_maximum_dxdy => (0,-1); # South
+# use constant dir_minimum_dxdy => (1,0); # East  at N=2
+use constant dir_maximum_dxdy => (0,-1); # South at N=3
 
 
 #------------------------------------------------------------------------------
@@ -299,6 +300,40 @@ sub rect_to_n_range {
           $self->xy_to_n ($x2,$y2));
 }
 
+#------------------------------------------------------------------------------
+
+sub _NOTDOCUMENTED_n_to_figure_boundary {
+  my ($self, $n) = @_;
+  ### _NOTDOCUMENTED_n_to_figure_boundary(): $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
+
+  if ($n < 1) {
+    return undef;
+  }
+
+  my $wider = $self->{'wider'};
+  if ($n <= $wider) {
+    # single block row
+    # +---+-----+----+
+    # | 1 | ... | $n |  boundary = 2*N + 2
+    # +---+-----+----+
+    return 2*$n + 2;
+  }
+
+  my $d = int((sqrt(int(4*$n) + $wider*$wider - 2) - $wider) / 2);
+  ### $d
+  ### $wider
+
+  if ($n > $d*($d+1+$wider) + $wider) {
+    $wider++;
+    ### increment for +2 after turn ...
+  }
+  return 4*$d + 2*$wider + 2;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -600,7 +635,7 @@ L<http://oeis.org/A196199> (etc)
       A060736    permutation N by diagonals down from Y axis
       A064788     inverse
 
-      A027709    boundary length of N points
+      A027709    boundary length of N unit squares
       A078633    grid sticks of N points
 
     n_start=0
@@ -643,7 +678,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

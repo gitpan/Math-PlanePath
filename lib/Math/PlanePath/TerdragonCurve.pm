@@ -41,7 +41,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -63,6 +63,20 @@ use constant parameter_info_array =>
       description => 'Arms',
     } ];
 
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef, 13, 5, 5, 6, 7, 8);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef, 159, 75, 20, 11, 9, 10);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
 sub dx_minimum {
   my ($self) = @_;
   return ($self->{'arms'} == 1 ? -1 : -2);
@@ -70,6 +84,20 @@ sub dx_minimum {
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+sub _UNDOCUMENTED__dxdy_list {
+  my ($self) = @_;
+  return ($self->{'arms'} == 1
+          ? Math::PlanePath::_UNDOCUMENTED__dxdy_list_three()
+          : Math::PlanePath::_UNDOCUMENTED__dxdy_list_six());
+}
+{
+  my @_UNDOCUMENTED__dxdy_list_at_n = (undef, 4, 9, 13, 7, 8, 5);
+  sub _UNDOCUMENTED__dxdy_list_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
+  }
+}
 use constant absdx_minimum => 1;
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;
@@ -456,17 +484,17 @@ Then N=6 to N=9 is a plain horizontal, which is the angle of N=2 to N=3,
             \
        0-----1
 
-Notice X=1,Y=1 is visited twice, as N=2 and N=5.  Similarly X=2,Y=2 as N=4
+Notice X=1,Y=1 is visited twice as N=2 and N=5.  Similarly X=2,Y=2 as N=4
 and N=7.  Each point can repeat up to 3 times.  "Inner" points are 3 times
-and on the edges of the curve area up to 2 times.  The first tripled point
-is X=1,Y=3 which as shown above is N=8, N=11 and N=14.
+and on the edges up to 2 times.  The first tripled point is X=1,Y=3 which as
+shown above is N=8, N=11 and N=14.
 
 The curve never crosses itself.  The vertices touch as triangular corners
 and no edges repeat.
 
-The shape is the same as the C<GosperSide>, but the turns here are by 120
-degrees each whereas the C<GosperSide> is by 60 degrees each.  The extra
-angle here tightens up the shape.
+The curve turns are the same as the C<GosperSide>, but here the turns are by
+120 degrees each whereas C<GosperSide> is 60 degrees each.  The extra angle
+here tightens up the shape.
 
 =head2 Spiralling
 
@@ -549,7 +577,7 @@ The "S" shapes of each 3 points make a tiling of the plane with those rhombi
          *-----*-----*     *-----*-----*
         /     / \     \   /     / \     \
 
-As per for example
+Which is an ancient pattern,
 
 =over
 
@@ -612,8 +640,8 @@ integer positions.
 Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
-The curve can visit an C<$x,$y> up to three times.  In the current code the
-smallest of the these N values is returned.  Is that the best way?
+The curve can visit an C<$x,$y> up to three times.  C<xy_to_n()> returns the
+smallest of the these N values.
 
 =item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
 
@@ -638,22 +666,22 @@ Return 0, the first N in the path.
 
 =item C<$dy = $path-E<gt>dy_maximum()>
 
-The dX,dY values, on the first arm, take three possible combinations, at 120
-degree angles.
+The dX,dY values on the first arm take three possible combinations, being
+120 degree angles.
 
-    dX,dY
+    dX,dY   for arms=1
     -----
-     2, 0        dX minimum = -1, maximum = +2  for arms=1
+     2, 0        dX minimum = -1, maximum = +2
     -1, 1        dY minimum = -1, maximum = +1
      1,-1
 
 For 2 or more arms the second arm is rotated by 60 degrees so giving the
-following additional combinations, for a total six.  This changes the dX,dY
-minima.
+following additional combinations, for a total six.  This changes the dX
+minimum.
 
-    dX,dY also
+    dX,dY   for arms=2 or more
     -----
-    -2, 0        dX minimum = -2, maximum = +2   arms >= 2
+    -2, 0        dX minimum = -2, maximum = +2
      1, 1        dY minimum = -1, maximum = +1
     -1,-1
 
@@ -772,7 +800,7 @@ midpoint calculation gives N-1 for the towards and N for the away.  Is there
 a good way to tell which edge will be the smaller?  Or just which 3 edges
 lead away?  It would be directions 0,2,4 for the even arms and 1,3,5 for the
 odd ones, but identifying the boundaries of those arms to know which is
-which is tricky.
+which is difficult.
 
 =head2 X,Y Visited
 
@@ -792,15 +820,22 @@ inclusive, taking each line segment as length 1, is
 
 The boundary follows the curve edges around from the origin until returning
 there.  So the single line segment N=0 to N=1 is boundary length 2, or the
-"S" shape of N=0 to N=3 is length 6.  This first "S" is 3x the length of the
-preceding but thereafter the way the curve touches itself means the boundary
-grows by less than that (only 2x per level).
+"S" shape of N=0 to N=3 is length 6.
+
+                                 2------3
+    boundary[0] = 2               \
+                                   \      boundary[1] = 6
+    0-----1                  0------1
+
+The boundary[1] first "S" is 3x the length of the preceding but thereafter
+the way the curve touches itself means the boundary grows by only 2x per
+level.
 
 The boundary formula can be calculated from the way the curve meets when it
-replicates.  Consider the level N=0 to N=3^(k-1) and take its boundary
-length in two parts as a short side R on the right and the "V" shaped
-indentation L on the left.  These are shown as plain lines here but are
-wiggly as the curve becomes bigger and fatter.
+replicates.  Consider the level N=0 to N=3^k and take its boundary length in
+two parts as a short side R on the right and the "V" shaped indentation L on
+the left.  These are shown as plain lines here but are wiggly as the curve
+becomes bigger and fatter.
 
              R         R[k] = right side boundary length
           2-----3      L[k] = left side boundary length
@@ -824,11 +859,11 @@ and 4*L.
           *-----3       R[k+1] = R[k] + L[k]    # per 0 to 1
            \ L          L[k+1] = R[k] + L[k]    # per 0 to 2
           L \
-       2=====@        
-        \   / \ R     
-      R  \ /   \        initial boundary[1] = 6
-          @=====1       so  boundary[k]
-           \ L          except boundary[0] = 2
+       2=====@
+        \   / \ R
+      R  \ /   \        initial boundary[0] = 2
+          @=====1               boundary[1] = 6
+           \ L
           L \
        0-----*
          R
@@ -856,57 +891,39 @@ The area enclosed by the curve from N=0 to N=3^k inclusive is
 
 =pod
 
-The area can be calculated from the number of line segments less the
-boundary segments.  Imagine an equilateral triangle on each side of a line
+The area can be calculated from the total line segments less the boundary
+segments.  Imagine 1/3 of an equilateral triangle on each side of each line
 segment
 
-       *      
-      / \       triangular area each side of line 0--1
-     /   \
-    0-----1
-     \   /
-      \ /
-       *
+          *      equilateral triangle
+         /|\     divided into 3 parts
+        / | \
+       /  |  \
+      /  _*_  \                 _*_         1/3 triangle on
+     /_--   --_\             _--   --_      each side of a
+    *-----------*          *-----------*    line segment
+                             -__   __-
+                                -*-
 
-A line which is on the boundary of the curve should count as only 1
-triangle, not 2.  Then the area inside the curve will have 3 triangles
-overlapping in each area, one for each line segment surrounding, so divide
-by 3.
+A line segment which is on the boundary of the curve should count only 1 of
+its triangles towards the area, not 2.  A line segment such as N=0 to N=1
+which is isolated is both a left and right boundary segment and so it counts
+0 triangles towards the area.
+
+So 3^k line segments which is 2*3^k pairs of triangles, less the boundary
+ones, and each remaining triangle is 1/3 of an equilateral so
 
               2*3^k - boundary[k]
     area[k] = ------------------- = 2*(3^(k-1) + 2^(k-1))
                       3
 
-This works because the inside of the curve always has every edge traversed
-exactly once and hence always 3 line segments surrounding each enclosed
-triangle.
-
-=head2 Area vs Rhombus
-
-The area of the curve approaches the area of a rhombus made of two triangles
-between the endpoints.
-
-       *-----N
-      . \   .          side = sqrt(3)^k
-     .   \ .           rhombus area = 2 * side^2 = 2*3^k
-    O-----*
-
-    terdragon    2*(3^k - 2^k)
-    --------- =  ------------- -> 1 as k->infinity
-    rhombus          2*3^k
-
-This is as if the area of the A-B and C-D endpoints became negligible and
-only the centre triangles above mattered.
-
-This ratio is exact when the terdragon is reckoned as a fractal with unit
-length and infinitely smaller wiggles, ie. the area of the dragon is the
-same as the area of the rhombus.
+This calculation can be made because the inside of the curve always has
+every edge traversed exactly once and hence always has exactly 3 line
+segments surrounding each enclosed equilateral triangle.
 
 =head2 Area by Replication
 
-The area can also be calculated directly from the replication.  When the
-curve triplicates the area enclosed by the end two copies A-B and C-D are
-unchanged.  In the middle two triangles of area 2*3^k are enclosed.
+The area can also be calculated directly from the replication.
 
        *-----D
         \              A[k] = 2 * A[k-1]     # AB and CD
@@ -929,13 +946,17 @@ unchanged.  In the middle two triangles of area 2*3^k are enclosed.
 
 =pod
 
-The centre triangles duplicate the area on the underside of the C-f curve
-segment and upper side of the B-e segment.  The terdragon is symmetric on
-the two sides of the line between its endpoints so the part on the upper
-side is half the curve, so subtract 2*A[k-2]/2.
+The area enclosed by the end two copies A-B and C-D are each the area of the
+preceding level.
 
-But then there are 2 similar half curve A[k-2]/2 areas on the outer sides of
-the B-f and C-e segments to be added.  Those extra insides and omitted
+The middle two triangles enclose area 2*3^k.  But they duplicate the area on
+the underside of the C-f copy of the curve and the upper side of the B-e
+copy.  The terdragon is symmetric on the two sides of the line between its
+endpoints so the part on the upper side is half the curve, so subtract
+2*A[k-2]/2.
+
+Then there are 2 similar half curve A[k-2]/2 areas on the outer sides of the
+B-f and C-e segments to be added.  The extra and overlapped insides and
 outsides cancel out.
 
 =cut
@@ -970,6 +991,43 @@ outsides cancel out.
 #             A-----*
 #
 #  2*(3^k - 2^k) / 3^k -> 2
+
+# This is as if in the area of the A-B and C-D end parts above became
+# negligible and only the centre two triangles mattered.
+
+=pod
+
+=head2 Area as Rhombus
+
+The area of the curve approaches the area of a rhombus made of two large
+equilateral triangles between the endpoints.
+
+       *-----N         N=3^(k+1)
+      . \   .          side length = sqrt(3)^k
+     .   \ .           rhombus area = 2 * side^2 = 2*3^k
+    O-----*            (area measured in unit triangles)
+
+    terdragon    2*(3^k - 2^k)
+    --------- =  ------------- -> 1 as k->infinity
+     rhombus         2*3^k
+
+If the terdragon is reckoned as a fractal with unit length between its
+endpoints and infinitely smaller wiggles then this ratio is exact, ie. the
+area of the fractal terdragon is the same as the area of the rhombus.
+
+=cut
+
+# Rhombus area
+#
+# +---*------*
+# |  /      /|  H=S*sqrt(3)/2
+# | /      / |
+# |/      /  |         rhombus area = 2 * side^2 = 2*3^k
+# O------*---+
+#    S
+# H^2+(S/2)^2 = 3/4*S^2 + 1/4*S^2 = S^2
+# Rect = (S+S/2)*H = 3/2**sqrt(3)/2*S^2 = 3/4*sqrt(3)*S
+# Rhombus = 2/3 * Rect = 1/2*sqrt(3)*S
 
 =pod
 
@@ -1006,9 +1064,18 @@ with a left turn at N=1.
     A062756   total turn, count ternary 1s
     A005823   N positions where total turn == 0, ternary no 1s
 
-    A007283   boundary length N=0 to N=3^k for k>=1, being 3*2^k
+    A007283   boundary length N=0 to N=3^k for k>=1,
+                being 3*2^k
+    A002023   boundary odd levels N=0 to N=3^(2k+1),
+              or even levels one side N=0 to N=3^(2k),
+                being 6*4^k
+    A164346   boundary even levels N=0 to N=3^(2k),
+              or one side, odd levels, N=0 to N=3^(2k+1),
+                being 3*4^k
+
     A056182   area enclosed N=0 to N=3^k, being 2*(3^k-2^k)
     A081956     same
+    A118004   1/2 area N=0 to N=3^(2k+1), odd levels, 9^n-4^n
 
 =head1 SEE ALSO
 

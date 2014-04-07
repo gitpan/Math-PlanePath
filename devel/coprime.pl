@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,6 +21,43 @@
 use 5.010;
 use strict;
 use warnings;
+use Math::Factor::XS 0.39 'factors', 'prime_factors'; # version 0.39 for prime_factors()
+use List::MoreUtils 'uniq';
+use Math::PlanePath::CoprimeColumns;
+
+{
+  my $coprime = sub {
+    my ($x,$y) = @_;
+    return $x > 0 && Math::PlanePath::CoprimeColumns::_coprime($x,$y);
+  };
+  foreach my $n (2*2*2*3, 3*3*3*5) {
+    my $tot = Math::PlanePath::CoprimeColumns::_totient($n);
+    my @factors = uniq(prime_factors($n));
+    my $factors_str = join(',',@factors);
+    print "n=$n  totient=$tot  factors=$factors_str\n";
+    my @coprimes = grep {$coprime->($_,$n)} 0 .. $n-1;
+    my @coprime_dots = map {($coprime->($_,$n)?'*':'_')
+                              .($_ % 3 == 2 ? ',' : '')} 0 .. $n-1;
+    my $want_str = join(',',@coprimes);
+    my $dots_str = join('',@coprime_dots);
+    print "dots $dots_str\n";
+    print "want $want_str\n";
+    my @got;
+    foreach my $i (0 .. $#coprimes) {
+      my $c = $i+1;
+      foreach my $f (@factors) {
+        $c += int($i/($f-1));
+      }
+      push @got, $c;
+    }
+    my $got_str = join(',',@got);
+    my $diff = ($want_str eq $got_str ? '' : ' ***');
+    print "got  $got_str$diff";
+    print "\n";
+    print "\n";
+  }
+  exit 0;
+}
 
 {
   require Math::PlanePath::CoprimeColumns;

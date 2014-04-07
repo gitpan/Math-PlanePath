@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -44,6 +44,8 @@ use Math::PlanePath::Base::Digits
 
 use constant n_start => 0;
 use constant xy_is_visited => 1;
+use constant _UNDOCUMENTED__x_negative_at_n => 5;
+use constant _UNDOCUMENTED__y_negative_at_n => 7;
 # use constant dir_maximum_dxdy => (0,0);  # supremum, almost full way
 
 
@@ -248,7 +250,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2012, 2013 Kevin Ryde
+Copyright 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

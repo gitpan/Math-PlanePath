@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -55,6 +55,17 @@ use Math::PlanePath::SierpinskiArrowhead;
 use constant n_start => 0;
 use constant class_y_negative => 0;
 *x_negative = \&Math::PlanePath::SierpinskiArrowhead::x_negative;
+{
+  my %_UNDOCUMENTED__x_negative_at_n = (triangular => 2,
+                                        # right      => undef,
+                                        left       => 2,
+                                        # diagonal   => undef,
+                                       );
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n{$self->{'align'}};
+  }
+}
 *x_maximum  = \&Math::PlanePath::SierpinskiArrowhead::x_maximum;
 use constant sumxy_minimum => 0;  # triangular X>=-Y
 use Math::PlanePath::SierpinskiTriangle;
@@ -64,6 +75,10 @@ use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 *dx_minimum = \&Math::PlanePath::SierpinskiArrowhead::dx_minimum;
 *dx_maximum = \&Math::PlanePath::SierpinskiArrowhead::dx_maximum;
+
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::SierpinskiArrowhead::_UNDOCUMENTED__dxdy_list;
+use constant _UNDOCUMENTED__dxdy_list_at_n => 15;
+
 *absdx_minimum = \&Math::PlanePath::SierpinskiArrowhead::absdx_minimum;
 *absdx_maximum = \&Math::PlanePath::SierpinskiArrowhead::absdx_maximum;
 *dsumxy_minimum = \&Math::PlanePath::SierpinskiArrowhead::dsumxy_minimum;
@@ -714,7 +729,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

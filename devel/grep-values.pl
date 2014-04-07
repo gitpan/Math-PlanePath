@@ -50,9 +50,6 @@
 # A178674 = 3^n+3
 # A017926 A229977 gosper perimeter
 
-# CCurve right boundary even terms
-# A131064  8,24,60,136,292,608
-
 # CCurve right boundary diffs even terms
 # 6,14,30,62,126
 # A000918 2^n - 2.
@@ -62,62 +59,6 @@
 # CCurve right boundary diffs
 # 6,10,14,22,30,46,62,94,126,190
 # A027383   3*2^n-2 and 4*2^n-2
-# 
-
-# R5DragonCurve boundary (by powers right  all):
-# 53,161,485
-# match 53,161,485
-# A048473 a(0)=1, a(n) = 3*a(n-1) + 2; a(n) = 2*3^n - 1.
-# A048473 ,1,5,17,53,161,485,1457,4373,13121,39365,118097,354293,1062881,3188645,9565937,28697813,86093441,258280325,774840977,2324522933,6973568801,20920706405,62762119217,188286357653,564859072961,
-# A154992 A048473 prefixed by two zeros.
-# A154992 ,0,0,1,5,17,53,161,485,1457,4373,13121,39365,118097,354293,1062881,3188645,9565937,28697813,86093441,258280325,774840977,2324522933,6973568801,20920706405,62762119217,188286357653,564859072961,
-# A176086 Partial sums of A001394.
-# A176086 ,1,5,17,53,161,485,1433,4229,12425,36485,106673,311957,909953,2654501,7728401,22503053,65425505,190239989,552507641,1604779373,4656679889,
-# A216851 a(n) = T^(floor(log(n)/log(2)))(n) (see comment).
-# A216851 ,1,1,5,1,4,5,17,1,11,4,13,5,5,17,53,1,10,11,11,4,4,13,40,5,44,5,47,17,17,53,161,1,29,10,10,11,11,11,101,4,107,4,37,13,13,40,121,5,14,44,44,5,5,47,47,17,49,17,152,53,53,161,485,1,28,29,29,10,10,10,
-
-# TerdragonCurve boundary (by powers full  odd):
-# 96,384,1536,6144
-# match 96,384,1536,6144
-# A002023 6*4^n.
-
-# TerdragonCurve area (by powers left  even):
-# 5,65,665,6305
-# match 5,65,665,6305
-# A118004 9^n-4^n.
-# A118004 ,0,5,65,665,6305,58025,527345,4766585,42981185,387158345,3485735825,31376865305,282412759265,2541798719465,22876524019505,205890058352825,1853015893884545,16677164519797385,150094566577522385,
-
-# TerdragonCurve boundary (by powers left  even):
-# 12,48,192,768
-# match 12,48,192,768
-# A002001 a(n) = 3*4^(n-1), n>0; a(0)=1.
-# A002001 ,1,3,12,48,192,768,3072,12288,49152,196608,786432,3145728,12582912,50331648,201326592,805306368,3221225472,12884901888,51539607552,206158430208,824633720832,3298534883328,13194139533312,
-# A092898 Expansion of (1-4x+4x^2-4x^3)/(1-4x).
-# A092898 ,1,0,4,12,48,192,768,3072,12288,49152,196608,786432,3145728,12582912,50331648,201326592,805306368,3221225472,12884901888,51539607552,206158430208,824633720832,3298534883328,13194139533312,52776558133248,
-# A110594 a(1) = 4, a(2) = 12, for n>1: a(n) = 3*4^(n-1).
-# A110594 ,4,12,48,192,768,3072,12288,49152,196608,786432,3145728,12582912,50331648,201326592,805306368,3221225472,12884901888,51539607552,206158430208,824633720832,3298534883328,13194139533312,52776558133248,
-# A164346 a(n) = 3*4^n.
-# A164346 ,3,12,48,192,768,3072,12288,49152,196608,786432,3145728,12582912,50331648,201326592,805306368,3221225472,12884901888,51539607552,206158430208,824633720832,3298534883328,13194139533312,52776558133248,
-# A172452 Partial products of A004001.
-# A172452 ,1,1,1,2,4,12,48,192,768,3840,23040,161280,1128960,9031680,72253440,578027520,4624220160,41617981440,416179814400,4577977958400,54935735500800,
-
-# TerdragonCurve boundary (by powers left  odd):
-# 24,96,384,1536
-# match 24,96,384,1536
-# A002023 6*4^n.
-
-# TerdragonCurve boundary (by powers right diffs even):
-# 12,48,192,768
-# match 12,48,192,768
-# A002001 a(n) = 3*4^(n-1), n>0; a(0)=1.
-
-
-=pod
-
-Each 
-
-
-=cut
 
 
 use 5.010;
@@ -132,7 +73,62 @@ use MyOEIS;
 # use Smart::Comments;
 
 
+{
+  # N on axes
 
+  my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
+  my @dir8_to_dy = (0, 1, 1, 1,  0, -1, -1,-1);
+  my @dir8_to_line_type = ("X_axis",
+                           "Diagonal",
+                           "Y_axis",
+                           "Diagonal_NW",
+                           "X_neg",
+                           "Diagonal_SW",
+                           "Y_neg",
+                           "Diagonal_SE");
+
+  require Math::NumSeq::PlanePathCoord;
+  require Math::NumSeq::PlanePathN;
+  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
+      ->{'planepath'}->{'choices'}};
+  @choices = grep {$_ ne 'BinaryTerms'} @choices; # bit slow yet
+  @choices = grep {$_ =~ /Gray/} @choices;
+  my %seen;
+  foreach my $path_name (@choices) {
+    my $path_class = "Math::PlanePath::$path_name";
+    Module::Load::load($path_class);
+    my $parameters = parameter_info_list_to_parameters($path_class->parameter_info_list);
+  PATH: foreach my $p (@$parameters) {
+      my $path = $path_class->new (@$p);
+
+      foreach my $dir (0 .. 7) {
+        my $line_type = $dir8_to_line_type[$dir];
+        my $seq = Math::NumSeq::PlanePathN->new (planepath_object => $path,
+                                                 line_type => $line_type);
+        my $anum = $seq->oeis_anum;
+        print "anum ",($anum//'undef'),"\n";
+        next if defined $anum;
+
+        my $name = "$path_name dir=$dir  ".join(',',@$p);
+        my $dx = $dir8_to_dx[$dir];
+        my $dy = $dir8_to_dy[$dir];
+        my $x = 2*$dx;
+        my $y = 2*$dy;
+        my @values;
+        foreach my $i (2 .. 30) {
+          my $value = $path->xy_to_n($x,$y) // last;
+          push @values, $value;
+          $x += $dx;
+          $y += $dy;
+        }
+        next unless @values;
+        print MyOEIS->grep_for_values(name => $name,
+                                      array => \@values);
+      }
+    }
+  }
+  exit 0;
+}
 
 {
   # boundary and area

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,14 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 464;;
+plan tests => 535;;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::Corner;
 
@@ -36,7 +36,7 @@ require Math::PlanePath::Corner;
 # VERSION
 
 {
-  my $want_version = 114;
+  my $want_version = 115;
   ok ($Math::PlanePath::Corner::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Corner->VERSION,  $want_version,
@@ -86,25 +86,25 @@ require Math::PlanePath::Corner;
   my @data = (
 
               [ 0, # wider==0
-                [ 1,  0,0 ],
+                [ 1,  0,0,  4 ],
 
-                [ 2,  0,1 ],
-                [ 3,  1,1 ],
-                [ 4,  1,0 ],
+                [ 2,  0,1,  6 ],
+                [ 3,  1,1,  8 ],
+                [ 4,  1,0,  8 ],
 
-                [ 5,  0,2 ],
-                [ 6,  1,2 ],
-                [ 7,  2,2 ],
-                [ 8,  2,1 ],
-                [ 9,  2,0 ],
+                [ 5,  0,2,  10 ],
+                [ 6,  1,2,  10 ],
+                [ 7,  2,2,  12 ],
+                [ 8,  2,1,  12 ],
+                [ 9,  2,0,  12 ],
 
-                [ 10,  0,3 ],
-                [ 11,  1,3 ],
-                [ 12,  2,3 ],
-                [ 13,  3,3 ],
-                [ 14,  3,2 ],
-                [ 15,  3,1 ],
-                [ 16,  3,0 ],
+                [ 10,  0,3, 14 ],
+                [ 11,  1,3, 14 ],
+                [ 12,  2,3, 14 ],
+                [ 13,  3,3, 16 ],
+                [ 14,  3,2, 16 ],
+                [ 15,  3,1, 16 ],
+                [ 16,  3,0, 16 ],
               ],
 
               [ 1, # wider==1
@@ -125,23 +125,31 @@ require Math::PlanePath::Corner;
               ],
 
               [ 2, # wider==2
-                [ 1,  0,0 ],
-                [ 2,  1,0 ],
-                [ 3,  2,0 ],
+                [ 1,  0,0,   4 ],
+                [ 2,  1,0,   6 ],
+                [ 3,  2,0,   8 ],
 
-                [ 4,  0,1 ],
-                [ 5,  1,1 ],
-                [ 6,  2,1 ],
-                [ 7,  3,1 ],
-                [ 8,  3,0 ],
+                [ 4,  0,1,  10 ],
+                [ 5,  1,1,  10 ],
+                [ 6,  2,1,  10 ],
+                [ 7,  3,1,  12 ],
+                [ 8,  3,0,  12 ],
 
-                [  9,  0,2 ],
-                [ 10,  1,2 ],
-                [ 11,  2,2 ],
-                [ 12,  3,2 ],
-                [ 13,  4,2 ],
-                [ 14,  4,1 ],
-                [ 15,  4,0 ],
+                [  9,  0,2, 14 ],
+                [ 10,  1,2, 14 ],
+                [ 11,  2,2, 14 ],
+                [ 12,  3,2, 14 ],
+                [ 13,  4,2, 16 ],
+                [ 14,  4,1, 16 ],
+                [ 15,  4,0, 16 ],
+              ],
+
+              [ 10, # wider==10
+                [ 1,    0,0,   4 ],
+                [ 10,   9,0,  22 ],
+                [ 11,  10,0,  24 ],
+                [ 12,   0,1,  26 ],
+                [ 13,   1,1,  26 ],
               ],
              );
   foreach my $we (@data) {
@@ -151,7 +159,7 @@ require Math::PlanePath::Corner;
     ### @wdata
 
     foreach my $elem (@wdata) {
-      my ($n, $x, $y) = @$elem;
+      my ($n, $x,$y, $boundary) = @$elem;
       {
         # n_to_xy()
         my ($got_x, $got_y) = $path->n_to_xy ($n);
@@ -178,6 +186,11 @@ require Math::PlanePath::Corner;
           ok ($got_nlo, $n, "rect_to_n_range($x,$y,$x,$y) wider=$wider for n=$n, got_nlo=$got_nlo");
           ok ($got_nhi, $n, "rect_to_n_range($x,$y,$x,$y) wider=$wider for n=$n, got_nhi=$got_nhi");
         }
+      }
+
+      if (defined $boundary) {
+        my $got_boundary = $path->_NOTDOCUMENTED_n_to_figure_boundary($n);
+        ok ($got_boundary, $boundary, "n=$n xy=$x,$y");
       }
     }
   }

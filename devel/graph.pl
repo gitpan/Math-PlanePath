@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -49,7 +49,7 @@ use Smart::Comments;
 }
 
 {
-require Graph;
+  require Graph;
   my $depth = 4;
 
   my $path = Math::PlanePath::SierpinskiTriangle->new;

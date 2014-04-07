@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -546,7 +546,8 @@ L<http://oeis.org/A059905> (etc)
     radix=3
       A163325    X coordinate
       A163326    Y coordinate
-      A037314    N on X axis (base 9 digits 0,1,2)
+      A037314    N on X axis, base 9 digits 0,1,2
+      A208665    N on X=Y diagonal, base 9 digits 0,3,6
       A163327    permutation N at transpose Y,X (swap trit pairs)
 
     radix=4
@@ -587,7 +588,7 @@ L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::CornerReplicate>,
 L<Math::PlanePath::DigitGroups>
 
-C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
+X<Arndt, Jorg>X<fxtbook>C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
 
 L<Algorithm::QuadTree>, L<DBIx::SpatialKeys>
 
@@ -597,7 +598,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

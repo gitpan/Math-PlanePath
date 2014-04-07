@@ -84,7 +84,7 @@ use List::Util;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -146,7 +146,8 @@ use constant::defer parameter_info_array =>
                    # 'NumSurround4d',
                    # 'NumSurround6',
                    # 'NumSurround8',
-                    'NumOverlap',
+                   # 'NumOverlap',
+                   # 'Revisit',
                   ];
     return [
             _parameter_info_planepath(),
@@ -358,7 +359,9 @@ sub _planepath_name_to_object {
   my ($name) = @_;
   ### PlanePathCoord _planepath_name_to_object(): $name
   ($name, my @args) = split /,+/, $name;
-  $name = "Math::PlanePath::$name";
+  unless ($name =~ /^Math::PlanePath::/) {
+    $name = "Math::PlanePath::$name";
+  }
   ### $name
   require Module::Load;
   Module::Load::load ($name);
@@ -606,6 +609,23 @@ sub _coordinate_func_GcdDivisions {
     $count++;
   }
 }
+
+sub _coordinate_func_Revisit {
+  my ($self, $n) = @_;
+  return path_n_to_revisit($self->{'planepath_object'}, $n);
+}
+sub path_n_to_revisit {
+  my ($path, $n) = @_;
+  if (my ($x, $y) = $path->n_to_xy($n)) {
+    my $ret = 0;
+    foreach ($path->xy_to_n_list($x,$y)) {
+      if ($n == $_) { return $ret; }
+      $ret++;
+    }
+  }
+  return undef;
+}
+    
 
 #------------------------------------------------------------------------------
 # UNTESTED/EXPERIMENTAL
@@ -1979,6 +1999,10 @@ sub characteristic_smaller {
 
   #--------------------------
   use constant _NumSeq_Coord_RowOffset_min => 0;
+
+  #--------------------------
+  use constant _NumSeq_Coord_Revisit_min => 0;
+  use constant _NumSeq_Coord_Revisit_max => 0;
 }
 
 { package Math::PlanePath::SquareSpiral;
@@ -3067,6 +3091,7 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_NumSurround4_min => 2;
   # use constant _NumSeq_Coord_NumSurround6_min => 0; # ???
   use constant _NumSeq_Coord_NumSurround8_min => 3;
+  use constant _NumSeq_Coord_Revisit_max => 1;
 }
 { package Math::PlanePath::DragonRounded;
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
@@ -3086,7 +3111,9 @@ sub characteristic_smaller {
       my ($self) = @_;
       return $_NumSeq_Coord_IntXY_min[$self->arms_count];
     }
-  }  use constant _NumSeq_Coord_oeis_anum =>
+  }
+  use constant _NumSeq_Coord_Revisit_max => 1;
+  use constant _NumSeq_Coord_oeis_anum =>
     { 'i_start=1' =>
       { DiffXY  => 'A020990', # GRS*(-1)^n cumulative
         AbsDiff => 'A020990',
@@ -3116,6 +3143,7 @@ sub characteristic_smaller {
 }
 { package Math::PlanePath::TerdragonCurve;
   use constant _NumSeq_Coord_Parity_max => 0;  # even always
+  use constant _NumSeq_Coord_Revisit_max => 2;
 }
 { package Math::PlanePath::TerdragonRounded;
   use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
@@ -3125,12 +3153,14 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_Parity_max => 0;  # even always
 }
-# { package Math::PlanePath::R5DragonCurve;
-# }
+{ package Math::PlanePath::R5DragonCurve;
+  use constant _NumSeq_Coord_Revisit_max => 1;
+}
 # { package Math::PlanePath::R5DragonMidpoint;
 # }
-# { package Math::PlanePath::CCurve;
-# }
+{ package Math::PlanePath::CCurve;
+  use constant _NumSeq_Coord_Revisit_max => 3;
+}
 # { package Math::PlanePath::ComplexPlus;
 # }
 # { package Math::PlanePath::ComplexMinus;
@@ -3901,27 +3931,6 @@ sub characteristic_smaller {
 
             : 1);
   }
-
-  use constant _NumSeq_Coord_oeis_anum =>
-    {
-     # rule=14,46,142,174 left 2
-     # rule=84,116,212,244 right 2
-     do {
-       my $lr2 = { Y => 'A076938',  # 0,1,1,2,2,3,3,...
-                   # OEIS-Other: A076938 planepath=CellularRule,rule=14 coordinate_type=Y
-                   # OEIS-Other: A076938 planepath=CellularRule,rule=174 coordinate_type=Y
-                 };
-       ('rule=14,n_start=1'  => $lr2,
-        'rule=46,n_start=1'  => $lr2,
-        'rule=142,n_start=1' => $lr2,
-        'rule=174,n_start=1' => $lr2,
-        'rule=84,n_start=1'  => $lr2,
-        'rule=116,n_start=1' => $lr2,
-        'rule=212,n_start=1' => $lr2,
-        'rule=144,n_start=1' => $lr2,
-       )
-     },
-    };
 }
 { package Math::PlanePath::CellularRule::OneTwo;
   sub _NumSeq_Coord_Sum_increasing {
@@ -3948,6 +3957,17 @@ sub characteristic_smaller {
     my ($self) = @_;
     return ($self->{'sign'} > 0); # yes when to the right
   }
+
+  sub _NumSeq_Coord_IntXY_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left' ? -1 : 0);
+  }
+
+  sub _NumSeq_Coord_BitOr_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left' ? 1 : undef);
+  }
+  use constant _NumSeq_Coord_BitXor_max => 1;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'align=left,n_start=0' =>
@@ -3983,6 +4003,57 @@ sub characteristic_smaller {
         # OEIS-Catalogue: A004773 planepath=CellularRule,rule=20,n_start=0 coordinate_type=SumAbs
         # OEIS-Other:     A004773 planepath=CellularRule,rule=180,n_start=0 coordinate_type=SumAbs
       },
+    };
+}
+{ package Math::PlanePath::CellularRule::Two;
+  sub _NumSeq_Coord_Sum_increasing {
+    my ($self) = @_;
+    return ($self->{'sign'} > 0);  # when to the right
+  }
+  *_NumSeq_Coord_SumAbs_increasing = \&_NumSeq_Coord_Sum_increasing;
+  *_NumSeq_Coord_Radius_increasing = \&_NumSeq_Coord_Sum_increasing;
+  *_NumSeq_Coord_TRadius_increasing = \&_NumSeq_Coord_Radius_increasing;
+
+  sub _NumSeq_Coord_X_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'sign'} > 0); # yes when to the right
+  }
+  *_NumSeq_Coord_Min_non_decreasing = \&_NumSeq_Coord_X_non_decreasing; # Min=X
+  *_NumSeq_Coord_Product_non_decreasing = \&_NumSeq_Coord_X_non_decreasing;
+  *_NumSeq_Coord_BitAnd_non_decreasing = \&_NumSeq_Coord_X_non_decreasing;
+  *_NumSeq_Coord_BitOr_non_decreasing = \&_NumSeq_Coord_X_non_decreasing;
+
+  use constant _NumSeq_Coord_Y_non_decreasing => 1;   # rows upwards
+  use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max=Y
+  use constant _NumSeq_Coord_MaxAbs_non_decreasing => 1; # -Y<=X<=Y so MaxAbs=Y
+  sub _NumSeq_Coord_MinAbs_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'sign'} > 0); # yes when to the right
+  }
+
+  sub _NumSeq_Coord_IntXY_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left' ? -1 : 0);
+  }
+
+  sub _NumSeq_Coord_BitOr_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left' ? 1 : undef);
+  }
+  use constant _NumSeq_Coord_BitXor_max => 1;
+
+  use constant _NumSeq_Coord_oeis_anum =>
+    {
+     'align=left,n_start=1' =>
+     { Y => 'A076938',  # 0,1,1,2,2,3,3,...
+       # OEIS-Other: A076938 planepath=CellularRule,rule=14 coordinate_type=Y
+       # OEIS-Other: A076938 planepath=CellularRule,rule=174 coordinate_type=Y
+     },
+     'align=right,n_start=1' =>
+     { Y => 'A076938',  # 0,1,1,2,2,3,3,...
+       # OEIS-Other: A076938 planepath=CellularRule,rule=84 coordinate_type=Y
+       # OEIS-Other: A076938 planepath=CellularRule,rule=116 coordinate_type=Y
+     }
     };
 }
 { package Math::PlanePath::CellularRule::Line;
@@ -4323,7 +4394,7 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_BitAnd_min => 0;  # at X=2,Y=1
 
   use constant _NumSeq_Coord_oeis_anum =>
-    { 'n_start=0' =>
+    { 'direction=up,n_start=0' =>
       { X      => 'A038567',  # fractions denominator
         Max    => 'A038567',  #  Max=X since Y <= X
         MaxAbs => 'A038567',  #  MaxAbs=Max
@@ -4332,12 +4403,12 @@ sub characteristic_smaller {
         # OEIS-Other:     A038567 planepath=CoprimeColumns coordinate_type=MaxAbs
       },
 
-      'n_start=0,i_start=1' =>
+      'direction=up,n_start=0,i_start=1' =>
       { DiffXY => 'A020653', # diagonals denominators, starting N=1
         # OEIS-Other: A020653 planepath=CoprimeColumns coordinate_type=DiffXY i_start=1
       },
 
-      'n_start=1' =>
+      'direction=up,n_start=1' =>
       { Y      => 'A038566',  # fractions numerator
         Min    => 'A038566',  #  Min=Y since Y <= X
         MinAbs => 'A038566',  #  MinAbs=Min

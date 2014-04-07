@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -84,7 +84,19 @@ sub x_maximum {
           ? 0    # X=0 vertical, or left X<=0
           : undef);
 }
-
+{
+  my %_UNDOCUMENTED__x_negative_at_n = (left  => 3,
+                                        right => 5,
+                                        up    => 3,
+                                        down  => 5);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return (($self->{'align'} eq 'left' && $self->{'step'} >= 1)
+            || ($self->{'align'} eq 'centre' && $self->{'step'} >= 2)
+            ? $self->n_start + 1
+            : undef);
+  }
+}
 sub sumxy_minimum {
   my ($self) = @_;
   # for align=left   step<=1 has X>=-Y so X+Y >= 0
@@ -124,6 +136,11 @@ sub dy_minimum {
   return ($self->{'step'} == 0 ? 1 : 0);
 }
 use constant dy_maximum => 1;
+sub _UNDOCUMENTED__dxdy_list {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? (0,1) # N always
+          : ());
+}
 
 sub absdx_minimum {
   my ($self) = @_;

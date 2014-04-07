@@ -37,7 +37,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -62,10 +62,25 @@ use constant parameter_info_array =>
       description => 'Arms',
     } ];
 
+{
+  my @_UNDOCUMENTED__x_negative_at_n = (undef, 9,5,5,6);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+  }
+}
+{
+  my @_UNDOCUMENTED__y_negative_at_n = (undef, 54,19,8,7);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+  }
+}
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 use constant dsumxy_minimum => -1; # straight only
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -1;
@@ -374,7 +389,7 @@ The little "S" shapes of the N=0to5 base shape tile the plane with 2x1
 bricks and 1x1 holes in the following pattern,
 
     +--+-----|  |--+--+-----|  |--+--+---
-    |  |     |  |  |  |     |  |  |  |   
+    |  |     |  |  |  |     |  |  |  |
     |  |-----+-----|  |-----+-----|  |---
     |  |  |  |     |  |  |  |     |  |  |
     +-----|  |-----+-----|  |-----+-----+
@@ -384,7 +399,7 @@ bricks and 1x1 holes in the following pattern,
     ---|  |-----+-----|  |-----+-----|  |
        |  |  |  |     |  |  |  |     |  |
     ---+-----|  |-----o-----|  |-----+---
-    |  |     |  |  |  |     |  |  |  |   
+    |  |     |  |  |  |     |  |  |  |
     |  |-----+-----|  |-----+-----|  |---
     |  |  |  |     |  |  |  |     |  |  |
     +-----|  |-----+-----|  |-----+-----+
@@ -457,10 +472,10 @@ Return 0, the first N in the path.
 
 =head2 Turn
 
-At each point N the curve always turns 90 degrees either to the left or
-right, it never goes straight ahead.  As per the code in Jorg Arndt's
-fxtbook, if N is written in base 5 then the lowest non-zero digit gives the
-turn
+X<Arndt, Jorg>X<fxtbook>At each point N the curve always turns 90 degrees
+either to the left or right, it never goes straight ahead.  As per the code
+in Jorg Arndt's fxtbook, if N is written in base 5 then the lowest non-zero
+digit gives the turn
 
     lowest non-0 digit     turn
     ------------------     ----
@@ -568,7 +583,8 @@ Which gives
 
     R[k+1] = 2*R[k] + U[k]
 
-When curve replicates to the next level N=5^k the boundary length becomes,
+When the curve replicates to the next level N=5^k the boundary length
+becomes,
 
         R
       *---5
@@ -596,10 +612,16 @@ for the total B,
 
     B[k+1] = 4*B[k] - 3*B[k-1]
 
-It can be verified by induction that the initial B[0]=2, B[1]=10 and this
-recurrence are satisfied by S<B[k]=4*3^k - 2>.
+The characteristic equation of this recurrence is
+
+    x^2 - 4*x + 3 = (x-3)*(x-1)     roots 3, 1
+
+So the closed form is some a*3^k+b*1^k, being 4*3^k - 2.  That formula can
+also be verified by induction from the initial B[0]=2, B[1]=10.
 
 =cut
+
+# x^2 - 4*x + 3 = (x-3)*(x-1)
 
 # boundary = 2,10,34,106,322,970,2914
 #          = A079004
@@ -675,19 +697,59 @@ recurrence are satisfied by S<B[k]=4*3^k - 2>.
 
 The area enclosed by the curve from N=0 to N=5^k inclusive is
 
-    area[k] = (5^k - 2*3^k + 1)/2
-            = 0, 0, 4, 36, 232, 1320, 7084, 36876, 188752, ...
+    A[k] = (5^k - 2*3^k + 1)/2
+         = 0, 0, 4, 36, 232, 1320, 7084, 36876, 188752, ...
+
+    A[k] = 9*A[k-1] - 23*A[k-2] + 15*A[k-2]
 
 =cut
 
 # perl -e '$,=", "; print map{(5**$_ - 2*3**$_ + 1)/2} 0 .. 8'
-# Pari: for(k=0,8,print((5^k - 2*3^k + 1)/2,","))
+# Pari: for(k=0,18,print((5^k - 2*3^k + 1)/2,","))
 
 =pod
 
-The area can be calculated in a similar way to the boundary.  Consider the
-level N=0 to N=5^k and take its area in two parts as a short side R to the
-right and an inner curving part U
+This can be calculated from the boundary.  Like the dragon curve (per
+L<Math::PlanePath::DragonCurve/Area>), every edge is traversed precisely
+once so each enclosed unit square has line segments on 4 sides.  Imagine
+each line segment as a diamond shape made from two right triangles
+
+      *
+     / \         2 triangles each line segment
+    0---1
+     \ /
+      *
+
+If a line segment is on the boundary then the outside triangle does not
+count towards the area.  Subtract 1 for each of them.
+
+    triangles = 2*5^k - B[k]
+
+Line segments at the tail end like N=0 to N=1 are both a left and right
+boundary.  They already count twice in B[k] and so are no triangles.  Four
+triangles make up a unit square,
+
+    area[k] = triangles/4
+
+The 2*5^k can be worked into the B recurrence in the usual way to give the A
+recurrence 9,-23,15 above, and which can be verified by induction from the
+initial A[0]=0, A[1]=0.  The characteristic equation  is
+
+    x^3 - 9*x^2 + 23*x - 15 = (x-1)*(x-3)*(x-5)
+
+The roots 3 and 5 become the power terms in the explicit formula, and 1 the
+constant.
+
+Another form per Henry Bottomley in OEIS A007798 (that sequence is area/2)
+is
+
+    A[k+2] = 8*A[k+1] - 15*A[k] + 4
+
+=head2 Area by Replication
+
+The area can also be calculated by replications in a similar way to the
+boundary.  Consider the level N=0 to N=5^k and take its area in two parts as
+a short side R to the right and an inner curving part U
 
         R          R[k] = side area
       4---5        U[k] = inner curve area
@@ -722,9 +784,9 @@ Which gives
 
     R[k+1] = 2*R[k] + U[k]
 
-When curve replicates to the next level N=5^k the pattern of new U and R is
-the same as the boundary above, except the four newly enclosed squares are
-of interest for the area.
+When the curve replicates to the next level N=5^k the pattern of new U and R
+is the same as the boundary above, except the four newly enclosed squares
+are of interest for the area.
 
         R
       *---5                         square edge length sqrt(5)^(k-2)
@@ -746,7 +808,7 @@ The line 0 to 1 passes through 3/4 of a square,
          ..... 1
          .    /      line dividing each square
          .   | .     into two parts 1/4 and 3/4
-         .   / . 
+         .   / .
          *..|..*
          .  /  .
          . |   .
@@ -769,10 +831,9 @@ The area for U[k+1] is that on left of the U shaped line 0-1-2-3,
              + 2*square + U[k] + R[k]
     U[k+1] = R[k] + 2*U[k] + 2*5^(k-2}           # square = 5^(k-2)
 
-It will be noticed for R that the first 3/4 square has the left side dipping
-in.  For R it's still counted as a full +3/4 square.  In U it's a -3/4 which
-gives a total area of just what's between the left and right curve
-boundaries.
+Notice for R that the first 3/4 square has the left side dipping in.  For R
+that's still counted as a full +3/4 square.  In U it's a -3/4 which gives a
+total area of just what's between the left and right curve boundaries.
 
 =cut
 
@@ -796,7 +857,7 @@ U is eliminated by substituting the R[k+1] recurrence into the U[k+1]
     R[k+2]-2*R[k+1] = 2*(R[k+1]-2*R[k]) + R[k] + 2*5^(k-1)
     R[k+2] = 4*R[k+1] - 3*R[k] + 2*5^(k-1)
 
-Then from R[k] = A[k-1]/2 the total area is
+Then from R[k] = A[k-1]/2 the total area is as follows,
 
     A[k+2] = 4*A[k+1] - 3*A[k] + 4*5^k      # k>=2
 
@@ -813,13 +874,6 @@ are the 4 squares fully enclosed when the curve replicates.
 
 =pod
 
-It can be verified by induction that the initial A[0]=0, A[1]=0 and this
-recurrence are satisfied by A[k]= S<(5^k - 2*3^k + 1)/2> given above.  It's
-also possible to eliminate the power with the following form.  (Both
-per OEIS A007798 below.)
-
-    A[k+2] = 8*A[k+1] - 15*A[k] + 4
-
 =head1 OEIS
 
 The R5 dragon is in Sloane's Online Encyclopedia of Integer Sequences as,
@@ -835,23 +889,25 @@ L<http://oeis.org/A175337> (etc)
 
     A079004    boundary length N=0 to 5^k, skip initial 7,10
                  being 4*3^k - 2
-    A048473    boundary, one side, N=0 to 5^k
+
+    A048473    boundary/2 (one side), N=0 to 5^k
                  being half whole, 2*3^n - 1
-    A198859    boundary, one side, N=0 to 25^k
-                 being even levels, 2*9^n-1
-    A198963    boundary, one side, N=0 to 5*25^k
-                 being odd levels, 6*9^n-1
+    A198859    boundary/2 (one side), N=0 to 25^k
+                 being even levels, 2*9^n - 1
+    A198963    boundary/2 (one side), N=0 to 5*25^k
+                 being odd levels, 6*9^n - 1
 
     A007798    1/2 * area enclosed N=0 to 5^k
     A016209    1/4 * area enclosed N=0 to 5^k
+
     A005058    1/2 * new area N=5^k to N=5^(k+1)
                  being area increments, 5^n - 3^n
     A005059    1/4 * new area N=5^k to N=5^(k+1)
-                  (5^n - 3^n)/2
+                 being area increments, (5^n - 3^n)/2
 
     arms=1 and arms=3
-      A059841    abs(dX), being 1,0 repeating
-      A000035    abs(dY), being 0,1 repeating
+      A059841    abs(dX), being simply 1,0 repeating
+      A000035    abs(dY), being simply 0,1 repeating
 
     arms=4
       A165211    abs(dY), being 0,1,0,1,1,0,1,0 repeating

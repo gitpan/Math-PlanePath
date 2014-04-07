@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -30,38 +30,20 @@ use MyOEIS;
 use Math::PlanePath::Corner;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Smart::Comments;
 
 
 #------------------------------------------------------------------------------
-# A027709 -- boundary length
-
-{
-  my @dir4_to_dx = (1,0,-1,0);
-  my @dir4_to_dy = (0,1,0,-1);
-
-  sub path_n_to_dboundary {
-    my ($path, $n) = @_;
-    my ($x,$y) = $path->n_to_xy($n);
-    my $dboundary = 4;
-    foreach my $i (0 .. $#dir4_to_dx) {
-      my $an = $path->xy_to_n($x+$dir4_to_dx[$i], $y+$dir4_to_dy[$i]);
-      $dboundary -= 2*(defined $an && $an < $n);
-    }
-    return $dboundary;
-  }
-}
+# A027709 -- unit squares figure boundary
 
 MyOEIS::compare_values
   (anum => 'A027709',
    func => sub {
      my ($count) = @_;
      my $path = Math::PlanePath::Corner->new;
-     my @got;
-     my $boundary = 0;
+     my @got = (0);
      for (my $n = $path->n_start; @got < $count; $n++) {
-       push @got, $boundary;
-       $boundary += path_n_to_dboundary($path,$n);
+       push @got, $path->_NOTDOCUMENTED_n_to_figure_boundary($n);
      }
      return \@got;
    });

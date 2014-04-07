@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -92,14 +92,7 @@ use constant parameter_info_array =>
     #   choices_display => ['High to Low','Low to High'],
     # },
 
-    { name            => 'n_start',
-      share_key       => 'n_start_0',
-      display         => 'N Start',
-      type            => 'integer',
-      default         => 0,
-      width           => 3,
-      description     => 'Starting N.',
-    },
+    Math::PlanePath::Base::Generic::parameter_info_nstart0(),
   ];
 
 use constant class_x_negative => 0;
@@ -1245,7 +1238,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2012, 2013 Kevin Ryde
+Copyright 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

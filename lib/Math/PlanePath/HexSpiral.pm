@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -67,6 +67,26 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::SquareSpiral;
 *parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
 
+#      2w+3 --- 3w/2+3 -- w+4
+#      /                     \
+#    2w+4         0 -------- w+3  *
+#      \                         /
+#      2w+5 ----------------- 3w+7    w=2; 1+3*w+7=14
+#                       ^
+#                      X=0
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + ($self->{'wider'} ? 0 : 3);
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + 2*$self->{'wider'} + 5;
+}
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  return $self->n_start + 3*$self->{'wider'} + 7;
+}
+
 sub rsquared_minimum {
   my ($self) = @_;
   return ($self->{'wider'} % 2
@@ -79,6 +99,9 @@ use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_six;
+
 use constant absdx_minimum => 1;
 *absdiffxy_minimum = \&rsquared_minimum;
 
@@ -463,7 +486,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,7 +24,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,10 +48,49 @@ use constant parameter_info_array =>
    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
+{
+  my %_UNDOCUMENTED__x_negative_at_n = (left  => 3,
+                                        right => 5,
+                                        up    => 3,
+                                        down  => 5);
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $self->n_start + $_UNDOCUMENTED__x_negative_at_n{$self->{'skew'}};
+  }
+}
+{
+  my %_UNDOCUMENTED__y_negative_at_n = (left  => 6,
+                                        right => 6,
+                                        up    => 5,
+                                        down  => 1);
+  sub _UNDOCUMENTED__y_negative_at_n {
+    my ($self) = @_;
+    return $self->n_start + $_UNDOCUMENTED__y_negative_at_n{$self->{'skew'}};
+  }
+}
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+{
+  my %_UNDOCUMENTED__dxdy_list = (left  => [1,0,   # E
+                                            -1,1,  # NW
+                                            0,-1], # S
+                                  right => [1,0,    # E
+                                            0,1,    # N
+                                            -1,-1], # SW
+                                  up    => [1,1,   # NE
+                                            -1,0,  # W
+                                            0,-1], # S
+                                  down  => [0,1,   # N
+                                            -1,0,  # W
+                                            1,-1], # SE
+                                 );
+  sub _UNDOCUMENTED__dxdy_list {
+    my ($self) = @_;
+    return @{$_UNDOCUMENTED__dxdy_list{$self->{'skew'}}};
+  }
+}
 {
   my %dsumxy_minimum = (left  => -1,  # diagonal only NW across
                         right => -2,  # SW
@@ -569,7 +608,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

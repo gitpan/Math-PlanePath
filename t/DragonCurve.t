@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,7 +36,7 @@ require Math::PlanePath::DragonCurve;
 # VERSION
 
 {
-  my $want_version = 114;
+  my $want_version = 115;
   ok ($Math::PlanePath::DragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonCurve->VERSION,  $want_version,
@@ -66,7 +66,7 @@ require Math::PlanePath::DragonCurve;
 
 {
   # with Y reckoned increasing upwards
-  sub dxdy_to_dir {
+  sub dxdy_to_dir4 {
     my ($dx, $dy) = @_;
     if ($dx > 0) { return 0; }  # east
     if ($dx < 0) { return 2; }  # west
@@ -76,7 +76,7 @@ require Math::PlanePath::DragonCurve;
   sub path_n_dir {
     my ($path, $n) = @_;
     my ($dx,$dy) = $path->n_to_dxdy($n) or die "Oops, no point at ",$n;
-    return dxdy_to_dir ($dx, $dy);
+    return dxdy_to_dir4 ($dx, $dy);
   }
   # return 0 for left, 1 for right
   sub path_n_turn {

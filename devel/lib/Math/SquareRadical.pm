@@ -1,4 +1,4 @@
-# Copyright 2013 Kevin Ryde
+# Copyright 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use Carp;
 use Scalar::Util 'blessed';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 
 # uncomment this to run the ### lines
 use Smart::Comments;

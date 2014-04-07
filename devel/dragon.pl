@@ -22,8 +22,8 @@ use strict;
 use warnings;
 use List::MoreUtils;
 use POSIX 'floor';
-use Math::Libm 'M_PI', 'hypot';
-use List::Util 'min', 'max';
+use Math::Libm 'M_PI', 'hypot', 'cbrt';
+use List::Util 'min', 'max', 'sum';
 use Math::PlanePath::DragonCurve;
 use Math::PlanePath::Base::Digits
   'round_down_pow';
@@ -34,11 +34,597 @@ use Math::PlanePath::KochCurve;
 *_digit_join_hightolow = \&Math::PlanePath::KochCurve::_digit_join_hightolow;
 
 use lib 'xt';
-
+use MyOEIS;
+use Memoize;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
+
+{
+  # poly trial division
+
+  require Math::Polynomial;
+  Math::Polynomial->string_config({ ascending => 1,
+                                    fold_sign => 1 });
+  my $p;
+  $p = Math::Polynomial->new(1,-4,5,-4,6,-4); # dragon area denom
+  $p = Math::Polynomial->new(2,-5,3,-4,5);    # dragon visited
+  $p = Math::Polynomial->new(1,2,0,-1,1,0,2,4,-1);  # C curve e
+
+  print "$p\n";
+  foreach my $a (-15 .. 15) {
+    foreach my $b (1 .. 15) {
+      next if $a == 0 && $b == 0;
+      next if abs($a) == 1 && $b == 0;
+      my $d = Math::Polynomial->new($a,$b);
+      my ($q,$r) = $p->divmod($d);
+      if ($r == 0 && poly_is_integer($q)) {
+        print "/ $d = $q  rem $r\n";
+        $p = $q;
+      }
+    }
+  }
+  foreach my $a (-15 .. 15) {
+    foreach my $b (-15 .. 15) {
+      foreach my $c (1 .. 15) {
+        next if $a == 0 && $b == 0 && $c == 0;
+        next if abs($a) == 1 && $b == 0 && $c == 0;
+        my $d = Math::Polynomial->new($a,$b,$c);
+        my ($q,$r) = $p->divmod($d);
+        if ($r == 0 && poly_is_integer($q)) {
+          print "/ $d = $q  rem $r\n";
+          $p = $q;
+        }
+      }
+    }
+  }
+  print "final $p\n";
+  exit 0;
+
+  sub poly_is_integer {
+    my ($p) = @_;
+    foreach my $coeff ($p->coefficients) {
+      unless ($coeff == int($coeff)) {
+        return 0;
+      }
+    }
+    return 1;
+  }
+}
+
+{
+  my $path = Math::PlanePath::DragonCurve->new;
+  sub level_to_join_area {
+    my ($level) = @_;
+    {
+      if ($level == 0) { return 0; }
+      if ($level == 1) { return 0; }
+      if ($level == 2) { return 0; }
+      if ($level == 3) { return 1; }
+      my $j0 =  0;
+      my $j1 =  0;
+      my $j2 =  0;
+      my $j3 =  1;
+      foreach (4 .. $level) {
+        ($j3,$j2,$j1,$j0) = (2*$j3 - $j2 + 2*$j1 - 2*$j0,  $j3, $j2, $j1);
+      }
+      return $j3;
+    }
+
+    return ($path->_UNDOCUMENTED_level_to_right_line_boundary($level+1)
+            - $path->_UNDOCUMENTED_level_to_left_line_boundary($level+1)) / 4;
+
+    return ($path->_UNDOCUMENTED_level_to_line_boundary($level) / 2
+            - $path->_UNDOCUMENTED_level_to_line_boundary($level+1) / 4);
+
+    return ($path->_UNDOCUMENTED_level_to_enclosed_area($level+1)
+            - 2*$path->_UNDOCUMENTED_level_to_enclosed_area($level));
+  }
+  sub level_to_join_points_by_formula {
+    my ($level) = @_;
+    {
+      if ($level == 0) { return 1; }
+      if ($level == 1) { return 1; }
+      if ($level == 2) { return 1; }
+      if ($level == 3) { return 2; }
+      my $j0 =  1;
+      my $j1 =  1;
+      my $j2 =  1;
+      my $j3 =  2;
+      foreach (4 .. $level) {
+        ($j3,$j2,$j1,$j0) = (2*$j3 - $j2 + 2*$j1 - 2*$j0,  $j3, $j2, $j1);
+      }
+      return $j3;
+    }
+    return level_to_join_area($level) + 1;
+  }
+
+  my @values;
+  my $prev_visited = 0;
+  foreach my $k (0 .. 11) {
+    my $n_end = 2**$k;
+    # my %seen;
+    # foreach my $n (0 .. $n_end) {
+    #   my ($x,$y) = $path->n_to_xy($n);
+    #   $seen{"$x,$y"}++;
+    # }
+    my $u = $path->_UNDOCUMENTED_level_to_u_left_line_boundary($k);
+    my $ru = $path->_UNDOCUMENTED_level_to_u_right_line_boundary($k);
+    my $bu = $path->_UNDOCUMENTED_level_to_u_line_boundary($k);
+    my $ja = level_to_join_area($k);
+    my $join_points = path_level_to_join_points($path,$k);
+    my $join_area = $join_points - 1;
+    my $j = level_to_join_points_by_formula($k);
+    my $da = level_to_denclosed($k);
+    my $area = $path->_UNDOCUMENTED_level_to_enclosed_area($k);
+    my $area_next = $path->_UNDOCUMENTED_level_to_enclosed_area($k+1);
+    my $darea = $area_next - $area;
+    my $v = $path->_UNDOCUMENTED_level_to_visited($k);
+    my $visited = $v; # MyOEIS::path_n_to_visited($path,$n_end);
+    my $dvisited = $visited - $prev_visited;
+
+    my $singles = 0 && MyOEIS::path_n_to_singles($path, $n_end-1);
+    my $doubles = 0 && MyOEIS::path_n_to_doubles($path, $n_end-1);
+    print "$k  join=$join_points,$j da=$area_next-$area=$da $visited $v\n";
+
+    push @values, ($dvisited-1)/2;
+    $prev_visited = $visited;
+
+    # dvisited       = 2,1,2,4,7,13,25,47,89,171,329,635,1233,2403,4697
+    # dvisited-1     = 1,0,1,3,6,12,24,46,88,170,328,634,1232,2402,4696
+    # (dvisited-1)/2 = 0.5,0,0.5,1.5, 3,6,12,23,44,85,164,317
+    # (dvisited-1)/2 differs from A001630 tetranacci at k=11
+  }
+  print join(',',@values),"\n";
+  shift @values;
+  shift @values;
+  shift @values;
+  shift @values;
+  shift @values;
+  print MyOEIS->grep_for_values(array => \@values);
+  exit 0;
+
+  sub level_to_denclosed {
+    my ($k) = @_;
+    return ($path->_UNDOCUMENTED_level_to_enclosed_area($k+1)
+            - $path->_UNDOCUMENTED_level_to_enclosed_area($k));
+  }
+
+  sub path_level_to_join_points {
+    my ($path, $k) = @_;
+    my $n_level = 2**$k;
+    my $join;
+    foreach my $n ($n_level .. 2*$n_level) {
+      foreach my $n ($path->xy_to_n_list($path->n_to_xy($n))) {
+        $join += ($n <= $n_level);
+      }
+    }
+    return $join;
+  }
+}
+
+{
+  # singles positions
+  my $path = Math::PlanePath::DragonCurve->new;
+
+  foreach my $k (0 .. 6) {
+    my $n_end = 2**$k;
+    foreach my $n (0 .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n) or return 0;
+      my @n_list = $path->xy_to_n_list($x,$y);
+      if (@n_list == 1
+          || (@n_list == 2 && $n_list[1] > $n_end)) {
+        # my $n = $n ^ ($n >> 1);
+        my $str = sprintf "%8b", $n;
+        my $match = ($str =~ /0101|0001/ ? ' ****' : '');
+        print "$str $match\n";
+      }
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
+  # root of x^3 - x^2 - 2
+
+  # real root D^(1/3) + (1/9)*D^(-1/3) + 1/3 = 1.6956207695598620
+  # where D=28/27 + (1/9)*sqrt(29*3) = 28/27 + sqrt(29/27)
+  use constant D => 28/27 + sqrt(29/27);
+  use constant REAL_ROOT => D**(1/3) + (1/9)*D**(-1/3) + 1/3;
+  print "REAL_ROOT: ",REAL_ROOT,"\n";
+
+  # x^3 - x^2 - 2
+  # x = y+1/3
+  # y^3 - 1/3*y - 56/27 = 0
+  # y^3 + p*y + q = 0
+  # p=-1/3; q=-56/27
+  # p^3/27 + q^2/4 = 29/27
+  # q/2 = 28/27
+  # y=a-b
+  # a^3 - 3*b*a^2 + 3*b^2*a + p*a + -b^3 - p*b + q = 0
+  # a^3 - b^3 - a(3*b*a - p) + b(3*b*a - p) + q = 0
+  # a^3 - b^3 + (b-a)(3*b*a - p) + q = 0
+  # a^3 - b^3 + (a-b)(-3*b*a + p) + q = 0
+  # take -3*b*a + p = 0 so p = 3ab
+  # a^3 - b^3 + q = 0
+  # 27a^6 - (3ab)^3 + 27a^3q = 0   times (3a)^3
+  # 27a^6 - p^3 + 27a^3*q = 0
+  # 27a^6 + 27a^3*q - p^3 = 0 quadratic in a^3
+  # A = 27; B = 27*q; C = -p^3
+  # a^3 = (-27*q +/- sqrt((27*q)^2 - 4*27*-p^3) ) / 2*27
+  #     = -q/2 +/- sqrt((27*q)^2 - 4*27*-p^3)/2*27
+  #     = -q/2 +/- sqrt(q^2/4 - -p^3/27)
+  # a^3 = -q/2 +/- sqrt(q^2/4 + p^3/27)
+  #
+  # 27*a^3*b^3 = p^3
+  # b^3 = p^3/27*a^3
+  # b^3 = p^3 / (-q/2 +/- sqrt(q^2/4 + p^3/27))
+  # b^3 = p^3 * (-q/2 -/+ sqrt(q^2/4 + p^3/27))
+  #       / 27*((-q/2)^2 - (q^2/4 + p^3/27))
+  #       / 27*(q^2/4 - q^2/4 - p^3/27)
+  #       / - p^3
+  # b^3 = q/2 +/- sqrt(q^2/4 + p^3/27)
+
+  my $p = -1/3;
+  my $q = -56/27;
+
+  my $a3 = -$q/2 + sqrt($q**2/4 + $p**3/27);
+  print "a^3 $a3\n";
+  my $a3poly = nearly_zero(27*($a3**2) + 27*$a3*$q - $p**3);
+  print "a^3 poly: $a3poly\n";
+
+  my $b3 = $q/2 + sqrt($q**2/4 + $p**3/27);
+  my $b3p = $p**3 / (27*$a3);
+  print "b^3 $b3 $b3p\n";
+  my $a = cbrt($a3);
+  my $b = cbrt($b3);
+  print "a $a   b $b\n";
+  print "a-b ",$a-$b,"\n";
+
+  my $y = cbrt(-$q/2 + sqrt($p**3/27 + $q**2/4))
+    - cbrt($q/2 + sqrt($p**3/27 + $q**2/4));
+  print "y   $y\n";
+  my $ypoly = nearly_zero($y**3 - 1/3*$y - 56/27);
+  print "y poly $ypoly\n";
+
+  my $x = $y+1/3;
+  print "x  $x\n";
+  my $xpoly = nearly_zero($x**3 - $x&&2 - 2);
+  print "x poly $xpoly\n";
+
+  # y = cbrt(28/27 + sqrt(29/27)) + cbrt(28/27 - sqrt(29/27))
+  # x = 1/3 + cbrt(28/27 + sqrt(29/27)) + cbrt(28/27 - sqrt(29/27))
+  my $yf = cbrt(28/27 + sqrt(29/27)) + cbrt(28/27 - sqrt(29/27));
+  my $xf = 1/3 + cbrt(28/27 + sqrt(29/27)) + cbrt(28/27 - sqrt(29/27));
+  print "yf $yf\n";
+  print "xf $xf\n";
+
+  # cbrt(x)=(x^(1/3))
+  # f = 1/3 + cbrt(28/27 + sqrt(29/27)) + cbrt(28/27 - sqrt(29/27))
+  # (x^3 - x^2 - 2)/(x-f)
+  #    x^3 - x^2 - 2         quot = x^2
+  #  - x^3 + x^2*f
+  # =      (-1+f)x^2 - 2         quot = x^2 + (-1+f)x
+  #      - (-1+f)x^2 + (-1+f)fx
+  # = (-1+f)fx - 2               quot = x^2 + (-1+f)x + (-1+f)f
+  #   - (-1+f)fx + (-1+f)ff
+  # = 0    since (-1+f)ff = f^3-f^2 = 2
+  #
+  # (x^2 + (-1+f)*x + (-1+f)*f)*(x-f)    + f^3-f^2-2
+  # = x^3 - x^2 - 2
+  #
+  # x^2 + (f-1)*x + f*(f-1)
+  # xb = (1-f + sqrt((f-1)^2 - 4f(f-1)))/2
+  #    = (1-f + sqrt(f^2-2f+1 - 4f^2 +4f))/2
+  # xb = (1-f + sqrt(-3*f^2 + 2*f + 1))/2
+  # xb = (1-f + sqrt((3*f+1)*(-f+1)))/2
+  # xb^3 - xb^2 - 2
+
+  require Math::Complex;
+  my $f = Math::Complex->new($x);
+  my $xb = (1-$f + sqrt(-3*$f*$f + 2*$f + 1))/2;
+  my $xc = (1-$f - sqrt(-3*$f*$f + 2*$f + 1))/2;
+  print "xb  $xb\n";
+  print "xc  $xc\n";
+  my $xbpoly = ($xb**3 - $xb**2 - 2);
+  my $xcpoly = ($xc**3 - $xc**2 - 2);
+  print "xb poly $xbpoly\n";
+  print "xc poly $xcpoly\n";
+
+  # y^3 - 1/3*y - 56/27 = 0
+  # f^3 - 1/3*f - 56/27
+  # f = cbrt(28/27 + sqrt(29/27)) + cbrt(28/27 - sqrt(29/27))
+  # y^3 - 1/3*y - 56/27 - (y^2 + f*y + f^2 - 1/3)*(y-f)     -(f^3-1/3*f-56/27)
+  # y^2 + f*y + f^2-1/3
+  # yb = (-f + sqrt(f^2 - 4*(f^2-1/3)))/2
+  #    = (-f + sqrt(f^2 - 4*f^2 + 4/3))/2
+  # yb = (-f + sqrt(-3*f^2 + 4/3))/2
+  # yb^3 - 1/3*yb - 56/27
+  $f = Math::Complex->new($y);
+  my $yb = (-$f + sqrt(-3*$f*$f + 4/3))/2;
+  my $yc = (-$f - sqrt(-3*$f*$f + 4/3))/2;
+  print "yb   $yb\n";
+  print "yc   $yc\n";
+  my $ybpoly = nearly_zero($yb**3 - 1/3*$yb - 56/27);
+  my $ycpoly = nearly_zero($yc**3 - 1/3*$yc - 56/27);
+  print "yb poly $ybpoly\n";
+  print "yc poly $ycpoly\n";
+
+  # f^2 = (cbrt(28/27 + sqrt(29/27)) + cbrt(28/27 - sqrt(29/27)))^2
+  #     = cbrt(28/27 + sqrt(29/27))^2
+  #       + cbrt(28/27 - sqrt(29/27))^2
+  #       + cbrt(28/27 + sqrt(29/27)) * cbrt(28/27 - sqrt(29/27))
+  # cbrt( (28/27 + sqrt(29/27))*(28/27 - sqrt(29/27)) )
+  # cbrt( (28/27)^2 - 29/27 )
+
+  exit 0;
+
+  sub nearly_zero {
+    my ($x) = @_;
+    if (abs($x) < 1e-12) {
+      return 0;
+    } else {
+      return $x;
+    }
+  }
+}
+{
+  # 3 8  area=2 boundary=8 right
+  #    count=9  0,0 1,0 1,1 0,1 0,2 -1,2 -1,1 -2,1 -2,2
+  # 4 16  area=4 boundary=16 right
+  # 5 32  area=9 boundary=28 right
+  # 6 64  area=20 boundary=48 right
+  # 7 128  area=43 boundary=84 right
+  # 8 256  area=92 boundary=144 right
+  # 9 512  area=195 boundary=244 right
+  # 10 1024  area=408 boundary=416 right
+  # 11 2048  area=847 boundary=708 right
+  # 12 4096  area=1748 boundary=1200 right
+  # 13 8192  area=3587 boundary=2036 right
+
+  # 3 8  area=2 boundary=8 left
+  #    count=9  -2,2 -2,1 -1,1 -1,2 0,2 0,1 1,1 1,0 0,0
+  # 4 16  area=3 boundary=12 left
+  # 5 32  area=5 boundary=20 left
+  # 6 64  area=9 boundary=36 left
+  # 7 128  area=15 boundary=60 left
+  # 8 256  area=25 boundary=100 left
+  # 9 512  area=43 boundary=172 left
+  # 10 1024  area=73 boundary=292 left
+  # 11 2048  area=123 boundary=492 left
+  # 12 4096  area=209 boundary=836 left
+  # 13 8192  area=355 boundary=1420 left
+
+  # Left boundary/2
+  # A203175  a(n) = a(n-1) + 2*a(n-3)
+
+  # Right boundary
+  # A227036 = whole boundary
+  # because R[k+1] = R[k]+L[k] = B[k-1]
+
+  my $B_by_power = sub {
+    my ($k) = @_;
+    return 3.6 * REAL_ROOT ** $k;
+  };
+
+  my ($R,$L,$T,$U,$V);
+
+  $R = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 1; }
+    { if ($k == 1) { return 2; }
+      if ($k == 2) { return 4; }
+      if ($k == 3) { return 8; }
+      if ($k == 4) { return 16; }
+      # R[k+4] = 2*R[k+3]  -R[k+2] + 2*R[k+1] - 2*R[k]      ok
+      return 2*$R->($k-1) - $R->($k-2) + 2*$R->($k-3) - 2*$R->($k-4);
+
+      return $R->($k-1) - $R->($k-1) + $R->($k-2) + $R->($k-1) - $R->($k-2) + $R->($k-3) + $R->($k-1)-$R->($k-2) - $R->($k-4) + $R->($k-3)-$R->($k-4);
+      return 2*$R->($k-1) - $R->($k-2) + 2*$R->($k-3) - 2*$R->($k-4); }
+    return $R->($k-1) + $L->($k-1);
+  };
+  $R = Memoize::memoize($R);
+
+  $L = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 1; }
+
+
+    { if ($k == 1) { return 2; }
+      if ($k == 2) { return 4; }
+      if ($k == 3) { return 8; }
+
+      # L[k+3] =        L[k+2] +         2*L[k]     ok
+      return $L->($k-1) + 2*$L->($k-3);
+
+      # L[k+3]-R[k+1] = L[k+2]-R[k] + L[k]   ok
+      return $R->($k-2) + $L->($k-1) - $R->($k-3) + $L->($k-3); }
+
+    { if ($k == 1) { return 2; }
+      return $R->($k-2) + $U->($k-2); }
+    return $T->($k-1);
+  };
+  $L = Memoize::memoize($L);
+
+  $T = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 2; }
+    return $R->($k-1) + $U->($k-1);
+  };
+  $T = Memoize::memoize($T);
+
+  $U = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 3; }
+    # return $U->($k-1) + $L->($k-1);
+    return $U->($k-1) + $V->($k-1);
+  };
+  $U = Memoize::memoize($U);
+
+  my $U2 = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    if ($k == 0) { return 3; }
+    { if ($k == 1) { return 6; }
+      if ($k == 2) { return 8; }
+      if ($k == 3) { return 12; }
+      if ($k == 4) { return 20; }
+      # U[k+4] = 2*U[k+3]  -U[k+2] + 2*U[k+1] - 2*U[k]      ok
+      return 2*$U->($k-1) - $U->($k-2) + 2*$U->($k-3) - 2*$U->($k-4);
+    }
+    # return $U->($k-1) + $L->($k-1);
+    return $U->($k-1) + $V->($k-1);
+  };
+  $U2 = Memoize::memoize($U2);
+
+  my $U_from_LsubR = sub {
+    my ($k) = @_;
+    die if $k < 0;
+    return $L->($k+2) - $R->($k);
+  };
+  $V = sub {
+    my ($k) = @_;
+    if ($k == 0) { return 3; }
+    return $T->($k-1);
+  };
+  $V = Memoize::memoize($V);
+
+  my $B = sub {
+    my ($k) = @_;
+    return $R->($k) + $L->($k);
+  };
+  $B = Memoize::memoize($B);
+
+  my $A = sub {
+    my ($k) = @_;
+    if ($k < 1) { return 0; }
+    return 2**($k-1) - $B->($k)/4;
+  };
+
+  foreach my $k (0 .. 20) {
+    print $A->($k),", ";
+  }
+  print "\n";
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $prev_dl = 0;
+  my $prev_ddl = 0;
+  foreach my $k (0 .. 24) {
+    # my $p = MyOEIS::path_boundary_length($path, 2**$k);
+    # my $b = $B->($k);
+    # my $r = $R->($k);
+    # my $l = $L->($k);
+    # my $t = $T->($k);
+    # my $u = $U->($k);
+    # my $u2 = $U2->($k);
+    # my $u_lr = $U_from_LsubR->($k);
+    # my $v = $V->($k);
+    # print "$k $p   $b  R=$r L=$l T=$t U=$u,$u2,$u_lr V=$v\n";
+
+    # my $dl = $L->($k+1) - $L->($k);
+    # my $ddl = $dl - $prev_dl;
+    # printf "%28b\n", $ddl-$prev_ddl;
+    # $prev_dl = $dl;
+    # $prev_ddl = $ddl;
+
+    my $b = $B->($k);
+    my $best = $B_by_power->($k);
+    my $f = $b/$best;
+    print "$b $best  $f\n";
+ }
+  exit 0;
+}
+{
+  # L,R,T,U,V by path boundary
+  require MyOEIS;
+  $| = 1;
+  # L
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $part ('B','A','L','R','T','U','V') {
+    print "$part ";
+    my $name = "${part}_from_path";
+    my $coderef = __PACKAGE__->can($name) || die $name;
+    my @values;
+    foreach my $k (0 .. 14) {
+      my $value = $coderef->($path,$k);
+      push @values, $value;
+      print "$value,";
+      #      if ($value < 10) { print "\n",join(' ',map{join(',',@$_)} @$points),"\n"; }
+    }
+    print "\n";
+
+    shift @values;
+    shift @values;
+    shift @values;
+    shift @values;
+    shift @values;
+    print MyOEIS->grep_for_values(array => \@values,
+                                  name => $part);
+    print "\n";
+  }
+
+  exit 0;
+
+  sub A_from_path {
+    my ($path, $k) = @_;
+    return MyOEIS::path_enclosed_area($path, 2**$k);
+  }
+  sub B_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit);
+    return scalar(@$points);
+  }
+  sub L_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'left');
+    return scalar(@$points) - 1;
+  }
+  sub R_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'right');
+    return scalar(@$points) - 1;
+  }
+  sub T_from_path {
+    my ($path, $k) = @_;
+    # 2 to 4
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(2*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(4*$n_limit);
+    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 2);
+    return scalar(@$points) - 1;
+  }
+  sub U_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(3*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(0);
+    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 1);
+    return scalar(@$points) - 1;
+  }
+  sub V_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(6*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(3*$n_limit);
+    my $points = MyOEIS::path_boundary_points_ft($path, 8*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 0);
+    return scalar(@$points) - 1;
+  }
+}
 
 {
   # bridge points, points which are on both left and right boundary
@@ -154,225 +740,6 @@ use lib 'xt';
   #   return @n_list == 1
   #     && Math::NumSeq::PlanePathCoord::_path_n_surround_count($path,$n,SURROUND_4) == 2;
   # }
-}
-{
-  # L,R,T,U,V by path boundary
-  require MyOEIS;
-  $| = 1;
-  # L
-  my $path = Math::PlanePath::DragonCurve->new;
-  foreach my $part ('A','B','L','R','T','U','V') {
-    print "$part ";
-    my $name = "${part}_from_path";
-    my $coderef = __PACKAGE__->can($name) || die $name;
-    my @values;
-    foreach my $k (0 .. 14) {
-      my $value = $coderef->($path,$k);
-      push @values, $value;
-      print "$value,";
-      #      if ($value < 10) { print "\n",join(' ',map{join(',',@$_)} @$points),"\n"; }
-    }
-    print "\n";
-
-    shift @values;
-    shift @values;
-    shift @values;
-    shift @values;
-    shift @values;
-    print MyOEIS->grep_for_values(array => \@values,
-                                  name => $part);
-    print "\n";
-  }
-
-  exit 0;
-
-  sub A_from_path {
-    my ($path, $k) = @_;
-    return MyOEIS::path_enclosed_area($path, 2**$k);
-  }
-  sub B_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my $points = MyOEIS::path_boundary_points($path, $n_limit);
-    return scalar(@$points);
-  }
-  sub L_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'left');
-    return scalar(@$points) - 1;
-  }
-  sub R_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'right');
-    return scalar(@$points) - 1;
-  }
-  sub T_from_path {
-    my ($path, $k) = @_;
-    # 2 to 4
-    my $n_limit = 2**$k;
-    my ($x,$y) = $path->n_to_xy(2*$n_limit);
-    my ($to_x,$to_y) = $path->n_to_xy(4*$n_limit);
-    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
-                                                 $x,$y, $to_x,$to_y,
-                                                 dir => 2);
-    return scalar(@$points) - 1;
-  }
-  sub U_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my ($x,$y) = $path->n_to_xy(3*$n_limit);
-    my ($to_x,$to_y) = $path->n_to_xy(0);
-    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
-                                                 $x,$y, $to_x,$to_y,
-                                                 dir => 1);
-    return scalar(@$points) - 1;
-  }
-  sub V_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my ($x,$y) = $path->n_to_xy(6*$n_limit);
-    my ($to_x,$to_y) = $path->n_to_xy(3*$n_limit);
-    my $points = MyOEIS::path_boundary_points_ft($path, 8*$n_limit,
-                                                 $x,$y, $to_x,$to_y,
-                                                 dir => 0);
-    return scalar(@$points) - 1;
-  }
-}
-{
-  require MyOEIS;
-
-  # 3 8  area=2 boundary=8 right
-  #    count=9  0,0 1,0 1,1 0,1 0,2 -1,2 -1,1 -2,1 -2,2
-  # 4 16  area=4 boundary=16 right
-  # 5 32  area=9 boundary=28 right
-  # 6 64  area=20 boundary=48 right
-  # 7 128  area=43 boundary=84 right
-  # 8 256  area=92 boundary=144 right
-  # 9 512  area=195 boundary=244 right
-  # 10 1024  area=408 boundary=416 right
-  # 11 2048  area=847 boundary=708 right
-  # 12 4096  area=1748 boundary=1200 right
-  # 13 8192  area=3587 boundary=2036 right
-
-  # 3 8  area=2 boundary=8 left
-  #    count=9  -2,2 -2,1 -1,1 -1,2 0,2 0,1 1,1 1,0 0,0
-  # 4 16  area=3 boundary=12 left
-  # 5 32  area=5 boundary=20 left
-  # 6 64  area=9 boundary=36 left
-  # 7 128  area=15 boundary=60 left
-  # 8 256  area=25 boundary=100 left
-  # 9 512  area=43 boundary=172 left
-  # 10 1024  area=73 boundary=292 left
-  # 11 2048  area=123 boundary=492 left
-  # 12 4096  area=209 boundary=836 left
-  # 13 8192  area=355 boundary=1420 left
-
-  # Left boundary/2
-  # A203175  a(n) = a(n-1) + 2*a(n-3)
-
-  # Right boundary
-  # A227036 = whole boundary
-  # because R[k+1] = R[k]+L[k] = B[k-1]
-
-  my ($R,$L,$T,$U,$V);
-  $R = sub {
-    my ($k) = @_;
-    die if $k < 0;
-    if ($k == 0) { return 1; }
-    { if ($k == 1) { return 2; }
-      if ($k == 2) { return 4; }
-      if ($k == 3) { return 8; }
-      if ($k == 4) { return 16; }
-      # R[k+4] = 2*R[k+3]  -R[k+2] + 2*R[k+1] - 2*R[k]      ok
-      return 2*$R->($k-1) - $R->($k-2) + 2*$R->($k-3) - 2*$R->($k-4);
-
-      return $R->($k-1) - $R->($k-1) + $R->($k-2) + $R->($k-1) - $R->($k-2) + $R->($k-3) + $R->($k-1)-$R->($k-2) - $R->($k-4) + $R->($k-3)-$R->($k-4);
-      return 2*$R->($k-1) - $R->($k-2) + 2*$R->($k-3) - 2*$R->($k-4); }
-    return $R->($k-1) + $L->($k-1);
-  };
-  $L = sub {
-    my ($k) = @_;
-    die if $k < 0;
-    if ($k == 0) { return 1; }
-
-
-    { if ($k == 1) { return 2; }
-      if ($k == 2) { return 4; }
-      if ($k == 3) { return 8; }
-
-      # L[k+3] =        L[k+2] +         2*L[k]     ok
-      return $L->($k-1) + 2*$L->($k-3);
-
-      # L[k+3]-R[k+1] = L[k+2]-R[k] + L[k]   ok
-      return $R->($k-2) + $L->($k-1) - $R->($k-3) + $L->($k-3); }
-
-    { if ($k == 1) { return 2; }
-      return $R->($k-2) + $U->($k-2); }
-    return $T->($k-1);
-  };
-  $T = sub {
-    my ($k) = @_;
-    die if $k < 0;
-    if ($k == 0) { return 2; }
-    return $R->($k-1) + $U->($k-1);
-  };
-  $U = sub {
-    my ($k) = @_;
-    die if $k < 0;
-    if ($k == 0) { return 3; }
-    # return $U->($k-1) + $L->($k-1);
-    return $U->($k-1) + $V->($k-1);
-  };
-  my $U2 = sub {
-    my ($k) = @_;
-    die if $k < 0;
-    if ($k == 0) { return 3; }
-    { if ($k == 1) { return 6; }
-      if ($k == 2) { return 8; }
-      if ($k == 3) { return 12; }
-      if ($k == 4) { return 20; }
-      # U[k+4] = 2*U[k+3]  -U[k+2] + 2*U[k+1] - 2*U[k]      ok
-      return 2*$U->($k-1) - $U->($k-2) + 2*$U->($k-3) - 2*$U->($k-4);
-    }
-    # return $U->($k-1) + $L->($k-1);
-    return $U->($k-1) + $V->($k-1);
-  };
-  my $U_from_LsubR = sub {
-    my ($k) = @_;
-    die if $k < 0;
-    return $L->($k+2) - $R->($k);
-  };
-  $V = sub {
-    my ($k) = @_;
-    if ($k == 0) { return 3; }
-    return $T->($k-1);
-  };
-  my $B = sub {
-    my ($k) = @_;
-    return $R->($k) + $L->($k);
-  };
-
-  foreach my $k (0 .. 15) {
-    print $U->($k),", ";
-  }
-  print "\n";
-
-  my $path = Math::PlanePath::DragonCurve->new;
-  foreach my $k (0 .. 15) {
-    my $p = MyOEIS::path_boundary_length($path, 2**$k);
-    my $b = $B->($k);
-    my $r = $R->($k);
-    my $l = $L->($k);
-    my $t = $T->($k);
-    my $u = $U->($k);
-    my $u2 = $U2->($k);
-    my $u_lr = $U_from_LsubR->($k);
-    my $v = $V->($k);
-    print "$k $p   $b  R=$r L=$l T=$t U=$u,$u2,$u_lr V=$v\n";
-  }
-  exit 0;
 }
 
 {

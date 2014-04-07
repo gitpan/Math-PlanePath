@@ -31,7 +31,7 @@ use MyOEIS;
 use Math::PlanePath::CCurve;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
 
 my $path = Math::PlanePath::CCurve->new;
@@ -57,6 +57,102 @@ sub dxdy_to_dir4 {
   if ($dy > 0) { return 1; }  # north
   if ($dy < 0) { return 3; }  # south
 }
+
+sub right_boundary {
+  my ($n_end) = @_;
+  return MyOEIS::path_boundary_length ($path, $n_end, side => 'right');
+}
+use Memoize;
+Memoize::memoize('right_boundary');
+
+#------------------------------------------------------------------------------
+# A007814 - count low 0s, is turn right - 1
+
+MyOEIS::compare_values
+  (anum => 'A007814',
+   fixup => sub {
+     my ($bvalues) = @_;
+     @$bvalues = map {$_ % 4} @$bvalues;
+   },
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $total_turn = 0;
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       push @got, (1 - path_n_turn($path,$n)) % 4;  # negate to right
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A003159 - positions ending even 0 bits is where turn either left or right
+
+MyOEIS::compare_values
+  (anum => 'A003159',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'LSR');
+     my @got;
+     while (@got < $count) {
+       my ($i, $lsr) = $seq->next;
+       if ($lsr) { # left or right
+         push @got, $i;
+       }
+     }
+     return \@got;
+   });
+
+# A036554 - positions ending odd 0 bits is where turn straight or reverse
+MyOEIS::compare_values
+  (anum => 'A036554',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'LSR');
+     my @got;
+     while (@got < $count) {
+       my ($i, $lsr) = $seq->next;
+       if ($lsr == 0) { # straight
+         push @got, $i;
+       }
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A027383 right boundary differences
+MyOEIS::compare_values
+  (anum => 'A027383',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $k = 1; @got < $count; $k++) {
+       my $b1 = right_boundary(2**$k);
+       my $b2 = right_boundary(2**($k+1));
+       push @got, $b2 - $b1;
+     }
+     return \@got;
+   });
+
+# A131064 right boundary odd powers, extra initial 1
+MyOEIS::compare_values
+  (anum => 'A131064',
+   max_value => 50_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $k = 1; @got < $count; $k++) {
+       my $boundary = right_boundary(2**(2*$k-1));  # 1,3,5,..
+       push @got, $boundary;
+       ### at: "k=$k $boundary"
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A035263 - morphism turn 0=straight, 1=not-straight
@@ -172,8 +268,8 @@ sub count_low_0_bits {
 # A146559 - (i+1)^k is X+iY at N=2^k
 # A009545 - Im
 
-    # A146559   X at N=2^k, being Re((i+1)^k)
-    # A009545   Y at N=2^k, being Im((i+1)^k)
+# A146559   X at N=2^k, being Re((i+1)^k)
+# A009545   Y at N=2^k, being Im((i+1)^k)
 
 require Math::NumSeq::PlanePathN;
 my $bigclass = Math::NumSeq::PlanePathN::_bigint();
@@ -197,59 +293,6 @@ MyOEIS::compare_values
      for (my $n = $bigclass->new(1); @got < $count; $n *= 2) {
        my ($x,$y) = $path->n_to_xy($n);
        push @got, $y;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A003159 - ending even 0 bits, is turn left or right
-
-MyOEIS::compare_values
-  (anum => 'A003159',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     for (my $n = $path->n_start + 1; @got < $count; $n++) {
-       my $turn = path_n_turn($path,$n);
-       if ($turn == 1 || $turn == 3) { # left or right
-         push @got, $n;
-       }
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A036554 - ending odd 0 bits, is turn straight or reverse
-
-MyOEIS::compare_values
-  (anum => 'A036554',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     for (my $n = $path->n_start + 1; @got < $count; $n++) {
-       my $turn = path_n_turn($path,$n);
-       if ($turn == 0 || $turn == 2) { # straight or reverse
-         push @got, $n;
-       }
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A007814 - count low 0s, is turn right - 1
-
-MyOEIS::compare_values
-  (anum => 'A007814',
-   fixup => sub {
-     my ($bvalues) = @_;
-     @$bvalues = map {$_ % 4} @$bvalues;
-   },
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     my $total_turn = 0;
-     for (my $n = $path->n_start + 1; @got < $count; $n++) {
-       push @got, (1 - path_n_turn($path,$n)) % 4;  # negate to right
      }
      return \@got;
    });

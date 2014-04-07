@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -59,10 +59,26 @@ use Math::PlanePath::Base::Generic
 #   ];
 use constant n_frac_discontinuity => 0;
 
+use constant _UNDOCUMENTED__x_negative_at_n => 4;
+use constant _UNDOCUMENTED__y_negative_at_n => 5;
 use constant dx_minimum => -1;
 use constant dx_maximum => 2;  # jump N=5 to N=6
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+# eight plus ENE
+use constant _UNDOCUMENTED__dxdy_list => (1,0,    # E  N=1   
+                                          2,1,    # ENE  N=5 <-- extra
+                                          1,1,    # NE  N=16
+                                          0,1,    # N  N=6
+                                          -1,1,   # NW  N=2
+                                          -1,0,   # W  N=8
+                                          -1,-1,  # SW  N=3
+                                          0,-1,   # S  N=11
+                                          1,-1,   # SE  N=4
+                                         );
+use constant _UNDOCUMENTED__dxdy_list_at_n => 16;
+
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 3;  # dx=2,dy=1 at jump N=5 to N=6
 use constant ddiffxy_minimum => -2;
@@ -531,7 +547,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

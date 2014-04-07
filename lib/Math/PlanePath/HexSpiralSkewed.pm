@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,10 +23,11 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::HexSpiral;
 use Math::PlanePath::Base::Generic
   'round_nearest';
 
@@ -42,6 +43,21 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E    four plus
+                                          0,1,   # N    NW and SE
+                                          -1,1,  # NW
+                                          -1,0,  # W
+                                          0,-1,  # S
+                                          1,-1,  # SE
+                                         );
+*_UNDOCUMENTED__x_negative_at_n
+  = \&Math::PlanePath::HexSpiral::_UNDOCUMENTED__x_negative_at_n;
+*_UNDOCUMENTED__y_negative_at_n
+  = \&Math::PlanePath::HexSpiral::_UNDOCUMENTED__y_negative_at_n;
+*_UNDOCUMENTED__dxdy_list_at_n
+  = \&Math::PlanePath::HexSpiral::_UNDOCUMENTED__dxdy_list_at_n;
+
 use constant dsumxy_minimum => -1; # W,S straight
 use constant dsumxy_maximum => 1;  # N,E straight
 use constant ddiffxy_minimum => -2; # NW diagonal
@@ -411,7 +427,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

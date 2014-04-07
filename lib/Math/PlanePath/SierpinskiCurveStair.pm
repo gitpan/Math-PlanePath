@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -30,7 +30,7 @@ use strict;
 use List::Util 'min','max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -77,6 +77,8 @@ use constant parameter_info_array =>
   ];
 
 use Math::PlanePath::SierpinskiCurve;
+*_UNDOCUMENTED__x_negative_at_n = \&Math::PlanePath::SierpinskiCurve::_UNDOCUMENTED__x_negative_at_n;
+*_UNDOCUMENTED__y_negative_at_n = \&Math::PlanePath::SierpinskiCurve::_UNDOCUMENTED__y_negative_at_n;
 *x_minimum      = \&Math::PlanePath::SierpinskiCurve::x_minimum;
 *sumxy_minimum  = \&Math::PlanePath::SierpinskiCurve::sumxy_minimum;
 use constant sumabsxy_minimum => 1;
@@ -88,6 +90,7 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 use constant dsumxy_minimum => -1; # NSEW only
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -1;
@@ -791,7 +794,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

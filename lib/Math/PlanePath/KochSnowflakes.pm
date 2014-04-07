@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -86,7 +86,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -102,6 +102,8 @@ use Math::PlanePath::KochCurve;
 
 
 use constant n_frac_discontinuity => 0;
+use constant _UNDOCUMENTED__x_negative_at_n => 1;
+use constant _UNDOCUMENTED__y_negative_at_n => 1;
 use constant sumabsxy_minimum => 2/3; # minimum X=0,Y=2/3
 use constant rsquared_minimum => 4/9; # minimum X=0,Y=2/3
 # maybe: use constant radius_minimum => 2/3; # minimum X=0,Y=2/3
@@ -633,7 +635,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

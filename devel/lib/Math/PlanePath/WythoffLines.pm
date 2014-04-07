@@ -1,4 +1,4 @@
-# Copyright 2013 Kevin Ryde
+# Copyright 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,7 +37,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -397,11 +397,11 @@ L<Math::PlanePath::WythoffArray>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2013 Kevin Ryde
+Copyright 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

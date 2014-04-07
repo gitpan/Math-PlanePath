@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,7 +35,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 *_divrem = \&Math::PlanePath::_divrem;
 @ISA = ('Math::PlanePath');
@@ -77,6 +77,7 @@ use constant parameter_info_array =>
       choices         => ['AB','AC','BC','PQ', 'SM','SC','MC',
                           # 'BA'
                           # 'UV',  # q from x=y diagonal down at 45-deg
+                          # 'RS','ST',  # experimental
                          ],
     },
     { name            => 'digit_order',
@@ -286,6 +287,8 @@ my %xy_to_pq = (AB => \&_ab_to_pq,
                 SC => \&_sc_to_pq,
                 MC => \&_mc_to_pq,
                 UV => \&_uv_to_pq,
+                RS => \&_rs_to_pq,
+                ST => \&_st_to_pq,
                );
 my %pq_to_xy = (AB => \&_pq_to_ab,
                 AC => \&_pq_to_ac,
@@ -295,6 +298,8 @@ my %pq_to_xy = (AB => \&_pq_to_ab,
                 SC => \&_pq_to_sc,
                 MC => \&_pq_to_mc,
                 UV => \&_pq_to_uv,
+                RS => \&_pq_to_rs,
+                ST => \&_pq_to_st,
                );
 
 my %tree_types = (UAD  => 1,
@@ -897,6 +902,21 @@ sub _pq_to_uv {
   return ($p+$q, $p-$q);
 }
 
+# r = b+c = 2pq+p^2+q^2 = (p+q)^2
+# s = c-a = p^2+q^2 - (p^2-q^2) = 2*q^2
+sub _pq_to_rs {
+  my ($p, $q) = @_;
+  return (($p+$q)**2, 2*$q*$q);
+}
+
+# s = c-a = p^2+q^2 - (p^2-q^2) = 2*q^2
+# t = a+b-c = p^2-q^2 + 2pq - (p^2+q^2) = 2pq-2q^2 = 2(p-q)q
+sub _pq_to_st {
+  my ($p, $q) = @_;
+  my $q2 = 2*$q;
+  return ($q2*$q, ($p-$q)*$q2);
+}
+
 #------------------------------------------------------------------------------
 
 # a = p^2 - q^2
@@ -1105,6 +1125,51 @@ sub _mc_to_pq {
 sub _uv_to_pq {
   my ($u, $v) = @_;
   return (($u+$v)/2, ($u-$v)/2);
+}
+
+# r = (p+q)^2
+# s = 2*q^2 so   q = sqrt(r/2)
+sub _rs_to_pq {
+  my ($r, $s) = @_;
+
+  return if $s % 2;
+  $s /= 2;
+  return unless $s >= 1;
+  my $q = int(sqrt($s));
+  return unless $q*$q == $s;
+
+  return unless $r >= 1;
+  my $p_plus_q = int(sqrt($r));
+  return unless $p_plus_q*$p_plus_q == $r;
+
+  return ($p_plus_q - $q, $q);
+}
+
+# s = 2*q^2
+# t = a+b-c = p^2-q^2 + 2pq - (p^2+q^2) = 2pq-2q^2 = 2(p-q)q
+#
+# p=2,q=1  s=2  t=2.1.1=2
+#
+sub _st_to_pq {
+  my ($s, $t) = @_;
+
+  ### _st_to_pq(): "$s, $t"
+  return if $s % 2;
+  $s /= 2;
+  return unless $s >= 1;
+  my $q = int(sqrt($s));
+  ### $q
+  return unless $q*$q == $s;
+
+  return if $t % 2;
+  $t /= 2;
+  ### rem: $t % $q
+  return if $t % $q;
+  $t /= $q;  # p-q
+
+  ### pq: ($t+$q).", $q"
+
+  return ($t+$q, $q);
 }
 
 1;
@@ -1352,9 +1417,10 @@ See L<Math::PlanePath::Corner> for a path following such gnomons.
 
 =head2 UArD Tree
 
-X<Gray code>Option C<tree_type =E<gt> "UArD"> varies the UAD tree by taking
-points within a row in ternary reflected Gray code order.  The 3 children
-under each node are unchanged, just their order.
+X<Gray code>Option C<tree_type =E<gt> "UArD"> varies the UAD tree by
+applying a left-right reflection under each "A" matrix.  The result is
+ternary reflected Gray code order.  The 3 children under each node are
+unchanged, just their order.
 
                       +-> 7,24         tree_type => "UArD"
           +-> 5,12  --+-> 55,48        A,B coordinates
@@ -1369,12 +1435,12 @@ under each node are unchanged, just their order.
                       +-> 35,12
 
 Notice the middle points 77,36 and 39,80 are swapped relative to the UAD
-shown above.  In general the whole tree underneath an "A" is reversed as a
-mirror image.  If there's an even number of "A"s above then those mirrorings
-cancel out to be plain again.
+shown above.  In general the whole tree underneath an "A" is mirrored.  If
+there's an even number of "A"s above then those mirrorings cancel out to be
+plain again.
 
 This tree form is primarily of interest for L</Digit Order Low to High>
-described below since it gives points ordered clockwise down from the Y
+described below since it gives points in order clockwise down from the Y
 axis.
 
 In L</PQ Coordinates> below, with the default digits high to low, UArD also
@@ -1392,7 +1458,7 @@ tree per
 =over
 
 H. Lee Price, "The Pythagorean Tree: A New Species", 2008,
-L<http://arxiv.org/abs/0809.4324>
+L<http://arxiv.org/abs/0809.4324> (version 2)
 
 =back
 
@@ -1471,9 +1537,9 @@ from Berggren, "M2" from Price, and a third matrix T.
           +-> 21,20 --+-> 91,60
                       +-> 105,88
 
-The first "T" child 21,20 is the same as the "A" matrix, but it then differs
-at further levels down.  "T" twice is 105,88 which is not the same as "A"
-twice 119,120.
+The first "T" child 21,20 is the same as the "A" matrix, but it differs at
+further levels down.  For example "T" twice is 105,88 which is not the same
+as "A" twice 119,120.
 
 =head2 Digit Order Low to High
 
@@ -2524,7 +2590,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

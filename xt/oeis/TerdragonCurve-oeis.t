@@ -47,24 +47,63 @@ sub ternary_digit_above_low_zeros {
 }
 
 #------------------------------------------------------------------------------
-# A056182 enclosed area is 2*(3^(k-1)-2^(k-1)) for points N <= 3^k
-
+# A164346 boundary even powers, is 3*4^n
+# also one side, odd powers
 MyOEIS::compare_values
-  (anum => 'A056182',
+  (anum => 'A164346',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (3);
+     for (my $k = 1; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($path, 3**(2*$k),
+                                                lattice_type => 'triangular');
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A164346',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($path, 3**(2*$k+1),
+                                                lattice_type => 'triangular',
+                                                side => 'left');
+     }
+     return \@got;
+   });
+
+# A002023 boundary odd powers 6*4^n
+# also even powers one side
+MyOEIS::compare_values
+  (anum => 'A002023',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($path, 3**(2*$k+1),
+                                                lattice_type => 'triangular');
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A002023',
    max_value => 10_000,
    func => sub {
      my ($count) = @_;
      my @got;
      for (my $k = 1; @got < $count; $k++) {
-       push @got, MyOEIS::path_enclosed_area ($path, 3**$k,
-                                              lattice_type => 'triangular');
+       push @got, MyOEIS::path_boundary_length ($path, 3**(2*$k),
+                                                lattice_type => 'triangular',
+                                                side => 'right');
      }
      return \@got;
    });
 
-#------------------------------------------------------------------------------
 # A007283 boundary length is 3*2^k for points N <= 3^k
-
 MyOEIS::compare_values
   (anum => 'A007283',
    max_value => 10_000,
@@ -74,6 +113,41 @@ MyOEIS::compare_values
      for (my $k = 1; @got < $count; $k++) {
        push @got, MyOEIS::path_boundary_length ($path, 3**$k,
                                                 lattice_type => 'triangular');
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A118004 1/2 enclosed area odd levels points N <= 3^(2k+1), is 9^k-4^k
+# area[k] = 2*(3^(k-1)-2^(k-1))
+# area[2k+1]/2 = 2*(3^(2k+1-1)-2^(2k+1-1))/2
+#              = 9^k - 4^k
+
+MyOEIS::compare_values
+  (anum => 'A118004',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       my $area = MyOEIS::path_enclosed_area ($path, 3**(2*$k+1),
+                                              lattice_type => 'triangular');
+       push @got, $area/2;
+     }
+     return \@got;
+   });
+
+# A056182 enclosed area is 2*(3^(k-1)-2^(k-1)) for points N <= 3^k
+MyOEIS::compare_values
+  (anum => 'A056182',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 1; @got < $count; $k++) {
+       push @got, MyOEIS::path_enclosed_area ($path, 3**$k,
+                                              lattice_type => 'triangular');
      }
      return \@got;
    });

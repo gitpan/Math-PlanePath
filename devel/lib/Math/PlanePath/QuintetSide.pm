@@ -3,7 +3,7 @@
 
 
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -34,7 +34,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
 
@@ -305,11 +305,11 @@ L<Math::Fractal::Curve>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-planepath/index.html
+L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

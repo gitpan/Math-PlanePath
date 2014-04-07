@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-# www.math.bas.bg/bantchev/articles/fractions.pdf
+# Boyko B. Bantchev, "Fraction Space Revisited"
+# http://www.math.bas.bg/bantchev/articles/fractions.pdf
 
 # cf Ronald L. Graham, Donald E. Knuth, and Oren Patashnik, Concrete
 # Mathematics: A Foundation for Computer Science, Second
@@ -133,7 +134,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -808,12 +809,16 @@ at the ends for a total 2^depth many new values.
 =head2 Calkin-Wilf Tree
 
 X<Calkin, Neil>X<Wilf, Herbert>C<tree_type=E<gt>"CW"> selects the tree of
-Neil Calkin and Herbert Wilf,
+Calkin and Wilf,
 
 =over
 
-"Recounting the Rationals",
+Neil Calkin and Herbert Wilf, "Recounting the Rationals", American
+Mathematical Monthly, volume 107, number 4, April 2000, pages 360-363.
+
+L<http://www.math.upenn.edu/~wilf/reprints.html>
 L<http://www.math.upenn.edu/~wilf/website/recounting.pdf>
+L<http://www.jstor.org/stable/2589182>
 
 =back
 
@@ -907,17 +912,26 @@ or higher trees, ie. descending to 3 or more children at each node.
 =head2 Andreev and Yu-Ting Tree
 
 X<Andreev, D.N.>X<Yu-Ting, Shen>C<tree_type=E<gt>"AYT"> selects the tree
-described (independently is it?) by D. N. Andreev and Shen Yu-Ting.
+described (independently is it?) by Andreev and Yu-Ting.
 
 =over
 
-L<http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf>
+D. N. Andreev, "On a Wonderful Numbering of Positive Rational Numbers",
+Matematicheskoe Prosveshchenie, Ser. 3, 1, 1997, pages 126-134
+L<http://mi.mathnet.ru/mp12>
 
 Shen Yu-Ting, "A Natural Enumeration of Non-Negative Rational Numbers
 -- An Informal Discussion", American Mathematical Monthly, 87, 1980,
 pages 25-29.  L<http://www.jstor.org/stable/2320374>
 
 =back
+
+=cut
+
+# Andreev also at
+# L<http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf>
+
+=pod
 
 Their constructions are a one-to-one mapping between integer N and rational
 X/Y as a way of enumerating the rationals.  This is not designed to be a
@@ -1234,7 +1248,9 @@ X<Hinze, Ralf>C<tree_type=E<gt>"Bird"> selects the Bird tree,
 
 =over
 
-Ralf Hinze, "Functional Pearls: The Bird tree",
+Ralf Hinze, "Functional Pearls: The Bird tree", Journal of Functional
+Programming, volume 19, issue 5, September 2009, pages 491-508.  DOI
+10.1017/S0956796809990116
 L<http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf>
 
 =back
@@ -1803,3 +1819,8 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 #     dX = Y - X
 #     dY = X+Y - 2*(X%Y) - Y
 #        = X - 2*(X%Y)
+#
+# floor(X/Y) = count trailing 1-bits of N
+#    10111
+#    11000  increment
+# floor(X/Y) = integer part = first term of continued fraction

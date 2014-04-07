@@ -24,8 +24,164 @@ use Math::Trig 'pi';
 use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+use Smart::Comments;
 
+
+{
+  # revisit
+  require Math::NumSeq::PlanePathCoord;
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath => 'AlternatePaper',
+                                               coordinate_type => 'Revisit');
+  foreach my $n (0 .. 4*4*4*64) {
+    my $want = $seq->ith($n);
+    my $got = n_to_revisit($n);
+    my $diff = ($want == $got ? '' : ' ***');
+    print "$n  $want   $got$diff\n";
+    last if $diff;
+  }
+    
+  sub n_to_revisit {
+    my ($n) = @_;
+    ### n_to_revisit(): $n
+    my @digits = digit_split_lowtohigh($n,4);
+    ### digits: join(',', reverse @digits)
+
+    my $rev = 0;
+    foreach my $digit (reverse @digits) {  # high to low
+      if ($rev) {
+        $rev ^= ($digit == 0 || $digit == 2);
+      } else {
+        $rev ^= ($digit == 1 || $digit == 3);
+      }
+    }
+    ### $rev
+
+    my $h = 1;
+    my $v = 1;
+    my $d = 1;
+    my $nonzero = 0;
+    while (defined (my $digit = shift @digits)) { # low to high
+      if ($rev) {
+        $rev ^= ($digit == 0 || $digit == 2);
+      } else {
+        $rev ^= ($digit == 1 || $digit == 3);
+      }
+      ### at: "h=$h v=$v d=$d rev=$rev   digit=$digit nonzero=$nonzero"
+      if ($rev) {
+        if ($digit == 0) {
+          $h = 0;
+          $d = 0;
+        } elsif ($digit == 1) {
+          if ($v) {
+            ### return nonzero ...
+            return $nonzero ? 1 : 0;
+          }
+        } elsif ($digit == 2) {
+          if ($d) {
+            ### return nonzero ...
+            return $nonzero ? 1 : 0;
+          }
+          $h = 0;
+        } else { # $digit == 3
+          $h = 0;
+        }
+      } else {
+        # forward
+        if ($digit == 0) {
+          $v = 0;
+        } elsif ($digit == 1) {
+          if ($h) { return $nonzero ? 1 : 0; }
+          $h = $v;
+          $d = 0;
+        } elsif ($digit == 2) {
+          $h = 0;
+        } else { # $digit == 3
+          if ($v || $d) { return $nonzero ? 1 : 0; }
+          $v = $h;
+          $h = 0;
+        }
+      }
+      $nonzero ||= $digit;
+    }
+    ### at: "final h=$h v=$v d=$d rev=$rev"
+
+    return 0;
+  }
+  sub Xn_to_revisit {
+    my ($n) = @_;
+    ### n_to_revisit(): $n
+    my $h = 0;
+    my $v = 0;
+    my $d = 0;
+    my @digits = reverse digit_split_lowtohigh($n,4);
+    ### digits: join(',',@digits)
+
+    while (@digits && $digits[-1] == 0) {
+      pop @digits;  # strip low zero digits
+    }
+    my $low = pop @digits || 0;
+    my $rev = 0;
+    while (defined (my $digit = shift @digits)) {
+      ### at: "rev=$rev h=$h v=$v d=$d  digit=$digit more=".scalar(@digits)
+      if ($rev) {
+        if ($digit == 0) {
+          $v = 0;
+          $d = 0;
+          $rev ^= 1;  # forward again
+        } elsif ($digit == 1) {
+          $v = ($low ? 1 : 0);
+        } elsif ($digit == 2) {
+          $h = 0;
+          $d = ($low ? 1 : 0);
+          $rev ^= 1;
+        } else { # $digit == 3
+          $h = ($low ? 1 : 0);
+        }
+      } else {
+        # forward
+        if ($digit == 0) {
+          $v = 0;
+        } elsif ($digit == 1) {
+          $v = ($low ? 1 : 0);
+          $d = 0;
+          $rev ^= 1;
+        } elsif ($digit == 2) {
+          $h = 0;
+        } else { # $digit == 3
+          $h = ($low ? 1 : 0);
+          $d = 1;
+          $rev ^= 1;
+        }
+      }
+    }
+    ### at: "final rev=$rev h=$h v=$v d=$d"
+
+    # return ($h || $v);
+    # return ($h || $v || $d);
+    if ($rev) {
+      if ($low == 0) {
+        return $h || $v;
+      } elsif ($low == 1) {
+        return $h;
+      } elsif ($low == 2) {
+        return $d;
+      } else { # $digit == 3
+        return $v;
+      }
+    } else {
+      if ($low == 0) {
+        return $h || $d;
+      } elsif ($low == 1) {
+        return $h;
+      } elsif ($low == 2) {
+        return $d;
+      } else { # $digit == 3
+        return $v;
+      }
+    }
+  }
+  exit 0;
+}
 
 {
   # total turn

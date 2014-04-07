@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1146;
+plan tests => 1216;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule;
 # VERSION
 
 {
-  my $want_version = 114;
+  my $want_version = 115;
   ok ($Math::PlanePath::CellularRule::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule->VERSION,  $want_version,
@@ -117,6 +117,26 @@ foreach my $relem ([ 50, # solid odd
                      [ 5, 2,3 ],
                      [ 6, 3,3 ],
                    ],
+
+                   [ 14, # two left
+                     [ 1,  0,0 ],
+                     [ 2, -1,1 ],
+                     [ 3,  0,1 ],
+                     [ 4, -2,2 ],
+                     [ 5, -1,2 ],
+                     [ 6, -3,3 ],
+                     [ 7, -2,3 ],
+                   ],
+
+                   [ 84, # two right
+                     [ 1, 0,0 ],
+                     [ 2, 0,1 ],
+                     [ 3, 1,1 ],
+                     [ 4, 1,2 ],
+                     [ 5, 2,2 ],
+                     [ 6, 2,3 ],
+                     [ 7, 3,3 ],
+                   ],
                   ) {
   my ($rule, @elements) = @$relem;
   my $path = Math::PlanePath::CellularRule->new (rule => $rule);
@@ -133,7 +153,7 @@ foreach my $relem ([ 50, # solid odd
     if ($n==int($n)) {
       # xy_to_n()
       my $got_n = $path->xy_to_n ($x, $y);
-      ok ($got_n, $n, "xy_to_n() n at x=$x,y=$y");
+      ok ($got_n, $n, "rule=$rule xy_to_n() n at x=$x,y=$y");
     }
     if ($n==int($n)) {
       my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);

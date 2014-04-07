@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,10 +35,27 @@ use Math::PlanePath::Base::Generic
 
 
 use constant xy_is_visited => 1;
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + 3;
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start + 5;
+}
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  return $self->n_start + 8;
+}
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E    four plus NW
+                                          0,1,   # N
+                                          -1,1,  # NW
+                                          -1,0,  # W
+                                          0,-1); # S
 use constant dsumxy_minimum => -1; # W,S straight
 use constant dsumxy_maximum => 1;  # N,E straight
 use constant ddiffxy_minimum => -2; # NW diagonal
@@ -310,8 +327,12 @@ L<http://oeis.org/A192136> (etc)
 
 =back
 
+    n_start=1
+      A140065    N on Y axis
+
     n_start=0
       A001106    N on X axis, 9-gonal numbers
+      A218471    N on Y axis
       A022265    N on X negative axis
       A179986    N on Y negative axis, second 9-gonals
       A195023    N on X=Y diagonal
@@ -332,7 +353,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

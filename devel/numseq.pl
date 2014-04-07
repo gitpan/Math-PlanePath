@@ -26,6 +26,77 @@ use Math::Trig 'pi';
 
 
 {
+  # dx,dy seen
+  require Math::NumSeq::PlanePathCoord;
+  my $planepath = "CellularRule,rule=2";
+  $planepath = "AR2W2Curve,start_shape=A2rev";
+  $planepath = "BetaOmega,arms=1";
+  $planepath = "Math::PlanePath::SierpinskiArrowhead";
+  $planepath = "PixelRings";
+  $planepath = "DiamondArms";
+  $planepath = "Math::PlanePath::QuintetCurve,arms=1";
+  $planepath = "Math::PlanePath::GreekKeySpiral,turns=3";
+  $planepath = "WunderlichSerpentine,radix=5,serpentine_type=coil";
+  $planepath = "KnightSpiral";
+  print "$planepath\n";
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath => $planepath);
+  my $path = $seq->{'planepath_object'};
+  my %seen_dxdy;
+  for (my $n = $path->n_start; ; $n++) {
+    my ($dx,$dy) = $path->n_to_dxdy($n);
+    unless ($seen_dxdy{"$dx,$dy"}++) {
+      my $desc = ($dx == 1 && $dy == 0 ? 'E'
+                  : $dx == 2 && $dy == 0 ? 'E'
+                  : $dx == -1 && $dy == 0 ? 'W'
+                  : $dx == -2 && $dy == 0 ? 'W'
+                  : $dx == 0 && $dy == 1 ? 'N'
+                  : $dx == 0 && $dy == -1 ? 'S'
+                  : $dx == 1 && $dy == 1 ? 'NE'
+                  : $dx == -1 && $dy == 1 ? 'NW'
+                  : $dx == 1 && $dy == -1 ? 'SE'
+                  : $dx == -1 && $dy == -1 ? 'SW'
+                  : '');
+      print "$dx,$dy,   # $desc  N=$n\n";
+    }
+  }
+  exit 0;
+}
+
+{
+  # when X neg, Y neg
+  require Math::NumSeq::PlanePathCoord;
+  my $planepath;
+  $planepath = "AR2W2Curve,start_shape=A2rev";
+  $planepath = "BetaOmega,arms=1";
+  $planepath = "Math::PlanePath::SierpinskiArrowhead";
+  $planepath = "Math::PlanePath::FlowsnakeCentres,arms=1";
+  $planepath = "GosperSide";
+  $planepath = "FlowsnakeCentres,arms=3";
+  $planepath = "HexSpiral,wider=10";
+  $planepath = "Math::PlanePath::QuintetCentres,arms=1";
+  $planepath = "Math::PlanePath::R5DragonCurve,arms=1";
+  $planepath = "Math::PlanePath::R5DragonMidpoint,arms=2";
+  $planepath = "Math::PlanePath::AlternatePaper,arms=5";
+  print "$planepath\n";
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath => $planepath);
+  my $path = $seq->{'planepath_object'};
+  my ($x_negative_at_n, $y_negative_at_n);
+  for (my $n = $path->n_start; ; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    if ($x < 0 && ! defined $x_negative_at_n) {
+      $x_negative_at_n = $n;
+      print "X negative $x_negative_at_n\n";
+    }
+    if ($y < 0 && ! defined $y_negative_at_n) {
+      $y_negative_at_n = $n;
+      print "Y negative $y_negative_at_n\n";
+    }
+    last if defined $x_negative_at_n && defined $y_negative_at_n
+  }
+  exit 0;
+}
+
+{
   # max Dir4
 
   require Math::BaseCnv;
@@ -88,10 +159,11 @@ use Math::Trig 'pi';
   $planepath = "Columns,height=6";
   $planepath = "SacksSpiral";
   $planepath = "CellularRule,rule=6";
+  $planepath = "Z2DragonCurve";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                               # delta_type => 'dX',
+                                               delta_type => 'dX',
                                                # delta_type => 'Dir4',
-                                               delta_type => 'dTRadius',
+                                               # delta_type => 'dTRadius',
                                                # delta_type => 'dRSquared',
                                                # delta_type => 'dDiffXY',
                                                # delta_type => 'TDir6',

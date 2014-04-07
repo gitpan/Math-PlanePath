@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -90,6 +90,23 @@ sub dx_maximum {
   return ($self->{'radix'} % 2
           ? 1         # odd
           : undef);   # even, unlimited
+}
+
+sub _UNDOCUMENTED__dxdy_list {
+  my ($self) = @_;
+  return ($self->{'radix'} % 2
+          ? Math::PlanePath::_UNDOCUMENTED__dxdy_list_four()
+          : ());   # even, unlimited
+}
+#  *---  b^2-1 -- b^2 ---- b^2+b-1 = (b+1)b-1
+#  |                          |
+#  *-------
+#          |   
+#  0 ----- b
+#
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  return ($self->{'radix'} + 1) * $self->{'radix'} - 1;
 }
 
 *dy_minimum = \&dx_minimum;
@@ -395,7 +412,7 @@ __END__
 # +--+--+--+
 #    |  |
 #    +--+
-# 
+#
 #          +
 #          |
 #       +--+--+
@@ -893,7 +910,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

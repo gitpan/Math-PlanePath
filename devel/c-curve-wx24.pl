@@ -38,17 +38,81 @@ use Wx::Event 'EVT_MENU';
 our $VERSION = 114;
 
 my $level = 5;
-my $window_width;
-my $window_height;
+my $scale = 1;
+my $x_offset = 0;
+my $y_offset = 0;
+
+my $window_initial_width;
+my $initial_window_height;
 my $window_initial_fullscreen;
 
 my @types_list
   = (
+     { name => '1',
+       copies => [ { x => 0, y => 0 } ],
+     },
+     { name => '2',
+       copies => [ { x => 0, y => 0 },
+                   { x => 1, y => 0, rotate => 2 } ],
+     },
+     { name => '2 line',
+       copies => [ { x => 0, y => 0 },
+                   { x => 1, y => 0 } ],
+     },
+     { name => '2 arms',
+       copies => [ { x => 0, y => 0 },
+                   { x => 0, y => 0, rotate => 2 } ],
+     },
+     { name => '4 pinwheel',
+       copies => [ { x => 0, y => 0 },
+                   { x => 0, y => 0, rotate => 1 },
+                   { x => 0, y => 0, rotate => 2 },
+                   { x => 0, y => 0, rotate => 3 },
+                 ],
+     },
+     { name => '4 inward',
+       copies => [ { x => 0, y => 0 },
+                   { x => 1, y => 0, rotate => 1 },
+                   { x => 1, y => 1, rotate => 2 },
+                   { x => 0, y => 1, rotate => 3 },
+                 ],
+     },
+     { name => '4 outward',
+       copies => [ { x => 0, y => 1 },
+                   { x => 0, y => 0, rotate => 1 },
+                   { x => 1, y => 0, rotate => 2 },
+                   { x => 1, y => 1, rotate => 3 },
+                 ],
+     },
      { name => '4 line',
        copies => [ { x => 0, y => 0 },
                    { x => 1, y => 0 },
                    { x => 1, y => 0, rotate => 2 },
                    { x => 2, y => 0, rotate => 2 },
+                 ],
+     },
+     { name => '8 cross',
+       copies => [ { x => 0, y => 0 },
+                   { x => 0, y => 0, rotate => 1 },
+                   { x => 0, y => 0, rotate => 2 },
+                   { x => 0, y => 0, rotate => 3 },
+
+                   { x =>  1, y =>  0, rotate => 2 },
+                   { x => -1, y =>  0 },
+                   { x =>  0, y => -1, rotate => 1 },
+                   { x =>  0, y => 1, rotate => 3 },
+                 ],
+     },
+     { name => '8 square',
+       copies => [ { x => 0, y => 0 },  # 4 inward
+                   { x => 1, y => 0, rotate => 1 },
+                   { x => 1, y => 1, rotate => 2 },
+                   { x => 0, y => 1, rotate => 3 },
+
+                   { x => 0, y => 1 },  # 4 outward
+                   { x => 0, y => 0, rotate => 1 },
+                   { x => 1, y => 0, rotate => 2 },
+                   { x => 1, y => 1, rotate => 3 },,
                  ],
      },
      { name => '24 clipped',
@@ -88,11 +152,6 @@ my @types_list
        clip_min_y => 0,
        clip_max_y => 1,
      },
-     { name => 'half',
-       copies => [ { x => 0, y => 0 } ],
-       clip_min_x => .5, clip_max_x => 2,
-       clip_min_y => -1, clip_max_y => 2,
-     },
      { name => '24',
        copies => [
                   { x => -1, y => 0 },
@@ -101,14 +160,14 @@ my @types_list
                   { x => -1, y => 1 },
                   { x => 0, y => 1 },
                   { x => 1, y => 1 },
-                  
+
                   { x => 0, y =>  0, rotate => 2 },
                   { x => 1, y =>  0, rotate => 2 },
                   { x => 2, y =>  0, rotate => 2 },
                   { x => 0, y =>  1, rotate => 2 },
                   { x => 1, y =>  1, rotate => 2 },
                   { x => 2, y =>  1, rotate => 2 },
-                  
+
                   { x => 0, y => -1, rotate => 1 },
                   { x => 0, y => 0, rotate => 1 },
                   { x => 0, y => 1, rotate => 1 },
@@ -124,49 +183,10 @@ my @types_list
                   { x => 1, y => 2, rotate => 3 },
                  ],
      },
-     { name => '4 inward',
-       copies => [ { x => 0, y => 0 },
-                   { x => 1, y => 0, rotate => 1 },
-                   { x => 1, y => 1, rotate => 2 },
-                   { x => 0, y => 1, rotate => 3 },
-                 ],
-     },
-     { name => '4 outward',
-       copies => [ { x => 0, y => 0 },
-                   { x => 0, y => -1, rotate => 1 },
-                   { x => 1, y => -1, rotate => 2 },
-                   { x => 1, y => 0, rotate => 3 },
-                 ],
-     },
-     { name => '2 arms',
-       copies => [ { x => 0, y => 0 },
-                   { x => 0, y => 0, rotate => 2 } ],
-     },
-     { name => '2',
-       copies => [ { x => 0, y => 0 },
-                   { x => 1, y => 0, rotate => 2 } ],
-     },
-     { name => '1',
+     { name => 'half',
        copies => [ { x => 0, y => 0 } ],
-     },
-     { name => 'cross',
-       copies => [ { x => 0, y => 0 },
-                   { x => 0, y => 0, rotate => 1 },
-                   { x => 0, y => 0, rotate => 2 },
-                   { x => 0, y => 0, rotate => 3 },
-
-                   { x =>  1, y =>  0, rotate => 2 },
-                   { x => -1, y =>  0 },
-                   { x =>  0, y => -1, rotate => 1 },
-                   { x =>  0, y => 1, rotate => 3 },
-                 ],
-     },
-     { name => '4 pinwheel',
-       copies => [ { x => 0, y => 0 },
-                   { x => 0, y => 0, rotate => 1 },
-                   { x => 0, y => 0, rotate => 2 },
-                   { x => 0, y => 0, rotate => 3 },
-                 ],
+       clip_min_x => .5, clip_max_x => 2,
+       clip_min_y => -1, clip_max_y => 2,
      },
     );
 my %types_hash = map { $_->{'name'} => $_ } @types_list;
@@ -197,8 +217,8 @@ if (! Getopt::Long::GetOptions
      'geometry=s'  => sub {
        my ($opt, $str) = @_;
        $str =~ /^(\d+)x(\d+)$/ or die "Unrecognised --geometry \"$str\"";
-       $window_width = $1;
-       $window_height = $2;
+       $window_initial_width = $1;
+       $initial_window_height = $2;
      },
      'fullscreen'  => \$window_initial_fullscreen,
     )) {
@@ -238,15 +258,29 @@ my $brush_black;
 my $app = MyApp->new;
 $app->SetAppName($FindBin::Script);
 
+use constant FULLSCREEN_HIDE_BITS => (Wx::wxFULLSCREEN_NOBORDER()
+                                      | Wx::wxFULLSCREEN_NOCAPTION());
+
 my $main = Wx::Frame->new(undef,               # parent
                           Wx::wxID_ANY(),      # ID
                           $FindBin::Script);    # title
 $main->SetIcon (Wx::GetWxPerlIcon());
 
+use constant ZOOM_IN_ID  => Wx::wxID_HIGHEST() + 1;
+use constant ZOOM_OUT_ID => Wx::wxID_HIGHEST() + 2;
+my $accel_table = Wx::AcceleratorTable->new
+  ([Wx::wxACCEL_NORMAL(), Wx::WXK_NUMPAD_ADD(),      ZOOM_IN_ID],
+   [Wx::wxACCEL_CTRL(), 'd',      ZOOM_IN_ID],
+   [Wx::wxACCEL_NORMAL(), 'd',      ZOOM_IN_ID],
+   [Wx::wxACCEL_NORMAL(), 'D',      ZOOM_IN_ID],
+   [Wx::wxACCEL_NORMAL(), Wx::WXK_NUMPAD_SUBTRACT(), ZOOM_OUT_ID]);
+$main->SetAcceleratorTable ($accel_table);
+### $accel_table
+
 my $menubar = Wx::MenuBar->new;
 $main->SetMenuBar ($menubar);
 
-if (! defined $window_width) {
+if (! defined $window_initial_width) {
   my $screen_size = Wx::GetDisplaySize();
   $main->SetSize (Wx::Size->new ($screen_size->GetWidth * 0.8,
                                  $screen_size->GetHeight * 0.8));
@@ -261,11 +295,17 @@ $draw->SetBackgroundColour (Wx::wxBLACK());
 Wx::Event::EVT_PAINT ($draw, \&OnPaint);
 Wx::Event::EVT_SIZE ($draw, \&OnSize);
 Wx::Event::EVT_IDLE ($draw, \&OnIdle);
+Wx::Event::EVT_MOUSEWHEEL ($draw, \&OnMouseWheel);
+Wx::Event::EVT_LEFT_DOWN ($draw, \&OnLeftDown);
+Wx::Event::EVT_MOTION ($draw, \&OnMotion);
+Wx::Event::EVT_ENTER_WINDOW ($draw, \&OnMotion);
+Wx::Event::EVT_KEY_DOWN ($draw, \&OnKey);
 $draw->SetExtraStyle($draw->GetExtraStyle
                      | Wx::wxWS_EX_PROCESS_IDLE());
-if (defined $window_width) {
-  $draw->SetSize (Wx::Size->new ($window_width, $window_height));
+if (defined $window_initial_width) {
+  $draw->SetSize(Wx::Size->new($window_initial_width,$initial_window_height));
 }
+
 {
   my $menu = Wx::Menu->new;
   $menubar->Append ($menu, '&File');
@@ -292,6 +332,54 @@ if (defined $window_width) {
               my ($main, $event) = @_;
               $main->Close;
             });
+}
+{
+  my $menu = Wx::Menu->new;
+  $menubar->Append ($menu, '&View');
+  {
+    my $item = $menu->Append (Wx::wxID_ANY(),
+                              "&Fullscreen\tCtrl-F",
+                              "Toggle full screen or normal window (use accelerator Ctrl-F to return from fullscreen).",
+                              Wx::wxITEM_CHECK());
+    EVT_MENU ($main, $item,
+              sub {
+                my ($self, $event) = @_;
+                ### Wx-Main toggle_fullscreen() ...
+                $main->ShowFullScreen (! $main->IsFullScreen,
+                                       FULLSCREEN_HIDE_BITS);
+              }
+             );
+    Wx::Event::EVT_UPDATE_UI ($main, $item,
+                              sub {
+                                my ($main, $event) = @_;
+                                ### Wx-Main _update_ui_fullscreen_menuitem: "@_"
+                                # though if FULLSCREEN_HIDE_BITS hides the
+                                # menubar then the item won't be seen when
+                                # checked ...
+                                $item->Check ($main->IsFullScreen);
+                              });
+  }
+  {
+    $menu->Append (ZOOM_IN_ID,
+                   "Zoom &In\tCtrl-+",
+                   Wx::GetTranslation('Zoom in.'));
+    EVT_MENU ($main, ZOOM_IN_ID, \&zoom_in);
+  }
+  {
+    $menu->Append (ZOOM_OUT_ID,
+                   "Zoom &Out\tCtrl--",
+                   Wx::GetTranslation('Zoom out.'));
+    EVT_MENU ($main, ZOOM_OUT_ID, \&zoom_out);
+  }
+  {
+    my $item = $menu->Append (Wx::wxID_ANY(),
+                              "&Centre\tCtrl-C",
+                              Wx::GetTranslation('Centre display in window.'));
+    EVT_MENU ($main, $item, sub {
+                $x_offset = 0;
+                $y_offset = 0;
+              });
+  }
 }
 
 my $toolbar = $main->CreateToolBar;
@@ -353,9 +441,94 @@ my $toolbar = $main->CreateToolBar;
   }
 }
 
+#------------------------------------------------------------------------------
+# Keyboard
+
+sub zoom_in {
+  $scale *= 1.5;
+  # $x_offset *= 1.5;
+  # $y_offset *= 1.5;
+  $draw->Refresh;
+}
+sub zoom_out {
+  $scale /= 1.5;
+  # $x_offset /= 1.5;
+  # $y_offset /= 1.5;
+  $draw->Refresh;
+}
+
+# $event is a wxMouseEvent
+sub OnKey {
+  my ($draw, $event) = @_;
+  ### Draw OnLeftDown() ...
+  my $keycode = $event->GetKeyCode;
+  ### $keycode
+  # if ($keycode == Wx::WXK_NUMPAD_ADD()) {
+  #   zoom_in();
+  # } elsif ($keycode == Wx::WXK_NUMPAD_SUBTRACT()) {
+  #   zoom_out();
+  # }
+}
+
+#------------------------------------------------------------------------------
+# mouse wheel scroll
+
+sub OnMouseWheel {
+  my ($draw, $event) = @_;
+  ### OnMouseWheel() ..
+
+  # "Control" by page, otherwise by step
+  my $frac = ($event->ControlDown ? 0.9 : 0.1)
+    * $event->GetWheelRotation / $event->GetWheelDelta;
+
+  # "Shift" horizontally, otherwise vertically
+  my $size = $draw->GetClientSize;
+  if ($event->ShiftDown) {
+    $x_offset += int($size->GetWidth * $frac);
+  } else {
+    $y_offset += int($size->GetHeight * $frac);
+  }
+  $draw->Refresh;
+}
+
+
+#------------------------------------------------------------------------------
+# mouse drag
+
+my ($drag_x, $drag_y);
+
+# $event is a wxMouseEvent
+sub OnLeftDown {
+  my ($draw, $event) = @_;
+  ### Draw OnLeftDown() ...
+  $drag_x = $event->GetX;
+  $drag_y = $event->GetY;
+  $event->Skip(1); # propagate to other processing
+}
+sub OnMotion {
+  my ($draw, $event) = @_;
+  ### Draw OnMotion() ...
+
+  if ($event->Dragging) {
+    if (defined $drag_x) {
+      ### drag ...
+      my $x = $event->GetX;
+      my $y = $event->GetY;
+      $x_offset += $x - $drag_x;
+      $y_offset += $y - $drag_y;
+      $drag_x = $x;
+      $drag_y = $y;
+      $draw->Refresh;
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
+# drawing
+
 sub OnSize {
-  my ($self, $event) = @_;
-  $self->Refresh;
+  my ($draw, $event) = @_;
+  $draw->Refresh;
 }
 my $idle_drawing;
 sub OnPaint {
@@ -457,12 +630,14 @@ sub OnPaint {
   $affine->translate(- ($min_x + $max_x)/2,   # extent midpoints
                      - ($min_y + $max_y)/2);
 
-  my $scale = min($width/$extent_x, $height/$extent_y) * .9;
-  $affine->scale($scale, $scale);                 # shrink
-  ### $scale
+  my $extent_scale = min($width/$extent_x, $height/$extent_y) * .9;
+  $affine->scale($extent_scale, $extent_scale);                 # shrink
+  ### $extent_scale
 
-  $affine->scale(1, -1);                          # Y upwards
-  $affine->translate($width/2, $height/2);        # 0,0 at centre
+  $affine->scale(1, -1);                       # Y upwards
+  $affine->scale($scale, $scale);
+  $affine->translate($width/2, $height/2);     # 0,0 at centre
+  $affine->translate($x_offset, $y_offset);
 
   my ($prev_x,$prev_y) = $to01->transform(0,0);
   ### origin: "$prev_x, $prev_y"
@@ -544,19 +719,22 @@ sub OnPaint {
         ($x,$y) = $affine->transform($x,$y);
         ### screen: "$prev_x, $prev_y to $x, $y"
 
-        if ($figure eq 'triangles') {
-          $dc->SetBrush ($brushes[$c]);
-          $dc->SetPen ($pens[$c]);
-          $dc->DrawPolygon
-            ([ Wx::Point->new($prev_x, $prev_y),
-               Wx::Point->new($mx,     $my),
-               Wx::Point->new($x,      $y),
-             ],
-             0,0);
-        } else {
-          $dc->SetPen ($pens[$c]);
-          $dc->DrawLine ($prev_x,$prev_y, $x,$y);
-          ($prev_x,$prev_y) = ($x,$y);
+        if (xy_in_rect($x,$y, 0,$width,0,$height)
+            || xy_in_rect($prev_x,$prev_y, 0,0,$width,$height)) {
+          if ($figure eq 'triangles') {
+            $dc->SetBrush ($brushes[$c]);
+            $dc->SetPen ($pens[$c]);
+            $dc->DrawPolygon
+              ([ Wx::Point->new($prev_x, $prev_y),
+                 Wx::Point->new($mx,     $my),
+                 Wx::Point->new($x,      $y),
+               ],
+               0,0);
+          } else {
+            $dc->SetPen ($pens[$c]);
+            $dc->DrawLine ($prev_x,$prev_y, $x,$y);
+            ($prev_x,$prev_y) = ($x,$y);
+          }
         }
       }
       ($prev_x,$prev_y) = ($x,$y);
@@ -587,10 +765,16 @@ sub OnIdle {
   }
 }
 
+sub xy_in_rect {
+  my ($x,$y, $x1,$y1, $x2,$y2) = @_;
+  return (($x >= $x1 && $x <= $x2)
+          && ($y >= $y1 && $y <= $y2));
+}
+
+### $accel_table
+$draw->SetFocus;
 if ($window_initial_fullscreen) {
-  $main->ShowFullScreen(1,
-                        Wx::wxFULLSCREEN_NOBORDER()
-                        | Wx::wxFULLSCREEN_NOCAPTION());
+  $main->ShowFullScreen(1, FULLSCREEN_HIDE_BITS);
 } else {
   $main->Show;
 }

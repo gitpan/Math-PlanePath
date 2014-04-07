@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -60,6 +60,16 @@ sub dx_minimum {
           : 0);
 }
 use constant dx_maximum => 1;
+sub _UNDOCUMENTED__dxdy_list {
+  my ($self) = @_;
+  return (($self->{'height'} >= 2 ? (0,1) # N too
+           : ()),
+          1, 1-$self->{'height'});
+}
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  return $self->n_start + $self->{'height'} - 1;
+}
 
 sub dy_minimum {
   my ($self) = @_;
@@ -297,7 +307,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

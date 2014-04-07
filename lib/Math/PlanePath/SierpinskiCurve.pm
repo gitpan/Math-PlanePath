@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -91,12 +91,21 @@ use constant parameter_info_array =>
 #      =  4^level / (9*4^(level-1)
 #      =  4/9 = 0.444
 
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->arms_count >= 3 ? 2 : undef;
+}
+sub _UNDOCUMENTED__y_negative_at_n {
+  my ($self) = @_;
+  return $self->arms_count >= 5 ? 4 : undef;
+}
+
 {
   # Note: shared by Math::PlanePath::SierpinskiCurveStair
   my @x_minimum = (undef,
-               1,  # 1 arm
-               0,  # 2 arms
-              );   # more than 2 arm, X goes negative
+                   1,  # 1 arm
+                   0,  # 2 arms
+                  );   # more than 2 arm, X goes negative
   sub x_minimum {
     my ($self) = @_;
     return $x_minimum[$self->arms_count];
@@ -142,6 +151,29 @@ sub dx_maximum {
 }
 *dy_maximum = \&dx_maximum;
 
+sub _UNDOCUMENTED__dxdy_list {
+  my ($self) = @_;
+  my $s = $self->{'straight_spacing'};
+  my $d = $self->{'diagonal_spacing'};
+  return ($s,0,                    # E     eight scaled
+          ($d ? ( $d, $d) : ()),   # NE    except s=0
+          ($s ? (  0, $s) : ()),   # N     or d=0 skips
+          ($d ? (-$d, $d) : ()),   # NW
+          ($s ? (-$s,  0) : ()),   # W
+          ($d ? (-$d,-$d) : ()),   # SW
+          ($s ? (  0,-$s) : ()),   # S
+          ($d ? ( $d,-$d) : ()));  # SE
+
+}
+{
+  my @_UNDOCUMENTED__dxdy_list_at_n = (undef,
+                                       21, 20, 27, 36,
+                                       29, 12, 12, 13);
+  sub _UNDOCUMENTED__dxdy_list_at_n {
+    my ($self) = @_;
+    return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
+  }
+}
 sub dsumxy_minimum {
   my ($self) = @_;
   return - max($self->{'straight_spacing'},
@@ -1133,7 +1165,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

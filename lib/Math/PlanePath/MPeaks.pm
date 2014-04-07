@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,7 +24,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,6 +39,10 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
 
+sub _UNDOCUMENTED__x_negative_at_n {
+  my ($self) = @_;
+  return $self->n_start;
+}
 # dX jumps back unbounded negative, but forward only +1
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
@@ -48,11 +52,10 @@ use constant ddiffxy_maximum => 2; # SE diagonal
 use constant dir_minimum_dxdy => (1,1);  # North-East
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
-# Maybe ...
-# use constant parameter_info_array =>
-#   [
-#    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
-#   ];
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
 
 
 #------------------------------------------------------------------------------
@@ -94,7 +97,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### MPeaks n_to_xy(): $n
 
-  # adjust to N=0 at origin X=0,Y=0
+  # adjust to N=0 at start X=-1,Y=0
   $n = $n - $self->{'n_start'};
 
   my $d;
@@ -217,7 +220,6 @@ sub rect_to_n_range {
 #   return (3*$y2+5)*$y2 + 3;
 # }
 
-
 1;
 __END__
 
@@ -236,6 +238,12 @@ Math::PlanePath::MPeaks -- points in expanding M shape
 =head1 DESCRIPTION
 
 This path puts points in layers of an "M" shape
+
+=cut
+
+# math-image --path=MPeaks --expression='i<=56?i:0' --output=numbers --size=50x10
+
+=pod
 
          41                              49         7
          40  42                      48  50         6
@@ -264,6 +272,29 @@ the C<HexSpiral>.
 The octagonal numbers N=1,8,21,40,65,etc k*(3k-2) are a straight line
 of slope 2 going up to the left.  The octagonal numbers of the second
 kind N=5,16,33,56,etc k*(3k+2) are along the X axis to the right.
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=MPeaks,n_start=0 --expression='i<=55?i:0' --output=numbers --size=50x10
+
+=pod
+
+    n_start => 0
+
+    40                              48
+    39  41                      47  49
+    38  21  42              46  27  50
+    37  20  22  43      45  26  28  51
+    36  19   8  23  44  25  12  29  52
+    35  18   7   9  24  11  13  30  53
+    34  17   6   1  10   3  14  31  54
+    33  16   5   0   2   4  15  32  55
 
 =head1 FUNCTIONS
 
@@ -301,9 +332,17 @@ L<http://oeis.org/A045944> (etc)
 
 =back
 
-    A045944    N on X axis except initial 0, octagonal numbers second kind
-    A056106    N on Y axis, except initial 1
-    A056109    N on X negative axis, for X<=-1
+    n_start=1 (the default)
+      A045944    N on X axis >= 1, extra initial 0
+                   being octagonal numbers second kind
+      A056106    N on Y axis, extra initial 1
+      A056109    N on X negative axis <= -1
+
+    n_start=0
+      A049450    N on Y axis, extra initial 0, 2*pentagonal
+
+    n_start=2
+      A027599    N on Y axis, extra initial 6,2
 
 =head1 SEE ALSO
 
@@ -316,7 +355,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

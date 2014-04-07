@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -477,13 +477,17 @@ L<Math::PlanePath>,
 L<Math::PlanePath::WythoffArray>,
 L<Math::PlanePath::ZOrderCurve>
 
+David M. Bradley "Counting Ordered Pairs", Mathematics Magazine, volume 83,
+number 4, October 2010, page 302, DOI 10.4169/002557010X528032.
+L<http://www.math.umaine.edu/~bradley/papers/JStor002557010X528032.pdf>
+
 =head1 HOME PAGE
 
 L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2012, 2013 Kevin Ryde
+Copyright 2012, 2013, 2014 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

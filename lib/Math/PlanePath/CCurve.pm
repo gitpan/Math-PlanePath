@@ -22,14 +22,20 @@
 # N=2^e0+2^e1+...+2^e(t-1)+2^et  e0 high bit
 # pos = (i+1)^e0 + i*(i+1)^e1 + ... + i^(t-1)*(i+1)^e(t-1) + i^t*(i+1)^et
 
-# Levy Plane or space curves and surfaces consisting of parts similar to the
-# whole.  In Edgar classics on fractals pp 181-239.
+# Levy, "Plane or space curves and surfaces consisting of parts similar to
+# the whole".  In Edgar classics on fractals pp 181-239.
+# "Les courbes planes ou gauches et les surfaces composée de parties semblales au tout,"
+# Journal de l'École Polytechnique, 1938, 227-247,
 
-# * Bailey, Kim, Strichartz Inside the Levy Dragon, AMM 109 2002 689-703
+# * Bailey, Kim, Strichartz, "Inside the Levy Dragon", American Mathematical
+#   Monthly, volume 109, 2002, pages 689-703
 #   http://www.jstor.org/stable/3072395
 #   http://www.mathlab.cornell.edu/twk6
 #   http://www.mathlab.cornell.edu/%7Etwk6/program.html
 
+# * Alster, The finite number of interior, Discrete Comput Geom, volume 43, 2010,
+#   http://rd.springer.com/article/10.1007/s00454-009-9211-1
+#   pay
 
 package Math::PlanePath::CCurve;
 use 5.004;
@@ -37,9 +43,10 @@ use strict;
 use List::Util 'min','max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem = \&Math::PlanePath::_divrem;
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 use Math::PlanePath::KochCurve;
@@ -71,10 +78,14 @@ use Math::PlanePath::Base::Digits
 #                                        } ];
 
 use constant n_start => 0;
+use constant _UNDOCUMENTED__x_negative_at_n => 6;
+use constant _UNDOCUMENTED__y_negative_at_n => 22;
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
+use constant _UNDOCUMENTED__dxdy_list_at_n => 7;
 use constant dsumxy_minimum => -1; # straight only
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -1;
@@ -378,6 +389,128 @@ sub n_to_dxdy {
   return ($dx,$dy);
 }
 
+#------------------------------------------------------------------------------
+# k even
+#         S[h]
+#       ---------
+#      /          \  Z[h-1]
+#     /            \
+#    |              |  S[h-1]
+#     \            / Z[h-2]
+#      --        --
+# Hb[k] = S[h] + 2*S[h-1] + S[h] + 2*(Z[h-1]/2 - Z[h-2]/2)
+#          + sqrt(2)*(2*Z[h-1]/2 + 2*Z[h-2]/2)
+#       = 2*S[h] + 2*S[h-1] + Z[h-1]-Z[h-2]   + sqrt(2) * (Z[h-1] + Z[h-2])
+#       = 2*2^h + 2*2^(h-1) + 2*2^(h-1)-2 - (2*2^(h-2)-2)   + sqrt(2) * (2*2^(h-1)-2 + 2*2^(h-2)-2)
+#       = 3*2^h             + 2*2^(h-1)-2 - 2*2^(h-2) + 2   + sqrt(2) * (3*2^(h-1) - 4)
+#       = 3*2^h             +   2^(h-1)                     + sqrt(2) * (3*2^(h-1) - 4)
+#       = 7*2^(h-1) + sqrt(2) * (3*2^(h-1) - 4)
+#       = 7*sqrt(2)^(2h-2) + sqrt(2) * (3*sqrt(2)^(2h-2) - 4)
+#       = 7*sqrt(2)^(k-2) + sqrt(2) * (3*sqrt(2)^(k-2) - 4)
+#       = 7*sqrt(2)^(k-2) + sqrt(2)*3*sqrt(2)^(k-2) - 4*sqrt(2)
+#       = 7*sqrt(2)^(k-2) + 3*sqrt(2)*sqrt(2)^(k-2) - 4*sqrt(2)
+#       = (7 + 3*sqrt(2))*sqrt(2)^(k-2) - 4*sqrt(2)
+#
+#             S[2]=4
+#       11--10--7,9--6---5  Z[1]=2         k=4 h=2
+#        |       |       |
+#   13--12       8       4---3             4 + 2*2 + 4+(2-0) = 14
+#    |                       |  S[1]=2     (2+0) = 2
+#   14                       2
+#    |                       |
+#   15---16              0---1  Z[0] = 0
+#
+
+# k odd
+#            S[h]
+#            ----
+#   Z[h-1] /     \    middle Z[h]
+# S[h-1]  |       \
+#          \       \
+#                   |  S[h]
+#                   |
+#             \    /  Z[h-1]
+#               --
+#              S[h-1]
+#
+# Hb[k] = 2*S[h] + 2*S[h-1]  + sqrt(2)*( Z[h]/2 + Z[h-1] + Z[h]/2 + S[h]-S[h-1] )
+#       = 2*S[h] + 2*S[h-1]  + sqrt(2)*( Z[h]   + Z[h-1]          + S[h]-S[h-1] )
+#       = 2*2^h  + 2*2^(h-1) + sqrt(2)*( 2*2^h-2 + 2*2^(h-1)-2 + 2^h - 2^(h-1) )
+#       = 3*2^h              + sqrt(2)*( 3*2^h                 + 2^(h-1)       - 4 )
+#       = 3*2^h + sqrt(2)*( 7*2^(h-1) - 4 )
+
+sub _UNDOCUMENTED_level_to_hull_boundary {
+  my ($self, $level) = @_;
+  my ($a, $b) = $self->_UNDOCUMENTED_level_to_hull_boundary_sqrt2($level)
+    or return undef;
+  return $a + $b*sqrt(2);
+}
+sub _UNDOCUMENTED_level_to_hull_boundary_sqrt2 {
+  my ($self, $level) = @_;
+  if ($level <= 2) {
+    if ($level < 0) { return; }
+    if ($level == 2) { return (6,0); }
+    return (2, ($level == 0 ? 0 : 1));
+  }
+
+  my ($h, $rem) = _divrem($level, 2);
+  my $pow = 2**($h-1);
+
+  if ($rem) {
+    return (6*$pow, 7*$pow-4);
+
+    # return (2*S_formula($h) + 2*S_formula($h-1),
+    #         Z_formula($h)/2 + Z_formula($h-1)
+    #         + Z_formula($h)/2 + (S_formula($h)-S_formula($h-1)) );
+
+  } else {
+    return (7*$pow, 3*$pow-4);
+
+    # return (S_formula($h) + 2*S_formula($h-1) + S_formula($h)+(Z_formula($h-1)-Z_formula($h-2)),
+    #         (Z_formula($h-1) + Z_formula($h-2)));
+  }
+}
+
+#------------------------------------------------------------------------------
+{
+  my @_UNDOCUMENTED_level_to_hull_area = (0, 1/2, 2);
+
+  sub _UNDOCUMENTED_level_to_hull_area {
+    my ($self, $level) = @_;
+
+    if ($level < 3) {
+      if ($level < 0) { return undef; }
+      return $_UNDOCUMENTED_level_to_hull_area[$level];
+    }
+    my ($h, $rem) = _divrem($level, 2);
+    return 35*2**($level-4) - ($rem ? 13 : 10)*2**($h-1) + 2;
+
+    #   if ($rem) {
+    #     return 35*2**($level-4) - 13*$pow + 2;
+    #
+    #     my $width = S_formula($h) + Z_formula($h)/2 + Z_formula($h-1)/2;
+    #     my $ul = Z_formula($h-1)/2;
+    #     my $ur = Z_formula($h)/2;
+    #     my $bl = $width - Z_formula($h-1)/2 - S_formula($h-1);
+    #     my $br = Z_formula($h-1)/2;
+    #     return $width**2 - $ul**2/2 - $ur**2/2 - $bl**2/2 - $br**2/2;
+    #
+    #   } else {
+    #     return 35*2**($level-4) - 10*$pow + 2;
+    #     return 0;
+    #     return 35*2**($level-4) - 5*2**$h + 2;
+    #
+    #     # my $width = S_formula($h) + Z_formula($h-1);
+    #     # my $upper = Z_formula($h-1)/2;
+    #     # my $lower = Z_formula($h-2)/2;
+    #     # my $height = S_formula($h-1) + $upper + $lower;
+    #     # return $width; # * $height - $upper*$upper - $lower*$lower;
+    #   }
+    # }
+  }
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -435,29 +568,36 @@ The initial segment N=0 to N=1 is repeated with a turn +90 degrees left to
 give N=1 to N=2.  Then N=0to2 is repeated likewise turned +90 degrees and
 placed at N=2 to make N=2to4.  And so on doubling each time.
 
+                                  4----3
+                                       |      N=0to2
+                       2               2      repeated
+                       |               |      as N=2to4
+    0----1        0----1          0----1      with turn +90
+
 The 90 degree rotation is the same at each repetition, so the segment at
-N=2^k is the initial N=0to1 turned +90 degrees.  This means at
+N=2^k is always the initial N=0to1 turned +90 degrees.  This means at
 N=1,2,4,8,16,etc the direction is always upwards.
 
-If 2^k is the highest 1-bit in N then the X,Y position can be written in
-complex numbers as
+The X,Y position can be written in complex numbers as a recurrence
 
-    XY(N) = XY(2^k) + i*XY(r)          N = 2^k + r with r<2^k
-          = (1+i)^k + i*XY(r)
+    with N = 2^k + r      high bit 2^k and remainder r<2^k
 
-The effect is a change of base from binary to base 1+i but with a power of i
-on each term.  Suppose the 1-bits in N are at positions k, k1, k2, etc, then
+    C(N) = C(2^k) + i*C(r)
+         = (1+i)^k + i*C(r)
 
-    XY(N) = b^k               N= 2^k + 2^(k1) + 2^(k2) + ... in binary
-          + b^k1 * i          base b=1+i
-          + b^k2 * i^2
-          + b^k3 * i^3
-          + ...
+The effect is a change from base 2 to base 1+i, but with a further power of
+i on each term.  Suppose the 1-bits in N are at positions k0, k1, k2, etc
+(high to low), then
 
-Notice the power of i is not the bit position k, but rather the count of how
-many 1-bits are above the position.  This calculation is straightforward but
-the resulting structure of boundary and shapes enclosed has many different
-parts.
+    C(N) = b^k0 * i^0      N= 2^k0 + 2^(k1) + 2^(k2) + ... in binary
+         + b^k1 * i^1      k0 > k1 > k2 > ...
+         + b^k2 * i^2      base b=1+i
+         + b^k3 * i^3
+         + ...
+
+Notice the i power is not the bit position k, but rather how many 1-bits are
+above the position.  This calculation is straightforward but the resulting
+structure of overlaps and internal shapes has many different parts.
 
 =head2 Level Ranges 4^k
 
@@ -469,15 +609,15 @@ width and height measured relative to the endpoints.
     *--*                  *--*      | height h[k]
     |                        |      |
     *   N=4^k         N=0    *    <-+
-    |     |            |     |      | below l[k] 
+    |     |            |     |      | below l[k]
     *--*--*            *--*--*    <-+
 
-    ^-----^            ^-----^    Extents to N=4^k
+    ^-----^            ^-----^
      width     2^k      width
-      w[k]               w[k]
+      w[k]               w[k]           Extents to N=4^k
 
     <------------------------>
-        total width -> 2
+    total width = 2^k + 2*w[k]
 
 N=4^k is on either the X or Y axis and for the extents here it's taken
 rotated as necessary to be horizontal.  k=2 N=4^2=16 shown above is already
@@ -486,7 +626,7 @@ horizontal.
 
 The width w[k] is measured from the N=0 and N=4^k endpoints.  It doesn't
 include the 2^k length between those endpoints.  The two ends are symmetric
-so the extent is the same for each.
+so the extent is the same at each end.
 
     h[k] = 2^k - 1                     0,1,3,7,15,31,etc
 
@@ -496,9 +636,9 @@ so the extent is the same for each.
     l[k] = /  0            for k<=1
            \  2^(k-2) - 1  for k>=2    0,0,0,1,3,7,etc
 
-The initial N=0 to N=0 to N=64 shown above is k=3.  h[3]=7 is the X=-7
-horizontal.  l[3]=1 is the X=1 horizontal.  w[3]=3 is the vertical Y=3, and
-also Y=-11 which is 3 below the endpoint N=64 at Y=8.
+The initial N=0 to N=64 shown above is k=3.  h[3]=7 is the X=-7 horizontal.
+l[3]=1 is the X=1 horizontal.  w[3]=3 is the vertical Y=3, and also Y=-11
+which is 3 below the endpoint N=64 at Y=8.
 
 Expressed as a fraction of the 2^k distance between the endpoints the
 extents approach total 2 wide by 1.25 high,
@@ -507,12 +647,12 @@ extents approach total 2 wide by 1.25 high,
        |                  |         |  1
     *--*                  *--*      |         total
     |                        |      |         height
-    *   N=4^k         N=0    *    <-+         1+1/4
+    *   N=4^k         N=0    *    <-+         -> 1+1/4
     |     |            |     |      |  1/4
     *--*--*            *--*--*    <-+
 
-    ^-----^            ^-----^  
-      1/2        1       1/2   total width 2
+    ^-----^            ^-----^
+      1/2        1       1/2     total width -> 2
 
 The extent formulas can be found by considering the self-similar blocks.
 The initial k=0 is a single line segment and all its extents are 0.
@@ -525,7 +665,7 @@ The initial k=0 is a single line segment and all its extents are 0.
 Thereafter the replication overlap as
 
        +-------+---+-------+
-       |       |   |       |    
+       |       |   |       |
     +------+   |   |   +------+
     |  | D |   | C |   | B |  |        <-+
     |  +-------+---+-------+  |          | 2^(k-1)
@@ -556,14 +696,14 @@ B-C and C-D can extend down past their 2^(k-1) vertical position.
 
 =head2 Repeated Points
 
-The curve crosses itself and repeats some X,Y positions up to 4 times.  The
+The curve crosses itself and can repeat X,Y positions up to 4 times.  The
 first doubled, tripled and quadrupled points are
 
-     visits     first X,Y       N
-    ---------   ---------    ----------------------
-        2        -2,  3         7,    9
-        3        18, -7       189,  279,  281
-        4       -32, 55      1727, 1813, 2283, 2369
+    visits      X,Y         N
+    ------    -------    ----------------------
+       2       -2,  3       7,    9
+       3       18, -7     189,  279,  281
+       4      -32, 55    1727, 1813, 2283, 2369
 
 =cut
 
@@ -579,16 +719,16 @@ first doubled, tripled and quadrupled points are
 =pod
 
 Each line segment between integer points is traversed at most 2 times, once
-forward and once backward.  There's 4 such lines reaching each integer point
-and so the points are visited at most 4 times.
+forward and once backward.  There's 4 lines reaching each integer point and
+this line traversal means the points are visited at most 4 times.
 
 As per L</Direction> below the direction of the curve is given by the count
 of 1-bits in N.  Since no line is repeated each of the N values at a given
-X,Y have a different count 1-bits mod 4.  For example N=7 is 3 1-bits and
+X,Y have a different count-1-bits mod 4.  For example N=7 is 3 1-bits and
 N=9 is 2 1-bits.  The full counts need not be consecutive, as for example
 N=1727 is 9 1-bits and N=2369 is 4 1-bits.
 
-The maximum 2 segment traversals can be seen from the way the curve
+The maximum of 2 line segment traversals can be seen from the way the curve
 replicates.  Suppose the entire plane had all line segments traversed
 forward and backward.
 
@@ -606,7 +746,7 @@ forward and backward.
       | ^         | ^
 
 Then when each line segment expands on the right the result is the same
-pattern of traversals when viewed rotated by 45-degrees and scaled by factor
+pattern of traversals -- viewed rotated by 45-degrees and scaled by factor
 sqrt(2).
 
      \ v / v        \ v  / v
@@ -636,20 +776,21 @@ pointing to the right of the traversal direction.
        to  *
            ^\
            | \
-           |  \   triangle peak
+           |  \ triangle peak
            |  /
            | /
-           |/
+           |/       quarter of a unit square
       from *
 
 These triangles in the two directions tile the plane.  On expansion each
 splits into 2 halves in new positions.  Those parts don't overlap and the
-plane is still tiled.  See for example Larry Riddle's pages
+plane is still tiled.  See for example
 
 =over
 
-L<http://www.agnesscott.edu/lriddle/levy.html>
-L<http://www.agnesscott.edu/lriddle/tiling.html>
+Larry Riddle
+L<http://ecademy.agnesscott.edu/~lriddle/ifs/levy/levy.htm>
+L<http://ecademy.agnesscott.edu/~lriddle/ifs/levy/tiling.htm>
 
 =back
 
@@ -662,16 +803,16 @@ at each corner,
              | ^         | ^
              | |         | |               24 copies of the curve
              | |         | |               to visit all points of the
-             v |         v |               inside square precisely
-    <-------    <--------   <--------      4 times each
-              *           *
-    -------->   -------->   -------->      points N=0 to N=4^k-1
-             | ^         | ^               rotated and shifted
+             v |         v |               inside square ABCD
+    <-------    <--------   <--------      precisely 4 times each
+              A           B
+    -------->   -------->   -------->      each part points
+             | ^         | ^               N=0 to N=4^k-1
+             | |         | |               rotated and shifted
              | |         | |               suitably
-             | |         | |
              v |         v |
     <--------   <--------   <--------
-              *           *
+              C           D
     --------    -------->   -------->
              | ^         | ^
              | |         | |
@@ -693,7 +834,6 @@ remainder to make 4 visits at every point.
 It's interesting to note that a set of 8 curves at the origin only covers
 the axes with 4-fold visits,
 
-                   _ _ _
              | ^              8 arms at the origin
              | |              cover only X,Y axes
              v |              with 4-visits
@@ -704,16 +844,20 @@ the axes with 4-fold visits,
              | |
              v |
 
-The S<"_ _ _"> line shown which is part of the 24-pattern above but omitted
-here.  This line is at Y=2^k.  The extents described above mean that it
-extends down to Y=2^k - h[k] = 2^k-(2^k-1)=1, so it visits some points in
-row Y=1 and higher.  Omitting the curve means there are YE<gt>=1 not visited
-4 times.  Similarly YE<lt>=-1 and XE<lt>-1 and XE<gt>=+1.
-
 This means that if the path had some sort of "arms" of multiple curves
 extending from the origin then it would visit all points on the axes X=0 Y=0
-a full 4 times, but there would be infinitely many points off the axes
-without full 4 visits.
+a full 4 times, but off the axes there would be points without full 4
+visits.
+
+=cut
+
+# The S<"_ _ _"> line shown which is part of the 24-pattern above but omitted
+# here.  This line is at Y=2^k.  The extents described above mean that it
+# extends down to Y=2^k - h[k] = 2^k-(2^k-1)=1, so it visits some points in
+# row Y=1 and higher.  Omitting the curve means there are YE<gt>=1 not visited
+# 4 times.  Similarly YE<lt>=-1 and XE<lt>-1 and XE<gt>=+1.
+
+=pod
 
 =head1 FUNCTIONS
 
@@ -807,9 +951,9 @@ integer N the count mod 4 gives the direction for dX,dY.
     dx = dir_to_dx[dir]    # table 0 to 3
     dy = dir_to_dy[dir]
 
-For fractional N the direction at int(N)+1 can be obtained from combining
-the direction at int(N) and the turn at int(N)+1, that being the low 1-bits
-of N per L</Next Turn> above.  Those two directions can then be combined as
+For fractional N the direction at int(N)+1 can be obtained from the
+direction at int(N) and the turn at int(N)+1, which is the low 1-bits of N
+per L</Next Turn> above.  Those two directions can then be combined as
 described in L<Math::PlanePath/N to dX,dY -- Fractional>.
 
     # apply turn to make direction at Nint+1
@@ -848,7 +992,7 @@ multiple of b=1+i,
     X+iY = (x+iy)*(1+i)
          = (x-y) + (x+y)i
     so X=x-y Y=x+y
-    sum X+Y = 2x is even   if X+iY a multiple of 1+i
+    sum X+Y = 2x is even if X+iY a multiple of 1+i
 
 So the lowest bit of N is found by
 
@@ -859,23 +1003,24 @@ If bit=1 then a power i^p is to be subtracted from X+iY.  p is how many
 direction to move X,Y to put it on an even position.  It's also the
 direction of the step N-2^l to N, where 2^l is the lowest 1-bit of N.
 
-The reduction should be attempted with p as each of the four possible
-directions N,S,E,W.  Some or all will lead to an N.  For quadrupled points
-(such as X=-32, Y=55 described above) all four will lead to an N.
+The reduction should be attempted with p commencing as each of the four
+possible directions N,S,E,W.  Some or all will lead to an N.  For quadrupled
+points (such as X=-32, Y=55 described above) all four will lead to an N.
 
     for p 0 to 3
       dX,dY = i^p   # directions [1,0]  [0,1]  [-1,0]  [0,-1]
 
-      loop until X,Y = [0,0] or [1,0] or [-1,0] or [0,1] or [0,-1] 
+      loop until X,Y = [0,0] or [1,0] or [-1,0] or [0,1] or [0,-1]
       {
         bit = X+Y mod 2       # bits of N from low to high
         if bit == 1 {
           X -= dX             # move to "even" X+Y == 0 mod 2
           Y -= dY
-          (dX,dY) = (dY,-dX)         # rotate -90
+          (dX,dY) = (dY,-dX)       # rotate -90 as for p-1
         }
-        (X,Y) = (X+Y)/2, (Y-X)/2   # divide (X+iY)/(1+i)
+        X,Y = (X+Y)/2, (Y-X)/2   # divide (X+iY)/(1+i)
       }
+
       if not (dX=1 and dY=0)
         wrong final direction, try next p
       if X=dX and Y=dY
@@ -884,7 +1029,7 @@ directions N,S,E,W.  Some or all will lead to an N.  For quadrupled points
       if X=0 and Y=0
         found an N
 
-The loop ends at one of the five points
+The "loop until" ends at one of the five points
 
             0,1
              |
@@ -896,9 +1041,10 @@ It's not possible to wait for X=0,Y=0 to be reached because some dX,dY
 directions will step infinitely among the four non-zeros.  Only the case
 X=dX,Y=dY is sure to reach 0,0.
 
-The successive p decrements which are dX,dY rotate -90 must end at p == 0
-mod 4 for highest term in the X+iY formula having i^0=1.  This means must
-end dX=1,dY=0 East.
+The successive p decrements which rotate dX,dY by -90 degrees must end at p
+== 0 mod 4 for highest term in the X+iY formula having i^0=1.  This means
+must end dX=1,dY=0 East.  If this doesn't happen then there is no N for that
+p direction.
 
 The number of 1-bits in N is == p mod 4.  So the order the N values are
 obtained follows the order the p directions are attempted.  In general the N
@@ -923,6 +1069,7 @@ sum S=X+Y and difference D=Y-X.
           }
           (S,D) = (S+D)/2, (D-S)/2   # divide (S+iD)/(1+i)
         }
+
         if not (dS=1 and dD=-1)
           wrong final direction, try next dS,dD direction
         if S=dS and D=dD
@@ -947,14 +1094,285 @@ point of the plane.
            S=0        S=1       S=2        S=3        S=4
 
 The final five points described above are then in a 3x3 block at the origin.
-The four in-between points S=0,D=1 etc don't occur so ranges tests
+The four in-between points S=0,D=1 etc don't occur so range tests
 -1E<lt>=SE<lt>=1 and -1E<lt>=DE<lt>=1 can be used.
 
      S=-1,D=1      .      S=1,D=1
-                
-        .       S=0,D=0      .   
-                
+
+        .       S=0,D=0      .
+
      S=-1,D=-1     .      S=1,D=-1
+
+=head2 Right Boundary
+
+The right-side boundary of the curve, which is the outside of the "C", from
+N=0 to N=2^k is
+
+    R[k] = /  7*2^h - 2k - 6     if k even
+           \ 10*2^h - 2k - 6     if k odd
+           where h = floor(k/2)
+         = 1, 2, 4, 8, 14, 24, 38, 60, 90, 136, 198, 292, 418, ...
+
+    R[k] = 2*R[k-1] + R[k-2] - 4*R[k-3] + 2*R[k-4]
+
+The length doubles until R[4]=14 which is N=0 to N=2^4=16.  At k=4 points
+N=7,8,9 have turned inward and closed off some of the outside of the curve
+so boundary less than 2x.
+
+        11--10--9,7--6--5        right boundary
+         |       |      |        around "outside"
+    13--12       8      4--3     N=0 to N=2^4=16
+     |                     |
+    14                     2        R[4]=14
+     |                     |
+    15--16              0--1
+
+
+The odd/even cases and floor(k/2) can be eliminated by some (-1)^k and
+sqrt(2)^k if desired.  That sort of form would be per the roots of the
+characteristic equation of the recurrence,
+
+    x^4 - 2*X^3 - x^2 + 4*x - 2
+      = (x - 1)^2 * (x + sqrt(2)) * (x - sqrt(2))
+    roots 1, sqrt(2), -sqrt(2)
+
+The right boundary comprises runs of straight lines and zig-zags.  When it
+expands the straight lines become zig-zags and the zig-zags become straight
+lines.  The straight lines all point "forward", which is anti-clockwise.
+
+                                      c     *     a
+                                     / ^   / ^   / ^
+                            =>      v   \ v   \ v   \
+    D<----C<----B<----A            D     C     B     A
+    |                 ^           /                   ^
+    v                 |          v                     \
+       straight S=3                zig-zag Z = 2S-2 = 4
+
+The count Z here is both sides of each "V" shape, from the points marked "a"
+through to "c", so it counts the line segments making up the boundary.  Each
+S becomes an upward peak.  The first and last side of those peaks become
+part of the following "straight" section (at A and D), hence Z=2S-2.
+
+The zigzags all point "forward" too.  When they expand they close off the V
+shape and become 2 straight lines for each V, which means 1 straight line
+for each Z side.  The segment immediately before and after contribute a
+segment to the resulting straight run too, hence S=Z+2.
+
+         C     B     A               *<---C<---*<---B<---*<---A<---*
+        / ^   / ^   / ^              |         |         |         |
+       v   \ v   \ v   \      =>     |         |         |         |
+      *     *     *     *         <--*         *         *         *<--
+     /                   ^
+    v                     \
+      zig-zag Z=4 segments                   straight S = Z+2 = 6
+
+The initial N=0 to N=1 is a single straight segment S[0]=1 and from there
+the runs grow.  N=1 to N=3 is a straight section S[1]=2.  Z[0]=0 represents
+an empty zigzag at N=1.  Z[1] is the first non-empty at N=3 to N=5.
+
+     h   S[h]     Z[h]       Z[h]   = 2*S[h]-2
+    --   ----     ----       S[h+1] = Z[h]+2
+     0     1        0
+     1     2        2        S[h+1] = 2*S[h]-2+2 = 2*S[h]
+     2     4        6        so
+     3     8       14        S[h] = 2^h
+     4    16       30        Z[h] = 2*2^h-2
+     5    32       62
+     5    64      126
+
+The curve N=0 to N=2^k is symmetric at each end and is made up of runs S[0],
+Z[0], S[1], Z[1], etc, of straight and zigzag alternately at each end.  When
+k is even there's a single copy of a middle S[k/2].  When k is odd there's a
+single middle Z[(k-1)/2] (with an S[h] before and after).  So
+
+                / i=h-1          \           # where h = floor(k/2)
+    R[k] = 2 * | sum   S[i]+Z[i]  |
+                \ i=0            /
+           + S[h] + (if k odd then + S[h]+Z[h])
+
+         =  2*(  1+2+4+...+2^(h-1)           # S[0] to S[h-1]
+               + 2+4+8+...+2^h  -  2*h)      # Z[0] to Z[h-1]
+           + 2^h                             # S[h]
+           + if k odd (2^h + 2*2^h - 2)      # possible S[h]+Z[h]
+
+         = 2*(2^h-1 + 2*2^h-2 - 2h) + 2^h + (k odd 3*2^h - 2)
+         = 7*2^h - 4h-6 + (if k odd + 3*2^h - 2)
+         = 7*2^h - 2k-6 + (if k odd + 3*2^h)
+
+=head2 Convex Hull Boundary
+
+A convex hull is the smallest convex polygon which contains a given set of
+points.  For the C curve the boundary length of the convex hull for points
+N=0 to N=2^k inclusive is
+
+    hull boundary[k]
+        / 2                                    if k=0
+        | 2+sqrt(2)                            if k=1
+      = | 6                                    if k=2
+        | 6*2^(h-1) + (7*2^(h-1) - 4)*sqrt(2)  if k odd  >=3
+        \ 7*2^(h-1) + (3*2^(h-1) - 4)*sqrt(2)  if k even >=4
+    where h = floor(k/2)
+
+      k              hull boundary
+     ---      ----------------------------
+      0        2 +  0 * sqrt(2)  =    2
+      1        2 +  1 * sqrt(2)  =    3.41
+      2        6 +  0 * sqrt(2)  =    6
+      3        6 +  3 * sqrt(2)  =   10.24
+      4       14 +  2 * sqrt(2)  =   16.82
+      5       12 + 10 * sqrt(2)  =   26.14
+      6       28 +  8 * sqrt(2)  =   39.31
+      7       24 + 24 * sqrt(2)  =   57.94
+      8       56 + 20 * sqrt(2)  =   84.28
+      9       48 + 52 * sqrt(2)  =  121.53
+
+The integer part is the straight sides of the hull and the sqrt(2) part is
+the diagonal sides of the hull.
+
+When k is even the hull has the following shape.  The sides are as per the
+right boundary above but after Z[h-2] they curl inwards and so are not part
+of the hull.  Each Z stair-step diagonal becomes a sqrt(2) length for the
+hull.  Z[i] counts both vertical and horizontal of each stairstep, hence
+sqrt(2)*Z/2 for the hull boundary.
+
+                  S[h]
+               *--------*                  *       Z=2
+      Z[h-1]  /          \  Z[h-1]         | \     diagonal
+             /            \                |  \    sqrt(2)*Z/2
+            *              *               *----*  = sqrt(2)
+    S[h-1]  |              |  S[h-1]
+            |              |
+            *              *
+      Z[h-2] \            / Z[h-2]
+              *--      --*
+
+                S[h] + Z[h-2]-Z[h-1]
+
+    k even
+    hull boundary[k] = S[h] + 2*S[h-1] + S[h+Z[h-2]-Z[h-1]
+                       + sqrt(2)*(2*Z[h-1] + 2*Z[h-2])/2
+
+When k is odd the shape is similar but Z[h] in the middle.
+
+                        S[h]
+                       *----*
+               Z[h-1] /      \  middle
+                     *        \  Z[h]
+             S[h-1]  |         \
+                     *          *
+                      \         |  S[h]
+          Z[h]                  |
+    + 2*(S[h]-S[h-1])           *
+                         \     /  Z[h-1]
+                          *---*
+                          S[h-1]
+
+    k odd
+    hull boundary[k] = 2*S[h] + 2*S[h-1]
+                       + sqrt(2)*(Z[h]/2 + 2*Z[h-1]/2
+                                  + Z[h]/2 + S[h]-S[h-1]
+
+=head2 Convex Hull Area
+
+The area of the convex hull for points N=0 to N=2^k inclusive is
+
+    hull area[k]
+        / 0                                if k=0
+        | 1/2                              if k=1
+      = | 2                                if k=2
+        | 35*2^(k-4) - 13*2^(h-1) + 2      if k odd  >=3
+        \ 35*2^(k-4) - 10*2^(h-1) + 2      if k even >=4
+    where h = floor(k/2)
+
+    = 0, 1/2, 2, 13/2, 17, 46, 102, 230, 482, 1018, 2082, 4274, ...
+
+area[1] and area[3] are fractions but thereafter all are integers.
+
+The area can be calculated from the shapes shown for the hull boundary
+above.  For k odd it can be noted the total width and total height are the
+same, then the various corners are cut off.
+
+=head2 Line Points
+
+The number of points which fall on straight and diagonal lines from the
+endpoints can be calculated by considering how the previous level duplicates
+to make the next.
+
+              d   d  
+            c  \ /  c
+        b   |   +   |   b
+         \  |  / \  |  /           curve endpoints
+          \ | /   \ | /             "S" start
+           \|/     \|/              "E" end
+     a------E---e---S------a
+           /|\     /|\
+          / | \   / | \
+         /  |  f f  |  \
+        h   g       g   h
+
+The curve is rotated as necessary to make the endpoints horizontal.  Each
+"a" through "h" is the number of points which fall on the respective line.
+The curve is symmetric in left to right so the line counts are the same each
+side in mirror image.
+
+"S" start and "E" end points are not included in any of the counts.  "e" is
+the count in between S and E.  The two "d" lines meet at point "+" and that
+point is counted in d.  That point is where two previous level curves meet
+for kE<gt>=1.  Points are visited up to 4 times (per L</Repeated Points>
+above) and all those multiple visits are counted.
+
+The following diagram shows how curve level k+1 is made from two level k
+curves.  One is from S to M and another M to E.
+
+            |\       /|            curve level k copies
+            | \     / |            S to M and M to E
+            | c+a c+a |            making curve k+1 S to E
+            |   \|/   |             
+       \    |  --M--  |    /        
+        \   |   /|\   |   c        a[k+1] = b[k]              
+         c  d e+g e+g d  /         b[k+1] = c[k]                 
+          \ | /     \ | /          c[k+1] = d[k]                 
+           \|/       \|/           d[k+1] = a[k]+c[k] + e[k]+g[k] + 1     
+    b-------E--f---f--S-------b    e[k+1] = 2*f[k]               
+           /|\       /|\           f[k+1] = g[k]                 
+          a | g     g | a          g[k+1] = h[k]                 
+         /  h  \   /  h  \         h[k+1] = a[k]                 
+        /   |   \ /   |   \
+       /    |         |    \
+
+For example the line S to M is an e[k], but also the M to E contributes a
+g[k] on that same line so e+g.  Similarly c[k] and a[k] on the outer sides
+of M.  Point M itself is visited too so the grand total for d[k+1] is
+a+c+e+g+1.  The other lines are simpler, being just rotations except for the
+middle line e[k+1] which is made of two f[k].
+
+The successive g[k+1]=h[k]=a[k-1]=b[k-2]=c[k-3]=d[k-4] can be substituted
+into the d to give a recurrence
+
+    d[k+1] = d[k-1] + d[k-3] + d[k-5] + 2*d[k-7] + 1
+           = 0,1,1,2,2,4,4,8,8,17,17,34,34,68,68,136,136,273,273,...
+
+                               x + x^2
+    generating function  -------------------
+                         (1-2*x^2) * (1-x^8)
+
+=for Test-Pari-DEFINE gd(x)=(x+x^2) / ( (1-2*x^2)*(1-x^8) )
+
+=for Test-Pari gd(x) == (x+x^2) / ( (1-x^2)*(1+x^2)*(1-2*x^2)*(1+x^4) )
+
+=for Test-Pari Vec(gd(x) - O(x^19)) == [1,1,2,2,4,4,8,8,17,17,34,34,68,68,136,136,273,273] /* sans initial 0s */
+
+The recurrence begins with the single segment N=0 to N=1 and the two
+endpoints are not included so initial all zeros a[0]=...=h[0]=0.
+
+As an example, the N=0 to N=64 picture above is level k=6 and its "d" line
+relative to those endpoints is the South-West diagonal down from N=0.  The
+points on that line are N=32,30,40,42 giving d[6]=4.
+
+All the measures are relative to the endpoint direction.  The points on the
+fixed X or Y axis or diagonal can be found by taking the appropriate a
+through h, or sum of two of them for both positive and negative of a
+direction.
 
 =head1 OEIS
 
@@ -986,7 +1404,28 @@ L<http://oeis.org/A179868> (etc)
     A146559   X at N=2^k, being Re((i+1)^k)
     A009545   Y at N=2^k, being Im((i+1)^k)
 
-    A191689   fractal dimension of the boundary
+    A131064   right boundary length to odd power N=2^(2k-1),
+                being 5*2^n-4n-4, skip initial 1
+    A027383   right boundary length differences
+
+    A191689   fractal dimension of the interior boundary
+
+A191689 is the boundary of the fractal, which is not the same as the
+boundary of the integer form here.  When extended infinitely only some
+points persist indefinitely when the expansion rule is applied repeatedly.
+The first such does not arise until 14 expansions (per Duvall and Keesling).
+The boundary of the fractal is the boundary of those persistent points.
+
+=over
+
+P. Duvall and J. Keesling, "The Dimension of the Boundary of the
+LE<233>vy Dragon", International Journal Math and Math Sci, volume 20,
+number 4, 1997, pages 627-632.
+
+Preprint "The Hausdorff Dimension of the Boundary of the LE<233>vy Dragon"
+L<http://at.yorku.ca/p/a/a/h/08.htm>
+
+=back
 
 =head1 SEE ALSO
 

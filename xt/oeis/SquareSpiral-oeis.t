@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,16 +32,16 @@
 # A053997 Sum of primes in n-th shell of prime spiral.
 # A053998 Smallest prime in n-th shell of prime spiral.
 
-# A059924 Write the numbers from 1 to n^2 in a spiraling square; a(n) is the total of the sums of the two diagonals.
-
 # A113688 Isolated semiprimes in the semiprime spiral.
 # A113689 Number of semiprimes in clumps of size >1 through n^2 in the semiprime spiral.
 # A114254 Sum of all terms on the two principal diagonals of a 2n+1 X 2n+1 square spiral.
 
+
+
 use 5.004;
 use strict;
 use Test;
-plan tests => 58;
+plan tests => 64;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -52,7 +52,7 @@ use List::Util 'min','max','sum';
 use Math::PlanePath::SquareSpiral;
 
 # uncomment this to run the ### lines
-# use Smart::Comments '###';
+# use Smart::Comments;
 
 
 my $path = Math::PlanePath::SquareSpiral->new;
@@ -76,34 +76,71 @@ sub dxdy_to_dir4_1 {
 
 
 #------------------------------------------------------------------------------
-# A027709 -- boundary length
+# A059924 Write the numbers from 1 to n^2 in a spiraling square; a(n) is the
+# total of the sums of the two diagonals.
 
-{
-  my @dir4_to_dx = (1,0,-1,0);
-  my @dir4_to_dy = (0,1,0,-1);
+MyOEIS::compare_values
+  (anum => 'A059924',
+   max_count => 1000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     for (my $n = 1; @got < $count; $n++) {
+       push @got, my_A059924($n);
+     }
+     return \@got;
+   });
 
-  sub path_n_to_dboundary {
-    my ($path, $n) = @_;
-    my ($x,$y) = $path->n_to_xy($n);
-    my $dboundary = 4;
-    foreach my $i (0 .. $#dir4_to_dx) {
-      my $an = $path->xy_to_n($x+$dir4_to_dx[$i], $y+$dir4_to_dy[$i]);
-      $dboundary -= 2*(defined $an && $an < $n);
+BEGIN {
+  my $path = Math::PlanePath::SquareSpiral->new;
+
+  # A059924 spirals inwards, use $square+1 - $t to reverse the path numbering
+  sub my_A059924 {
+    my ($n) = @_;
+    ### A059924(): $n
+    my $square = $n*$n;
+    ### $square
+    my $total = 0;
+    my ($x,$y) = $path->n_to_xy($square);
+    my $dx = ($x <= 0 ? 1 : -1);
+    my $dy = ($y <= 0 ? 1 : -1);
+    ### diagonal: "$x,$y dir $dx,$dy"
+    for (;;) {
+      my $t = $path->xy_to_n($x,$y);
+      ### $t
+      last if $t > $square;
+      $total += $square+1 - $t;
+      $x += $dx;
+      $y += $dy;
     }
-    return $dboundary;
+    $x -= $dx;
+    $y -= $dy * $n;
+    $dx = - $dx;
+    ### diagonal: "$x,$y dir $dx,$dy"
+    for (;;) {
+      my $t = $path->xy_to_n($x,$y);
+      ### $t
+      last if $t > $square;
+      $total += $square+1 - $t;
+      $x += $dx;
+      $y += $dy;
+    }
+    ### $total
+    return $total;
   }
 }
+
+#------------------------------------------------------------------------------
+# A027709 -- unit squares figure boundary
 
 MyOEIS::compare_values
   (anum => 'A027709',
    func => sub {
      my ($count) = @_;
      my $path = Math::PlanePath::SquareSpiral->new;
-     my @got;
-     my $boundary = 0;
+     my @got = (0);
      for (my $n = $path->n_start; @got < $count; $n++) {
-       push @got, $boundary;
-       $boundary += path_n_to_dboundary($path,$n);
+       push @got, $path->_NOTDOCUMENTED_n_to_figure_boundary($n);
      }
      return \@got;
    });

@@ -75,11 +75,14 @@ devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
 devel/l-tiling.pl
 devel/lib/Math/PlanePath/BalancedArray.pm
+devel/lib/Math/PlanePath/Base/NSEW.pm
 devel/lib/Math/PlanePath/BinaryTerms-oeis.t
 devel/lib/Math/PlanePath/BinaryTerms.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
 devel/lib/Math/PlanePath/four-replicate.pl
 devel/lib/Math/PlanePath/FourReplicate.pm
+devel/lib/Math/PlanePath/godfrey.pl
+devel/lib/Math/PlanePath/Godfrey.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
 devel/lib/Math/PlanePath/NxN.pm
 devel/lib/Math/PlanePath/NxNinv.pm
@@ -103,6 +106,8 @@ devel/lib/Math/PlanePath/WythoffPreliminaryTriangle-oeis.t
 devel/lib/Math/PlanePath/WythoffPreliminaryTriangle.pm
 devel/lib/Math/PlanePath/WythoffTriangle-oeis.t
 devel/lib/Math/PlanePath/WythoffTriangle.pm
+devel/lib/Math/PlanePath/z2-dragon.pl
+devel/lib/Math/PlanePath/Z2DragonCurve.pm
 devel/lib/Math/PlanePath/ZeckendorfTerms-oeis.t
 devel/lib/Math/PlanePath/ZeckendorfTerms.pm
 devel/lib/Math/square-radical.pl
@@ -503,9 +508,11 @@ xt/PlanePath-subclasses.t
 xt/pod-lists.t
 xt/slow/CCurve-slow.t
 xt/slow/CellularRule-slow.t
+xt/slow/ComplexMinus-slow.t
 xt/slow/DragonCurve-slow.t
 xt/slow/GcdRationals-slow.t
 xt/slow/NumSeq-PlanePathCoord.t
+xt/slow/R5DragonCurve-slow.t
 xtools/my-check-copyright-years.sh
 xtools/my-check-spelling.sh
 xtools/my-deb.sh

@@ -40,7 +40,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -91,13 +91,56 @@ sub x_negative {
 sub x_maximum {
   my ($self) = @_;
   return (($self->{'rule'} & 0x17) == 0         # single cell only
-          || ($self->{'rule'} & 0x5F) == 0x0E   # left line 2
           || $self->{'rule'}==70 || $self->{'rule'}==198
           || $self->{'rule'}==78
           || $self->{'rule'}==110
           || $self->{'rule'}==230
           ? 0
           : undef);
+}
+{
+  my @_UNDOCUMENTED__x_negative_at_n
+    = (
+       undef,     2, undef,     1, undef,     3, undef,     1,    # rule=0
+       undef,     3, undef,     1, undef,     4, undef,     1,    # rule=8
+       undef,     2, undef,     1, undef,     3,     1,     1,    # rule=16
+       undef,     2, undef,     1, undef,     4,     1,     1,    # rule=24
+       undef,     2, undef,     1, undef,     2, undef,     1,    # rule=32
+       undef,     3, undef,     1, undef,     2, undef,     1,    # rule=40
+       undef,     2, undef,     1, undef,     3, undef,     1,    # rule=48
+       undef, undef, undef,     1, undef,     3,     1,     1,    # rule=56
+       undef,     1, undef,     1, undef,     2,     1,     1,    # rule=64
+       undef,     1, undef,     1, undef,     2,     1,     1,    # rule=72
+       undef,     2, undef,     1, undef,     3,     1,     1,    # rule=80
+       undef,     2, undef,     1, undef,     3,     1,     1,    # rule=88
+       undef,     1, undef, undef, undef,     2, undef,     1,    # rule=96
+       undef,     1, undef,     1, undef,     2,     1,     1,    # rule=104
+       undef,     2, undef,     1, undef,     3,     1,     1,    # rule=112
+       undef,     2, undef,     1, undef,     3,     1,     1,    # rule=120
+       undef,     2, undef,     1, undef,     4, undef,     1,    # rule=128
+       undef,     5, undef,     1, undef,     7, undef,     1,    # rule=136
+       undef,     2, undef,     1, undef,     5,     1, undef,    # rule=144
+       undef,     2, undef,     1, undef,     6,     1, undef,    # rule=152
+       undef,     2, undef,     1, undef,     2, undef,     1,    # rule=160
+       undef,     6, undef,     1, undef,     2, undef,     1,    # rule=168
+       undef,     2, undef, undef, undef,     3,     1, undef,    # rule=176
+       undef,     2, undef,     1, undef,     3, undef, undef,    # rule=184
+       undef,     1, undef,     1, undef,     2,     1,     1,    # rule=192
+       undef,     1, undef,     1, undef,     2, undef,     1,    # rule=200
+       undef,     2, undef,     1, undef,     3,     1, undef,    # rule=208
+       undef,     2, undef,     1, undef,     3, undef, undef,    # rule=216
+       undef,     1, undef,     1, undef,     2,     1,     1,    # rule=224
+       undef,     1, undef,     1, undef,     2, undef,     1,    # rule=232
+       undef,     2, undef,     1, undef,     3, undef, undef,    # rule=240
+       undef,     2, undef,     1, undef,     3,                  # rule=248
+      );
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    my $_UNDOCUMENTED__x_negative_at_n = $_UNDOCUMENTED__x_negative_at_n[$self->{'rule'}];
+    return (defined $_UNDOCUMENTED__x_negative_at_n
+            ? $self->n_start + $_UNDOCUMENTED__x_negative_at_n
+            : undef);
+  }
 }
 
 sub y_maximum {
@@ -667,6 +710,42 @@ my @rule_to_class;
   }
 
   {
+    # left line 2  rule=14,46,142,174
+    # 111      any, doesn't occur
+    # 110 -> 0
+    # 101      any, doesn't occur
+    # 100 -> 0 initial
+    # 011 -> 1
+    # 010 -> 1 initial
+    # 001 -> 1 angle towards left
+    # 000 -> 0 for outsides
+    #
+    my $left_onetwo = [ 'Math::PlanePath::CellularRule::Two',
+                        align => 'left' ];
+    foreach my $i (0 .. 255) {
+      $store->(($i&0xA0)|0x0E, $left_onetwo);
+    }
+  }
+  {
+    # right line 2  rule=84,116,212,244
+    # 111      any, doesn't occur
+    # 110 -> 1
+    # 101      any, doesn't occur
+    # 100 -> 1 right, including initial
+    # 011 -> 0
+    # 010 -> 1 initial vertical
+    # 001 -> 0 not to left
+    # 000 -> 0 for outsides
+    # so (rule & 0x5F) == 0x54
+    #
+    my $right_onetwo = [ 'Math::PlanePath::CellularRule::Two',
+                        align => 'right' ];
+    foreach my $i (0 .. 255) {
+      $store->(($i&0xA0)|0x54, $right_onetwo);
+    }
+  }
+
+  {
     # solid every second cell, 50,58,114,122,178,186,242,250, 179
     # http://mathworld.wolfram.com/Rule250.html
     # 111      any, doesn't occur
@@ -1063,7 +1142,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 114;
+  $VERSION = 115;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1083,6 +1162,11 @@ sub _UNDOCUMENTED__rule_to_mirror {
 
   use constant class_y_negative => 0;
   use constant n_frac_discontinuity => .5;
+
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left' ? $self->n_start + 1 : undef);
+  }
 
   use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
 
@@ -1114,6 +1198,12 @@ sub _UNDOCUMENTED__rule_to_mirror {
     return $self->{'sign'}-1;
   }
   *ddiffxy_maximum = \&ddiffxy_minimum;
+
+  sub _UNDOCUMENTED__dxdy_list {
+    my ($self) = @_;
+    return ($self->{'sign'}, 1);
+  }
+  *_UNDOCUMENTED__dxdy_list_at_n = __PACKAGE__->can('n_start');
 
   #-----------------------------------------------------------
   my %align_to_sign = (left   => -1,
@@ -1159,9 +1249,12 @@ sub _UNDOCUMENTED__rule_to_mirror {
     return $self->{'sign'};
   }
   *dx_maximum = \&dx_minimum;  # same step always
-
   use constant dy_minimum => 1;
   use constant dy_maximum => 1;
+  sub dxdy_list {
+    my ($self) = @_;
+    return ($self->{'sign'}, 1);
+  }
 
   sub n_to_xy {
     my ($self, $n) = @_;
@@ -1248,7 +1341,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 114;
+  $VERSION = 115;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1264,6 +1357,10 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use constant class_y_negative => 0;
   use constant n_frac_discontinuity => .5;
 
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return $self->n_start + 1;
+  }
   use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
   use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
   use constant dx_maximum => 2;
@@ -1331,7 +1428,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 114;
+  $VERSION = 115;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1369,6 +1466,10 @@ sub _UNDOCUMENTED__rule_to_mirror {
     my ($self) = @_;
     return ($self->{'align'} eq 'left');
   }
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left' ? $self->n_start + 1 : undef);
+  }
   sub x_maximum {
     my ($self) = @_;
     return ($self->{'align'} eq 'left'
@@ -1377,42 +1478,69 @@ sub _UNDOCUMENTED__rule_to_mirror {
   }
 
   use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
-  sub sumxy_maximum {
-    my ($self) = @_;
-    return ($self->{'align'} eq 'left'
-            ? 1
-            : undef);
+  {
+    my %sumxy_maximum = (left => 1);
+    sub sumxy_maximum {
+      my ($self) = @_;
+      return $sumxy_maximum{$self->{'align'}};
+    }
   }
-  sub diffxy_minimum {
-    my ($self) = @_;
-    return ($self->{'align'} eq 'right'
-            ? -1
-            : undef);
+
+  {
+    my %diffxy_minimum = (right => -1);
+    sub diffxy_minimum {
+      my ($self) = @_;
+      return $diffxy_minimum{$self->{'align'}};
+    }
   }
   use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
 
-  sub dx_minimum {
-    my ($self) = @_;
-    return ($self->{'align'} eq 'left'
-            ? -2   # -2 or +1
-            : 0);  # 0 or +1
+  {
+    my %dx_minimum = (left  => -2,
+                      right => 0);
+    sub dx_minimum {
+      my ($self) = @_;
+      return $dx_minimum{$self->{'align'}};
+    }
   }
   use constant dx_maximum => 1;
   use constant dy_minimum => 0;
   use constant dy_maximum => 1;
+  {
+    my %_UNDOCUMENTED__dxdy_list = (left  => [ 1,0,    # E
+                                               -1,1,   # NW
+                                               -2,1 ], # WNW
+                                    right => [ 1,0,    # E
+                                               1,1,    # NE
+                                               0,1 ]); # N
+    sub _UNDOCUMENTED__dxdy_list {
+      my ($self) = @_;
+      return @{$_UNDOCUMENTED__dxdy_list{$self->{'align'}}};
+    }
+  }
+  {
+    my %_UNDOCUMENTED__dxdy_list_at_n = (left  => 2,
+                                         right => 2);
+    sub _UNDOCUMENTED__dxdy_list_at_n {
+      my ($self) = @_;
+      return $self->n_start + $_UNDOCUMENTED__dxdy_list_at_n{$self->{'align'}};
+    }
+  }
 
-  sub absdx_minimum {
-    my ($self) = @_;
-    return ($self->{'align'} eq 'left'
-            ? 1    # -2 or +1, so minimum abs is 1
-            : 0);  # 0 or +1, so minimum abs is 0
+  {
+    my %absdx_minimum = (left  => 1,   # -2 or +1, so minimum abs is 1
+                         right => 0);  # 0 or +1, so minimum abs is 0
+    sub absdx_minimum {
+      my ($self) = @_;
+      return $absdx_minimum{$self->{'align'}};
+    }
   }
 
   sub dsumxy_minimum {
     my ($self) = @_;
-    return ($self->{'sign'} < 0
-            ? -1   # left, ENE
-            : 1);  # right, N, going as a stairstep so always increase
+    return $self->{'sign'};
+    # ? -1   # left, ENE
+    # : 1);  # right, N, going as a stairstep so always increase
   }
   sub dsumxy_maximum {
     my ($self) = @_;
@@ -1530,6 +1658,237 @@ sub _UNDOCUMENTED__rule_to_mirror {
     $y2 += ($y2%2);
     return ($y1/2*3 + $self->{'n_start'},
             $y2/2*3 + $self->{'n_start'});
+  }
+}
+
+#------------------------------------------------------------------------------
+{
+  package Math::PlanePath::CellularRule::Two;
+  use strict;
+  use Carp;
+  use vars '$VERSION', '@ISA';
+  $VERSION = 115;
+  use Math::PlanePath;
+  @ISA = ('Math::PlanePath');
+  *_divrem = \&Math::PlanePath::_divrem;
+
+  use Math::PlanePath::Base::Generic
+    'is_infinite',
+      'round_nearest';
+
+  # left 2 cell line rule=14,46,142,174   sign=-1
+  #    **
+  #     **
+  #      **
+  #       *
+  #
+  # right 2 cell line rule=84,116,212,244   sign=1
+  # rule & 0x5F == 0x54
+  #      **
+  #     **
+  #    **
+  #    *
+  #
+  use constant parameter_info_array =>
+    [ { name        => 'align',
+        display     => 'Align',
+        type        => 'enum',
+        default     => 'left',
+        choices     => ['left','right'],
+      },
+      Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+    ];
+
+  use constant class_y_negative => 0;
+  use constant n_frac_discontinuity => .5;
+
+  sub x_negative {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left');
+  }
+  sub x_maximum {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left'
+            ? 0
+            : undef);
+  }
+  sub _UNDOCUMENTED__x_negative_at_n {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left' ? $self->n_start + 1 : undef);
+  }
+
+  use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+  {
+    my %sumxy_maximum = (left => 1);
+    sub sumxy_maximum {
+      my ($self) = @_;
+      return $sumxy_maximum{$self->{'align'}};
+    }
+  }
+
+  {
+    my %diffxy_minimum = (right => -1);
+    sub diffxy_minimum {
+      my ($self) = @_;
+      return $diffxy_minimum{$self->{'align'}};
+    }
+  }
+  use constant diffxy_maximum => 0;
+
+  {
+    my %dx_minimum = (left  => -2,
+                      right => 0);
+    sub dx_minimum {
+      my ($self) = @_;
+      return $dx_minimum{$self->{'align'}};
+    }
+  }
+  use constant dx_maximum => 1;
+  use constant dy_minimum => 0;
+  use constant dy_maximum => 1;
+  {
+    my %_UNDOCUMENTED__dxdy_list = (left  => [ 1,0,   # E
+                                               -1,1,  # NW at N=1
+                                               -2,1,  # WNW
+                                             ],
+                                    right => [ 1,0,  # E
+                                               0,1,  # N
+                                             ]);
+    sub _UNDOCUMENTED__dxdy_list {
+      my ($self) = @_;
+      return @{$_UNDOCUMENTED__dxdy_list{$self->{'align'}}};
+    }
+  }
+  {
+    my %_UNDOCUMENTED__dxdy_list_at_n = (left  => 2,
+                                         right => 1);
+    sub _UNDOCUMENTED__dxdy_list_at_n {
+      my ($self) = @_;
+      return $self->n_start + $_UNDOCUMENTED__dxdy_list_at_n{$self->{'align'}};
+    }
+  }
+
+  {
+    my %absdx_minimum = (left  => 1,   # -2 or +1, so minimum abs is 1
+                         right => 0);  # 0 or +1, so minimum abs is 0
+    sub absdx_minimum {
+      my ($self) = @_;
+      return $absdx_minimum{$self->{'align'}};
+    }
+  }
+
+  # left  => -1,  # WNW dX=-2,dY=1
+  # right => 1;   # N or E
+  sub dsumxy_minimum {
+    my ($self) = @_;
+    return $self->{'sign'};
+  }
+  use constant dsumxy_maximum => 1; # E for left, or N or E for right
+
+  sub ddiffxy_minimum {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0
+            ? -3   # left, ENE
+            : -1);  # right, N, going as a stairstep so always increase
+  }
+  sub ddiffxy_maximum {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0
+            ? 1   # left, East
+            : 1); # right, NE diagonal
+  }
+
+  sub dir_maximum_dxdy {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left'
+            ? (-2,1)
+            : (0,1)); # North
+  }
+
+  #---------------------------------------------
+  my %align_to_sign = (left  => -1,
+                       right => 1);
+  sub new {
+    my $self = shift->SUPER::new (@_);
+    if (! defined $self->{'n_start'}) {
+      $self->{'n_start'} = $self->default_n_start;
+    }
+    $self->{'align'} ||= 'left';
+    $self->{'sign'} = $align_to_sign{$self->{'align'}}
+      || croak "Unrecognised align parameter: ",$self->{'align'};
+    return $self;
+  }
+
+  # N=-.5 X=-.5, Y=0
+  # N=0   X=0,   Y=0
+  # N=.49 X=.49, Y=0
+  #
+  # N=.5  X=-.5, Y=1    2N=1    Y=(2N+3)/4
+  # N=1   X=0,   Y=1            X=
+  # N=2   X=1,   Y=1
+  # N=2.4 X=1.4, Y=1
+  #
+  # N=2.5  X=-.5, Y=2   2N=5
+  # N=3    X=0,   Y=2
+  # N=4    X=1,   Y=2
+  # N=4.4  X=1.4, Y=2
+  #
+  sub n_to_xy {
+    my ($self, $n) = @_;
+    ### CellularRule-Two n_to_xy(): $n
+
+    $n = 2*($n - $self->{'n_start'});  # to N=0 basis, and warn if $n undef
+    if ($n < -1) { return; }
+    
+    my ($y, $x) = _divrem ($n+3, 4);
+    if ($y == 0) { $x += $self->{'sign'} - 1; }
+    return (($x - $self->{'sign'} - 2)/2 + $y*$self->{'sign'},
+            $y);
+  }
+
+  sub xy_to_n {
+    my ($self, $x, $y) = @_;
+    ### CellularRule-Two xy_to_n(): "$x,$y"
+
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
+    if ($y < 0) { return undef; }
+    if (is_infinite($y)) { return $y; }
+
+    if ($self->{'align'} eq 'left') {
+      $x += $y;
+      if ($y) { $x -= 1; }
+    } else {
+      $x -= $y;
+    }
+    if ($x < ($y ? -1 : 0) || $x > 0) {
+      return undef;
+    }
+
+    return 2*$y + $x + $self->{'n_start'};
+  }
+
+  # not exact
+  sub rect_to_n_range {
+    my ($self, $x1,$y1, $x2,$y2) = @_;
+    ### CellularRule-Two rect_to_n_range() ...
+
+    $x1 = round_nearest ($x1);
+    $y1 = round_nearest ($y1);
+    $x2 = round_nearest ($x2);
+    $y2 = round_nearest ($y2);
+    if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
+    if ($y2 < 0) {
+      return (1, 0);
+    }
+    if ($y1 < 0) { $y1 *= 0; }
+    ### $y1
+    ### $y2
+
+    if (is_infinite($y1)) { return (1, $y1); }
+    if (is_infinite($y2)) { return (1, $y2); }
+    return (2*$y1 + $self->{'n_start'} - ($y1 == 0 ? 0 : 1),
+            2*$y2 + $self->{'n_start'});
   }
 }
 

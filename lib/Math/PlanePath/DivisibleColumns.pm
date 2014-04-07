@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -44,7 +44,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 114;
+$VERSION = 115;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -64,13 +64,16 @@ use constant parameter_info_array =>
       default   => 'all',
       description => 'Divisor type, with "proper" meaning divisors d<X, so excluding d=X itself.',
     },
-    { name        => 'n_start',
-      share_key   => 'n_start_0',
-      type        => 'integer',
-      default     => 0,
-      width       => 3,
-      description => 'Starting N.',
-    },
+    # { name        => 'direction',
+    #   share_key   => 'direction_updown',
+    #   display     => 'Direction',
+    #   type        => 'enum',
+    #   default     => 'up',
+    #   choices     => ['up','down'],
+    #   choices_display => ['Down','Up'],
+    #   description => 'Number points upwards or downwards in the columns.',
+    # },
+    Math::PlanePath::Base::Generic::parameter_info_nstart0(),
   ];
 
 use constant default_n_start => 0;
@@ -101,8 +104,12 @@ use constant dir_maximum_dxdy => (1,-1); # South-East
 
 sub new {
   my $self = shift->SUPER::new (@_);
+
   my $divisor_type = ($self->{'divisor_type'} ||= 'all');
-  $self->{'proper'} = ($divisor_type eq 'proper');
+  $self->{'proper'} = ($divisor_type eq 'proper');  # bool
+
+  $self->{'direction'} ||= 'up';
+
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
@@ -245,22 +252,11 @@ sub xy_is_visited {
   my ($self, $x, $y) = @_;
   $x = round_nearest ($x);
   $y = round_nearest ($y);
-  if ($self->{'proper'}) {
-    if ($x < 2
-        || $y < 1
-        || $y > int($x/2)
-        || ($x%$y)) {
-      return 0;
-    }
-  } else {
-    if ($x < 1
-        || $y < 1
-        || $y > $x
-        || ($x%$y)) {
-      return 0;
-    }
-  }
-  return 1;
+  return ($y >= 1
+          && ($self->{'proper'}
+              ? $x >= 2 && $y <= int($x/2)
+              : $x >= 1 && $y <= $x)
+          && ($x%$y) == 0);
 }
 
 sub xy_to_n {
@@ -562,7 +558,7 @@ L<http://user42.tuxfamily.org/math-planepath/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012, 2013 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
