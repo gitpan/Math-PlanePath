@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -59,6 +59,7 @@ use Math::PlanePath::Base::Digits
   'round_down_pow',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
+use Math::PlanePath::Base::NSEW;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -95,7 +96,7 @@ sub dx_maximum {
 sub _UNDOCUMENTED__dxdy_list {
   my ($self) = @_;
   return ($self->{'radix'} % 2
-          ? Math::PlanePath::_UNDOCUMENTED__dxdy_list_four()
+          ? Math::PlanePath::Base::NSEW->_UNDOCUMENTED__dxdy_list
           : ());   # even, unlimited
 }
 #  *---  b^2-1 -- b^2 ---- b^2+b-1 = (b+1)b-1

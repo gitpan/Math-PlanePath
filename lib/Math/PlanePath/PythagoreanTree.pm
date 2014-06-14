@@ -35,7 +35,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 *_divrem = \&Math::PlanePath::_divrem;
 @ISA = ('Math::PlanePath');
@@ -1221,7 +1221,7 @@ Math::PlanePath::PythagoreanTree -- primitive Pythagorean triples by tree
 This path enumerates primitive Pythagorean triples by a breadth-first
 traversal of one of three ternary trees,
 
-    "UAD"    Berggren, and others
+    "UAD"    Berggren, Barning, Hall, et al
     "FB"     Price
     "UMT"    a third form
 

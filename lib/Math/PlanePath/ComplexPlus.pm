@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -79,12 +79,12 @@ use constant parameter_info_array =>
 
 # b=i+r
 # theta = atan(1/r)
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   if ($self->{'realpart'} == 1) { return 8; }
   return $self->{'norm'} ** _ceil((2*atan2(1,1)) / atan2(1,$self->{'realpart'}));
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   if ($self->{'realpart'} == 1) { return 32; }
   return $self->{'norm'} ** _ceil((4*atan2(1,1)) / atan2(1,$self->{'realpart'}));
@@ -326,7 +326,7 @@ example
      0  1  2  3  4                                   <- Y=0
 
      ^
-    X=0 1  2  3  4  5  6  7  8  9 10
+    X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
 
 N is broken into digits of a base norm=r*r+1, ie. digits 0 to r*r inclusive.
 

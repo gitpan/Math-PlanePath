@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 116, June 2014
+    - new WythoffPreliminaryTriangle
+    - new methods is_tree(), x_negative_at_n(), y_negative_at_n()
+
 Version 115, March 2014
     - CoprimeColumns new parameter direction=down
     - MPeaks new parameter n_start

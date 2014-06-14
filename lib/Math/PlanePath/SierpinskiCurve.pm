@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -91,11 +91,11 @@ use constant parameter_info_array =>
 #      =  4^level / (9*4^(level-1)
 #      =  4/9 = 0.444
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->arms_count >= 3 ? 2 : undef;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->arms_count >= 5 ? 4 : undef;
 }

@@ -52,7 +52,7 @@ sub want_planepath {
   # return 0 unless $planepath =~ /DiagonalRationals/;
   # return 0 unless $planepath =~ /FactorRationals/;
   # return 0 unless $planepath =~ /MultipleRings/;
-   return 0 unless $planepath =~ /Anvil/;
+  # return 0 unless $planepath =~ /Anvil/;
   return 1;
 }
 sub want_coordinate {
@@ -403,6 +403,13 @@ my @modules = (
                # 'FourReplicate',
 
                # module list begin
+
+               'WythoffPreliminaryTriangle',
+               'WythoffArray',
+               'WythoffArray,x_start=1',
+               'WythoffArray,y_start=1',
+               'WythoffArray,x_start=1,y_start=1',
+               'WythoffArray,x_start=5,y_start=7',
 
                'MPeaks',
                'MPeaks,n_start=0',
@@ -863,12 +870,6 @@ my @modules = (
                'PowerArray',
                'PowerArray,radix=3',
                'PowerArray,radix=4',
-
-               'WythoffArray',
-               'WythoffArray,x_start=1',
-               'WythoffArray,y_start=1',
-               'WythoffArray,x_start=1,y_start=1',
-               'WythoffArray,x_start=5,y_start=7',
 
                '*ToothpickTree',
                '*ToothpickTree,parts=1',

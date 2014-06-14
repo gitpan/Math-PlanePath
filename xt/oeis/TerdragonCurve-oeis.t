@@ -30,7 +30,7 @@ use MyOEIS;
 use Math::PlanePath::TerdragonCurve;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
 
 my $path = Math::PlanePath::TerdragonCurve->new;
@@ -47,6 +47,85 @@ sub ternary_digit_above_low_zeros {
 }
 
 #------------------------------------------------------------------------------
+# A092236 etc counts of segments in direction
+
+foreach my $elem ([1, 'A057083', [],  1],
+                  [0, 'A092236', [],  0],
+                  [1, 'A135254', [0], 0],
+                  [2, 'A133474', [0], 0]) {
+  my ($dir, $anum, $initial_got, $offset_3k) = @$elem;
+  MyOEIS::compare_values
+      (anum => $anum,
+       max_value => 9,
+       func => sub {
+         my ($count) = @_;
+         my @got = @$initial_got;
+         my $n = $path->n_start;
+         my $total = 0;
+         my $k = 2*$offset_3k;
+         while (@got < $count) {
+           ### @got
+           my $n_end = 3**$k;
+           for ( ; $n < $n_end; $n++) {
+             $total += (dxdy_to_dir3($path->n_to_dxdy($n)) == $dir);
+           }
+           if ($offset_3k) {
+             push @got, $total - 3**($k-1);
+           } else {
+             push @got, $total;
+           }
+           $k++;
+         }
+         return \@got;
+       });
+}
+
+sub dxdy_to_dir3 {
+  my ($dx,$dy) = @_;
+  if ($dx == 2 && $dy == 0) {
+    return 0;
+  }
+  if ($dx == -1) {
+    if ($dy == 1) {
+      return 1;
+    }
+    if ($dy == -1) {
+      return 2;
+    }
+  }
+  return undef;
+}
+
+#------------------------------------------------------------------------------
+# A111286 boundary length is 2 then 3*2^k for points N <= 3^k
+MyOEIS::compare_values
+  (anum => 'A111286',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($path, 3**$k,
+                                                lattice_type => 'triangular');
+     }
+     return \@got;
+   });
+
+
+# A007283 boundary length is 3*2^k for points N <= 3^k
+MyOEIS::compare_values
+  (anum => 'A007283',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (3); # path initial boundary=2 vs bvalues=3
+     for (my $k = 1; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($path, 3**$k,
+                                                lattice_type => 'triangular');
+     }
+     return \@got;
+   });
+
 # A164346 boundary even powers, is 3*4^n
 # also one side, odd powers
 MyOEIS::compare_values
@@ -103,20 +182,40 @@ MyOEIS::compare_values
      return \@got;
    });
 
-# A007283 boundary length is 3*2^k for points N <= 3^k
+
+#------------------------------------------------------------------------------
+# A003945   R[k] boundary length
+
 MyOEIS::compare_values
-  (anum => 'A007283',
+  (anum => 'A003945',
    max_value => 10_000,
    func => sub {
      my ($count) = @_;
-     my @got = (3); # path initial boundary=2 vs bvalues=3
-     for (my $k = 1; @got < $count; $k++) {
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
        push @got, MyOEIS::path_boundary_length ($path, 3**$k,
+                                                side => 'right',
                                                 lattice_type => 'triangular');
      }
      return \@got;
    });
 
+#------------------------------------------------------------------------------
+# A042950   V[k] boundary length
+
+MyOEIS::compare_values
+  (anum => 'A042950',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length ($path, 2 * 3**$k,
+                                                side => 'left',
+                                                lattice_type => 'triangular');
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A118004 1/2 enclosed area odd levels points N <= 3^(2k+1), is 9^k-4^k

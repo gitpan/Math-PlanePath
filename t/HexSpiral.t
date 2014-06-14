@@ -33,7 +33,7 @@ require Math::PlanePath::HexSpiral;
 # VERSION
 
 {
-  my $want_version = 115;
+  my $want_version = 116;
   ok ($Math::PlanePath::HexSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexSpiral->VERSION,  $want_version,
@@ -82,7 +82,7 @@ require Math::PlanePath::HexSpiral;
 #          /     /              \     \
 #        30    14     4 --- 3    10    23            1
 #       /     /     /         \     \    \
-#     31    15     5     1 --- 2     9    22    <- y=0
+#     31    15     5     1 --- 2     9    22    <- Y=0
 #       \     \     \              /     /
 #        32    16     6 --- 7 --- 8    21           -1
 #          \     \                    /
@@ -91,7 +91,7 @@ require Math::PlanePath::HexSpiral;
 #              34 -- 35 ...                         -3
 # 
 #      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
-#     -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6
+#     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
 {
   my @data = ([ 1, 0,0 ],

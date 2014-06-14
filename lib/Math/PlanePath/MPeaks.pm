@@ -24,7 +24,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,7 +39,7 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start;
 }

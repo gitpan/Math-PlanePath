@@ -48,7 +48,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -74,21 +74,21 @@ use constant parameter_info_array =>
   ];
 
 {
-  my %_UNDOCUMENTED__x_negative_at_n = (all  => 3,
-                                        even => 2,
-                                        odd  => 2);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my %x_negative_at_n = (all  => 3,
+                         even => 2,
+                         odd  => 2);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $self->n_start + $_UNDOCUMENTED__x_negative_at_n{$self->{'points'}};
+    return $self->n_start + $x_negative_at_n{$self->{'points'}};
   }
 }
 {
-  my %_UNDOCUMENTED__y_negative_at_n = (all  => 4,
+  my %y_negative_at_n = (all  => 4,
                                         even => 3,
                                         odd  => 3);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $self->n_start + $_UNDOCUMENTED__y_negative_at_n{$self->{'points'}};
+    return $self->n_start + $y_negative_at_n{$self->{'points'}};
   }
 }
 sub rsquared_minimum {

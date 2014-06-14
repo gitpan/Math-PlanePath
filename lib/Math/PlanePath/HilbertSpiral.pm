@@ -21,9 +21,11 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -40,19 +42,8 @@ use Math::PlanePath::BetaOmega 52;
 
 use constant n_start => 0;
 use constant xy_is_visited => 1;
-
-use constant _UNDOCUMENTED__x_negative_at_n => 4;
-use constant _UNDOCUMENTED__y_negative_at_n => 8;
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
+use constant x_negative_at_n => 4;
+use constant y_negative_at_n => 8;
 
 
 #------------------------------------------------------------------------------

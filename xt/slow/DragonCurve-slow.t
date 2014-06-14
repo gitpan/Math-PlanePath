@@ -36,6 +36,34 @@ use MyOEIS;
 use Memoize;
 use Math::PlanePath::DragonCurve;
 my $path = Math::PlanePath::DragonCurve->new;
+my $midpath = Math::PlanePath::DragonMidpoint->new;
+
+
+#------------------------------------------------------------------------------
+# MB = midpoint square figures boundary
+
+{
+  my @want = (4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, 1202); # per POD
+  foreach my $k (0 .. $#want) {
+    my $got = MB_from_path($path,$k);
+    ok ($want[$k],$got);
+  }
+}
+
+{
+  # MB[k] = B[k] + 4
+  foreach my $k (0 .. 10) {
+    my $mb = MB_from_path($path,$k);
+    my $b2 = B_from_path($path,$k) + 4;
+    ok ($mb,$b2, "k=$k");
+  }
+}
+
+sub MB_from_path {
+  my ($path, $k) = @_;
+  return MyOEIS::path_n_to_figure_boundary($midpath, 2**$k-1);
+}
+BEGIN { memoize('MB_from_path'); }
 
 
 #------------------------------------------------------------------------------

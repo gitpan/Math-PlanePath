@@ -30,13 +30,15 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'round_nearest';
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -44,18 +46,8 @@ use Math::PlanePath::Base::Generic
 
 use constant arms_count => 4;
 use constant xy_is_visited => 1;
-use constant _UNDOCUMENTED__x_negative_at_n => 4;
-use constant _UNDOCUMENTED__y_negative_at_n => 5;
-use constant dx_minimum => -1;  # NSEW
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
+use constant x_negative_at_n => 4;
+use constant y_negative_at_n => 5;
 
 
 #------------------------------------------------------------------------------

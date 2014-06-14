@@ -84,7 +84,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -162,11 +162,11 @@ use constant parameter_info_array =>
    },
   ];
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return int(.25 / $self->{'rotation_factor'}) + 1;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return int(.5 / $self->{'rotation_factor'}) + 1;
 }

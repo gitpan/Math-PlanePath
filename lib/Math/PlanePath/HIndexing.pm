@@ -59,10 +59,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
+
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -70,23 +72,14 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'round_down_pow',
   'digit_split_lowtohigh';
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant diffxy_maximum => 0; # upper octant X<=Y so X-Y<=0
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 use constant _UNDOCUMENTED__dxdy_list_at_n => 9;
-use constant dsumxy_minimum => -1; # NSEW only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------

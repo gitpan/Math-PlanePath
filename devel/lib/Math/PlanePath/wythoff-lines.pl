@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2013 Kevin Ryde
+# Copyright 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -41,6 +41,6 @@ use Math::PlanePath::WythoffLines;
     push @values, Math::PlanePath::WythoffLines::_calc_minimum($shift);
   }
   print join(',',@values),"\n";
-  print MyOEIS->grep_for_values_aref(\@values);
+  Math::OEIS::Grep->search(array=>\@values);
   exit 0;
 }

@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,8 +50,8 @@ use Math::PlanePath::SacksSpiral;
 
 
 use constant n_frac_discontinuity => 0;
-use constant _UNDOCUMENTED__x_negative_at_n => 3;
-use constant _UNDOCUMENTED__y_negative_at_n => 5;
+use constant x_negative_at_n => 3;
+use constant y_negative_at_n => 5;
 use constant sumabsxy_minimum => 2; # minimum X=2,Y=0 or X=1,Y=1
 use constant rsquared_minimum => 2; # minimum X=1,Y=1
 

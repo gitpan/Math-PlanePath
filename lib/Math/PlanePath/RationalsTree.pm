@@ -15,6 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# SB,CW N with same X,Y is those N which are palindromes below high 1-bit
+# as noted Claudio Bonanno and Stefano Isola, ``Orderings of the Rationals
+# and Dynamical Systems'', May 16, 2008.
+# cf A006995 binary palindromes, so always odd
+#    A178225 characteristic of binary palindromes
+#    A048700 binary palindromes odd length
+#    A048701 binary palindromes even length
+# A044051 binary palindromes (B+1)/2, B odd so B+1 even
+# A044051-1 = (B-1)/2 strips low 1-bit to be palindromes below high 1-bit
+
 # Boyko B. Bantchev, "Fraction Space Revisited"
 # http://www.math.bas.bg/bantchev/articles/fractions.pdf
 
@@ -134,7 +145,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -642,7 +653,14 @@ representation of X/Y.
 
 The SB, CW, AYT, HCS, Bird and Drib trees all have the same set of X/Y
 rationals in a row, but in a different order due to different encodings of
-the N value.  The L tree has a shift which visits 0/1 too.
+the N value.  See the author's mathematical write-up for a proof that these
+are the only trees with a fixed set of matrices.
+
+=over
+
+L<http://user42.tuxfamily.org/rationals/index.html>
+
+=back
 
 The bit runs mean that N values are quite large for relatively modest sized
 rationals.  For example in the SB tree 167/3 is N=288230376151711741, a
@@ -718,71 +736,6 @@ from the root 0=left then twice 1=right to reach X/Y=3/4 at N=11 decimal.
 
 =pod
 
-=head2 Stern-Brocot Turn Sequence
-
-Since each row is fractions of increasing value the path goes from the Y
-axis across and down to the X.  Each row is further from the origin than the
-previous row and doesn't intersect any other row.  The X/(X+Y) first half is
-an upward "shear" of the X,Y points in the previous row.  The second half
-(X+Y)/Y is a shear to the right.  For example,
-
-                                N=8 to N=11
-                               previous row
-                               sheared up X,X+Y
-      depth=2 N=4to7
-    |                     |      9--10      .     depth=3 N=8to15
-    |                     |    /     |    .
-    |                     |  8      11  .
-    |                     |           .
-    |  4---5              |         .   12--13    N=12 to N=15
-    |        \            |       .          |    previous row
-    |          6          |     .           14    sheared right
-    |          |          |   .            /      as X+Y,Y
-    |          7          |             15
-    |                     |
-    +---------------      +----------------
-
-The sequence of turns left or right is unchanged by the shears.  So at N=5
-the path turns towards the right and this is unchanged in the sheared copies
-at N=9 and N=13.  The angle of the turn is different, but it's still to the
-right.
-
-The first and last points of each row are always a turn to the right.  For
-example the turn at N=4 (going N=3 to N=4 to N=5) is to the right, and
-likewise at N=7.  This is because the second point in the row such as N=5 is
-above a 45-degree line down from N=4, and similarly the second last such as
-N=6 (since the row is symmetric).
-
-The middle two points in each row for depthE<gt>=3 are always a turn to the
-left.  For example N=11 and N=12 shown above are the first such middle pair
-and both turn to the left.  The middle two are transposes across the leading
-diagonal and so make a 45-degree line.  The second-from-middle points are
-above that line (N=10 and N=13).
-
-The middle left turns are copied into successive rows and the result is a
-repeating pattern "LRRL" except for the first and last in the row which are
-always right instead of left.  So,
-
-    RRRL,LRRL,LRRL,LRRL,LRRL,LRRL,LRRL,LRRR   # row N=32 to N=63
-
-    condition                        turn
-    ---------                        ----
-    if N=3                           left
-    otherwise if N=2^k or N=2^k-1    right  # first and last of row
-    otherwise if N=0 mod 4           left   # LRRL pattern
-                 N=1 mod 4           right
-                 N=2 mod 4           right
-                 N=3 mod 4           left
-
-Pairs N=2m-1 and N=2m can be treated together by taking ceil(N/2),
-
-    if N=3                             left
-    otherwise if Nhalf=2^k             right
-
-    otherwise if Nhalf=0 mod 2         left
-                 Nhalf=1 mod 2         right
-    where Nhalf = ceil(N/2)
-
 =head2 Stern-Brocot Mediant
 
 Writing the parents between the children as an "in-order" tree traversal to
@@ -805,6 +758,12 @@ New values at the next level of this flattening are a "mediant"
 (1+3)/(1+2)=4/3.  At the left end a preceding 0/1 is imagined.  At the right
 end a following 1/0 is imagined, so as to have 1/(depth+1) and (depth+1)/1
 at the ends for a total 2^depth many new values.
+
+The turn sequence left or right along the row depth E<gt>= 2 is by a
+repeating LRRL pattern, except the first and last are always R.  (See the
+author's mathematical write-up for details.)
+
+    RRRL,LRRL,LRRL,LRRL,LRRL,LRRL,LRRL,LRRR   # row N=32 to N=63
 
 =head2 Calkin-Wilf Tree
 
@@ -909,20 +868,20 @@ calculate the SB tree by taking the bits of N from low to high instead.
 See also L<Math::PlanePath::ChanTree> for a generalization of CW to ternary
 or higher trees, ie. descending to 3 or more children at each node.
 
-=head2 Andreev and Yu-Ting Tree
+=head2 Yu-Ting and Andreev Tree
 
 X<Andreev, D.N.>X<Yu-Ting, Shen>C<tree_type=E<gt>"AYT"> selects the tree
-described (independently is it?) by Andreev and Yu-Ting.
+described independently by Yu-Ting and Andreev.
 
 =over
-
-D. N. Andreev, "On a Wonderful Numbering of Positive Rational Numbers",
-Matematicheskoe Prosveshchenie, Ser. 3, 1, 1997, pages 126-134
-L<http://mi.mathnet.ru/mp12>
 
 Shen Yu-Ting, "A Natural Enumeration of Non-Negative Rational Numbers
 -- An Informal Discussion", American Mathematical Monthly, 87, 1980,
 pages 25-29.  L<http://www.jstor.org/stable/2320374>
+
+D. N. Andreev, "On a Wonderful Numbering of Positive Rational Numbers",
+Matematicheskoe Prosveshchenie, Ser. 3, 1, 1997, pages 126-134
+L<http://mi.mathnet.ru/mp12>
 
 =back
 
@@ -1113,134 +1072,14 @@ single group of bits N=1000..000.
 N=1,3,6,12,etc in the column X=1 are 3*2^(Y-1) corresponding to continued
 fraction S<0 + 1/Y> so terms 0,Y making runs 1,Y-1 and so bits N=11000...00.
 
-=head2 HCS Turn Sequence
-
 X<Thue-Morse>The turn sequence left or right following successive X,Y points
-is the Thue-Morse sequence.
+is the Thue-Morse sequence.  A proof of this can be found in the author's
+mathematical write-up (above).
 
     count 1-bits in N+1      turn at N
     -------------------      ---------
            odd                 right
            even                left
-
-This works because each row is two copies of the preceding.  The first copy
-is (X+Y)/Y so just a shear.  This is N=10xxxxx introducing a 0-bit at the
-top of N and so count 1-bits unchanged.  The second copy is Y/(X+Y) so a
-shear and then transpose.  This is N=11xxxxx introducing a further 1-bit at
-the top of N and transpose changes turns leftE<lt>-E<gt>right.
-
-For the last point of a row and the first of the next the points are
-
-                    N binary
-                    --------
-    second last       11110     Lucas     L[n]/L[n+1] eg. 4/7
-    last              11111     Fibonacci F[n]/F[n+1] eg. 8/13
-    first            100000     d+1 / 1               eg. 6/1
-    second           100001     2d-1 / 2              eg. 9/2
-
-The second last of a row 11110 is a pair of Lucas numbers and the last of a
-row 11111 is a pair of Fibonacci numbers bigger than those Lucas numbers.
-Plotting the examples shows the layout,
- 
-    13 |                __*  Fib 
-       |             __/  /  [Right]
-       |          __/    /
-       |         /      /
-     7 |        *       /
-       |      Luc      /
-       |              /
-     2 |              /  ___* 2nd
-     1 |         1st *---
-       |        [Left]
-       +--------------------------
-                4    6    8 9
-
-The Lucas and Fibonacci pairs are both on a slope roughly Y=X*phi for
-phi=(1+sqrt(5))/2 the golden ratio.  The first and second points of the next
-row are then off towards X=d+1 and hence a right turn at the last of the row
-and it corresponds to N+1 = binary "100000" having an odd number of 1-bits
-(a single 1-bit).  Then at the first of the next row the turn is left
-corresponding to N=1 = binary "100001" having an even number of 1-bits (two
-1-bits).
-
-The cases for the middle of a row, where the two copies of the previous row
-meet, behave similarly,
-
-    middle prev     1011110    Lucas     L[n+1]/L[n]
-    middle end      1011111    Fibonacci F[n+1]/F[n]
-    middle first    1100000    1 / d+1
-    middle second   1100001    2 / 2d-1
-
-These points are like a transpose of the first/last shown above, though the
-Lucas and Fibonacci pairs are one step further on.  The "middle end" 1011111
-turns to the right, corresponding to N+1=1100000 having even 1-bits, and
-then at the "middle first" 1100000 turn left corresponding to N+1=1100001
-having odd 1-bits.
-
-=cut
-
-#       X/Y              low to high
-#     /     \
-# (X+Y)/Y  Y/(X+Y)
-
-#         d=0    d=1    d=2    d=3    d=4    d=5
-#  11110  1/1 -> 2/1 -> 1/3 -> 3/4 -> 4/7           Ld / Ld+1
-#  11111  1/1 -> 1/2 -> 2/3 -> 3/5 -> 5/8           Fd / Fd+1       R
-# 100000  1/1 -> 2/1 -> 3/1 -> 4/1 -> 5/1 -> 6/1    d+1+1 / 1       L
-# 100001  1/1 -> 1/2 -> 3/2 -> 5/2 -> 7/2 -> 9/2    2(d+1)-1 / 2
-
-# 101110  1/1 -> 2/1 -> 1/3 -> 3/4 -> 4/7 -> 11/7   Ld+1 / Ld
-# 101111  1/1 -> 1/2 -> 2/3 -> 3/5 -> 5/8 -> 13/8   Fd+1 / Fd       R
-# 110000  1/1 -> 2/1 -> 3/1 -> 4/1 -> 5/1 -> 1/6    1 / d+1         L
-# 110001  1/1 -> 1/2 -> 3/2 -> 5/2 -> 7/2 -> 2/9    2 / 2d-1
-
-# 9                               9    d
-# 8              b                8                                   b
-# 7           a  R                7  L                          a     R
-# 6                               6  c
-# 5                               5
-# 4                               4
-# 3                               3
-# 2                 L     d       2
-# 1                 c             1
-#    1  2  3  4  5  6  7  9          1  2  3  4  5  6  7  9 10 11 12 13
-
-#  1111110  1/1 -> 2/1 -> 1/3 -> 3/4 -> 4/7 -> 7/11 -> 11/18      Ld / Ld+1
-#  1111111  1/1 -> 1/2 -> 2/3 -> 3/5 -> 5/8 -> 8,13 -> 13/21      Fd / Fd+1
-#
-# L[d+2] = 2*F[d] + F[d+1]
-# L[d] = 2*F[d-2] + F[d-1]
-#      = 2*(F[d]-F[d-1]) + F[d-1]
-#      = 2*F[d] - 2*F[d-1] + F[d-1]
-#      = - F[d-1] + 2*F[d]                       -8+2*13=18
-#      = - (F[d+1]-F[d]) + 2*F[d]
-#      = - F[d+1] + F[d] + 2*F[d]
-#      = 3*F[d] - F[d+1]
-#      = 3*(F[d+2]-F[d+1]) - F[d+1]
-#      = 3*F[d+2] - 3*F[d+1] - F[d+1]
-#      = -4*F[d+1] + 3*F[d+2]
-# L[d]   = -4*F[d] + 3*F[d+1]                   -4*13 + 3*21 = 11
-# L[d+1] = 3*F[d] - F[d+1]                        3*13 - 21 = 18
-# L[d+1] = - F[d] + 2*F[d+1]                     -13 + 2*21
-#
-# F[d]-L[d] = F[d] - (-4*F[d] + 3*F[d+1])
-#           = F[d] + 4*F[d] - 3*F[d+1]
-#           = 5*F[d] - 3*F[d+1]                  dX = 5*13 - 3*21 = 2
-# F[d+1]-L[d+1] = F[d+1] - (3*F[d] - F[d+1])
-#               = F[d+1] - 3*F[d] + F[d+1]
-#               = -3*F[d] + 2*F[d+1]            dY = -3*13+2*21 = 3
-#               = -3*F[d] + 2*(F[d-1]+F[d])
-#               = -3*F[d] + 2*F[d-1] + 2*F[d]
-#               = -F[d] + 2*F[d-1]
-#               = -(F[d-2]+F[d-1]) + 2*F[d-1]
-#               = - F[d-2] - F[d-1] + 2*F[d-1]
-#               = - F[d-2] + F[d-1]
-#               = - F[d-2] + F[d-3] + F[d-2]
-#               = F[d-3]
-# dX = F[d-4]
-# dY = F[d-3]
-
-=pod
 
 =head2 Bird Tree
 
@@ -1581,7 +1420,7 @@ Create and return a new path object.  C<tree_type> (a string) can be
 
     "SB"      Stern-Brocot
     "CW"      Calkin-Wilf
-    "AYT"     Andreev, Yu-Ting
+    "AYT"     Yu-Ting, Andreev
     "HCS"
     "Bird"
     "Drib"
@@ -1672,6 +1511,12 @@ Return false, since there are no leaf nodes in the tree.
 
 =back
 
+=cut
+
+# =head1 FORMULAS
+
+=pod
+
 =head1 OEIS
 
 The trees are in Sloane's Online Encyclopedia of Integer Sequences in
@@ -1689,7 +1534,7 @@ L<http://oeis.org/A007305> (etc)
       A057431   X,Y pairs (initial extra 0/1,1/0)
       A007306   X+Y sum, Farey 0 to 1 part (extra 1,1)
       A153036   int(X/Y), integer part
-      A088696  length of continued fraction SB left half (X/Y<1)
+      A088696   length of continued fraction SB left half (X/Y<1)
 
     tree_type=CW
       A002487   X and Y, Stern diatomic sequence (extra 0)
@@ -1732,6 +1577,9 @@ L<http://oeis.org/A007305> (etc)
       A047233   0or4 mod 6, being N positions of X>Y not both odd
                   which can generate primitive Pythagorean triples
 
+    tree_type=SB,CW,AYT,HCS,Bird,Drib,L
+      A008776   total X+Y in row, being 2*3^depth
+
     A000523  tree_n_to_depth(), being floor(log2(N))
 
     A059893  permutation SB<->CW, AYT<->HCS, Bird<->Drib
@@ -1756,6 +1604,10 @@ L<http://oeis.org/A007305> (etc)
     A054426  permutation SB -> DiagonalRationals
     A054425  DiagonalRationals -> SB with 0s at non-coprimes
     A054427  permutation coprimes -> SB right hand X/Y>1
+
+    A044051  N+1 of those N where SB and CW have same X,Y
+               same Bird<->Drib and HCS<->AYT
+               begin N+1 of N binary palindrome below high 1-bit
 
 The sequences marked "extra ..." have one or two extra initial values over
 what the RationalsTree here gives, but are the same after that.  And the

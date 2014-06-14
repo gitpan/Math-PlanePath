@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,7 +22,6 @@ use strict;
 use Math::PlanePath::HilbertCurve;
 
 #use Smart::Comments;
-
 
 {
   require Math::NumSeq::PlanePathCoord;

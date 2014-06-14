@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use POSIX;
 use List::Util 'min', 'max';
+use Math::BaseCnv;
 use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 use Math::PlanePath::ComplexMinus;
 use lib 'xt';
@@ -30,7 +31,58 @@ use MyOEIS;
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
+{
+  my $realpart = 1;
+  my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
+  {
+    my $count = 0;
+    for (my $n = $path->n_start; $n < 10_000_000; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      if ($x == 0) {
+        print "$n, ";
+        last if $count++ > 15;
+      }
+    }
+    print "\n";
+  }
+  $,=', ';
+  print sort({$a<=>$b} 064,067,060,063, 04,07,00,03),"\n";
+  print sort({$a<=>$b} 020,021,034,035, 00,01,014,015),"\n";
 
+  for (my $n = $path->n_start; $n < 10_000_000; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $want = ($x == 0 ? 1 : 0);
+    my $got = $path->_UNDOCUMENTED__n_is_y_axis($n);
+    if ($want != $got) {
+      printf "%7d  %7o  want %d got %d\n", $n, $n, $want, $got;
+      exit;
+    }
+  }
+  exit 0;
+}
+
+{
+  # Y axis
+  require Math::BaseCnv;
+  require Math::NumSeq::PlanePathN;
+  my $seq = Math::NumSeq::PlanePathN->new (planepath=> 'ComplexMinus',
+                                           line_type => 'Y_axis');
+  my $radix = 8;
+  foreach my $i (0 .. 150) {
+    my ($i,$value) = $seq->next;
+    my $v2 = Math::BaseCnv::cnv($value,10,$radix);
+    printf "%8d %20s\n", $value, $v2;
+  }
+  print "\n";
+  exit 0;
+}
+{
+  # ComplexPlus
+
+  # boundary recurrence -2, 2, -1, 2
+
+  exit 0;
+}
 
 {
   # twindragon cf dragon
@@ -96,7 +148,7 @@ use MyOEIS;
   }
 
   print join(',',@distinct),"\n";
-  print MyOEIS->grep_for_values_aref(\@distinct);
+  Math::OEIS::Grep->search(array=>\@distinct);
   exit 0;
 }
 {
@@ -511,7 +563,7 @@ sub matrix_pow {
   shift @values;
   shift @values;
   print join(',',@values),"\n";
-  print MyOEIS->grep_for_values_aref(\@values);
+  Math::OEIS::Grep->search(array=>\@values);
   exit 0;
 }
 
@@ -696,7 +748,7 @@ sub matrix_pow {
     $prev_ratio = $ratio;
   }
   print "seek ",join(', ',@values),"\n";
-  print MyOEIS->grep_for_values_aref(\@values);
+  Math::OEIS::Grep->search(array=>\@values);
   exit 0;
 }
 
@@ -1020,20 +1072,7 @@ BEGIN {
   exit 0;
 }
 
-{
-  # X axis
-  require Math::BaseCnv;
-  require Math::NumSeq::PlanePathN;
-  my $seq = Math::NumSeq::PlanePathN->new (planepath=> 'ComplexMinus',
-                                           line_type => 'X_axis');
-  foreach my $i (0 .. 150) {
-    my ($i,$value) = $seq->next;
-    my $v2 = Math::BaseCnv::cnv($value,10,2);
-    printf "%4d %20s\n", $value, $v2;
-  }
-  print "\n";
-  exit 0;
-}
+
 
 {
   require Math::NumSeq::PlanePathDelta;

@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use List::MoreUtils;
 use POSIX 'floor';
+use Math::BaseCnv;
 use Math::Libm 'M_PI', 'hypot', 'cbrt';
 use List::Util 'min', 'max', 'sum';
 use Math::PlanePath::DragonCurve;
@@ -41,6 +42,285 @@ use Memoize;
 # use Smart::Comments;
 
 
+# A003229 a(n) = a(n-1) + 2*a(n-3). 
+# A003230 Expansion of 1/((1-x)*(1-2*x)*(1-x-2*x^3)). 
+# A003476 a(n) = a(n-1) + 2a(n-3). 
+# A003477 Expansion of 1/((1-2x)(1+x^2)(1-x-2x^3)). 
+# A003478 Expansion of 1/(1-2x)(1-x-2x^3 ). 
+# A003479 Expansion of 1/((1-x)*(1-x-2*x^3)). 
+# A227036
+
+{
+  # (i-1)^k
+  use lib 'xt';
+  require MyOEIS;
+  require Math::Complex;
+  my $b = Math::Complex->make(-1,1);
+  my $c = Math::Complex->make(1);
+  my @values = (0,0,0);
+  foreach (0 .. 160) {
+    push @values, $c->Re;
+    $c *= $b;
+  }
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array=>\@values);
+  print "\n";
+  exit 0;
+}
+{
+  # L,R,T,U,V by path boundary
+  require MyOEIS;
+  $| = 1;
+  # L
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $part ('B','A','L','R','T','U','V') {
+    print "$part ";
+    my $name = "${part}_from_path";
+    my $coderef = __PACKAGE__->can($name) || die $name;
+    my @values;
+    foreach my $k (0 .. 14) {
+      my $value = $coderef->($path,$k);
+      push @values, $value;
+      print "$value,";
+      #      if ($value < 10) { print "\n",join(' ',map{join(',',@$_)} @$points),"\n"; }
+    }
+    print "\n";
+
+    shift @values;
+    shift @values;
+    shift @values;
+    shift @values;
+    shift @values;
+    Math::OEIS::Grep->search (array => \@values,
+                              name => $part);
+    print "\n";
+  }
+
+  exit 0;
+
+  sub A_from_path {
+    my ($path, $k) = @_;
+    return MyOEIS::path_enclosed_area($path, 2**$k);
+  }
+  sub B_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit);
+    return scalar(@$points);
+  }
+  sub L_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'left');
+    return scalar(@$points) - 1;
+  }
+  sub R_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'right');
+    return scalar(@$points) - 1;
+  }
+  sub T_from_path {
+    my ($path, $k) = @_;
+    # 2 to 4
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(2*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(4*$n_limit);
+    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 2);
+    return scalar(@$points) - 1;
+  }
+  sub U_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(3*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(0);
+    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 1);
+    return scalar(@$points) - 1;
+  }
+  sub V_from_path {
+    my ($path, $k) = @_;
+    my $n_limit = 2**$k;
+    my ($x,$y) = $path->n_to_xy(6*$n_limit);
+    my ($to_x,$to_y) = $path->n_to_xy(3*$n_limit);
+    my $points = MyOEIS::path_boundary_points_ft($path, 8*$n_limit,
+                                                 $x,$y, $to_x,$to_y,
+                                                 dir => 0);
+    return scalar(@$points) - 1;
+  }
+}
+{
+  # right boundary N
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  my %non_values;
+  my %n_values;
+  my @n_values;
+  my @values;
+  foreach my $k (5) {
+    my $n_limit = 2**$k;
+    print "k=$k  n_limit=$n_limit\n";
+    foreach my $n (0 .. $n_limit-1) {
+      $non_values{$n} = 1;
+    }
+    my $points = MyOEIS::path_boundary_points ($path, $n_limit,
+                                               side => 'right',
+                                              );
+    ### $points
+    for (my $i = 0; $i+1 <= $#$points; $i++) {
+      my ($x,$y) = @{$points->[$i]};
+      my ($x2,$y2) = @{$points->[$i+1]};
+      # my @n_list = $path->xy_to_n_list($x,$y);
+      my @n_list = path_xyxy_to_n($path, $x,$y, $x2,$y2);
+      foreach my $n (@n_list) {
+        delete $non_values{$n};
+        if ($n <= $n_limit) { $n_values{$n} = 1; }
+        my $n2 = Math::BaseCnv::cnv($n,10,2);
+        my $pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n);
+        my $diff = $pred ? '' : '  ***';
+        if ($k <= 5 || $diff) { print "$n  $n2$diff\n"; }
+      }
+    }
+    @n_values = keys %n_values;
+    @n_values = sort {$a<=>$b} @n_values;
+    my @non_values = keys %non_values;
+    @non_values = sort {$a<=>$b} @non_values;
+    my $count = scalar(@n_values);
+    print "count $count\n";
+
+    # push @values, $count;
+    @values = @n_values;
+
+    foreach my $n (@non_values) {
+      my $pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n);
+      my $diff = $pred ? '  ***' : '';
+      my $n2 = Math::BaseCnv::cnv($n,10,2);
+      if ($k <= 5 || $diff) {
+        print "non $n  $n2$diff\n";
+      }
+    }
+    # @values = @non_values;
+
+    # print "func ";
+    # foreach my $i (0 .. $count-1) {
+    #   my $n = $path->_UNDOCUMENTED__right_boundary_i_to_n($i);
+    #   my $n2 = Math::BaseCnv::cnv($n,10,2);
+    #   print "$n,";
+    # }
+    # print "\n";
+
+    print "vals ";
+    foreach my $i (0 .. $count-1) {
+      my $n = $values[$i];
+      my $n2 = Math::BaseCnv::cnv($n,10,2);
+      print "$n,";
+    }
+    print "\n";
+  }
+
+  # @values = MyOEIS::first_differences(@values);
+  splice @values,0,16;
+  # shift @values;
+  # shift @values;
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+
+  sub path_xyxy_to_n {
+    my ($path, $x1,$y1, $x2,$y2) = @_;
+    ### path_xyxy_to_n(): "$x1,$y1, $x2,$y2"
+    my @n_list = $path->xy_to_n_list($x1,$y1);
+    ### @n_list
+    my $arms = $path->arms_count;
+    foreach my $n (@n_list) {
+      my ($x,$y) = $path->n_to_xy($n + $arms);
+      if ($x == $x2 && $y == $y2) {
+        return $n;
+      }
+    }
+    return;
+  }
+}
+
+{
+  # drawing with Language::Logo
+
+  require Language::Logo;
+  require Math::NumSeq::PlanePathTurn;
+  my $lo = Logo->new(update => 20, port => 8200 + (time % 100));
+  my $len = 20;
+  my $level = 4;
+  if (0) {
+    my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve',
+                                               turn_type => 'Right');
+    my $angle = 60;
+    $lo->command("pendown");
+    $lo->command("color green");
+    $lo->command("right 90");
+    foreach my $n (0 .. 2**$level) {
+      my ($i,$value) = $seq->next;
+      my $turn_angle = ($value ? $angle : -$angle);
+      $lo->command("forward $len; right $turn_angle");
+    }
+  }
+  {
+    my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'TerdragonCurve',
+                                               turn_type => 'Right');
+    my $angle = 120;
+    $lo->command("penup");
+    $lo->command("setxy 400 200");
+    $lo->command("seth 90");
+    $lo->command("color red");
+    $lo->command("pendown");
+    foreach my $n (0 .. 3**$level-1) {
+      my ($i,$value) = $seq->next;
+      my $turn_angle = ($value ? $angle : -$angle);
+      $lo->command("forward $len; right $turn_angle");
+    }
+    $lo->command("home");
+    $lo->command("hideturtle");
+  }
+  $lo->disconnect("Finished...");
+  exit 0;
+}
+
+{
+  # arms=2 boundary
+
+# math-image --path=DragonCurve,arms=4 --expression='i<=67?i:0' --output=numbers_dash --size=50x80
+
+#           5
+#           |
+#  6 --- 0,1,2,3 --- 4
+#           |
+#           7
+
+
+  my $path = Math::PlanePath::DragonCurve->new (arms=>4);
+
+  sub Ba2_from_path {
+    my ($path, $k) = @_;
+    my ($n_start, $n_end) = $path->_UNDOCUMENTED_level_to_n_range($k);
+    my $points = MyOEIS::path_boundary_points($path, $n_end);
+    print join(" ", map{"$_->[0],$_->[1]"} @$points),"\n";
+    return scalar(@$points);
+  }
+  sub Aa2_from_path {
+    my ($path, $k) = @_;
+    my ($n_start, $n_end) = $path->_UNDOCUMENTED_level_to_n_range($k);
+    return MyOEIS::path_enclosed_area($path, $n_end);
+  }
+
+  foreach my $k (1) {
+    print "$k  ",Ba2_from_path($path,$k),"\n";
+    # ,"  ",Aa2_from_path($path,$k)
+  }
+  exit 0;
+}
+
 {
   # poly trial division
 
@@ -50,7 +330,10 @@ use Memoize;
   my $p;
   $p = Math::Polynomial->new(1,-4,5,-4,6,-4); # dragon area denom
   $p = Math::Polynomial->new(2,-5,3,-4,5);    # dragon visited
+  $p = Math::Polynomial->new(1,-3,-1,-5);  # ComplexMinus r=2 boundary
+  $p = Math::Polynomial->new(6, -4,, 2, -8);  # DragonMidpoint boundary
   $p = Math::Polynomial->new(1,2,0,-1,1,0,2,4,-1);  # C curve e
+  $p = Math::Polynomial->new(2,2,4,8,2,4);  # Ba2 gf
 
   print "$p\n";
   foreach my $a (-15 .. 15) {
@@ -182,7 +465,7 @@ use Memoize;
   shift @values;
   shift @values;
   shift @values;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   sub level_to_denclosed {
@@ -540,91 +823,7 @@ use Memoize;
  }
   exit 0;
 }
-{
-  # L,R,T,U,V by path boundary
-  require MyOEIS;
-  $| = 1;
-  # L
-  my $path = Math::PlanePath::DragonCurve->new;
-  foreach my $part ('B','A','L','R','T','U','V') {
-    print "$part ";
-    my $name = "${part}_from_path";
-    my $coderef = __PACKAGE__->can($name) || die $name;
-    my @values;
-    foreach my $k (0 .. 14) {
-      my $value = $coderef->($path,$k);
-      push @values, $value;
-      print "$value,";
-      #      if ($value < 10) { print "\n",join(' ',map{join(',',@$_)} @$points),"\n"; }
-    }
-    print "\n";
 
-    shift @values;
-    shift @values;
-    shift @values;
-    shift @values;
-    shift @values;
-    print MyOEIS->grep_for_values(array => \@values,
-                                  name => $part);
-    print "\n";
-  }
-
-  exit 0;
-
-  sub A_from_path {
-    my ($path, $k) = @_;
-    return MyOEIS::path_enclosed_area($path, 2**$k);
-  }
-  sub B_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my $points = MyOEIS::path_boundary_points($path, $n_limit);
-    return scalar(@$points);
-  }
-  sub L_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'left');
-    return scalar(@$points) - 1;
-  }
-  sub R_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my $points = MyOEIS::path_boundary_points($path, $n_limit, side => 'right');
-    return scalar(@$points) - 1;
-  }
-  sub T_from_path {
-    my ($path, $k) = @_;
-    # 2 to 4
-    my $n_limit = 2**$k;
-    my ($x,$y) = $path->n_to_xy(2*$n_limit);
-    my ($to_x,$to_y) = $path->n_to_xy(4*$n_limit);
-    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
-                                                 $x,$y, $to_x,$to_y,
-                                                 dir => 2);
-    return scalar(@$points) - 1;
-  }
-  sub U_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my ($x,$y) = $path->n_to_xy(3*$n_limit);
-    my ($to_x,$to_y) = $path->n_to_xy(0);
-    my $points = MyOEIS::path_boundary_points_ft($path, 4*$n_limit,
-                                                 $x,$y, $to_x,$to_y,
-                                                 dir => 1);
-    return scalar(@$points) - 1;
-  }
-  sub V_from_path {
-    my ($path, $k) = @_;
-    my $n_limit = 2**$k;
-    my ($x,$y) = $path->n_to_xy(6*$n_limit);
-    my ($to_x,$to_y) = $path->n_to_xy(3*$n_limit);
-    my $points = MyOEIS::path_boundary_points_ft($path, 8*$n_limit,
-                                                 $x,$y, $to_x,$to_y,
-                                                 dir => 0);
-    return scalar(@$points) - 1;
-  }
-}
 
 {
   # bridge points, points which are on both left and right boundary
@@ -730,7 +929,7 @@ use Memoize;
   while ($values[0] < 20) { shift @values };
   print join(',',@values),"\n";
   require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   # use constant SURROUND_4 => [ 1,0, 0,1, -1,0, 0,-1 ];
@@ -897,7 +1096,7 @@ use Memoize;
     }
   }
   require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
 
   foreach my $i (0 .. $#values) {
     printf "%2d %7b\n", $i, $values[$i];
@@ -994,23 +1193,7 @@ use Memoize;
   }
 }
 
-{
-  # (i-1)^k
-  use lib 'xt';
-  require MyOEIS;
-  require Math::Complex;
-  my $b = Math::Complex->make(-1,1);
-  my $c = Math::Complex->make(1);
-  my @values;
-  foreach (0 .. 16) {
-    push @values, $c->Re;
-    $c *= $b;
-  }
-  print join(',',@values),"\n";
-  print MyOEIS->grep_for_values_aref(\@values);
-  print "\n";
-  exit 0;
-}
+
 
 {
   # unrepeated points
@@ -1471,24 +1654,7 @@ sub high_bit {
   system('xzgv /tmp/x.png');
   exit 0;
 }
-{
-  # drawing with Language::Logo
 
-  require Language::Logo;
-  require Math::NumSeq::PlanePathTurn;
-  my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve',
-                                             turn_type => 'Right');
-
-  my $lo = Logo->new(update => 20);
-  $lo->command("pendown");
-  foreach my $n (0 .. 256) {
-    my ($i,$value) = $seq->next;
-    my $turn_angle = ($value ? 90 : -90);
-    $lo->command("forward 10; right $turn_angle");
-  }
-  $lo->disconnect("Finished...");
-  exit 0;
-}
 
 {
   require Math::NumSeq::PlanePathTurn;
@@ -2441,7 +2607,6 @@ sub high_bit {
 {
   # doublings
   require Math::PlanePath::DragonCurve;
-  require Math::BaseCnv;
   my $path = Math::PlanePath::DragonCurve->new;
   my %seen;
   for (my $n = 0; $n < 2000; $n++) {
@@ -2779,7 +2944,6 @@ sub high_bit {
   # Curve xy to n by midpoint
   require Math::PlanePath::DragonCurve;
   require Math::PlanePath::DragonMidpoint;
-  require Math::BaseCnv;
 
   foreach my $arms (3) {
     ### $arms
@@ -2882,7 +3046,6 @@ sub high_bit {
 {
   # Midpoint xy to n
   require Math::PlanePath::DragonMidpoint;
-  require Math::BaseCnv;
 
   my @yx_adj_x = ([0,1,1,0],
                   [1,0,0,1],
@@ -3014,7 +3177,6 @@ sub high_bit {
 {
   # xy to n
   require Math::PlanePath::DragonMidpoint;
-  require Math::BaseCnv;
 
   my @yx_adj_x = ([0,-1,-1,0],
                   [-1,0,0,-1],
@@ -3150,7 +3312,6 @@ sub high_bit {
   # vs ComplexPlus
   require Math::PlanePath::DragonCurve;
   require Math::PlanePath::ComplexPlus;
-  require Math::BaseCnv;
   my $dragon = Math::PlanePath::DragonCurve->new;
   my $complex = Math::PlanePath::ComplexPlus->new;
   for (my $n = 0; $n < 50; $n++) {

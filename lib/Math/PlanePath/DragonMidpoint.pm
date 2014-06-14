@@ -60,10 +60,11 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -71,6 +72,7 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh',
   'digit_join_lowtohigh';
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -93,25 +95,19 @@ use constant parameter_info_array => [ { name      => 'arms',
                                        } ];
 
 {
-  my @_UNDOCUMENTED__x_negative_at_n = (undef, 6,5,2,2);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my @x_negative_at_n = (undef, 6,5,2,2);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+    return $x_negative_at_n[$self->{'arms'}];
   }
 }
 {
-  my @_UNDOCUMENTED__y_negative_at_n = (undef, 27,19,11,7);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  my @y_negative_at_n = (undef, 27,19,11,7);
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+    return $y_negative_at_n[$self->{'arms'}];
   }
 }
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 {
   my @_UNDOCUMENTED__dxdy_list_at_n = (undef, 9, 9, 5, 3);
   sub _UNDOCUMENTED__dxdy_list_at_n {
@@ -119,12 +115,6 @@ use constant dy_maximum => 1;
     return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
   }
 }
-
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------
@@ -580,32 +570,6 @@ This can be seen in the midpoints too as for example above N=0 to N=16 is
 the same shape as N=16 to N=32, with the latter rotated 90 degrees and in
 reverse.
 
-Since the dragon curve always turns left or right, never straight ahead or
-reverse, its segments are alternately horizontal and vertical.  Rotated -45
-degrees for the midpoints here this means alternately "opposite diagonal"
-and "leading diagonal".  They fall on X,Y alternately even or odd.  So the
-original dragon curve can be recovered from the midpoints by choosing
-leading/opposite diagonal segment according to either X,Y even/odd, and
-which is the same as N even/odd.
-
-    DragonMidpoint                  dragon segment
-    --------------                 -----------------
-    "even" N==0 mod 2              opposite diagonal
-      which is X+Y==0 mod 2 too
-
-    "odd"  N==1 mod 2              leading diagonal
-      which is X+Y==1 mod 2 too
-
-               /
-              3         0 at X=0,Y=0 "even", opposite diagonal
-             /          1 at X=1,Y=0 "odd", leading diagonal
-             \          etc
-              2
-               \
-         \     /
-          0   1
-           \ /
-
 =head2 Arms
 
 Like the C<DragonCurve> the midpoints fill a quarter of the plane and four
@@ -615,6 +579,8 @@ C<arms> parameter can choose 1 to 4 curve arms, successively advancing.
 For example C<arms =E<gt> 4> begins as follows, with N=0,4,8,12,etc being
 the first arm (the same as the plain curve above), N=1,5,9,13 the second,
 N=2,6,10,14 the third and N=3,7,11,15 the fourth.
+
+    arms => 4
 
                     ...-107-103  83--79--75--71             6
                               |   |           |
@@ -685,7 +651,7 @@ L<http://tilingsearch.org/HTML/data24/K02A.html>
 
 =back
 
-Taking pairs N=2k+1 and N=2k+2, being odd N and its successor, gives a
+Taking pairs N=2k+1 and N=2k+2, being each odd N and its successor, gives a
 regular pattern too, but this time repeating in blocks of 16x16.
 
     |||--||||||--||--||--||||||--||||||--||||||--||||||--||||||--|||
@@ -720,6 +686,34 @@ regular pattern too, but this time repeating in blocks of 16x16.
     |||||||||||--||||||||||||||--||||||||||||||--||||||||||||||--|||
     -----||------||------||------||------||------||------||------||-
     -----||------||------||------||------||------||------||------||-
+
+=head2 Curve from Midpoints
+
+Since the dragon curve always turns left or right, never straight ahead or
+reverse, its segments are alternately horizontal and vertical.  Rotated -45
+degrees for the midpoints here this means alternately "opposite diagonal"
+and "leading diagonal".  They fall on X,Y alternately even or odd.  So the
+original dragon curve can be recovered from the midpoints by choosing
+leading diagonal or opposite diagonal segment according to X,Y even or odd,
+which is the same as N even or odd.
+
+    DragonMidpoint                  dragon segment
+    --------------                 -----------------
+    "even" N==0 mod 2              opposite diagonal
+      which is X+Y==0 mod 2 too
+
+    "odd"  N==1 mod 2              leading diagonal
+      which is X+Y==1 mod 2 too
+
+               /
+              3         0 at X=0,Y=0 "even", opposite diagonal
+             /          1 at X=1,Y=0 "odd", leading diagonal
+             \          etc
+              2
+               \
+         \     /
+          0   1
+           \ /
 
 =head1 FUNCTIONS
 
@@ -789,10 +783,10 @@ The X,Y reduction stops at one of the start points for the four arms
 
     X,Y endpoint   Arm        +---+---+
     ------------   ---        | 2 | 1 |  Y=1
-        0, 0        0         +---+---+     
+        0, 0        0         +---+---+
         0, 1        1         | 3 | 0 |  Y=0
-       -1, 1        2         +---+---+     
-       -1, 0        3         X=-1 X=0      
+       -1, 1        2         +---+---+
+       -1, 0        3         X=-1 X=0
 
 For arms 1 and 3 the N bits must be flipped 0E<lt>-E<gt>1.  The arm number
 and hence whether this flip is needed is not known until reaching the
@@ -803,6 +797,120 @@ newX=(Xm+Ym)/2 and newY=(Ym-Xm)/2.  Instead keep a bit position which is the
 logical low end and pick out two bits from there for the Xadj,Yadj lookup.
 A whole word can be dropped when the bit position becomes a multiple of 32
 or 64 or whatever.
+
+=head2 Boundary
+
+Taking unit squares at each point, the boundary MB[k] of the resulting shape
+from 0 to N=2^k-1 inclusive can be had from the boundary B[k] of the plain
+dragon curve.  Taking points N=0 to N=2^k-1 inclusive is the midpoints of
+the dragon curve line segments N=0 to N=2^k inclusive.
+
+
+    MB[k] = B[k] + 2
+          = 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, 1202, ...
+
+                             2 + x + 2*x^2
+    generating function  2 * -------------
+                             1 - x - 2*x^3
+
+=for Test-Pari-DEFINE gB(x)=(2 + 2*x^2) / ((1 - x - 2*x^3) * (1-x))
+
+=for Test-Pari-DEFINE gMB(x) = (4 + 2*x + 4*x^2) / (1 - x - 2*x^3)
+
+=for Test-Pari gMB(x) == 2*(2 + x + 2*x^2)/(1-x-2*x^3)
+
+=for Test-Pari-DEFINE gOnes(x)=1/(1-x) /* 1,1,1,1,1,1,etc */
+
+=for Test-Pari gMB(x) == gB(x) + 2*gOnes(x)
+
+=for Test-Pari Vec(gMB(x) - O(x^12)) == [4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, 1202]
+
+A unit square at the midpoint is a diamond on a dragon line segment
+
+      / \
+     /   \         midpoint m
+    *--m--*        diamond on dragon curve line segment
+     \   /
+      \ /
+
+A boundary segment of the dragon curve has two sides of the diamond which
+are boundary.  But when the boundary makes a right hand turn two such sides
+touch and are therefore not midpoint boundary.
+
+     /^\
+    / | \        right turn
+    \ | //\      two diamond sides touch
+     \|//  \
+      *<----*
+       \   /
+        \ /
+
+The dragon curve at N=0 points East and the last segment N=2^k-1 to N=2^k is
+North.  Since the curve never overlaps itself this means that when going
+around the right side of the curve there is 1 more left turn than right
+turn,
+
+    lefts - rights = 1
+
+The total line segments on the right is the dragon curve R[k] and there are
+R[k]-1 turns, so the total turns lefts+rights is
+
+    lefts + rights + 1 = R[k]
+
+So the lefts and rights are obtained separately
+
+    2*lefts            = R[k]       adding the two equations
+    2*rights           = R[k] - 2   subtracting the two equations
+
+The result is then
+
+    MR[k] = 2*R[k] - 2*rights
+          = 2*R[k] - 2*(R[k]-2)/2
+          = R[k] + 2
+
+A similar calculation is made on the left side of the curve.  The net turn
+is the same and so the same lefts-rights=1 and thus from the dragon curve
+L[k] left boundary
+
+    ML[k] = 2*L[k] - 2*lefts
+          = 2*L[k] - 2*(L[k]/2)
+          = L[k]
+
+The total is then
+
+    MB[k] = MR[k] + ML[k]
+          = R[k]+2 + L[k]
+          = B[k] + 2                 since B[k]=R[k]+L[k]
+
+The generating function can be had from the partial fractions form of the
+dragon curve boundary.  B[k]+2 means adding 2/(1-x) which cancels out the
+-2/(1-x) in gB(x).
+
+=cut
+
+#  /\     B[0]=2
+# *--*    MB[0]=4
+#  \/
+#
+#    *
+#   /|\
+#  /\|/   B[0]=4
+# *--*    MB[0]=6
+#  \/
+#
+#    *
+#   /|\     B[0] = 8
+#   \|/\    MR[2] = 6
+#    *--*   ML[2] = 4
+#     \/|\  MB[2] = 10
+#     /\|/
+#    *--*
+#     \/
+#
+# 4,6,10,18,30,50,86,146,246,418,710,1202,
+# 6,8,12,20,32,52,88,148,248,420,712,1204,
+
+=pod
 
 =head1 OEIS
 
@@ -818,24 +926,35 @@ L<http://oeis.org/A073089> (etc)
     A073089   abs(dY) of n-1 to n, so 0=horizontal,1=vertical
                 (extra initial 0)
     A077860   Y at N=2^k, being Re(-(i+1)^k + i-1)
+    A203175   boundary of unit squares N=0 to N=2^k-1, value 4 onwards
 
-For A073089, the midpoint curve is vertical when the C<DragonCurve> has a
-vertical followed by a left turn, or horizontal followed by a right turn.
-C<DragonCurve> verticals are whenever N is odd, and the turn is the bit
-above the lowest 0 in N, as described in
-L<Math::PlanePath::DragonCurve/Turn>.  So
+=head2 A073089
+
+For A073089=abs(dY), the midpoint curve is vertical when the C<DragonCurve>
+has a vertical followed by a left turn, or horizontal followed by a right
+turn.  C<DragonCurve> verticals are whenever N is odd, and the turn is the
+bit above the lowest 0 in N (per L<Math::PlanePath::DragonCurve/Turn>).  So
 
     abs(dY) = lowbit(N) XOR bit-above-lowest-zero(N)
 
-The n in A073089 is offset by 2 from the N numbering of the path here, being
+The n in A073089 is offset by 2 from the N numbering of the path here, so
 n=N+2.  The initial value at n=1 in A073089 has no corresponding N (it would
 be N=-1).
 
 The mod-16 definitions in A073089 express combinations of N odd/even and
 bit-above-low-0 which are the vertical midpoint segments.  The recurrence
-a(8n+1)=a(4n+1) acts to strip strip of zeros above a low 1 bit,
-ie. n=0b...00001 -E<gt> 0b...01.  In terms of N=n-2 it reduces N=0b.zz111 to
-0b..zz11 in order to seek a lowest 0 in range of the mod-16 conditions.
+a(8n+1)=a(4n+1) acts to strip zeros above a low 1 bit,
+
+    n = 0b..uu0001
+     -> 0b...uu001
+
+In terms of N=n-2 this reduces
+
+    N = 0b..vv1111
+     -> 0b...vv111
+
+which has the effect of seeking a lowest 0 in the range of the mod-16
+conditions.
 
 =head1 SEE ALSO
 

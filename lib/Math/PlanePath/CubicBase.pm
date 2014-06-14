@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -58,11 +58,11 @@ use constant n_start => 0;
 #    # },
 # ];
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->{'radix'};
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->{'radix'}**2;
 }

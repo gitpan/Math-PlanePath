@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -74,7 +74,7 @@ use Math::PlanePath::KochSquareflakes;
   }
   shift @values;
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   sub area_by_formula {
@@ -125,7 +125,7 @@ use Math::PlanePath::KochSquareflakes;
     print "level $level start=$start[$coord] max offset $max_offset at N=$max_offset_n (of $nstart to $nend) Y=$max_offset_c\n";
   }
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 
@@ -146,7 +146,7 @@ use Math::PlanePath::KochSquareflakes;
     push @values, -$y;
   }
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 

@@ -20,18 +20,470 @@
 use 5.010;
 use strict;
 use warnings;
+use Math::BaseCnv;
 use List::MoreUtils;
 use POSIX 'floor';
 use Math::Libm 'M_PI', 'hypot';
 use List::Util 'min', 'max';
+use Math::PlanePath::R5DragonCurve;
+use Math::BigInt try => 'GMP';
+use Math::BigFloat;
 
 use lib 'devel/lib';
 use lib 'xt';
+use MyOEIS;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
+{
+  # convex hull
+  # hull 8 new vertices
 
+  require Math::Geometry::Planar;
+  my $points = [ [0,0], [1,0], [0,0] ];
+  $points = [ [Math::BigInt->new(0), Math::BigInt->new(0)],
+              [Math::BigInt->new(1), Math::BigInt->new(0)],
+              [Math::BigInt->new(0), Math::BigInt->new(0)] ];
+  my $end_x = Math::BigInt->new(1);
+  my $end_y = Math::BigInt->new(0);
+
+  my $path = Math::PlanePath::R5DragonCurve->new;
+  my $num_points_prev = 0;
+  for (my $k = Math::BigInt->new(0);
+       $k < 40;
+       $k++) {
+    my $angle = 0; # Math::BigFloat->new($end_y)->batan2(Math::BigFloat->new($end_x), 10);
+    my $num_points = scalar(@$points);
+    my $num_points_diff = $num_points - $num_points_prev;
+    print "k=$k end=$end_x,$end_y a=$angle  $num_points diff=$num_points_diff\n";
+
+    my @new_points = @$points;
+    {
+      my $p = Math::Geometry::Planar->new;
+      $p->points(points_copy($points));
+      $p->move (-$end_y, $end_x);
+      push @new_points, @{$p->points};
+      ### move 1: $p->points
+    }
+    {
+      my $p = Math::Geometry::Planar->new;
+      $p->points(points_copy($points));
+      $p->move (2*-$end_y, 2*$end_x);
+      push @new_points, @{$p->points};
+      ### move 2: $p->points
+    }
+    {
+      my $p = Math::Geometry::Planar->new;
+      $p->points(points_copy($points));
+      planar_rotate_plus90($p);
+      push @new_points, @{$p->points};
+      ### rot: $p->points
+    }
+    {
+      my $p = Math::Geometry::Planar->new;
+      $p->points(points_copy($points));
+      planar_rotate_plus90($p);
+      $p->move ($end_x + -$end_y, $end_y + $end_x);
+      push @new_points, @{$p->points};
+      ### rot move: $p->points
+    }
+
+    my $p = Math::Geometry::Planar->new;
+    $p->points(\@new_points);
+    $p = $p->convexhull2;
+    $points = $p->points;
+
+    ($end_x,$end_y) = ($end_x - 2*$end_y,
+                       $end_y + 2*$end_x);
+    $num_points_prev = $num_points;
+
+    my ($x,$y) = $path->n_to_xy(5**($k+1));
+    ### $end_y
+    ### $y
+    $x == $end_x or die;
+    $y == $end_y or die;
+  }
+  exit 0;
+
+  sub planar_rotate_plus90 {
+    my ($planar) = @_;
+    my $points = $planar->points;
+    foreach my $p (@$points) {
+      ($p->[0],$p->[1]) = (- $p->[1], $p->[0]);
+    }
+    return $planar;
+  }
+
+  sub points_copy {
+    my ($points) = @_;
+    return [ map {[$_->[0],$_->[1]]} @$points ];
+  }
+  # {
+  #   my $pl = Math::Geometry::Planar->new;
+  #   $pl->points($points);
+  #   $pl->rotate(- atan2(2,1));
+  #   $pl->scale(1/sqrt(5));
+  #   $points = $pl->points;
+  # }
+}
+
+{
+  # extents  h->4/5 w->2/5
+
+  #            1/sqrt(5)
+  #           *--*              1/5 + 4/5 = 1
+  # 2/sqrt(5) | /  1
+  #           |/
+  #           *
+  #
+  my $h = 0;
+  my $w = 0;
+  my $sum = 0;
+  foreach my $k (0 .. 20) {
+    print "$h $w $sum\n";
+    $sum += (3/5)**$k;
+    $h /= sqrt(5);
+    $w /= sqrt(5);
+    my $s = 1/sqrt(5);
+    my $add = $s * 2/sqrt(5);
+    ($h, $w) = ($h*2/sqrt(5) + $w*1/sqrt(5) + $add,
+                $h*2/sqrt(5) + $w*1/sqrt(5));
+  }
+  exit 0;
+}
+
+{
+  # min/max for level
+
+  # radial extent
+  #
+  # dist0to5 = sqrt(1*1+2*2) = sqrt(5)
+  #
+  #   4-->5
+  #   ^
+  #   |
+  #   3<--2
+  #       ^
+  #       |
+  #   0-->1
+  #
+  # Rlevel = sqrt(5)^level + Rprev
+  #        = sqrt(5) + sqrt(5)^2 + ... + sqrt(5)^(level-1) + sqrt(5)^level
+  # if level 
+  #        = sqrt(5) + sqrt(5)^2 + sqrt(5)*sqrt(5)^2 + ... 
+  #        = sqrt(5) + (1+sqrt(5))*5^1 + (1+sqrt(5))*5^2 + ... 
+  #        = sqrt(5) + (1+sqrt(5))* [ 5^1 + 5^2 + ... ]
+  #        = sqrt(5) + (1+sqrt(5))* (5^k - 1)/4
+  #        <= 5^k
+  # Rlevel^2 <= 5^level
+
+  require Math::BaseCnv;
+  require Math::PlanePath::R5DragonCurve;
+  my $path = Math::PlanePath::R5DragonCurve->new;
+  my $prev_min = 1;
+  my $prev_max = 1;
+  for (my $level = 1; $level < 10; $level++) {
+    my $n_start = 5**($level-1);
+    my $n_end = 5**$level;
+
+    my $min_hypot = 128*$n_end*$n_end;
+    my $min_x = 0;
+    my $min_y = 0;
+    my $min_pos = '';
+
+    my $max_hypot = 0;
+    my $max_x = 0;
+    my $max_y = 0;
+    my $max_pos = '';
+
+    print "level $level  n=$n_start .. $n_end\n";
+
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $h = $x*$x + $y*$y;
+
+      if ($h < $min_hypot) {
+        $min_hypot = $h;
+        $min_pos = "$x,$y";
+      }
+      if ($h > $max_hypot) {
+        $max_hypot = $h;
+        $max_pos = "$x,$y";
+      }
+    }
+    # print "  min $min_hypot   at $min_x,$min_y\n";
+    # print "  max $max_hypot   at $max_x,$max_y\n";
+    {
+      my $factor = $min_hypot / $prev_min;
+      my $min_hypot_5 = Math::BaseCnv::cnv($min_hypot,10,5);
+      print "  min r^2 $min_hypot ${min_hypot_5}[5]  at $min_pos  factor $factor\n";
+    }
+    {
+      my $factor = $max_hypot / $prev_max;
+      my $max_hypot_5 = Math::BaseCnv::cnv($max_hypot,10,5);
+      print "  max r^2 $max_hypot ${max_hypot_5}[5])  at $max_pos  factor $factor\n";
+    }
+    $prev_min = $min_hypot;
+    $prev_max = $max_hypot;
+  }
+  exit 0;
+}
+{
+  # boundary length between arms = 2*3^k
+  #
+  #         *---1    length=6
+  #         |
+  # 2   *---*---*
+  # |   |   |   |
+  # *---*   0---*
+  #
+  # T[0] = 2
+  # T[k+1] = R[k] + T[k] + U[k]
+  # T[k+1] = 4*3^k + T[k]
+  #              i=k-1
+  # T[k] = 2 +  sum    4*3^i
+  #              i=0
+  #      = 2 + 4*(3^k - 1)/(3-1)
+  #      = 2 + 2*(3^k - 1)
+  #      = 2*3^k
+
+  my $arms = 2;
+  my $path = Math::PlanePath::R5DragonCurve->new (arms => $arms);
+  my @values;
+  foreach my $k (0 .. 8) {
+    my $n_limit = $arms * 5**$k + $arms-1;
+    my $n_from = $n_limit-1;
+    my $n_to = $n_limit;
+    print "k=$k  n_limit=$n_limit\n";
+    my $points = MyOEIS::path_boundary_points_ft ($path, $n_limit,
+                                                  $path->n_to_xy($n_from),
+                                                  $path->n_to_xy($n_to),
+                                                  side => 'right',
+                                                 );
+    if (@$points < 10) {
+      foreach my $p (@$points) {
+        print " $p->[0],$p->[1]";
+      }
+      print "\n";
+    }
+    my $length = scalar(@$points) - 1;
+    print "  length $length\n";
+    push @values, $length;
+  }
+
+  shift @values;
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+}
+
+{
+  # right boundary N
+
+  my $path = Math::PlanePath::R5DragonCurve->new;
+  my %non_values;
+  my %n_values;
+  my @n_values;
+  my @values;
+  foreach my $k (3){
+    my $n_limit = 5**$k;
+    print "k=$k  n_limit=$n_limit\n";
+    foreach my $n (0 .. $n_limit-1) {
+      $non_values{$n} = 1;
+    }
+    my $points = MyOEIS::path_boundary_points ($path, $n_limit,
+                                               side => 'right',
+                                              );
+    ### $points
+    for (my $i = 0; $i+1 <= $#$points; $i++) {
+      my ($x,$y) = @{$points->[$i]};
+      my ($x2,$y2) = @{$points->[$i+1]};
+      # my @n_list = $path->xy_to_n_list($x,$y);
+      my @n_list = path_xyxy_to_n($path, $x,$y, $x2,$y2);
+      foreach my $n (@n_list) {
+        delete $non_values{$n};
+        if ($n <= $n_limit) { $n_values{$n} = 1; }
+        my $n5 = Math::BaseCnv::cnv($n,10,5);
+        my $pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n);
+        my $diff = $pred ? '' : '  ***';
+        if ($k <= 4) { print "$n  $n5$diff\n"; }
+      }
+    }
+    @n_values = keys %n_values;
+    @n_values = sort {$a<=>$b} @n_values;
+    my @non_values = keys %non_values;
+    @non_values = sort {$a<=>$b} @non_values;
+    my $count = scalar(@n_values);
+    print "count $count\n";
+
+    # push @values, $count;
+    @values = @n_values;
+
+    if ($k <= 4) {
+      foreach my $n (@non_values) {
+        my $pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n);
+        my $diff = $pred ? '  ***' : '';
+        my $n5 = Math::BaseCnv::cnv($n,10,5);
+        print "non $n  $n5$diff\n";
+      }
+    }
+    # @values = @non_values;
+
+    # print "func ";
+    # foreach my $i (0 .. $count-1) {
+    #   my $n = $path->_UNDOCUMENTED__right_boundary_i_to_n($i);
+    #   my $n5 = Math::BaseCnv::cnv($n,10,5);
+    #   print "$n,";
+    # }
+    # print "\n";
+
+    print "vals ";
+    foreach my $i (0 .. $count-1) {
+      my $n = $values[$i];
+      my $n5 = Math::BaseCnv::cnv($n,10,5);
+      print "$n,";
+    }
+    print "\n";
+  }
+
+  @values = MyOEIS::first_differences(@values);
+  shift @values;
+  shift @values;
+  shift @values;
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+
+  sub path_xyxy_to_n {
+    my ($path, $x1,$y1, $x2,$y2) = @_;
+    ### path_xyxy_to_n(): "$x1,$y1, $x2,$y2"
+    my @n_list = $path->xy_to_n_list($x1,$y1);
+    ### @n_list
+    my $arms = $path->arms_count;
+    foreach my $n (@n_list) {
+      my ($x,$y) = $path->n_to_xy($n + $arms);
+      if ($x == $x2 && $y == $y2) {
+        return $n;
+      }
+    }
+    return;
+  }
+}
+
+{
+  my $C = sub {
+    my ($k) = @_;
+    return 3**$k - $k;    # A024024
+  };
+  my $E = sub {
+    my ($k) = @_;
+    return 3**$k + $k;    # A104743
+  };
+  my @values = map { $E->($_) } 0 .. 10;
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+  exit;
+}
+
+{
+  # left boundary N
+
+  my $path = Math::PlanePath::R5DragonCurve->new;
+  my %non_values;
+  my %n_values;
+  my @n_values;
+  my @values;
+  foreach my $k (2) {
+    my $n_limit = 3*5**$k;
+    print "k=$k  n_limit=$n_limit\n";
+    foreach my $n (0 .. $n_limit-1) {
+      $non_values{$n} = 1;
+    }
+    my $points = MyOEIS::path_boundary_points ($path, $n_limit,
+                                               side => 'left',
+                                              );
+    @$points = reverse @$points; # for left
+    ### $points
+    for (my $i = 0; $i+1 <= $#$points; $i++) {
+      my ($x,$y) = @{$points->[$i]};
+      my ($x2,$y2) = @{$points->[$i+1]};
+      # my @n_list = $path->xy_to_n_list($x,$y);
+      my @n_list = path_xyxy_to_n($path, $x,$y, $x2,$y2);
+      foreach my $n (@n_list) {
+        delete $non_values{$n};
+        if ($n <= $n_limit) { $n_values{$n} = 1; }
+        my $n5 = Math::BaseCnv::cnv($n,10,5);
+        my $pred = $path->_UNDOCUMENTED__n_segment_is_left_boundary($n);
+        my $diff = $pred ? '' : '  ***';
+        if ($k <= 4) { print "$n  $n5$diff\n"; }
+      }
+    }
+    @n_values = keys %n_values;
+    @n_values = sort {$a<=>$b} @n_values;
+    my @non_values = keys %non_values;
+    @non_values = sort {$a<=>$b} @non_values;
+    my $count = scalar(@n_values);
+    print "count $count\n";
+
+    # push @values, $count;
+    @values = @n_values;
+
+    if ($k <= 4) {
+      foreach my $n (@non_values) {
+        my $pred = $path->_UNDOCUMENTED__n_segment_is_left_boundary($n);
+        my $diff = $pred ? '  ***' : '';
+        my $n5 = Math::BaseCnv::cnv($n,10,5);
+        print "non $n  $n5$diff\n";
+      }
+    }
+    # @values = @non_values;
+
+    # print "func ";
+    # foreach my $i (0 .. $count-1) {
+    #   my $n = $path->_UNDOCUMENTED__left_boundary_i_to_n($i);
+    #   my $n5 = Math::BaseCnv::cnv($n,10,5);
+    #   print "$n,";
+    # }
+    # print "\n";
+
+    print "vals ";
+    foreach my $i (0 .. $count-1) {
+      my $n = $values[$i];
+      my $n5 = Math::BaseCnv::cnv($n,10,5);
+      print "$n5,";
+    }
+    print "\n";
+  }
+
+  # @values = MyOEIS::first_differences(@values);
+  shift @values;
+  shift @values;
+  shift @values;
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+}
+{
+  # partial fractions
+  require Math::Polynomial;
+  Math::Polynomial->string_config({ascending=>1});
+
+  # dragon B total boundary
+  my @numerators = MyOEIS::polynomial_partial_fractions
+    (Math::Polynomial->new(2,0,2),
+     Math::Polynomial->new(1,-1,0,-2),
+     Math::Polynomial->new(1,-1));
+  print "@numerators\n";
+
+  # # dragon R right boundary
+  # my @numerators = MyOEIS::polynomial_partial_fractions
+  #   (Math::Polynomial->new(1,0,1,0,2),
+  #    Math::Polynomial->new(1,-1,0,-2),
+  #    Math::Polynomial->new(1,-1));
+  # print "@numerators\n";
+  exit 0;
+}
 
 {
   # recurrence
@@ -45,14 +497,13 @@ use lib 'xt';
 
   $|=1;
   my @array = (
-43,93,200,414,853,1707,3424,6794,13495,26601,52536,103358,203457
+54,90,150,250,422,714,1206,2042,3462
               );
   # @array = ();
   # foreach my $k (5 .. 10) {
   #   push @array, R_formula(2*$k+1);
   # }
   # require MyOEIS;
-  # require Math::PlanePath::R5DragonCurve;
   # my $path = Math::PlanePath::R5DragonCurve->new;
   # foreach my $k (0 .. 30) {
   #   my $value = MyOEIS::path_boundary_length($path, 5**$k,
@@ -159,8 +610,7 @@ use lib 'xt';
   }
 
   print join(',',@values),"\n";
-  require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 {
@@ -204,7 +654,7 @@ use lib 'xt';
 
   print join(',',@values),"\n";
   require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 {
@@ -234,7 +684,7 @@ use lib 'xt';
   }
   print "\n";
   require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 {
@@ -581,82 +1031,6 @@ use lib 'xt';
 }
 
 
-{
-  # min/max for level
-
-  # radial extent
-  #
-  # dist0to5 = sqrt(1*1+2*2) = sqrt(5)
-  #
-  #   4-->5
-  #   ^
-  #   |
-  #   3<--2
-  #       ^
-  #       |
-  #   0-->1
-  #
-  # Rlevel = sqrt(5)^level + Rprev
-  #        = sqrt(5) + sqrt(5)^2 + ... + sqrt(5)^(level-1) + sqrt(5)^level
-  # if level 
-  #        = sqrt(5) + sqrt(5)^2 + sqrt(5)*sqrt(5)^2 + ... 
-  #        = sqrt(5) + (1+sqrt(5))*5^1 + (1+sqrt(5))*5^2 + ... 
-  #        = sqrt(5) + (1+sqrt(5))* [ 5^1 + 5^2 + ... ]
-  #        = sqrt(5) + (1+sqrt(5))* (5^k - 1)/4
-  #        <= 5^k
-  # Rlevel^2 <= 5^level
-
-  require Math::BaseCnv;
-  require Math::PlanePath::R5DragonCurve;
-  my $path = Math::PlanePath::R5DragonCurve->new;
-  my $prev_min = 1;
-  my $prev_max = 1;
-  for (my $level = 1; $level < 10; $level++) {
-    my $n_start = 5**($level-1);
-    my $n_end = 5**$level;
-
-    my $min_hypot = 128*$n_end*$n_end;
-    my $min_x = 0;
-    my $min_y = 0;
-    my $min_pos = '';
-
-    my $max_hypot = 0;
-    my $max_x = 0;
-    my $max_y = 0;
-    my $max_pos = '';
-
-    print "level $level  n=$n_start .. $n_end\n";
-
-    foreach my $n ($n_start .. $n_end) {
-      my ($x,$y) = $path->n_to_xy($n);
-      my $h = $x*$x + $y*$y;
-
-      if ($h < $min_hypot) {
-        $min_hypot = $h;
-        $min_pos = "$x,$y";
-      }
-      if ($h > $max_hypot) {
-        $max_hypot = $h;
-        $max_pos = "$x,$y";
-      }
-    }
-    # print "  min $min_hypot   at $min_x,$min_y\n";
-    # print "  max $max_hypot   at $max_x,$max_y\n";
-    {
-      my $factor = $min_hypot / $prev_min;
-      my $min_hypot_5 = Math::BaseCnv::cnv($min_hypot,10,5);
-      print "  min r^2 $min_hypot ${min_hypot_5}[5]  at $min_pos  factor $factor\n";
-    }
-    {
-      my $factor = $max_hypot / $prev_max;
-      my $max_hypot_5 = Math::BaseCnv::cnv($max_hypot,10,5);
-      print "  max r^2 $max_hypot ${max_hypot_5}[5])  at $max_pos  factor $factor\n";
-    }
-    $prev_min = $min_hypot;
-    $prev_max = $max_hypot;
-  }
-  exit 0;
-}
 
 {
   # 2i+1 powers

@@ -25,6 +25,17 @@
 # cf A003476 = boundary length of i-1 ComplexMinus
 # is same as DragonCurve single points N=0 to N=2^k inclusive
 
+# Mandelbrot "Fractals: Form, Chance and Dimension"
+# distance along the boundary between any two points is infinite
+
+# Fractal Tilings Derived from Complex Bases
+# Sara Hagey and Judith Palagallo
+# The Mathematical Gazette
+# Vol. 85, No. 503 (Jul., 2001), pp. 194-201
+# Published by: The Mathematical Association
+# Article Stable URL: http://www.jstor.org/stable/3622004
+
+
 
 package Math::PlanePath::ComplexMinus;
 use 5.004;
@@ -34,7 +45,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -62,11 +73,11 @@ use constant parameter_info_array =>
     } ];
 
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->{'norm'};
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->{'norm'} ** 2;
 }
@@ -242,6 +253,39 @@ sub _UNDOCUMENTED_level_to_figure_boundary {
   return $b2;
 }
 
+#------------------------------------------------------------------------------
+
+{
+  my @table = ('','');
+  # 6-bit blocks per Penney
+  foreach my $i (064,067,060,063, 4,7,0,3) { vec($table[0],$i,1) = 1; }
+  foreach my $i (020,021,034,035, 0,1,014,015) { vec($table[1],$i,1) = 1; }
+
+  sub _UNDOCUMENTED__n_is_y_axis {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) { return 0; }
+    if ($n < 0) { return 0; }
+
+    if ($self->{'realpart'} == 1) {
+      my $pos = 0;
+      foreach my $digit (digit_split_lowtohigh($n,64)) {
+        unless (vec($table[$pos&1],$digit,1)) {
+          ### bad digit: "pos=$pos digit=$digit"
+          return 0;
+        }
+        $pos++;
+      }
+      ### good ...
+      return 1;
+
+    } else {
+      my ($x,$y) = $self->n_to_xy($n)
+        or return 0;
+      return $x == 0;
+    }
+  }
+}
+
 1;
 __END__
 
@@ -264,13 +308,12 @@ base i-r for given integer r.  The default is base i-1 as per
 
 =over
 
-Walter Penny, A "Binary" System for Complex Numbers, Journal of the ACM,
+Walter Penny, "A 'Binary' System for Complex Numbers", Journal of the ACM,
 volume 12, number 2, April 1965, pages 247-248.
 
 =back
 
-When continued to a power-of-2 extent this has come to be called the
-"twindragon" shape.
+When continued to a power-of-2 extent this is called the "twindragon" shape.
 
 =cut
 
@@ -300,15 +343,15 @@ A complex integer can be represented as a set of powers,
 
     N = a[n]*2^n + ... + a[2]*2^2 + a[1]*2 + a[0]
 
-N is those a[i] digits as bits and X,Y is the resulting complex number.  It
+N is the a[i] digits as bits and X,Y is the resulting complex number.  It
 can be shown that this is a one-to-one mapping so every integer X,Y of the
-plane is visited.
+plane is visited once each.
 
 The shape of points N=0 to N=2^level-1 repeats as N=2^level to
 N=2^(level+1)-1.  For example N=0 to N=7 is repeated as N=8 to N=15, but
-starting at X=2,Y=2 instead of the origin.  That position 2,2 is because b^3
-= 2+2i.  There's no rotations or mirroring etc in this replication, just
-position offsets.
+starting at position X=2,Y=2 instead of the origin.  That position 2,2 is
+because b^3 = 2+2i.  There's no rotations or mirroring etc in this
+replication, just position offsets.
 
     N=0 to N=7          N=8 to N=15 repeat shape
 
@@ -317,8 +360,8 @@ position offsets.
     6   7                    14  15
         4   5                    12  13
 
-For b=i-1 each N=2^level point starts at X+Yi=b^level.  The powering of that
-b means the start position rotates around by +135 degrees each time and
+For b=i-1 each N=2^level point starts at X+Yi=(i-1)^level.  The powering of
+that b means the start position rotates around by +135 degrees each time and
 outward by a radius factor sqrt(2) each time.  So for example b^3 = 2+2i is
 followed by b^4 = -4, which is 135 degrees around and radius |b^3|=sqrt(8)
 becomes |b^4|=sqrt(16).
@@ -355,70 +398,6 @@ level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at Y=-2*2=-4, X=2*2-1=3.
 The successive replications tile the plane for any r, though the N values
 needed to rotate around and do so become large if norm=r*r+1 is large.
 
-=head2 X Axis Values
-
-For base i-1, the X axis N=0,1,12,13,16,17,etc is integers using only digits
-0,1,0xC,0xD in hexadecimal.  Those on the positive X axis have an odd number
-of digits and on the X negative axis an even number of digits.
-
-To be on the X axis the imaginary parts of the base powers b^k must cancel
-out to leave just a real part.  The powers repeat in an 8-long cycle
-
-    k    b^k for b=i-1
-    0        +1
-    1      i -1
-    2    -2i +0   \ pair cancel
-    3     2i +2   /
-    4        -4
-    5    -4i +4
-    6     8i +0   \ pair cancel
-    7    -8i -8   /
-
-The k=0 and k=4 bits are always reals and can always be included.  Bits k=2
-and k=3 have imaginary parts -2i and 2i which cancel out, so they can be
-included together.  Similarly k=6 and k=7 with 8i and -8i.  The two blocks
-k=0to3 and k=4to7 differ only in a negation so the bits can be reckoned in
-groups of 4, which is hexadecimal.  Bit 1 is digit value 1 and bits 2,3
-together are digit value 0xC, so adding one or both of those gives
-combinations are 0,1,0xC,0xD.
-
-The high hex digit determines the sign, positive or negative, of the total
-real part.  Bits k=0 or k=2,3 are positive.  Bits k=4 or k=6,7 are negative,
-so
-
-    N for X>0   N for X<0
-
-      0x01..     0x1_..     even number of hex 0,1,C,D following
-      0x0C..     0xC_..     "_" digit any of 0,1,C,D
-      0x0D..     0xD_..
-
-which is equivalent to XE<gt>0 is an odd number of hex digits or XE<lt>0 is
-an even number.  For example N=28=0x1C is at X=-2 since that N is XE<lt>0
-form "0x1_".
-
-The order of the values on the positive X axis is obtained by taking the
-digits in reverse order on alternate positions
-
-    0,1,C,D   high digit
-    D,C,1,0
-    0,1,C,D
-    ...
-    D,C,1,0
-    0,1,C,D   low digit
-
-For example in the following notice the first and third digit increases, but
-the middle digit decreases,
-
-    X=4to7     N=0x1D0,0x1D1,0x1DC,0x1DD
-    X=8to11    N=0x1C0,0x1C1,0x1CC,0x1CD
-    X=12to15   N=0x110,0x111,0x11C,0x11D
-    X=16to19   N=0x100,0x101,0x10C,0x10D
-    X=20to23   N=0xCD0,0xCD1,0xCDC,0xCDD
-
-For the negative X axis it's the same if reading by increasing X,
-ie. upwards toward +infinity, or the opposite way around if reading
-decreasing X, ie. more negative downwards toward -infinity.
-
 =head2 Fractal
 
 The i-1 twindragon is usually conceived as taking fractional N like 0.abcde
@@ -438,88 +417,6 @@ bits by multiplying up to make an integer N
 rotations to apply to the resulting X,Y, only a power-of-16 division
 (b^8)^k=16^k each.  Using b^4=-4 for a multiplier 16^k and divisor (-4)^k
 would be almost as easy too, requiring just sign changes if k odd.
-
-=head2 Boundary Length
-
-X<Gilbert, William J.>The length of the boundary of unit squares for the
-first norm^k many points, ie. N=0 to N=norm^k-1 inclusive, can be found in
-
-=over
-
-William J. Gilbert, "The Fractal Dimension of Sets Derived From Complex
-Bases", Canadian Math Bulletin, volume 29(4), 1986.
-L<http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf>
-
-=back
-
-The boundary formula is a 3rd-order recurrence.  For the twindragon case it
-is
-
-    realpart=1
-    boundary[k] = boundary[k-1] + 2*boundary[k-3]
-
-    = 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, ...
-
-The first three boundaries are as follows.  Then the recurrence gives the
-next boundary[3] = 10+2*4 = 18.
-
-     k      area     boundary[k]
-    ---     ----     -----------
-                                       +---+
-     0     2^k = 1       4             | 0 |
-                                       +---+
-
-                                       +---+---+
-     1     2^k = 2       6             | 0   1 |
-                                       +---+---+
-
-                                   +---+---+
-                                   | 2   3 |
-     2     2^k = 4      10         +---+   +---+
-                                       | 0   1 |
-                                       +---+---+
-
-Gilbert calculates the boundary of any i-r by taking the boundary in three
-parts A,B,C and showing how in the next replication level those boundary
-parts transform into multiple copies of the preceding level parts.  The
-replication is easier to visualize for a bigger "r" than for the twindragon
-because in bigger r it's clearer how the A, B and C parts differ.  The
-length replication are
-
-    A -> A * (2*realpart-1)             + C * 2*realpart
-    B -> A * (realpart^2-2*realpart+2)  + C * (realpart-1)^2
-    C -> B
-
-    starting from
-      A = 2*realpart
-      B = 2
-      C = 2 - 2*realpart
-
-    total boundary = A+B+C
-
-For the twindragon realpart=1 these A,B,C are already in the form of a
-recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B, per the formula above.  For
-other real parts a little matrix rearrangement turns the A,B,C parts into
-recurrence
-
-    boundary[k] = boundary[k-1] * (2*realpart - 1)   
-                + boundary[k-2] * (norm - 2*realpart)
-                + boundary[k-3] * norm               
-
-    starting from
-      boundary[0] = 4               # single square cell
-      boundary[1] = 2*norm + 2      # oblong of norm many cells
-      boundary[2] = 2*(norm-1)*(realpart+2) + 4
-
-For example
-
-    realpart=2
-    boundary[k] = 3*boundary[k-1] + 1*boundary[k-2] + 5*boundary[k-1]
-
-    = 4, 12, 36, 140, 516, 1868, 6820, 24908, ...
-
-If calculating for large k values then the matrix form can be powered up
-rather than repeated additions.  (As usual for all such linear recurrences.)
 
 =head1 FUNCTIONS
 
@@ -606,6 +503,201 @@ the digit, the quotient is Ynew and the remainder is the digit.
 # The "level-7" is since the innermost few levels take a while to cover the
 # points surrounding the origin.  Notice for example X=1,Y=-1 is not reached
 # until N=58.  But after that it grows like N approx = pi*R^2.
+
+=pod
+
+=head2 X Axis N for Realpart 1
+
+For base i-1, Penney shows the N on the X axis are
+
+    X axis N in hexadecimal uses only digits 0, 1, C, D
+     = 0, 1, 12, 13, 16, 17, 28, 29, 192, 193, 204, 205, 208, ...
+
+Those on the positive X axis have an odd number of digits and on the X
+negative axis an even number of digits.
+
+To be on the X axis the imaginary parts of the base powers b^k must cancel
+out to leave just a real part.  The powers repeat in an 8-long cycle
+
+    k    b^k for b=i-1
+    0        +1
+    1      i -1
+    2    -2i +0   \ pair cancel
+    3     2i +2   /
+    4        -4
+    5    -4i +4
+    6     8i +0   \ pair cancel
+    7    -8i -8   /
+
+The k=0 and k=4 bits are always reals and can always be included.  Bits k=2
+and k=3 have imaginary parts -2i and 2i which cancel out, so they can be
+included together.  Similarly k=6 and k=7 with 8i and -8i.  The two blocks
+k=0to3 and k=4to7 differ only in a negation so the bits can be reckoned in
+groups of 4, which is hexadecimal.  Bit 1 is digit value 1 and bits 2,3
+together are digit value 0xC, so adding one or both of those gives
+combinations are 0,1,0xC,0xD.
+
+The high hex digit determines the sign, positive or negative, of the total
+real part.  Bits k=0 or k=2,3 are positive.  Bits k=4 or k=6,7 are negative,
+so
+
+    N for X>0   N for X<0
+
+      0x01..     0x1_..     even number of hex 0,1,C,D following
+      0x0C..     0xC_..     "_" digit any of 0,1,C,D
+      0x0D..     0xD_..
+
+which is equivalent to XE<gt>0 is an odd number of hex digits or XE<lt>0 is
+an even number.  For example N=28=0x1C is at X=-2 since that N is XE<lt>0
+form "0x1_".
+
+The order of the values on the positive X axis is obtained by taking the
+digits in reverse order on alternate positions
+
+    0,1,C,D   high digit
+    D,C,1,0
+    0,1,C,D
+    ...
+    D,C,1,0
+    0,1,C,D   low digit
+
+For example in the following notice the first and third digit increases, but
+the middle digit decreases,
+
+    X=4to7     N=0x1D0,0x1D1,0x1DC,0x1DD
+    X=8to11    N=0x1C0,0x1C1,0x1CC,0x1CD
+    X=12to15   N=0x110,0x111,0x11C,0x11D
+    X=16to19   N=0x100,0x101,0x10C,0x10D
+    X=20to23   N=0xCD0,0xCD1,0xCDC,0xCDD
+
+For the negative X axis it's the same if reading by increasing X,
+ie. upwards toward +infinity, or the opposite way around if reading
+decreasing X, ie. more negative downwards toward -infinity.
+
+=head2 Y Axis N for Realpart 1
+
+For base i-1 Penny also characterises the N values on the Y axis,
+
+    Y axis N in base-64 uses only
+      at even digits 0, 3,  4,  7, 48, 51, 52, 55
+      at odd digit   0, 1, 12, 13, 16, 17, 28, 29
+
+    = 0,3,4,7,48,51,52,55,64,67,68,71,112,115,116,119, ...
+
+Base-64 means taking N in 6-bit blocks.  Digit positions are counted
+starting from the least significant digit as position 0 which is even.  So
+the low digit can be only 0,3,4,etc, then the second digit only 0,1,12,etc,
+and so on.
+
+This arises from (i-1)^6 = 8i which gives a repeating pattern of 6-bit
+blocks.  The different patterns at odd and even positions are since i^2
+= -1.
+
+=head2 Boundary Length
+
+X<Gilbert, William J.>The length of the boundary of unit squares for the
+first norm^k many points, ie. N=0 to N=norm^k-1 inclusive, is calculated in
+
+=over
+
+William J. Gilbert, "The Fractal Dimension of Sets Derived From Complex
+Bases", Canadian Math Bulletin, volume 29, number 4, 1986.
+L<http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf>
+
+=back
+
+The boundary formula is a 3rd-order recurrence.  For the twindragon case it
+is
+
+    for realpart=1
+    boundary[k] = boundary[k-1] + 2*boundary[k-3]
+
+    = 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, ...
+
+                           4 + 2*x + 4*x^2
+    generating function    ---------------
+                            1 - x - 2*x^3
+
+=for Test-Pari 2*4+10 == 18
+
+=for Test-Pari 2*6+18 == 30
+
+=for Test-Pari-DEFINE gB1(x) = (4 + 2*x + 4*x^2)  / (1 - x - 2*x^3)
+
+=for Test-Pari Vec(gB1(x) - O(x^11)) == [4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710]
+
+The first three boundaries are as follows.  Then the recurrence gives the
+next boundary[3] = 10+2*4 = 18.
+
+     k      area     boundary[k]
+    ---     ----     -----------
+                                       +---+
+     0     2^k = 1       4             | 0 |
+                                       +---+
+
+                                       +---+---+
+     1     2^k = 2       6             | 0   1 |
+                                       +---+---+
+
+                                   +---+---+
+                                   | 2   3 |
+     2     2^k = 4      10         +---+   +---+
+                                       | 0   1 |
+                                       +---+---+
+
+Gilbert calculates for any i-r by taking the boundary in three parts A,B,C
+and showing how in the next replication level those boundary parts transform
+into multiple copies of the preceding level parts.  The replication is
+easier to visualize for a bigger "r" than for the twindragon because in
+bigger r it's clearer how the A, B and C parts differ.  The length
+replications are
+
+    A -> A * (2*r-1)      + C * 2*r
+    B -> A * (r^2-2*r+2)  + C * (r-1)^2
+    C -> B
+
+    starting from
+      A = 2*r
+      B = 2
+      C = 2 - 2*r
+
+    total boundary = A+B+C
+
+For the twindragon realpart=1 these A,B,C are already in the form of a
+recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B, per the formula above.  For
+other real parts a little matrix rearrangement turns the A,B,C parts into
+recurrence
+
+    boundary[k] = boundary[k-1] * (2*r - 1)   
+                + boundary[k-2] * (norm - 2*r)
+                + boundary[k-3] * norm               
+
+    starting from
+      boundary[0] = 4               # single square cell
+      boundary[1] = 2*norm + 2      # oblong of norm many cells
+      boundary[2] = 2*(norm-1)*(r+2) + 4
+
+For example
+
+    for realpart=2
+    boundary[k] = 3*boundary[k-1] + 1*boundary[k-2] + 5*boundary[k-3]
+
+    = 4, 12, 36, 140, 516, 1868, 6820, 24908, 90884, ...
+
+                                 4 - 4*x^2
+    generating function    ---------------------
+                           1 - 3*x - x^2 - 5*x^3
+
+=for Test-Pari-DEFINE gB2(x) = (4 - 4*x^2)  / (1 - 3*x - x^2 - 5*x^3)
+
+=for Test-Pari Vec(gB2(x) - O(x^9)) == [4, 12, 36, 140, 516, 1868, 6820, 24908, 90884]
+
+=for Test-Pari 5*4+1*12+3*36 == 140
+
+=for Test-Pari 5*12+1*36+3*140 == 516
+
+If calculating for large k values then the matrix form can be powered up
+rather than repeated additions.  (As usual for all such linear recurrences.)
 
 =head1 OEIS
 

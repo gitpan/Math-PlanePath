@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -53,8 +53,8 @@ use Math::PlanePath::Base::Generic
 use constant arms_count => 6;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_even;
 
-use constant _UNDOCUMENTED__x_negative_at_n => 4;
-use constant _UNDOCUMENTED__y_negative_at_n => 6;
+use constant x_negative_at_n => 4;
+use constant y_negative_at_n => 6;
 use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;

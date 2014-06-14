@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,11 +35,11 @@ use Math::PlanePath::Base::Generic
 
 
 use constant xy_is_visited => 1;
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 3;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 1;
 }
@@ -52,14 +52,14 @@ use constant dx_maximum => 2;
 use constant dy_minimum => -2;
 use constant dy_maximum => 2;
 use constant _UNDOCUMENTED__dxdy_list => (2,1,   # ENE
-                                          1,2,   # NNE
-                                          -1,2,  # NNW
-                                          -2,1,  # WNW
-                                          -2,-1, # WSW
-                                          -1,-2, # SSW
-                                          1,-2,  # SSE
-                                          2,-1,  # ESE
-                                         );
+                           1,2,   # NNE
+                           -1,2,  # NNW
+                           -2,1,  # WNW
+                           -2,-1, # WSW
+                           -1,-2, # SSW
+                           1,-2,  # SSE
+                           2,-1,  # ESE
+                          );
 use constant absdx_minimum => 1;
 use constant absdy_minimum => 1;
 use constant dsumxy_minimum => -3; # -2,-1
@@ -473,7 +473,7 @@ of a square spiral.
                               
         10  15  20   3   8      28         1
                               
-         5  22   1  18  13            <- y=0
+         5  22   1  18  13            <- Y=0
                               
         16  11  24   7   2  27             1
                               
@@ -482,7 +482,7 @@ of a square spiral.
                                 26
 
                  ^
-        -2  -1  x=0  1   2   3
+        -2  -1  X=0  1   2   3
 
 Each step is a chess knight's move 1 across and 2 along, or vice versa.  The
 pattern makes 4 cycles on a 2-wide path around a square before stepping

@@ -40,7 +40,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -99,7 +99,7 @@ sub x_maximum {
           : undef);
 }
 {
-  my @_UNDOCUMENTED__x_negative_at_n
+  my @x_negative_at_n
     = (
        undef,     2, undef,     1, undef,     3, undef,     1,    # rule=0
        undef,     3, undef,     1, undef,     4, undef,     1,    # rule=8
@@ -134,11 +134,11 @@ sub x_maximum {
        undef,     2, undef,     1, undef,     3, undef, undef,    # rule=240
        undef,     2, undef,     1, undef,     3,                  # rule=248
       );
-  sub _UNDOCUMENTED__x_negative_at_n {
+  sub x_negative_at_n {
     my ($self) = @_;
-    my $_UNDOCUMENTED__x_negative_at_n = $_UNDOCUMENTED__x_negative_at_n[$self->{'rule'}];
-    return (defined $_UNDOCUMENTED__x_negative_at_n
-            ? $self->n_start + $_UNDOCUMENTED__x_negative_at_n
+    my $x_negative_at_n = $x_negative_at_n[$self->{'rule'}];
+    return (defined $x_negative_at_n
+            ? $self->n_start + $x_negative_at_n
             : undef);
   }
 }
@@ -1142,7 +1142,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 115;
+  $VERSION = 116;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1163,7 +1163,17 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use constant class_y_negative => 0;
   use constant n_frac_discontinuity => .5;
 
-  sub _UNDOCUMENTED__x_negative_at_n {
+  sub x_negative {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left');
+  }
+  sub x_maximum {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right'
+            ? undef
+            : 0);
+  }
+  sub x_negative_at_n {
     my ($self) = @_;
     return ($self->{'align'} eq 'left' ? $self->n_start + 1 : undef);
   }
@@ -1199,6 +1209,25 @@ sub _UNDOCUMENTED__rule_to_mirror {
   }
   *ddiffxy_maximum = \&ddiffxy_minimum;
 
+  sub absdx_minimum {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'centre' ? 0 : 1);
+  }
+  use constant absdy_minimum => 1; # dY=1 always
+
+  sub dir_minimum_dxdy {
+    my ($self) = @_;
+    return ($self->dx_minimum, 1);
+  }
+  *dir_maximum_dxdy = \&dir_minimum_dxdy;  # same direction always
+
+  sub dx_minimum {
+    my ($self) = @_;
+    return $self->{'sign'};
+  }
+  *dx_maximum = \&dx_minimum;  # same step always
+  use constant dy_minimum => 1;
+  use constant dy_maximum => 1;
   sub _UNDOCUMENTED__dxdy_list {
     my ($self) = @_;
     return ($self->{'sign'}, 1);
@@ -1220,40 +1249,6 @@ sub _UNDOCUMENTED__rule_to_mirror {
       croak "Unrecognised align parameter: ",$self->{'align'};
     }
     return $self;
-  }
-
-  sub x_negative {
-    my ($self) = @_;
-    return ($self->{'align'} eq 'left');
-  }
-  sub x_maximum {
-    my ($self) = @_;
-    return ($self->{'align'} eq 'right'
-            ? undef
-            : 0);
-  }
-  sub absdx_minimum {
-    my ($self) = @_;
-    return ($self->{'align'} eq 'centre' ? 0 : 1);
-  }
-  use constant absdy_minimum => 1; # dY=1 always
-
-  sub dir_minimum_dxdy {
-    my ($self) = @_;
-    return ($self->dx_minimum, 1);
-  }
-  *dir_maximum_dxdy = \&dir_minimum_dxdy;  # same direction always
-
-  sub dx_minimum {
-    my ($self) = @_;
-    return $self->{'sign'};
-  }
-  *dx_maximum = \&dx_minimum;  # same step always
-  use constant dy_minimum => 1;
-  use constant dy_maximum => 1;
-  sub dxdy_list {
-    my ($self) = @_;
-    return ($self->{'sign'}, 1);
   }
 
   sub n_to_xy {
@@ -1341,7 +1336,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 115;
+  $VERSION = 116;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1357,7 +1352,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use constant class_y_negative => 0;
   use constant n_frac_discontinuity => .5;
 
-  sub _UNDOCUMENTED__x_negative_at_n {
+  sub x_negative_at_n {
     my ($self) = @_;
     return $self->n_start + 1;
   }
@@ -1428,7 +1423,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 115;
+  $VERSION = 116;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1466,7 +1461,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
     my ($self) = @_;
     return ($self->{'align'} eq 'left');
   }
-  sub _UNDOCUMENTED__x_negative_at_n {
+  sub x_negative_at_n {
     my ($self) = @_;
     return ($self->{'align'} eq 'left' ? $self->n_start + 1 : undef);
   }
@@ -1508,11 +1503,11 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use constant dy_maximum => 1;
   {
     my %_UNDOCUMENTED__dxdy_list = (left  => [ 1,0,    # E
-                                               -1,1,   # NW
-                                               -2,1 ], # WNW
-                                    right => [ 1,0,    # E
-                                               1,1,    # NE
-                                               0,1 ]); # N
+                                -1,1,   # NW
+                                -2,1 ], # WNW
+                     right => [ 1,0,    # E
+                                1,1,    # NE
+                                0,1 ]); # N
     sub _UNDOCUMENTED__dxdy_list {
       my ($self) = @_;
       return @{$_UNDOCUMENTED__dxdy_list{$self->{'align'}}};
@@ -1667,7 +1662,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 115;
+  $VERSION = 116;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem = \&Math::PlanePath::_divrem;
@@ -1712,7 +1707,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
             ? 0
             : undef);
   }
-  sub _UNDOCUMENTED__x_negative_at_n {
+  sub x_negative_at_n {
     my ($self) = @_;
     return ($self->{'align'} eq 'left' ? $self->n_start + 1 : undef);
   }
@@ -1748,12 +1743,12 @@ sub _UNDOCUMENTED__rule_to_mirror {
   use constant dy_maximum => 1;
   {
     my %_UNDOCUMENTED__dxdy_list = (left  => [ 1,0,   # E
-                                               -1,1,  # NW at N=1
-                                               -2,1,  # WNW
-                                             ],
-                                    right => [ 1,0,  # E
-                                               0,1,  # N
-                                             ]);
+                                -1,1,  # NW at N=1
+                                -2,1,  # WNW
+                              ],
+                     right => [ 1,0,  # E
+                                0,1,  # N
+                              ]);
     sub _UNDOCUMENTED__dxdy_list {
       my ($self) = @_;
       return @{$_UNDOCUMENTED__dxdy_list{$self->{'align'}}};

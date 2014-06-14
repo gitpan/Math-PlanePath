@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -59,24 +59,24 @@ use Math::PlanePath::Base::Generic
 #   ];
 use constant n_frac_discontinuity => 0;
 
-use constant _UNDOCUMENTED__x_negative_at_n => 4;
-use constant _UNDOCUMENTED__y_negative_at_n => 5;
+use constant x_negative_at_n => 4;
+use constant y_negative_at_n => 5;
 use constant dx_minimum => -1;
 use constant dx_maximum => 2;  # jump N=5 to N=6
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 
 # eight plus ENE
-use constant _UNDOCUMENTED__dxdy_list => (1,0,    # E  N=1   
-                                          2,1,    # ENE  N=5 <-- extra
-                                          1,1,    # NE  N=16
-                                          0,1,    # N  N=6
-                                          -1,1,   # NW  N=2
-                                          -1,0,   # W  N=8
-                                          -1,-1,  # SW  N=3
-                                          0,-1,   # S  N=11
-                                          1,-1,   # SE  N=4
-                                         );
+use constant _UNDOCUMENTED__dxdy_list => (1,0,    # E  N=1
+                           2,1,    # ENE  N=5 <-- extra
+                           1,1,    # NE  N=16
+                           0,1,    # N  N=6
+                           -1,1,   # NW  N=2
+                           -1,0,   # W  N=8
+                           -1,-1,  # SW  N=3
+                           0,-1,   # S  N=11
+                           1,-1,   # SE  N=4
+                          );
 use constant _UNDOCUMENTED__dxdy_list_at_n => 16;
 
 use constant dsumxy_minimum => -2; # diagonals
@@ -468,7 +468,7 @@ ellipse drawing algorithm.
      |    /   /   /            \   \   \     |
     67  43  25  11   .   3   .   7  19  35  55         1
      |   |   |   |     /   \     |   |   |   |
-    67  44  26  12   4   1   2   6  18  34  54       y=0
+    67  44  26  12   4   1   2   6  18  34  54       Y=0
      |   |   |   |     \   /
     68  45  27  13   .   5   .  17  33  53  80        -1
      |    \   \   \            /   /   /     |
@@ -480,7 +480,7 @@ ellipse drawing algorithm.
               \                    /
                 72--73--74--75--76                    -5
 
-    -5  -4  -3  -2  -1  x=0  1   2   3   4   5
+    -5  -4  -3  -2  -1  X=0  1   2   3   4   5
 
 The way the algorithm works means the rings don't overlap.  Each is 4 or 8
 pixels longer than the preceding.  If the ring follows the preceding tightly

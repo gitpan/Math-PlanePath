@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -49,7 +49,7 @@ use constant parameter_info_array =>
     Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + ($self->{'mirror'} ? 1 : 2);
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/ucblogo
 
-; Copyright 2012, 2013 Kevin Ryde
+; Copyright 2012, 2013, 2014 Kevin Ryde
 ;
 ; This file is part of Math-PlanePath.
 ;
@@ -31,10 +31,12 @@
 ; See also:
 ;
 ; Mark Horney, "Fractals I: Making Recursion Visible", Logo Exchange,
-; Volume 9, number 1, pages 23-29.  "Fractals.
-;
+; Volume 9, number 1, September 1990, pages 23-29.
 ; Mark Horney, "Fractals II: Representation, Logo Exchange, Volume 9,
-; number 2, pages 26-29.  "Fractals.
+; number 2, October 1990, pages 26-29.
+; http://el.media.mit.edu/logo-foundation/pubs/nlx.html
+; http://el.media.mit.edu/logo-foundation/pubs/nlx/v9/Vol9No1.pdf
+; http://el.media.mit.edu/logo-foundation/pubs/nlx/v9/Vol9No2.pdf
 
 
 

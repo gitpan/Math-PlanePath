@@ -24,10 +24,10 @@ Source: libmath-planepath-perl
 Section: perl
 Priority: optional
 Build-Depends: cdbs, debhelper (>= 5)
-Maintainer: Kevin Ryde <user42@zip.com.au>
+Maintainer: Kevin Ryde <user42_kevin@yahoo.com.au>
 Standards-Version: 3.9.5
 Homepage: http://user42.tuxfamily.org/math-planepath/index.html
-Bugs: mailto:user42@zip.com.au
+Bugs: mailto:user42_kevin@yahoo.com.au
 
 Package: libmath-planepath-perl
 Architecture: all

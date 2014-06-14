@@ -24,7 +24,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -49,23 +49,23 @@ use constant parameter_info_array =>
   ];
 
 {
-  my %_UNDOCUMENTED__x_negative_at_n = (left  => 3,
-                                        right => 5,
-                                        up    => 3,
-                                        down  => 5);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my %x_negative_at_n = (left  => 3,
+                         right => 5,
+                         up    => 3,
+                         down  => 5);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $self->n_start + $_UNDOCUMENTED__x_negative_at_n{$self->{'skew'}};
+    return $self->n_start + $x_negative_at_n{$self->{'skew'}};
   }
 }
 {
-  my %_UNDOCUMENTED__y_negative_at_n = (left  => 6,
+  my %y_negative_at_n = (left  => 6,
                                         right => 6,
                                         up    => 5,
                                         down  => 1);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $self->n_start + $_UNDOCUMENTED__y_negative_at_n{$self->{'skew'}};
+    return $self->n_start + $y_negative_at_n{$self->{'skew'}};
   }
 }
 use constant dx_minimum => -1;
@@ -74,18 +74,18 @@ use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 {
   my %_UNDOCUMENTED__dxdy_list = (left  => [1,0,   # E
-                                            -1,1,  # NW
-                                            0,-1], # S
-                                  right => [1,0,    # E
-                                            0,1,    # N
-                                            -1,-1], # SW
-                                  up    => [1,1,   # NE
-                                            -1,0,  # W
-                                            0,-1], # S
-                                  down  => [0,1,   # N
-                                            -1,0,  # W
-                                            1,-1], # SE
-                                 );
+                             -1,1,  # NW
+                             0,-1], # S
+                   right => [1,0,    # E
+                             0,1,    # N
+                             -1,-1], # SW
+                   up    => [1,1,   # NE
+                             -1,0,  # W
+                             0,-1], # S
+                   down  => [0,1,   # N
+                             -1,0,  # W
+                             1,-1], # SE
+                  );
   sub _UNDOCUMENTED__dxdy_list {
     my ($self) = @_;
     return @{$_UNDOCUMENTED__dxdy_list{$self->{'skew'}}};

@@ -27,15 +27,36 @@
 # "Les courbes planes ou gauches et les surfaces composée de parties semblales au tout,"
 # Journal de l'École Polytechnique, 1938, 227-247,
 
+# Agnes Benedek and Rafael Panzone, "Sobre Algunos Notables Conjuntos
+# Planos, I. La Curva de Lévy", Anales Academia Nacional de Ciencias
+# Exactas, Físicas y Naturales, volume 46, 1994
+# # http://www.ancefn.org.ar/old/biblioteca/base_de_datos/tomo46.html
+# # (table of contents only)
+
+# cf maybe
+# Agnes Benedek and Rafael Panzone
+# "Tessellations associated with number systems",
+# volume 53, 2001, pages 61-64
+# Notas de Contenido:Trabajo presentado con motivo de la enrega del premio
+# "Orlando Villamayor" en Matemática, a la Dra. Agnes I. Benedek, el día 10
+# noviembre de 2000.
+# # www.ancefn.org.ar/old/biblioteca/base_de_datos/tomo53.html                                                                           
+# # (table of contents)
+
 # * Bailey, Kim, Strichartz, "Inside the Levy Dragon", American Mathematical
 #   Monthly, volume 109, 2002, pages 689-703
 #   http://www.jstor.org/stable/3072395
 #   http://www.mathlab.cornell.edu/twk6
 #   http://www.mathlab.cornell.edu/%7Etwk6/program.html
 
-# * Alster, The finite number of interior, Discrete Comput Geom, volume 43, 2010,
-#   http://rd.springer.com/article/10.1007/s00454-009-9211-1
-#   pay
+# * Alster, The finite number of interior, Discrete Comput Geom, volume 43,
+#   2010,
+#   http://rd.springer.com/article/10.1007/s00454-009-9211-1 pay
+
+# 6809 assembler, recursive
+# http://www.retroprogramming.com/2013/08/zx-spectrum-koch-levy-c-curve.html
+# https://archive.org/details/your-sinclair-92
+# August 1983 pages 16-17 bytes poked into memory.
 
 package Math::PlanePath::CCurve;
 use 5.004;
@@ -43,14 +64,11 @@ use strict;
 use List::Util 'min','max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_divrem = \&Math::PlanePath::_divrem;
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
-
-use Math::PlanePath::KochCurve;
-*_digit_join_hightolow = \&Math::PlanePath::KochCurve::_digit_join_hightolow;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -60,6 +78,11 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
+*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::KochCurve;
+*_digit_join_hightolow = \&Math::PlanePath::KochCurve::_digit_join_hightolow;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -78,19 +101,9 @@ use Math::PlanePath::Base::Digits
 #                                        } ];
 
 use constant n_start => 0;
-use constant _UNDOCUMENTED__x_negative_at_n => 6;
-use constant _UNDOCUMENTED__y_negative_at_n => 22;
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
+use constant x_negative_at_n => 6;
+use constant y_negative_at_n => 22;
 use constant _UNDOCUMENTED__dxdy_list_at_n => 7;
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------
@@ -508,6 +521,13 @@ sub _UNDOCUMENTED_level_to_hull_boundary_sqrt2 {
     #   }
     # }
   }
+}
+
+#------------------------------------------------------------------------------
+
+sub _UNDOCUMENTED_level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 2**$level);
 }
 
 #------------------------------------------------------------------------------
@@ -978,7 +998,7 @@ swap and sign change,
 =head2 X,Y to N
 
 The N values at a given X,Y can be found by taking terms low to high from
-the complex number formula (as given above),
+the complex number formula (the same as given above)
 
     X+iY = b^k            N = 2^k + 2^(k1) + 2^(k2) + ... in binary
          + b^k1 * i       base b=1+i
@@ -1103,21 +1123,294 @@ The four in-between points S=0,D=1 etc don't occur so range tests
 
      S=-1,D=-1     .      S=1,D=-1
 
+=head2 Segments by Direction
+
+In a level N=0 to N=2^k-1 inclusive, the number of segments in each
+direction 0=East, 1=North, 2=West, 3=South are given by
+
+           k=0     for k >= 1
+    M0[k] = 1  then  2^(k-2) + d(k+2)*2^(h-1)
+    M1[k] = 0  then  2^(k-2) + d(k+0)*2^(h-1)
+    M2[k] = 0  then  2^(k-2) + d(k-2)*2^(h-1)
+    M3[k] = 0  then  2^(k-2) + d(k-4)*2^(h-1)
+
+    where h = floor(k/2)
+      d(n mod 8) =  0  1  1  1  0 -1 -1 -1
+        n mod 8  =  0  1  2  3  4  5  6  7
+
+    M0[k] = 1, 1, 1, 1, 2,  6, 16, 36, 72, 136, 256, ...
+    M1[k] = 0, 1, 2, 3, 4,  6, 12, 28, 64, 136, 272, ...
+    M2[k] = 0, 0, 1, 3, 6, 10, 16, 28, 56, 120, 256, ...
+    M3[k] = 0, 0, 0, 1, 4, 10, 20, 36, 64, 120, 240, ...
+
+d(n) is a +1, -1 or 0 factor according to n mod 8.  The counts go as a power
+2^(k-2), so roughy 1/4 each, but a half power 2^(h-1) possibly added or
+subtracted in a k mod 8 pattern.  In binary this is a 2^(k-2) high 1-bit
+with another 1-bit in the middle added or subtracted.
+
+The total is 2^k since there are a total 2^k points from N=0 to 2^k-1
+inclusive.
+
+    M0[k] + M1[k] + M2[k] + M3[k] = 2^k
+
+It can be seen that the d(n) parts sum to 0 so the 2^(h-1) parts cancel out
+leaving 4*2^(k-2) = 2^k.
+
+    d(0) + d(2) + d(4) + d(6) = 0
+    d(1) + d(3) + d(5) + d(7) = 0
+
+=for Test-Pari-DEFINE  Mdir_vec = [0, 1, 1, 1,  0, -1, -1, -1]
+
+=for Test-Pari-DEFINE  Mdir(n) = Mdir_vec[(n%8)+1]  /* +1 for vector start index 1 */
+
+=for Test-Pari-DEFINE  M0half(k) = local(h); h=floor(k/2); if(k==0,1, 2^(k-2) + Mdir(k+2)*2^(h-1))
+
+=for Test-Pari-DEFINE  M1half(k) = local(h); h=floor(k/2); if(k==0,0, 2^(k-2) + Mdir(k+0)*2^(h-1))
+
+=for Test-Pari-DEFINE  M2half(k) = local(h); h=floor(k/2); if(k==0,0, 2^(k-2) + Mdir(k-2)*2^(h-1))
+
+=for Test-Pari-DEFINE  M3half(k) = local(h); h=floor(k/2); if(k==0,0, 2^(k-2) + Mdir(k-4)*2^(h-1))
+
+=for Test-Pari-DEFINE  M0samples = [ 1, 1, 1, 1, 2,  6, 16, 36, 72, 136, 256 ]
+
+=for Test-Pari-DEFINE  M1samples = [ 0, 1, 2, 3, 4,  6, 12, 28, 64, 136, 272 ]
+
+=for Test-Pari-DEFINE  M2samples = [ 0, 0, 1, 3, 6, 10, 16, 28, 56, 120, 256 ]
+
+=for Test-Pari-DEFINE  M3samples = [ 0, 0, 0, 1, 4, 10, 20, 36, 64, 120, 240 ]
+
+=for Test-Pari  vector(length(M0samples),k,M0half(k-1)) == M0samples
+
+=for Test-Pari  vector(length(M1samples),k,M1half(k-1)) == M1samples
+
+=for Test-Pari  vector(length(M2samples),k,M2half(k-1)) == M2samples
+
+=for Test-Pari  vector(length(M3samples),k,M3half(k-1)) == M3samples
+
+The counts can be calculated in two ways.  Firstly they satisfy mutual
+recurrences.  Each adds the preceding rotated M.
+
+    M0[k+1] = M0[k] + M3[k]        initially M0[0] = 1 (N=0 to N=1)
+    M1[k+1] = M1[k] + M0[k]                  M1[0] = 0
+    M2[k+1] = M2[k] + M1[k]                  M2[0] = 0
+    M3[k+1] = M3[k] + M2[k]                  M3[0] = 0
+
+Geometrically this can be seen from the way each level extends by a copy of
+the previous level rotated +90,
+
+    7---6---5            Easts in N=0 to 8
+    |       |            =   Easts in N=0 to 4
+    8       4---3          + Wests in N=0 to 4
+                |             since N=4 to N=8 is
+                2             the N=0 to N=4 rotated +90
+                |
+            0---1
+
+For the bits in N, level k+1 introduces a new bit either 0 or 1.  In M0[k+1]
+the a 0-bit is count M0[k] the same direction, and when a 1-bit M3[k] one
+less bit mod 4.  Similarly the other counts.
+
+Some substitutions give 3rd order recurrences
+
+    for k >= 4
+    M0[k] = 4*M0[k-1] - 6*M0[k-2] + 4*M0[k-3]    initial 1,1,1,1
+    M1[k] = 4*M1[k-1] - 6*M1[k-2] + 4*M1[k-3]    initial 0,1,2,3
+    M2[k] = 4*M2[k-1] - 6*M2[k-2] + 4*M2[k-3]    initial 0,0,1,3
+    M3[k] = 4*M3[k-1] - 6*M3[k-2] + 4*M3[k-3]    initial 0,0,0,1
+
+=for Test-Pari-DEFINE  M0rec(k) = if(k<4,1, 4*M0rec(k-1) - 6*M0rec(k-2) + 4*M0rec(k-3))
+
+=for Test-Pari-DEFINE  M1rec(k) = if(k<4,k, 4*M1rec(k-1) - 6*M1rec(k-2) + 4*M1rec(k-3))
+
+=for Test-Pari-DEFINE  M2rec(k) = if(k<2,0, if(k==2,1, if(k==3,3, 4*M2rec(k-1) - 6*M2rec(k-2) + 4*M2rec(k-3))))
+
+=for Test-Pari-DEFINE  M3rec(k) = if(k<3,0, if(k==3,1, 4*M3rec(k-1) - 6*M3rec(k-2) + 4*M3rec(k-3)))
+
+=for Test-Pari  vector(20,k,M0rec(k-1)) == vector(20,k,M0half(k-1))
+
+=for Test-Pari  vector(20,k,M1rec(k-1)) == vector(20,k,M1half(k-1))
+
+=for Test-Pari  vector(20,k,M2rec(k-1)) == vector(20,k,M2half(k-1))
+
+=for Test-Pari  vector(20,k,M3rec(k-1)) == vector(20,k,M3half(k-1))
+
+The characteristic polynomial  of these recurrences is
+
+    x^3 - 4x^2 + 6x - 4
+    = (x-2) * (x - (1-i)) * (x - (1+i))
+
+=for Test-Pari  x^3 - 4*x^2 + 6*x - 4 == (x-2)*(x^2 - 2*x + 2)
+
+=for Test-Pari  x^3 - 4*x^2 + 6*x - 4 == (x-2) * (x + (I-1)) * (x - (I+1))
+
+So explicit formulas can be written in powers of the roots 2, 1-i and 1+i,
+
+    M0[k] = ( 2^k +   (1-i)^k +   (1+i)^k )/4      for k>=1
+    M3[k] = ( 2^k + i*(1-i)^k - i*(1+i)^k )/4
+    M2[k] = ( 2^k -   (1-i)^k -   (1+i)^k )/4
+    M3[k] = ( 2^k - i*(1-i)^k + i*(1+i)^k )/4
+
+=for Test-Pari-DEFINE  M0pow(k) = if(k==0,1, (1/4)*(2^k +   (1-I)^k +   (1+I)^k))
+
+=for Test-Pari-DEFINE  M1pow(k) = if(k==0,0, (1/4)*(2^k + I*(1-I)^k - I*(1+I)^k))
+
+=for Test-Pari-DEFINE  M2pow(k) = if(k==0,0, (1/4)*(2^k -   (1-I)^k -   (1+I)^k))
+
+=for Test-Pari-DEFINE  M3pow(k) = if(k==0,0, (1/4)*(2^k - I*(1-I)^k + I*(1+I)^k))
+
+=for Test-Pari  vector(50,k,M0pow(k-1)) == vector(50,k,M0half(k-1))
+
+=for Test-Pari  vector(50,k,M1pow(k-1)) == vector(50,k,M1half(k-1))
+
+=for Test-Pari  vector(50,k,M2pow(k-1)) == vector(50,k,M2half(k-1))
+
+=for Test-Pari  vector(50,k,M3pow(k-1)) == vector(50,k,M3half(k-1))
+
+The complex numbers 1-i and 1+i are 45 degree lines clockwise and
+anti-clockwise respectively.  The powers turn them in opposite directions so
+the imaginary parts cancel out.  The real parts can be had by a half power
+h=floor(k/2) which is the magnitude abs(1-i)=sqrt(2) projected onto the real
+axis.  The sign selector d(n) above is whether it's the positive or negative
+part of the real axis, or zero when entirely imaginary.
+
+The second way to calculate is the combinatorial interpretation that East
+segments are all N values with count_1_bits(N) == 0 mod 4, since as per
+L</Direction> above the direction is count_1_bits(N) mod 4.  So East is all
+N with 0, 4, 8, etc many 1-bits.  The number of ways to have that many
+within k bits is k choose 0, 4, 8 etc.
+
+    M0[k] = /k\ + /k\ + ... + / k\      m = floor(k/4)
+            \0/   \4/         \4m/
+
+    M1[k] = /k\ + /k\ + ... + / k  \    m = floor((k-1)/4)
+            \1/   \5/         \4m+1/
+
+    M2[k] = /k\ + /k\ + ... + / k  \    m = floor((k-2)/4)
+            \2/   \6/         \4m+2/
+
+    M3[k] = /k\ + /k\ + ... + / k  \    m = floor((k-3)/4)
+            \3/   \7/         \4m+3/
+
+=for Test-Pari-DEFINE  M0sum(k) = sum(i=0,floor(k/4), binomial(k, 4*i))
+
+=for Test-Pari-DEFINE  M1sum(k) = sum(i=0,floor(k/4), binomial(k, 4*i+1))
+
+=for Test-Pari-DEFINE  M2sum(k) = sum(i=0,floor(k/4), binomial(k, 4*i+2))
+
+=for Test-Pari-DEFINE  M3sum(k) = sum(i=0,floor(k/4), binomial(k, 4*i+3))
+
+=for Test-Pari  vector(length(M0samples),k,M0sum(k-1)) == M0samples
+
+=for Test-Pari  vector(length(M1samples),k,M1sum(k-1)) == M1samples
+
+=for Test-Pari  vector(length(M2samples),k,M2sum(k-1)) == M2samples
+
+=for Test-Pari  vector(length(M3samples),k,M3sum(k-1)) == M3samples
+
+The power forms above are cases of the identity by Ramus for sums of
+binomial coefficients in arithmetic progression like this.  (See Knuth
+volume 1 section 1.2.6 exercise 30 for a form with cos.)
+
+The total M0+M1+M2+M3=2^k is the total binomials across a row of Pascal's
+triangle.
+
+    /k\ + /k\ + ... + /k\ = 2^k
+    \0/   \1/         \k/
+
+=cut
+
+# cf.
+# J. Konvalina, Y.-H. Liu, Arithmetic progression sums of binomial
+# coefficients, Appl. Math. Lett., 10(4), 11-13 (1997).
+
+# ((1+I)^k + (1-I)^k)/2^floor(k/2) = [2, 2, 0, -2,  -2, -2, 0, 2, ]
+# M3[k] = M0[k+1] - M0[k]
+#       = 2^(k+1) - 2^k   (1-i)^(k+1) - (1-i)^k   (1+i)^(k+1) - (1+i)^k
+#       = 2^k   (1-i - 1)*(1+i)^k   (1+i - 1)*(1+i)^k
+#       = 2^k   (-i)*(1+i)^k   (i)*(1+i)^k
+# M2[k] = M3[k+1] - M3[k]
+#       = 2^k   (-i)*(-i)*(1+i)^k   (i)*(i)*(1+i)^k
+#       = 2^k  - (1+i)^k   - (1+i)^k
+# M2[k] = M3[k+1] - M3[k]
+#       = 2^k   (-i)*(-i)*(-i)*(1+i)^k   (i)*(i)*(i)*(1+i)^k
+#       = 2^k  + i*(1+i)^k   - i*(1+i)^k
+# S[k] = a*2^k + (c+di)*(1-i)^k + (e+fi)*(1+i)^k
+# a*2^0 + (c+di)*(1-i)^0 + (e+fi)*(1+i)^0 = 1
+# a     + (c+di)         + (e+fi)         = 1
+#    a  + c     + e     = 1
+#           + d     + f = 0
+# a*2^1 + (c+di)*(1-i)^1 + (e+fi)*(1+i)^1 = 1
+# a*2   + (c+di)*(1-i)   + (e+fi)*(1+i)   = 1
+#   2a      + d     - f = 1
+#       - c     + e     = 0
+# a*2^2 + (c+di)*(1-i)^2 + (e+fi)*(1+i)^2 = 1
+# a*4   + (c+di)*-2i     + (e+fi)*2i      = 1
+#   4a      + 2d      - 2f = 1
+#   4b  - 2c     + 2e      = 0
+  # matsolve([1,1,1; 2,1,1; 4,2,-2]; [1,1,1])
+# a*2 + b*(1-i) + c*(1+i) = 1
+#            2a + (1-i)b + (1+i)c = 1
+# a*4 + b*-2i + c*2i = 1                  4a +   -2ib +    2ic = 1
+# b=c a=1/4 b=c=3/8
+
+=pod
+
 =head2 Right Boundary
 
-The right-side boundary of the curve, which is the outside of the "C", from
-N=0 to N=2^k is
+The length of the right-side boundary of the curve, which is the outside of
+the "C", from N=0 to N=2^k is
 
     R[k] = /  7*2^h - 2k - 6     if k even
            \ 10*2^h - 2k - 6     if k odd
            where h = floor(k/2)
          = 1, 2, 4, 8, 14, 24, 38, 60, 90, 136, 198, 292, 418, ...
 
+    R[k] =   (7/2 + 5/2 * sqrt(2)) * ( sqrt(2))^k
+           + (7/2 - 5/2 * sqrt(2)) * (-sqrt(2))^k
+           - 2*k - 6
+
     R[k] = 2*R[k-1] + R[k-2] - 4*R[k-3] + 2*R[k-4]
 
-The length doubles until R[4]=14 which is N=0 to N=2^4=16.  At k=4 points
-N=7,8,9 have turned inward and closed off some of the outside of the curve
-so boundary less than 2x.
+=for Test-Pari-DEFINE Rsamples = [1, 2, 4, 8, 14, 24, 38, 60, 90, 136, 198, 292, 418]
+=for Test-Pari-DEFINE Rcases(k)=if(k%2,10,7)*2^floor(k/2) - 2*k - 6
+
+=for Test-Pari vector(length(Rsamples), k, Rcases(k-1)) == Rsamples
+
+=for Test-Pari-DEFINE Rrec(k)=if(k<4,Rsamples[k+1], 2*Rrec(k-1) + Rrec(k-2) - 4*Rrec(k-3) + 2*Rrec(k-4))
+
+=for Test-Pari vector(length(Rsamples), k, Rrec(k-1)) == Rsamples
+
+=for Test-Pari-DEFINE nearint(x)=if(abs(x-round(x)) < 0.000001, round(x), x)
+
+=for Test-Pari-DEFINE Rpow(k)=nearint( (7/2 + 5/2 * sqrt(2))*( sqrt(2))^k + (7/2 - 5/2 * sqrt(2))*(-sqrt(2))^k ) - 2*k - 6
+
+=for Test-Pari vector(length(Rsamples), k, Rpow(k-1)) == Rsamples
+
+=cut
+
+# R[2k] =   (7/2 + 5/2 * sqrt(2))*( sqrt(2))^(2k)
+#         + (7/2 - 5/2 * sqrt(2))*(-sqrt(2))^(2k)
+#       =   (7/2 + 5/2 * sqrt(2))*2^k
+#         + (7/2 - 5/2 * sqrt(2))*2^k
+#       =   2*7/2*2^k
+#       =   7*2^k
+#
+# R[2k+1] =   (7/2 + 5/2 * sqrt(2))*( sqrt(2))^(2k)
+#           + (7/2 - 5/2 * sqrt(2))*(-sqrt(2))^(2k)
+#         =   (7/2 + 5/2 * sqrt(2))*2^k*sqrt(2)
+#           + (7/2 - 5/2 * sqrt(2))*2^k*-sqrt(2)
+#         =   (7/2*sqrt(2)  + 5/2 * sqrt(2)*sqrt(2))*2^k
+#           + (7/2*-sqrt(2) - 5/2 * sqrt(2)*-sqrt(2))*2^k
+#         =   (7/2*sqrt(2)  + 5/2 * 2)*2^k
+#           + (7/2*-sqrt(2) + 5/2 * 2)*2^k
+#         =   (5/2 * 2)*2^k * 2
+#         =   10*2^k
+
+=pod
+
+The length doubles until R[4]=14 which is points N=0 to N=2^4=16.  At k=4
+points N=7,8,9 have turned inward and closed off some of the outside of the
+curve so boundary less than 2x.
 
         11--10--9,7--6--5        right boundary
          |       |      |        around "outside"
@@ -1128,9 +1421,9 @@ so boundary less than 2x.
     15--16              0--1
 
 
-The odd/even cases and floor(k/2) can be eliminated by some (-1)^k and
-sqrt(2)^k if desired.  That sort of form would be per the roots of the
-characteristic equation of the recurrence,
+The floor(k/2) and odd/even cases are eliminated by the +/-sqrt(2) powering
+shown.  Those powers are also per the characteristic equation of the
+recurrence,
 
     x^4 - 2*X^3 - x^2 + 4*x - 2
       = (x - 1)^2 * (x + sqrt(2)) * (x - sqrt(2))
@@ -1146,17 +1439,18 @@ lines.  The straight lines all point "forward", which is anti-clockwise.
     D<----C<----B<----A            D     C     B     A
     |                 ^           /                   ^
     v                 |          v                     \
-       straight S=3                zig-zag Z = 2S-2 = 4
+       straight S=3                zig-zag Z[k+1] = 2S[k]-2 = 4
 
 The count Z here is both sides of each "V" shape, from the points marked "a"
-through to "c", so it counts the line segments making up the boundary.  Each
-S becomes an upward peak.  The first and last side of those peaks become
-part of the following "straight" section (at A and D), hence Z=2S-2.
+through to "c".  So Z counts the line segments making up the boundary
+(rather than the number of "V"s).  Each S becomes an upward peak.  The first
+and last side of those peaks become part of the following "straight" section
+(at A and D), hence Z[k+1]=2*S[k]-2.
 
 The zigzags all point "forward" too.  When they expand they close off the V
 shape and become 2 straight lines for each V, which means 1 straight line
 for each Z side.  The segment immediately before and after contribute a
-segment to the resulting straight run too, hence S=Z+2.
+segment to the resulting straight run too, hence S[k+1]=Z[k]+2.
 
          C     B     A               *<---C<---*<---B<---*<---A<---*
         / ^   / ^   / ^              |         |         |         |
@@ -1164,7 +1458,7 @@ segment to the resulting straight run too, hence S=Z+2.
       *     *     *     *         <--*         *         *         *<--
      /                   ^
     v                     \
-      zig-zag Z=4 segments                   straight S = Z+2 = 6
+      zig-zag Z=4 segments             straight S[k+1] = Z[k]+2 = 6
 
 The initial N=0 to N=1 is a single straight segment S[0]=1 and from there
 the runs grow.  N=1 to N=3 is a straight section S[1]=2.  Z[0]=0 represents
@@ -1188,7 +1482,9 @@ single middle Z[(k-1)/2] (with an S[h] before and after).  So
                 / i=h-1          \           # where h = floor(k/2)
     R[k] = 2 * | sum   S[i]+Z[i]  |
                 \ i=0            /
-           + S[h] + (if k odd then + S[h]+Z[h])
+           + S[h]
+           + / S[h]+Z[h]  if k odd
+             \ 0          if k even
 
          =  2*(  1+2+4+...+2^(h-1)           # S[0] to S[h-1]
                + 2+4+8+...+2^h  -  2*h)      # Z[0] to Z[h-1]
@@ -1230,10 +1526,10 @@ The integer part is the straight sides of the hull and the sqrt(2) part is
 the diagonal sides of the hull.
 
 When k is even the hull has the following shape.  The sides are as per the
-right boundary above but after Z[h-2] they curl inwards and so are not part
-of the hull.  Each Z stair-step diagonal becomes a sqrt(2) length for the
-hull.  Z[i] counts both vertical and horizontal of each stairstep, hence
-sqrt(2)*Z/2 for the hull boundary.
+right boundary above but after Z[h-2] the curl goes inwards and so parts
+beyond Z[h-2] are not part of the hull.  Each Z stair-step diagonal becomes
+a sqrt(2) length for the hull.  Z counts both vertical and horizontal of
+each stairstep, hence sqrt(2)*Z/2 for the hull boundary.
 
                   S[h]
                *--------*                  *       Z=2
@@ -1276,17 +1572,16 @@ When k is odd the shape is similar but Z[h] in the middle.
 
 The area of the convex hull for points N=0 to N=2^k inclusive is
 
-    hull area[k]
-        / 0                                if k=0
-        | 1/2                              if k=1
-      = | 2                                if k=2
-        | 35*2^(k-4) - 13*2^(h-1) + 2      if k odd  >=3
-        \ 35*2^(k-4) - 10*2^(h-1) + 2      if k even >=4
-    where h = floor(k/2)
+            / 0                                if k=0
+            | 1/2                              if k=1
+    HA[k] = | 2                                if k=2
+            | 35*2^(k-4) - 13*2^(h-1) + 2      if k odd  >=3
+            \ 35*2^(k-4) - 10*2^(h-1) + 2      if k even >=4
+          where h = floor(k/2)
 
     = 0, 1/2, 2, 13/2, 17, 46, 102, 230, 482, 1018, 2082, 4274, ...
 
-area[1] and area[3] are fractions but thereafter all are integers.
+HA[1] and HA[3] are fractions but all others are integers.
 
 The area can be calculated from the shapes shown for the hull boundary
 above.  For k odd it can be noted the total width and total height are the
@@ -1298,7 +1593,7 @@ The number of points which fall on straight and diagonal lines from the
 endpoints can be calculated by considering how the previous level duplicates
 to make the next.
 
-              d   d  
+              d   d
             c  \ /  c
         b   |   +   |   b
          \  |  / \  |  /           curve endpoints
@@ -1310,10 +1605,10 @@ to make the next.
          /  |  f f  |  \
         h   g       g   h
 
-The curve is rotated as necessary to make the endpoints horizontal.  Each
-"a" through "h" is the number of points which fall on the respective line.
-The curve is symmetric in left to right so the line counts are the same each
-side in mirror image.
+The curve is rotated to make the endpoints horizontal.  Each "a" through "h"
+is the number of points which fall on the respective line.  The curve is
+symmetric in left to right so the line counts are the same each side in
+mirror image.
 
 "S" start and "E" end points are not included in any of the counts.  "e" is
 the count in between S and E.  The two "d" lines meet at point "+" and that
@@ -1327,16 +1622,16 @@ curves.  One is from S to M and another M to E.
             |\       /|            curve level k copies
             | \     / |            S to M and M to E
             | c+a c+a |            making curve k+1 S to E
-            |   \|/   |             
-       \    |  --M--  |    /        
-        \   |   /|\   |   c        a[k+1] = b[k]              
-         c  d e+g e+g d  /         b[k+1] = c[k]                 
-          \ | /     \ | /          c[k+1] = d[k]                 
-           \|/       \|/           d[k+1] = a[k]+c[k] + e[k]+g[k] + 1     
-    b-------E--f---f--S-------b    e[k+1] = 2*f[k]               
-           /|\       /|\           f[k+1] = g[k]                 
-          a | g     g | a          g[k+1] = h[k]                 
-         /  h  \   /  h  \         h[k+1] = a[k]                 
+            |   \|/   |
+       \    |  --M--  |    /
+        \   |   /|\   |   c        a[k+1] = b[k]
+         c  d e+g e+g d  /         b[k+1] = c[k]
+          \ | /     \ | /          c[k+1] = d[k]
+           \|/       \|/           d[k+1] = a[k]+c[k] + e[k]+g[k] + 1
+    b-------E--f---f--S-------b    e[k+1] = 2*f[k]
+           /|\       /|\           f[k+1] = g[k]
+          a | g     g | a          g[k+1] = h[k]
+         /  h  \   /  h  \         h[k+1] = a[k]
         /   |   \ /   |   \
        /    |         |    \
 
@@ -1374,6 +1669,391 @@ fixed X or Y axis or diagonal can be found by taking the appropriate a
 through h, or sum of two of them for both positive and negative of a
 direction.
 
+=head2 Triangle Areas in Regions
+
+Consider a little right triangle with hypotenuse on each line segment, as
+described above, and the way it becomes two triangles on replicating
+
+                                                *   *
+    1 triangle           2 triangles           / \ / \    4 triangles
+                                              *---M---*
+       *                  *--M--*            /|       |\
+      / \       =>        | / \ |     =>    * |       | *
+     /   \                |/   \|            \|       |/
+    E-----S               E     S             E       E
+
+Consider the triangles which fall within the following regions a,b,c,...,i.
+The "S" start to "E" end line are rotated as necessary to be horizontal.
+
+            *-------*
+           /|\  a  /|\
+          / | \   / | \
+         /  |  \ /  |  \
+        * b | c M c | b *
+       / \  |  / \  |  / \             next c[2] = 1
+      /   \ | /   \ | /   \                 b[2] = 1
+     /  d  \|/  e  \|/  d  \
+    *-------E-------S-------*          always
+     \  f  /|\  g  /|\  f  /
+      \   / | \   / | \   /
+       \ /  |  \ /  |  \ /
+        * h | i * i | h *
+         \  |  / \  |  /
+          \ | /   \ | /
+           \|/     \|/
+            *       *
+
+The curve is symmetric in horizontal mirror image so there are two "b"
+regions, two "c" regions, etc, one on each side.
+
+The initial triangle is e[0]=1.  On expanding to S,M,E shown above there are
+then 2 triangles, 1 in each of the two "c" regions, giving c[1]=1.  The
+third expansion keeps 2 triangles in "c" and pushes 2 triangles into "b" for
+c[2]=1 and b[2]=1.  In all cases the total is the power-of-2 doubling,
+
+    a[k] + 2*b[k] + 2*c[k] + 2*d[k] + e[k]
+        + 2*f[k] + g[k] + 2*h[k] + 2*i[k] = 2^k
+
+Level k+1 can be calculated by considering two level k, one from S to M and
+another from M to E.  The following shows how those two previous levels fall
+within the regions of the k+1 level,
+
+          left side, M to E                 right side, S to M
+
+              *---------*                       *---------*
+             /|\   |   /|\                     /|\   |   /|\
+            / | \b | d/ | \                   / | \ d|b / | \
+           /  |  \   /  |  \                 /  |  \   /  |  \
+          / a | c \ / f |   \               /   | f \ / c | a \
+         *--- | ---M--  |  --*             *--- | ---M--  |  --*
+        / \ c | e / \ h |   / \           / \   | h / \ e | c / \
+       /   \  |  /   \  |  /   \         /   \  |  /   \  |  /   \
+      /  |b \ | / g|i \ | /  |  \       /  |  \ | / i|g \ | / b|  \
+     /   |   \|/   |   \|/   |   \     /   |   \|/   |   \|/   |   \
+    *---------E---------S---------*   *---------E---------S---------*
+     \   |   /|\   |   /|\   |   /     \   |   /|\   |   /|\   |   /
+      \  |d / | \ i|  / | \  |  /       \  |  / | \  |i / | \ d|  /
+       \   /  |  \   /  |  \   /         \   /  |  \   /  |  \   /
+        \ / f | h \ /   |   \ /           \ /   |   \ / h | f \ /
+         *--  |  --*--  |  --*             *--  |  --*--  |  --*
+          \   |   / \   |   /               \   |   / \   |   /
+           \  |  /   \  |  /                 \  |  /   \  |  /
+            \ | /     \ | /                   \ | /     \ | /
+             \|/       \|/                     \|/       \|/
+              *         *                       *         *
+
+For example the top-most "a" triangle gets b[k]+d[k] triangles from the M to
+E on the left, plus d[k]+b[k] triangles from S to M on the right, for total
+a[k+1] = 2*b[k] + 2*d[k].  The recurrences are
+
+=cut
+
+# It can be seen there is nothing in the outer half of the "d" and "f" regions
+# and the lower halves of "h" and "i".  That is per the level extents
+
+=pod
+
+    a[k+1] = 2*b[k] + 2*d[k]                 starting
+    b[k+1] = a[k] + c[k]                       a[0]=...=i[0]=1
+    c[k+1] = c[k] + e[k] + f[k] + h[k]         except e[0]=1
+    d[k+1] = b[k]
+    e[k+1] = 2*g[k] + 2*i[k]
+    f[k+1] = d[k]
+    g[k+1] = 2*i[k]
+    h[k+1] = f[k]
+    i[k+1] = h[k]
+
+These equations are not independent since
+
+    d[k+1] = b[k]
+    f[k+1] = d[k]
+    2*d[k+1] + 2*f[k+1] = 2*b[k] + 2*d[k]
+                        = a[k+1]
+
+The initial values a[0]=0, d[0]=0 and f[0]=0 also satisfy this relation, so
+a[k]=2*d[k]+2*f[k] for kE<gt>=0.  Substituting into the equation for b[k+1]
+eliminates a[k].
+
+    b[k+1] = c[k] + 2*d[k] + 2*f[k]      k>=0
+
+This leaves 8 equations in 8 unknowns and a little linear algebra gives 8th
+order recurrences for each region individually.  The centre e is
+
+    e[k+8] = e[k+7] + 2*e[k+6] - e[k+4] + e[k+3] + 2*e[k+1] + 4*e[k]
+      = 1,0,0,0, 0,0,0,2, 6, 10, 22, 40, 80, 156, 308, 622, 1242, ...
+
+                                1 - x - 2*x^2 + x^4 - x^5
+    generating function  -----------------------------------------
+                         1 - x - 2*x^2 + x^4 - x^5 - 2*x^7 - 4*x^8
+
+=for Test-Pari-DEFINE  Etsamples = [1,0,0,0,0,0,0,2,6,10,22,40,80,156,308,622,1242,2494,4994,9988,19988,39952,79904,159786]
+
+=for Test-Pari-DEFINE Et_rec(k) = if(k<8,Etsamples[k+1], Et_rec(k-1) + 2*Et_rec(k-2) - Et_rec(k-4) + Et_rec(k-5) + 2*Et_rec(k-7) + 4*Et_rec(k-8))
+
+=for Test-Pari vector(length(Etsamples), k, Et_rec(k-1)) == Etsamples
+
+=for Test-Pari-DEFINE  gEt(x) = (1 - x - 2*x^2 + x^4 - x^5) / (1 - x - 2*x^2 + x^4 - x^5 - 2*x^7 - 4*x^8)
+
+=for Test-Pari Vec(gEt(x) - O(x^24)) == Etsamples
+
+The recurrence is the same form for each a through i, just different initial
+values
+
+        initial values      further values
+        -----------------   --------------
+    a   0,0,0,2,4,8,16,30,  60,116,232,466,932,1872,3744,7494,
+    c   0,1,1,1,1,2, 4, 8,  18, 39, 79,159,315, 628,1250,2494,
+    e   1,0,0,0,0,0, 0, 2,   6, 10, 22, 40, 80, 156, 308, 622,
+    g   0,0,0,0,0,0, 0, 2,   2,  6, 10, 20, 40,  76, 156, 310,
+
+    b   0,0,1,1,3,5,10,20,  38,78,155,311,
+    d   0,0,0,1,1,3, 5,10,  20,38, 78,155,311,
+    f   0,0,0,0,1,1, 3, 5,  10,20, 38, 78,155,311,
+    h   0,0,0,0,0,1, 1, 3,   5,10, 20, 38, 78,155,311,
+    i   0,0,0,0,0,0, 1, 1,   3, 5, 10, 20, 38, 78,155,311
+
+The values for b through i are the same, just starting one position later
+each time.  This is the spiralling out by 45 degrees each time, and per the
+equations above.
+
+    i[k+1] = h[k] = f[k-1] = d[k-2] = b[k-3]
+
+=for Test-Pari-DEFINE  Btsamples = [0,0,1,1,3,5,10,20,  38,78,155,311]
+
+=for Test-Pari-DEFINE Bt_rec(k) = if(k<1,0, if(k==2, 1, Bt_rec(k-1) + 2*Bt_rec(k-2) - Bt_rec(k-4) + Bt_rec(k-5) + 2*Bt_rec(k-7) + 4*Bt_rec(k-8)))
+
+=for Test-Pari vector(length(Btsamples), k, Bt_rec(k-1)) == Btsamples
+
+=for Test-Pari-DEFINE  gBt(x) = x^2 / (1 - x - 2*x^2 + x^4 - x^5 - 2*x^7 - 4*x^8)
+
+=for Test-Pari Vec(gBt(x) - O(x^12)) == vecextract(Btsamples,"3..")  /* no leading zeros from Vec() */
+
+The recurrence for these can be started from a single initial "1" and
+treating preceding values (including some negative indices) as "0".  This is
+also seen in a single term for the numerator of the generating function.
+For example the generating function for "b",
+
+                               x^2
+    gb(x) =  -----------------------------------------
+             1 - x - 2*x^2 + x^4 - x^5 - 2*x^7 - 4*x^8
+
+=cut
+
+/* b  c  d  e  f  g  h  i */
+m = \
+ [ 0, 1, 2, 0, 2, 0, 0, 0 ; \
+   0, 1, 0, 1, 1, 0, 1, 0 ; \
+   1, 0, 0, 0, 0, 0, 0, 0 ; \
+   0, 0, 0, 0, 0, 2, 0, 2 ; \
+   0, 0, 1, 0, 0, 0, 0, 0 ; \
+   0, 0, 0, 0, 0, 0, 0, 2 ; \
+   0, 0, 0, 0, 1, 0, 0, 0 ; \
+   0, 0, 0, 0, 0, 0, 1, 0 ]
+matdet(m)
+
+/* select a[k] */
+A = [ 0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,1,0,0 ]
+
+/* shift upwards */
+r = [ 0,1,0,0,0,0,0,0; \
+      0,0,1,0,0,0,0,0; \
+      0,0,0,1,0,0,0,0; \
+      0,0,0,0,1,0,0,0; \
+      0,0,0,0,0,1,0,0; \
+      0,0,0,0,0,0,1,0; \
+      0,0,0,0,0,0,0,1; \
+      0,0,0,0,0,0,0,0 ]
+
+p = sum(i=0,7, r^i*A*m^i)
+p*m*p^-1
+
+b = [1 2 0 -1 1 0 2 4]
+c = [1 2 0 -1 1 0 2 4]
+d = [1 2 0 -1 1 0 2 4]
+e = [1 2 0 -1 1 0 2 4]
+g = [1 2 0 -1 1 0 2 4]
+
+# i[1]=h[0]=f[-1]=d[-2]=b[-3]
+#
+/* a  b  c  d  e  f  g  h  i */
+m = \
+ [ 0, 2, 0, 2, 0, 0, 0, 0, 0 ; \
+   1, 0, 1, 0, 0, 0, 0, 0, 0 ; \
+   0, 0, 1, 0, 1, 1, 0, 1, 0 ; \
+   0, 1, 0, 0, 0, 0, 0, 0, 0 ; \
+   0, 0, 0, 0, 0, 0, 2, 0, 2 ; \
+   0, 0, 0, 1, 0, 0, 0, 0, 0 ; \
+   0, 0, 0, 0, 0, 0, 0, 0, 2 ; \
+   0, 0, 0, 0, 0, 1, 0, 0, 0 ; \
+   0, 0, 0, 0, 0, 0, 0, 1, 0 ]
+matdet(m) == 0
+
+matdet(p)
+p*m*p^-1
+
+# (a[k+1];...;i[k+1]) = m*(a[k+1];...;i[k+1])
+#
+# (e[k];0;...;0) = E*(a[k+1];...;i[k+1])
+# (0;e[k+1];0;...;0) = r*E*m*(a[k];...;i[k])
+#
+# (e[k];e[k+1];...;e[k+8]) = p*(a[k];...;i[k])
+# (e[k+1];e[k+2];...;e[k+9]) = p*m*(a[k];...;i[k])
+# (e[k+1];e[k+2];...;e[k+9]) = p*m*p^-1*(e[k];e[k+1];...;e[k+8])
+# p*[0;0;0;0;1;0;0;0;0] = [1; 0; 0; 0; 0; 0; 0; 2; 6]
+p*m*p^-1 = [0 1 0 0 0  0 0 0 0]
+           [0 0 1 0 0  0 0 0 0]
+           [0 0 0 1 0  0 0 0 0]
+           [0 0 0 0 1  0 0 0 0]
+           [0 0 0 0 0  1 0 0 0]
+           [0 0 0 0 0  0 1 0 0]
+           [0 0 0 0 0  0 0 1 0]
+           [0 0 0 0 0  0 0 0 1]
+           [0 4 2 0 1 -1 0 2 1]
+e[k+9] = + e[k+8] + 2*e[k+7] - e[k+5] + e[k+4] + 2*e[k+2] + 4*e[k+1]
+e[k+8] = + e[k+7] + 2*e[k+6] - e[k+4] + e[k+3] + 2*e[k+1] + 4*e[k]
+  for(i=0;20;print1((p*m*p^-1)^i*[1;0;0;0;0;0;0;0;0],","))
+
+B = [ 0,1,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0; \
+      0,0,0,0,0,0,0,0,0 ]
+q = sum(i=0,8, r^i*B*m^i)
+q*[0;0;0;0;1;0;0;0;0] = [0; 0; 1; 1; 3; 5; 10; 20; 38]
+# b = 1,1,3,5,10,20,38,78,155,311,625
+
+q*m*q^-1 =
+
+# e[k+1] = 2*g[k] + 2*i[k]
+#        = 2*i[k-1] + 2*i[k]
+#        = 2*h[k-2] + 2*h[k-1]
+#        = 2*f[k-3] + 2*f[k-2]
+#        = 2*d[k-4] + 2*d[k-3]
+#        = 2*b[k-5] + 2*b[k-4]
+#        = 2*a[k-6] + 2*c[k-6] + 2*a[k-5]+ 2*c[k-5]
+
+
+# e[1] = 2g[0] + 2i[0]
+#      = 4i[-1] + 2i[0]
+#      = 4b[-5] + 2b[-4]
+# a[1] = 2d[0] + 2b[0]
+#      = 2b[-1] + 2b[0]
+# b[1] = a[0] + c[0]
+#      = 2b[-2] + 2b[-1] + c[0]
+# so c[0] = b[1] - 2b[-2] - 2b[-1]
+# c[1] = c[0] + e[0]            + f[0]  + h[0]
+#      = c[0] + 4b[-6] + 2b[-5] + b[-2] + b[-3]
+# b[2] - 2b[-1] - 2b[0] =  b[1] - 2b[-2] - 2b[-1] + 4b[-6] + 2b[-5] + b[-2] + b[-3]
+# b[2] = 2b[-1] + 2b[0] + b[1] - 2b[-2] - 2b[-1] + 4b[-6] + 2b[-5] + b[-2] + b[-3]
+# b[2] = b[1] + 2b[0] + 0 - b[-2] + b[-3] + 0 + 2b[-5] + 4b[-6]
+# b[0] = b[-1] + 2b[-2] + 0 - b[-4] + b[-5] + 0 + 2b[-7] + 4b[-8]
+# for 625 upwards
+# b = 1,1,3,5,10,20,38,78,155,311,625
+# 4*1 + 2*3 + 0*5 + 10 - 20 + 0*38 + 2*78 + 155
+# 4*3 + 2*5 + 0*10 + 20 - 38 + 0*78 + 2*155 + 311
+# (-1)/(-1 + 1*x + 2*x^2 + 0*x^3 - x^4 + x^5 + 0*x^6 + 2*x^7 + 4*x^8)
+
+=pod
+
+=head2 Triangles in Parts as Fractal
+
+For the curve as a fractal, the two sub-parts are two half size copies of
+the whole, as if a[k]=a[k+1]/2 etc.  This gives the following set of
+equations,
+
+    a = 2*b/2 + 2*d/2
+    b = a/2 + c/2
+    c = c/2 + e/2 + f/2 + h/2
+    d = b/2
+    e = 2*g/2 + 2*i/2
+    f = d/2
+    g = 2*i/2
+    h = f/2
+    i = h/2
+
+The total area is reckoned as 1,
+
+    a + 2*b + 2*c + 2*d + e + 2*f + g + 2*h + 2*i = 1
+
+A little linear algebra gives the following solution,
+
+    a = 24/105               *-------*
+    b = 16/105              /|\ 24  /|\
+    c =  8/105             / | \   / | \
+    d =  8/105            /  |  \ /  |  \
+    e =  2/105           * 16| 8 * 8 |16 *
+    f =  4/105          / \  |  / \  |  / \
+    g =  1/105         /   \ | /   \ | /   \
+    h =  2/105        /  8  \|/  2  \|/  8  \
+    i =  1/105       *-------E-------S-------*
+         -----        \  4  /|\  1  /|\  4  /
+    total  1           \   / | \   / | \   /
+                        \ /  |  \ /  |  \ /
+                         * 2 | 1 * 1 | 2 *
+                          \  |  / \  |  /
+                           \ | /   \ | /
+                            \|/     \|/
+                             *       *
+
+This shows how much area of the fractal is in each respective region.
+
+One use for this could be some gray-scale colouring at a limit of drawing
+resolution.  Replications to a desired level give triangles then those
+triangles which are "on" can be drawn as gray spread out among its
+neighbouring triangles in the pattern above.  The total in a given triangle
+would be all grays which go into that triangle.  For square pixels the four
+triangles making up a square can be averaged.  Or at an odd replication
+level two triangles make up a square.
+
+Triangles with total gray "1" are fully within the final fractal.  The first
+such does not arise until 14 expansions (per Duvall and Keesling, reference
+below).
+
+=cut
+
+# det=0 unless the total a+...+i=1 equation is included
+/*  a    b    c    d    e     f   g    h    i  */
+m = \
+[   1, -2/2,  0, -2/2,  0,    0,  0,   0,   0  ; \
+  -1/2,  1, -1/2,  0,   0,    0,  0,   0,   0  ; \
+    0,   0, 1-1/2, 0, -1/2, -1/2, 0, -1/2,  0  ; \
+    0,  -1/2, 0,   1,   0,    0,  0,   0,   0  ; \
+    0,   0,   0,   0,   1,    0, -2/2, 0, -2/2 ; \
+    0,   0,   0, -1/2,  0,    1,  0,   0,   0  ; \
+    0,   0,   0,   0,   0,    0,  1,   0, -2/2 ; \
+    0,   0,   0,   0,   0,  -1/2, 0,   1,   0  ; \
+    0,   0,   0,   0,   0,    0,  0,  -1/2, 1  ; \
+    1,   2,   2,   2,   1,    2,  1,   2,   2  ]
+matsolve(m,[0;0;0;0;0;0;0;0;0;1])
+
+# this one omitting i=h/2 line to make a square matrix
+# the result i=1/105 and h=2/105 satisfies i=h/2
+/*  a    b    c    d    e     f   g    h    i  */
+m = \
+[   1, -2/2,  0, -2/2,  0,    0,  0,   0,   0  ; \
+  -1/2,  1, -1/2,  0,   0,    0,  0,   0,   0  ; \
+    0,   0, 1-1/2, 0, -1/2, -1/2, 0, -1/2,  0  ; \
+    0,  -1/2, 0,   1,   0,    0,  0,   0,   0  ; \
+    0,   0,   0,   0,   1,    0, -2/2, 0, -2/2 ; \
+    0,   0,   0, -1/2,  0,    1,  0,   0,   0  ; \
+    0,   0,   0,   0,   0,    0,  1,   0, -2/2 ; \
+    0,   0,   0,   0,   0,  -1/2, 0,   1,   0  ; \
+    1,   2,   2,   2,   1,    2,  1,   2,   2  ]
+matsolve(m,[0;0;0;0;0;0;0;0;1])
+
+=pod
+
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
@@ -1408,22 +2088,23 @@ L<http://oeis.org/A179868> (etc)
                 being 5*2^n-4n-4, skip initial 1
     A027383   right boundary length differences
 
+    A038503   number of East  segments in N=0 to N=2^k-1
+    A038504   number of North segments in N=0 to N=2^k-1
+    A038505   number of West  segments in N=0 to N=2^k-1
+    A000749   number of South segments in N=0 to N=2^k-1
+
     A191689   fractal dimension of the interior boundary
 
 A191689 is the boundary of the fractal, which is not the same as the
 boundary of the integer form here.  When extended infinitely only some
 points persist indefinitely when the expansion rule is applied repeatedly.
-The first such does not arise until 14 expansions (per Duvall and Keesling).
-The boundary of the fractal is the boundary of those persistent points.
 
 =over
 
 P. Duvall and J. Keesling, "The Dimension of the Boundary of the
 LE<233>vy Dragon", International Journal Math and Math Sci, volume 20,
-number 4, 1997, pages 627-632.
-
-Preprint "The Hausdorff Dimension of the Boundary of the LE<233>vy Dragon"
-L<http://at.yorku.ca/p/a/a/h/08.htm>
+number 4, 1997, pages 627-632.  (Preprint "The Hausdorff Dimension of the
+Boundary of the LE<233>vy Dragon" L<http://at.yorku.ca/p/a/a/h/08.htm>.)
 
 =back
 

@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -768,7 +768,7 @@ sub values_max {
       },
       'n_start=0' =>
       { X_axis   => 'A046092',  # 4*triangular
-        Diagonal => 'A139277',
+        Diagonal => 'A139277',  # x*(8*x+5)
         # OEIS-Other: A046092 planepath=AztecDiamondRings,n_start=0
         # OEIS-Other: A139277 planepath=AztecDiamondRings,n_start=0 line_type=Diagonal
       },
@@ -2793,6 +2793,7 @@ sub values_max {
 }
 { package Math::PlanePath::WythoffPreliminaryTriangle;
   use constant _NumSeq_Y_axis_i_start => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_N_oeis_anum =>
     {
      '' =>

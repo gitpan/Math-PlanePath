@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,11 +42,11 @@ use Math::PlanePath::Base::Generic
 use constant n_frac_discontinuity => 0;
 use constant xy_is_visited => 1;
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 1;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 2;
 }
@@ -55,13 +55,13 @@ use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E
-                                          1,1,   # NE
-                                          # not North
-                                          -1,1,  # NW
-                                          -1,0,  # W
-                                          -1,-1, # SW
-                                          0,-1,  # S
-                                          1,-1); # SE;
+                           1,1,   # NE
+                           # not North
+                           -1,1,  # NW
+                           -1,0,  # W
+                           -1,-1, # SW
+                           0,-1,  # S
+                           1,-1); # SE;
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;
 use constant ddiffxy_minimum => -2;
@@ -449,6 +449,7 @@ L<http://oeis.org/A001844> (etc)
 
     n_start=0
       A046092    N on X axis, 4*triangular
+      A139277    N on diagonal X=Y
       A023532    abs(dY), being 0 if N=k*(k+3)/2
 
 =head1 SEE ALSO

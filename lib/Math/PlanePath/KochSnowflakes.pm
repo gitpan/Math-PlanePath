@@ -86,7 +86,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -102,8 +102,8 @@ use Math::PlanePath::KochCurve;
 
 
 use constant n_frac_discontinuity => 0;
-use constant _UNDOCUMENTED__x_negative_at_n => 1;
-use constant _UNDOCUMENTED__y_negative_at_n => 1;
+use constant x_negative_at_n => 1;
+use constant y_negative_at_n => 1;
 use constant sumabsxy_minimum => 2/3; # minimum X=0,Y=2/3
 use constant rsquared_minimum => 4/9; # minimum X=0,Y=2/3
 # maybe: use constant radius_minimum => 2/3; # minimum X=0,Y=2/3

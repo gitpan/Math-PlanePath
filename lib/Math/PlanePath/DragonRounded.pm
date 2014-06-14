@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -57,17 +57,17 @@ use constant parameter_info_array => [ { name      => 'arms',
                                        } ];
 
 {
-  my @_UNDOCUMENTED__x_negative_at_n = (undef, 8,5,2,2);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my @x_negative_at_n = (undef, 8,5,2,2);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+    return $x_negative_at_n[$self->{'arms'}];
   }
 }
 {
-  my @_UNDOCUMENTED__y_negative_at_n = (undef, 26,17,8,3);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  my @y_negative_at_n = (undef, 26,17,8,3);
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+    return $y_negative_at_n[$self->{'arms'}];
   }
 }
 use constant sumabsxy_minimum  => 1;

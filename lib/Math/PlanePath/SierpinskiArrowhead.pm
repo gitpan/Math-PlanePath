@@ -29,7 +29,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -69,14 +69,14 @@ sub x_negative {
   return $x_negative{$self->{'align'}};
 }
 {
-  my %_UNDOCUMENTED__x_negative_at_n = (triangular => 3,
-                                        # right      => undef,
-                                        left       => 2,
-                                        # diagonal   => undef,
-                                       );
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my %x_negative_at_n = (triangular => 3,
+                         # right      => undef,
+                         left       => 2,
+                         # diagonal   => undef,
+                        );
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n{$self->{'align'}};
+    return $x_negative_at_n{$self->{'align'}};
   }
 }
 

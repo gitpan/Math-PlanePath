@@ -25,15 +25,17 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_divrem = \&Math::PlanePath::_divrem;
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'round_nearest',
   'floor';
+*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -51,16 +53,11 @@ use constant parameter_info_array =>
     },
   ];
 
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 4*($self->{'turns'}+1)**2;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 6*($self->{'turns'}+1)**2;
 }
@@ -75,19 +72,12 @@ sub _UNDOCUMENTED__y_negative_at_n {
 #                     | 
 #    1---- 2----- 3-- t 
 #
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 sub _UNDOCUMENTED__dxdy_list_at_n {
   my ($self) = @_;
   return $self->n_start + ($self->{'turns'} == 0   ? 4   # turns=0
                            : $self->{'turns'} <= 2 ? 6   # turns=1,2
                            : 3*$self->{'turns'} - 4);
 }
-
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------

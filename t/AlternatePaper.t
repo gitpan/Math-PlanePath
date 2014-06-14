@@ -27,7 +27,7 @@ use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::AlternatePaper;
 
@@ -36,7 +36,7 @@ require Math::PlanePath::AlternatePaper;
 # VERSION
 
 {
-  my $want_version = 115;
+  my $want_version = 116;
   ok ($Math::PlanePath::AlternatePaper::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AlternatePaper->VERSION,  $want_version,

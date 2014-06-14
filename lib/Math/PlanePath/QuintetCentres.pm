@@ -18,6 +18,12 @@
 
 # Boundary of unit squares:
 # 4*3^n
+# QuintetCentres unit squares boundary  a(n) = 4*3^(n-3)
+# 12,36,108,324,972
+# match 12,36,108,324,972
+# A003946 G.f.: (1+x)/(1-3*x).
+# A025579 a(1)=1, a(2)=2, a(n) = 4*3^(n-3) for n >= 3.
+# A027327 a(n) = Sum{(k+1)*T(n,m-k)}, 0<=k<=m, where m=0 for n=0,1; m=n for n >= 2; T given by A026120.
 
 
 package Math::PlanePath::QuintetCentres;
@@ -29,7 +35,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -57,17 +63,17 @@ use constant parameter_info_array => [ { name      => 'arms',
                                        } ];
 
 {
-  my @_UNDOCUMENTED__x_negative_at_n = (undef, 112, 9, 2, 2);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my @x_negative_at_n = (undef, 112, 9, 2, 2);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+    return $x_negative_at_n[$self->{'arms'}];
   }
 }
 {
-  my @_UNDOCUMENTED__y_negative_at_n = (undef, 2, 4, 6, 7);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  my @y_negative_at_n = (undef, 2, 4, 6, 7);
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+    return $y_negative_at_n[$self->{'arms'}];
   }
 }
 

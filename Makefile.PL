@@ -34,7 +34,7 @@ WriteMakefile
                     # only for testing
                     'Test' => 0,
                    },
-   AUTHOR       => 'Kevin Ryde <user42@zip.com.au>',
+   AUTHOR       => 'Kevin Ryde <user42_kevin@yahoo.com.au>',
    LICENSE      => 'gpl_3',
    SIGN         => 1,
    MIN_PERL_VERSION => '5.004',

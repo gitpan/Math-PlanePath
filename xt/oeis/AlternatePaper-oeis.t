@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use Math::PlanePath::AlternatePaper;
 use Test;
-plan tests => 11;
+plan tests => 14;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,6 +32,147 @@ use MyOEIS;
 #use Smart::Comments '###';
 
 my $paper = Math::PlanePath::AlternatePaper->new;
+
+
+#------------------------------------------------------------------------------
+# A052955 single-visited points  to N=2^k
+MyOEIS::compare_values
+  (anum => 'A052955',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);  # extra initial 1
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_singles ($paper, 2**$k);
+     }
+     return \@got;
+   });
+
+# A052940 single-visited points  to N=4^k
+MyOEIS::compare_values
+  (anum => 'A052940',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);    # initial 1 instead of 2
+     for (my $k = 1; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_singles ($paper, 4**$k);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A122746  area increment  to N=2^k
+MyOEIS::compare_values
+  (anum => 'A122746',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 2; @got < $count; $k++) {
+       push @got, (MyOEIS::path_enclosed_area($paper, 2**($k+1))
+                   - MyOEIS::path_enclosed_area($paper, 2**$k));
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A052955  single-visit points to N=2^k
+MyOEIS::compare_values
+  (anum => 'A052955',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_singles($paper, 2**$k);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+
+# A028399  boundary to N=2*4^k
+MyOEIS::compare_values
+  (anum => 'A028399',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length($paper, 2*4**$k);
+     }
+     return \@got;
+   });
+
+# A131128  boundary to N=4^k
+MyOEIS::compare_values
+  (anum => 'A131128',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length($paper, 4**$k);
+     }
+     return \@got;
+   });
+
+# A027383  boundary/2 to N=2^k
+# is also boundary length verticals or horizontals since boundary is half
+# verticals and half horizontals
+MyOEIS::compare_values
+  (anum => 'A027383',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_boundary_length($paper, 2**$k) / 2;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A060867  area  to N=2*4^k
+MyOEIS::compare_values
+  (anum => 'A060867',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 1; @got < $count; $k++) {
+       push @got, MyOEIS::path_enclosed_area($paper, 2*4**$k);
+     }
+     return \@got;
+   });
+
+# A134057  area  to N=4^k
+MyOEIS::compare_values
+  (anum => 'A134057',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_enclosed_area($paper, 4**$k);
+     }
+     return \@got;
+   });
+
+# A027556  area*2  to N=2^k
+MyOEIS::compare_values
+  (anum => 'A027556',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_enclosed_area($paper, 2**$k) * 2;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A106665 -- turn 1=left, 0=right

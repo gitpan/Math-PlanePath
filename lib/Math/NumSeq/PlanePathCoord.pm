@@ -84,7 +84,7 @@ use List::Util;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

@@ -645,6 +645,8 @@ sub OnPaint {
   undef $dc;
 
   my $bitmap = Wx::Bitmap->new ($width, $height);
+  my $scale = 0.5;
+  # $scale = sqrt(3)/2;
 
   my $iterations = 100;
   my $n = 1;
@@ -700,19 +702,19 @@ sub OnPaint {
 
         my $dx = $x - $prev_x;
         my $dy = $y - $prev_y;
-        my $mx = ($x + $prev_x)/2;  # midpoint
+        my $mx = ($x + $prev_x)/2;  # midpoint prev to this
         my $my = ($y + $prev_y)/2;
 
         if (defined $t->{'clip_min_x'}) {
-          my $cx = $mx - $dy/4;
-          my $cy = $my + $dx/4;
+          my $cx = $mx - $dy * $scale * .5;
+          my $cy = $my + $dx * $scale * .5;
           if ($cx < $t->{'clip_min_x'} || $cx > $t->{'clip_max_x'}
               || $cy < $t->{'clip_min_y'} || $cy > $t->{'clip_max_y'}) {
             next;
           }
         }
-        $mx -= $dy/2;
-        $my += $dx/2;
+        $mx -= $dy * $scale;
+        $my += $dx * $scale;
 
         ($prev_x,$prev_y) = $affine->transform($prev_x,$prev_y);
         ($mx, $my) = $affine->transform($mx,$my);

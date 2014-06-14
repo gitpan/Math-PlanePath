@@ -18,6 +18,12 @@
 
 # Boundary of unit squares:
 # 2*(4*3^n+1)   cf A199108 = 4*3^n+1
+#
+# QuintetCurve unit squares boundary
+# 12,28,76,220,652
+# match 12,28,76,220,652
+# [HALF]
+# A079003 a(n) = 4*3^(n-2)+2
 
 
 
@@ -26,12 +32,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
 use Math::PlanePath::QuintetCentres;
-@ISA = ('Math::PlanePath::QuintetCentres');
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath::QuintetCentres');
 
 use Math::PlanePath;
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -47,21 +55,19 @@ use Math::PlanePath::Base::Digits
 
 
 {
-  my @_UNDOCUMENTED__x_negative_at_n = (undef, 513, 9, 2, 2);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my @x_negative_at_n = (undef, 513, 9, 2, 2);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+    return $x_negative_at_n[$self->{'arms'}];
   }
 }
 {
-  my @_UNDOCUMENTED__y_negative_at_n = (undef, 2, 4, 6, 3);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  my @y_negative_at_n = (undef, 2, 4, 6, 3);
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+    return $y_negative_at_n[$self->{'arms'}];
   }
 }
-
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 {
   my @_UNDOCUMENTED__dxdy_list_at_n = (undef, 8, 5, 5, 4);
   sub _UNDOCUMENTED__dxdy_list_at_n {
@@ -69,12 +75,6 @@ use Math::PlanePath::Base::Digits
     return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
   }
 }
-
-use constant dsumxy_minimum => -1;  # NSEW only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------

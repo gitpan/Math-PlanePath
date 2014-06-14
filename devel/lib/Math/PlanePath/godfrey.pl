@@ -50,6 +50,6 @@ use Smart::Comments;
     push @values, $seq->ith($n);
   }
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }

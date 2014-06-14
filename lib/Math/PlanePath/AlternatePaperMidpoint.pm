@@ -27,10 +27,11 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -39,6 +40,8 @@ use Math::PlanePath::Base::Digits
   'round_down_pow',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
 use Math::PlanePath::AlternatePaper;
 
 # uncomment this to run the ### lines
@@ -67,21 +70,21 @@ sub y_negative {
   return ($self->{'arms'} >= 5);
 }
 {
-  my @_UNDOCUMENTED__x_negative_at_n = (undef,
-                                        undef,undef,11,3,
-                                        3,3,3,3);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my @x_negative_at_n = (undef,
+                         undef,undef,11,3,
+                         3,3,3,3);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+    return $x_negative_at_n[$self->{'arms'}];
   }
 }
 {
-  my @_UNDOCUMENTED__y_negative_at_n = (undef,
+  my @y_negative_at_n = (undef,
                                         undef,undef,undef,undef,
                                         24,11,12,7);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+    return $y_negative_at_n[$self->{'arms'}];
   }
 }
 
@@ -97,17 +100,6 @@ sub diffxy_minimum {
           ? 0        # 1 arms right of X=Y diagonal
           : undef);
 }
-
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------

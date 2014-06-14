@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,8 +42,8 @@ use Math::PlanePath::Base::Digits
 
 use constant n_start => 0;
 use constant xy_is_visited => 1;
-use constant _UNDOCUMENTED__x_negative_at_n => 3;
-use constant _UNDOCUMENTED__y_negative_at_n => 4;
+use constant x_negative_at_n => 3;
+use constant y_negative_at_n => 4;
 
 #     10        7
 #         2  8  5  6

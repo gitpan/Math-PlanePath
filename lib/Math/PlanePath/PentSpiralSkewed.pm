@@ -24,7 +24,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,11 +42,11 @@ use constant parameter_info_array =>
 
 use constant xy_is_visited => 1;
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 3;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 4;
 }
@@ -60,11 +60,11 @@ use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E
-                                          0,1,   # N
-                                          -1,1,  # NW
-                                          -1,-1, # SW
-                                          1,-1,  # SE
-                                         );
+                           0,1,   # N
+                           -1,1,  # NW
+                           -1,-1, # SW
+                           1,-1,  # SE
+                          );
 use constant dsumxy_minimum => -2; # SW diagonal
 use constant dsumxy_maximum => 1;
 use constant ddiffxy_minimum => -2; # NW diagonal
@@ -197,14 +197,14 @@ fit a square grid and fully cover the plane.
          /  \  \
        11  3  9 20           1
       /  /  \  \  \
-    12  4  1--2  8 19    <- y=0
+    12  4  1--2  8 19    <- Y=0
       \  \       |  |
        13  5--6--7 18       -1
          \          |
           14-15-16-17       -2
 
      ^  ^  ^  ^  ^  ^
-    -2 -1 x=0 1  2  3 ...
+    -2 -1 X=0 1  2  3 ...
 
 The pattern is similar to the C<SquareSpiral> but cuts three corners which
 makes each cycle is faster.  Each cycle is just 5 steps longer than the

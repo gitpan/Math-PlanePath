@@ -76,6 +76,12 @@
 # Computational Geometry, May 2003 volume 29, issue 4, pages 603-623
 # http://www.math.nmsu.edu/~nnguyen/23paper.ps
 
+# Agnes I. Benedek and Rafael Panzone, "On Some Notable Plane Sets, II:
+# Dragons", Revista de la Unión Matemática Argentina, volume 39, numbers
+# 1-2, 1994, pages 76-90 ISSN-e 0041-6932.
+#
+# Convex hull of fractal is decagon, various vertices.
+
 package Math::PlanePath::DragonCurve;
 use 5.004;
 use strict;
@@ -83,10 +89,11 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -95,6 +102,8 @@ use Math::PlanePath::Base::Digits
   'round_down_pow',
   'bit_split_lowtohigh',
   'digit_split_lowtohigh';
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
 use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
@@ -116,25 +125,19 @@ use constant parameter_info_array => [ { name      => 'arms',
                                        } ];
 
 {
-  my @_UNDOCUMENTED__x_negative_at_n = (undef, 5,5,5,6);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my @x_negative_at_n = (undef, 5,5,5,6);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+    return $x_negative_at_n[$self->{'arms'}];
   }
 }
 {
-  my @_UNDOCUMENTED__y_negative_at_n = (undef, 14,11,8,7);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  my @y_negative_at_n = (undef, 14,11,8,7);
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+    return $y_negative_at_n[$self->{'arms'}];
   }
 }
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
 {
   my @_UNDOCUMENTED__dxdy_list_at_n = (undef, 5, 5, 5, 3);
   sub _UNDOCUMENTED__dxdy_list_at_n {
@@ -142,12 +145,6 @@ use constant dy_maximum => 1;
     return $_UNDOCUMENTED__dxdy_list_at_n[$self->{'arms'}];
   }
 }
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
-
 
 #------------------------------------------------------------------------------
 
@@ -568,6 +565,20 @@ sub rect_to_n_range {
 
 #------------------------------------------------------------------------------
 
+# eg. arms=3 0 .. 3*2^k    by 3s
+#            1 .. 3*2^k+1  by 3s
+#            2 .. 3*2^k+2  by 3s     k=3 n_hi=26
+#
+# eg. arms=4 3 .. 4*2^k+3  by 4s
+#   k=1 n_hi=11
+#   k=2 n_hi=19
+#   k=3 n_hi=35
+#
+sub _UNDOCUMENTED_level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 2**$level * $self->{'arms'} + ($self->{'arms'}-1));
+}
+
 {
   my @_UNDOCUMENTED_level_to_left_line_boundary = (1,2,4);
   sub _UNDOCUMENTED_level_to_left_line_boundary {
@@ -690,6 +701,29 @@ sub _UNDOCUMENTED_level_to_enclosed_area {
       ($p4,$p3,$p2,$p1,$p0) = (4*$p4 - 5*$p3 + 4*$p2 - 6*$p1 + 4*$p0,  $p4, $p3, $p2, $p1);
     }
     return $p4;
+  }
+}
+
+#------------------------------------------------------------------------------
+{
+  my @_UNDOCUMENTED__n_segment_is_right_boundary
+    #         R M A B C D F G H
+    #         1 2 3 4 5 6 7 8 9
+    = ([undef,1,3,1,6,7,9,3     ],
+       [undef,2,4,5,4,8,5,0,0,4 ]);
+
+  sub _UNDOCUMENTED__n_segment_is_right_boundary {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) { return 0; }
+    unless ($n >= 0) { return 0; }
+    $n = int($n);
+
+    my $state = 1;
+    foreach my $bit (reverse bit_split_lowtohigh($n)) { # high to low
+      $state = $_UNDOCUMENTED__n_segment_is_right_boundary[$bit][$state]
+        || return 0;
+    }
+    return 1;
   }
 }
 
@@ -1508,8 +1542,8 @@ These expansions can be written as recurrences
     U[k+1] = U[k] + V[k]
     V[k+1] = T[k]
 
-Some matrix manipulation can isolate each in terms of others, or as a
-recurrence in itself.  But it's easy enough to take the equations directly.
+Some matrix manipulation can isolate each in terms of others or as a
+recurrence in itself.  It's also easy enough to take the equations directly.
 
 =head2 Left Boundary
 
@@ -1526,15 +1560,25 @@ The left boundary length L is given by a recurrence
     generating function   -------------------
                              1 - x - 2*x^3
 
+=for Test-Pari-DEFINE  Lsamples = [1, 2, 4, 8, 12, 20, 36, 60, 100, 172, 292, 492, 836, 1420]
+
+=for Test-Pari-DEFINE  L(k)=if(k<=3,2^k, L(k-1) + 2*L(k-3))
+
+=for Test-Pari vector(length(Lsamples), k, L(k-1)) == Lsamples
+
+=for Test-Pari-DEFINE  Lrec(l0,l1,l2) = l2 + 2*l0
+
+=for Test-Pari Lrec(1,2,4) != 8    /* not k=0 recurrence */
+
+=for Test-Pari Lrec(2,4,8) == 12  /* k=1 */
+
+=for Test-Pari Lrec(4,8,12) == 20  /* k=2 */
+
 =for Test-Pari-DEFINE gL(x)=(1 + x)*(1 + 2*x^2) / (1 - x - 2*x^3)
 
 =for Test-Pari-DEFINE gLplus1(x) = (gL(x)-1)/x    /* L[k+1] stripping first term */
 
-=for Test-Pari Vec(gL(x) - O(x^14)) == [1, 2, 4, 8, 12, 20, 36, 60, 100, 172, 292, 492, 836, 1420]
-
-=for Test-Pari k=0; 4 + 2*1 != 8    /* not k=0 recurrence */
-
-=for Test-Pari k=1; 8 + 2*2 == 12
+=for Test-Pari Vec(gL(x) - O(x^length(Lsamples))) == Lsamples
 
 =for Test-Pari (x^4 - 2*x^3 + x^2 - 2*x + 2) / (x^3 - x^2 - 2) == x-1
 
@@ -1618,38 +1662,51 @@ The right-side boundary length is given by a recurrence
     generating function  ---------------------
                          (1 - x - 2*x^3)*(1-x)
 
+                              / -2    4 + 2*x + 4*x^2  \
+                    = 1 + x * | --- + ---------------  |
+                              \ 1-x    1 - x - 2*x^3   /
+
 The recurrence is only for kE<gt>=1 as noted.  At k=0 it would give R[4]=14
 but that's incorrect, N=0 to N=2^4 has right side boundary R[4]=16.
 
-=for Test-Pari-DEFINE gR(x)=(1 + x^2 + 2*x^4) / ((1 - x - 2*x^3) * (1-x))
+=for Test-Pari-DEFINE  Rsamples = [1, 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036]
+
+=for Test-Pari-DEFINE  R(k)=if(k<=4,2^k, 2*R(k-1)-R(k-2)+2*R(k-3)-2*R(k-4))
+
+=for Test-Pari vector(length(Rsamples), k, R(k-1)) == Rsamples
+
+=for Test-Pari-DEFINE  Rrec(r0,r1,r2,r3) = 2*r3 - r2 + 2*r1 - 2*r0
+
+=for Test-Pari Rrec(1,2,4,8) != 16   /* not k=0 recurrence */
+
+=for Test-Pari Rrec(2,4,8,16) == 28  /* k=1 */
+
+=for Test-Pari Rrec(4,8,16,28) == 48  /* k=2 */
+
+=for Test-Pari-DEFINE gR(x)=(1 + x^2 + 2*x^4) / ((1 - x - 2*x^3) * (1-x)) /* first g.f. shown */
 
 =for Test-Pari-DEFINE gRplus1(x)=(gR(x)-1)/x  /* stripping first term so R[k+1] */
+
+=for Test-Pari gR(x) == 1 + x*( -2/(1-x) + (4+2*x+4*x^2)/(1 - x - 2*x^3) )  /* second g.f. shown */
 
 =for Test-Pari gR(x) == 1 + x*((4+2*x+4*x^2)/(1-x-2*x^3) - 2/(1-x))
 
 =for Test-Pari gR(x) == 1 + 2*x*((2+x+2*x^2)/(1-x-2*x^3) - 1/(1-x))
 
-=for Test-Pari Vec(gR(x) - O(x^14)) == [1, 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036]
+=for Test-Pari gR(x) == 1 - 2*x/(1-x) + 2*x * (2 + x + 2*x^2)/(1 - x - 2*x^3)
 
-=for Test-Pari k=0; 2*8 - 4 + 2*2 - 2*1 != 16  /* not k=0 recurrence */
-
-=for Test-Pari k=1; 2*16 - 8 + 2*4 - 2*2 == 28  /* yes */
+=for Test-Pari Vec(gR(x) - O(x^14)) == Rsamples
 
 =cut
 
 #  R[k+4]-R[k+3]-R[k+1] = R[k+3]-R[k+2]-R[k] + R[k+1]-R[k]
 #
-# r(x) = 1 + x*g(x)
-# r(x) = (2*x + 2*x^3 + (1 - x - 2*x^3)*(1-x)) / ((1 - x - 2*x^3)*(1-x))
-# r(x) = (1 + x^2 + 2*x^4) / ((1 - x - 2*x^3)*(1-x))
-#      = 1 + x * (2 + 2*x^2) / ((1 - x - 2*x^3)*(1-x))
-# partial fractions
-# r(x) = (A+Bx+Cx^2)/(1 - x - 2*x^3) + D/(1-x)
-#  num = (A+Bx+Cx^2)*(1-x) + D*(1 - x - 2*x^3)
-#      = (A +D) + (B-A -D)*x + (C-B)*x^2 + (-C -2D)*x^3
-# matsolve([1,0,0,1; -1,1,0,-1; 0,-1,1,0; 0,0,-1,-2], [2;0;2;0])
-#
-# r(x) = 1 + x*(4 + 2*x + 4*x^2)/(1 - x - 2*x^3)
+# gR(x) == 1 + (2*x^3 + 2*x)/(2*x^4 - 2*x^3 + x^2 - 2*x + 1)
+# gR(x) == 1 + x * (2 + 2*x^2)/(2*x^4 - 2*x^3 + x^2 - 2*x + 1)
+# gR(x) == 1 + x * ( (4 + 2*x + 4*x^2)/(1 - x - 2*x^3) - 2/(1-x) )
+
+# cf  gL(x)=(1 + x)*(1 + 2*x^2) / (1 - x - 2*x^3)
+#     gL(x) == 1 + 2*x * (1 + x + 2*x^2)/(1 - x - 2*x^3)
 
 =pod
 
@@ -1684,10 +1741,11 @@ for +1.
 
 =for Test-Pari gR(x) ==  x*(1/(1-x) * gL(x)) + 1/(1-x)
 
-The summation arises from the repeated curve unfoldings.  Each unfold copies
-the left side to the right side.  So when level 0 unfolds it puts an L[0]
-onto the right.  Then level 1 expands and copies L[1] onto the right, and so
-on up to L[k].  This doesn't say anything about the nature of L though.
+The geometric interpretation of the sum is the repeated curve unfoldings.
+Each unfold copies the left side to the right side.  So when level 0 unfolds
+it puts an L[0] onto the right.  Then level 1 expands and copies L[1] onto
+the right, and so on up to L[k].  (This doesn't say anything about the
+nature of L, only that R the cumulative sum.)
 
               L[k-2]
            *----------*             section endpoints on
@@ -1712,13 +1770,19 @@ The total boundary is a left and a right,
     generating function   ---------------------
                           (1 - x - 2*x^3)*(1-x)
 
-                              / 2 + x + 2*x^2     1  \
-                          = 2*| -------------- - --- |
-                              \ 1 - x - 2*x^3    1-x /
+                                / 2 + x + 2*x^2     1  \
+                          = 2 * | -------------- - --- |
+                                \ 1 - x - 2*x^3    1-x /
 
 B[k]=R[k+1] is from the R[k+1]=R[k]+L[k] above, representing one more
 unfolding.  The first term is dropped from the generating function of R and
 that simplifies the numerator.
+
+=for Test-Pari-DEFINE Bsamples = [2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036]
+
+=for Test-Pari-DEFINE B(k)=R(k+1)
+
+=for Test-Pari vector(length(Bsamples), k, B(k-1)) == Bsamples
 
 =for Test-Pari-DEFINE gB(x)=(2 + 2*x^2) / ((1 - x - 2*x^3) * (1-x))
 
@@ -1726,7 +1790,7 @@ that simplifies the numerator.
 
 =for Test-Pari gB(x) == 2*((2 + x + 2*x^2)/(1-x-2*x^3) - 1/(1-x))
 
-=for Test-Pari Vec(gB(x) - O(x^13)) == [2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036]
+=for Test-Pari Vec(gB(x) - O(x^length(Bsamples))) == Bsamples
 
 =for Test-Pari k=0; 2*16 - 8 + 2*4 - 2*2 == 28
 
@@ -1740,9 +1804,30 @@ The characteristic equation of the recurrence for B and for R is
 
 =for Test-Pari x^4 - 2*x^3 + x^2 - 2*x + 2 == (x^3 - x^2 - 2) * (x-1)
 
-The real root of the cubic can be had from the usual formula as a cube root
-of a square root.  The root is approximately equal to 1.69562 and this shows
-how B grows,
+The real root of the cubic can be had from the usual cubic formula (per
+Chang and Zhang, L</Other Formulas> below).
+
+        1    /      1      \
+   r = --- * | C + --- + 1 |  where C = cbrt(28 + sqrt(29*27))
+        3    \      C      /
+
+     = 1.69562...
+
+=for Test-Pari-DEFINE  cbrt(x)=x^(1/3)
+
+=for Test-Pari-DEFINE  D = 28/27 + sqrt(29/27)
+
+=for Test-Pari-DEFINE  r = cbrt(D) + 1/(9*cbrt(D)) + 1/3
+
+=for Test-Pari  abs(r^3 - r^2 - 2) < 1e-15
+
+=for Test-Pari-DEFINE  C = cbrt(28 + sqrt(29*27))
+
+=for Test-Pari-DEFINE  r2 = (1/3) * (C + 1/C + 1)
+
+=for Test-Pari  abs(r2^3 - r2^2 - 2) < 1e-15
+
+This shows how B grows,
 
     B[k] = approx 3.6 * 1.69562^k
 
@@ -1752,6 +1837,7 @@ how B grows,
 # real root D^(1/3) + (1/9)*D^(-1/3) + 1/3 = 1.6956207695598620
 # where D=28/27 + (1/9)*sqrt(29*3) = 28/27 + sqrt(29/27)
 # per Chang and Zhang
+# (root decimal digits not in OEIS)
 
 # polroots(x^4 - 2*x^3 + x^2 - 2*x + 2)
 # x^3 + px + q = 0
@@ -1763,11 +1849,16 @@ how B grows,
 # y = (-28/27 + sqrt(29/27))^(1/3) + (-28/27 - sqrt(29/27))^(1/3)
 # x = 1/3 + ...
 
+   #                   1        1
+   # r = cbrt(D) + --------- + ---  where D = 28/27 + sqrt(29/27)
+   #               9*cbrt(D)    3
+   #   = 1.69562...
+
 =pod
 
 =head2 U Boundary
 
-U from the boundary parts above is
+U in the boundary parts above is
 
     U[k] = /  3          for k=0
            \  R[k] + 4   for k>=1
@@ -1777,19 +1868,29 @@ U from the boundary parts above is
     generating function   -----------------------
                            (1 - x - 2*x^3)*(1-x)
 
+                                    /  2    4 + 2*x + 4*x^2  \
+                          = 3 + x * | --- + ---------------  |
+                                    \ 1-x    1 - x - 2*x^3   /
+
+=for Test-Pari-DEFINE  Usamples = [3, 6, 8, 12, 20, 32, 52, 88, 148, 248, 420, 712, 1204, 2040]
+
+=for Test-Pari-DEFINE  U(k) = if(k==0,3,R(k)+4)
+
+=for Test-Pari vector(length(Usamples), k, U(k-1)) == Usamples
+
 =for Test-Pari-DEFINE gU(x)=(3 - x^2 - 4*x^3 - 2*x^4) / ((1 - x - 2*x^3)*(1-x))
+
+=for Test-Pari Vec(gU(x) - O(x^length(Usamples))) == Usamples
+
+=for Test-Pari-DEFINE gU2(x)= 3 + x*( 2/(1-x) + (4 + 2*x + 4*x^2)/(1 - x - 2*x^3) )
+
+=for Test-Pari Vec(gU2(x) - O(x^length(Usamples))) == Usamples
 
 =for Test-Pari-DEFINE gUplus1(x)=(gU(x)-3)/x  /* skipping first term */
 
 =for Test-Pari-DEFINE gOnes(x)=1/(1-x) /* 1,1,1,1,1,1,etc */
 
 =for Test-Pari gUplus1(x) == gRplus1(x) + 4*gOnes(x)  /* skipping first term each */
-
-=for Test-Pari Vec(gU(x) - O(x^14)) == [3, 6, 8, 12, 20, 32, 52, 88, 148, 248, 420, 712, 1204, 2040]
-
-=for Test-Pari k=0; 2*12 - 8 + 2*6 - 2*3 != 20    /* not k=0 recurrence */
-
-=for Test-Pari k=1; 2*20 - 12 + 2*8 - 2*6 == 32
 
 U is a summation of L as per the equation U[k+1]=U[k]+L[k] for k>=1.
 
@@ -1799,8 +1900,9 @@ U is a summation of L as per the equation U[k+1]=U[k]+L[k] for k>=1.
 
 So U is the same summation as R except for different fixed term U[1]=6
 whereas R[1]=2, hence U[k]=R[k]+4, except not at U[0] as the summation does
-not apply there.  It's also possible to do the substitutions made for R in
-L</Right Boundary> to get U directly from the three equations.
+not apply there.  It's also possible to do some substitutions similar to
+those for R in L</Right Boundary> to get U directly from the three
+equations.
 
 U can also be obtained by considering the left side of a 2-level expansion,
 giving U as an L,R difference.  This is also in the substitution formulas
@@ -1833,12 +1935,12 @@ above.
 
 =head2 U Total Boundary
 
-The U shape is a kind of one-and-a-half dragon, as if a dragon curve plus a
-further half dragon.  The U[k] quantity is its left side.  The right side
+The U shape is a one-and-a-half dragon, as if a dragon curve plus a further
+half dragon (3/2)*2^k.  The U[k] quantity is its left side.  The right side
 and total can be calculated too.
 
-       3 <---- 2
-               |     U shape 1+1/2 dragon
+       3 <---- 2               U shape 1+1/2 dragon
+               |
                v
        0 ----> 1
 
@@ -1876,15 +1978,10 @@ And the total is
 
 =head2 Area from Boundary
 
-The area enclosed by the dragon curve from 0 to N is related to the boundary by
+The area enclosed by the dragon curve for any 0 to N inclusive is related to
+the boundary by
 
-    A[N] = N/2 - B[N]/4
-
-At all times the curve has all "inside" line segments traversed exactly once
-so that each unit area has all four sides traversed.  If there was ever an
-area enclosed bigger than a single unit then the curve would have to cross
-itself to traverse the inner lines to produce the "all inside segments
-traversed" pattern of the replications and expansions.
+    2*N = 4*A[N] + B[N]
 
 Imagine each line segment as a diamond shape made from a right triangle of
 area 1/4 on each of the two sides.
@@ -1893,7 +1990,7 @@ area 1/4 on each of the two sides.
      / \         2 triangles
     0---1        one each side of line segment
      \ /         each triangle area 1/4
-      *
+      *          total triangles=2*N
 
 If a line segment is on the curve boundary then its outside triangle should
 not count towards the area enclosed, so subtract 1 for each unit boundary
@@ -1901,11 +1998,27 @@ length.  If a segment is both a left and right boundary, such as the initial
 N=0 to N=1 then it counts 2 to B[N] which makes its area 0 which is as
 desired.  So
 
-    triangles = 2*N - B[N]
+    area triangles = total triangles - B[N]
+       4*A[N]      =     2*N         - B[N]
 
-The triangles are area 1/4 each so
+An enclosed area always has all four sides traversed exactly one.  If there
+was ever an area enclosed bigger than a single unit then the curve would
+have to cross itself to traverse the inner lines to produce the "all inside
+segments traversed" pattern of the replications and expansions.
 
-    A[N] = triangles*1/4 = N/2 - B[N]/4
+The relation can also be obtained by considering how the boundary and area
+change when a new line segment is added at the end of the curve.  It will
+either touch or not touching the existing curve.
+
+    * <---*                * <---*   curve touched
+                           |     |     area +1
+    no touch curve         |     |     boundary -3+1 = -2
+    area unchanged         *-----*
+    boundary +2
+
+So boundary +2 for each segment, except -2 when a new area is enclosed.  So
+boundary 2*N for each segment and -4*A to adjust down when the curve
+touched.  Hence B=2*N-4*A.
 
 =cut
 
@@ -1931,12 +2044,17 @@ from the boundary recurrence B[k] as
     generating function  -----------------------------
                          (1 - x - 2*x^3)*(1-x)*(1-2*x)
 
+=for Test-Pari-DEFINE Asamples = [0, 0, 0, 0, 1, 4, 11, 28, 67, 152, 335, 724, 1539]
+
+=for Test-Pari-DEFINE A(k) = 2^(k-1) - B(k)/4
+
+=for Test-Pari vector(length(Asamples), k, A(k-1)) == Asamples
+
 =for Test-Pari-DEFINE gA(x)=x^4 / ((1 - x - 2*x^3)*(1-x)*(1-2*x))
 
 =for Test-Pari-DEFINE gAplus1(x)=gA(x)/x     /* A[k+1] skipping first term */
 
-=for Test-Pari Vec(gA(x) - O(x^13)) == [1, 4, 11, 28, 67, 152, 335, 724, 1539]
-/* no leading zeros from Vec() */
+=for Test-Pari Vec(gA(x) - O(x^13)) == vecextract(Asamples,"5..") /* no leading zeros from Vec() */
 
 =for Test-Pari-DEFINE gTwoPow(x)=1/(1-2*x) /* 1,2,4,8,16,32,etc */
 
@@ -1992,18 +2110,27 @@ function the 1-2*x term in A[k] is eliminated.
               J[1] = 0
               J[2] = 0
               J[3] = 1
-     1, 2, 3, 6, 11, 18, 31, 54, 91, 154, 263, 446, 755, 1282, 2175, ...
+     0, 0, 0, 1, 2, 3, 6, 11, 18, 31, 54, 91, 154, 263, 446, 755, ...
 
                                   x^3
     generating function  ---------------------
                          (1 - x - 2*x^3)*(1-x)
 
-=for Test-Pari-DEFINE gJA(x)=x^3 / ((1 - x - 2*x^3)*(1-x))
+=for Test-Pari-DEFINE  JAsamples = [0, 0, 0, 1, 2, 3, 6, 11, 18, 31, 54, 91, 154, 263, 446, 755, 1282, 2175]
+
+=for Test-Pari-DEFINE  JA(k)=if(k<4, JAsamples[k+1], 2*JA(k-1)-JA(k-2)+2*JA(k-3)-2*JA(k-4))
+
+=for Test-Pari vector(length(JAsamples), k, JA(k-1)) == JAsamples
+
+=for Test-Pari-DEFINE  JA_from_A(k) = A(k+1) - 2*A(k)
+
+=for Test-Pari vector(length(JAsamples), k, JA_from_A(k-1)) == JAsamples
+
+=for Test-Pari-DEFINE  gJA(x) = x^3 / ((1 - x - 2*x^3)*(1-x))
 
 =for Test-Pari gJA(x) == gA(x)/x - 2*gA(x)         /* A[k+1] - 2*A[k] */
 
-=for Test-Pari Vec(gJA(x) - O(x^18)) == [1, 2, 3, 6, 11, 18, 31, 54, 91, 154, 263, 446, 755, 1282, 2175]
-/* no leading zeros from Vec() */
+=for Test-Pari Vec(gJA(x) - O(x^18)) == vecextract(JAsamples,"4..") /* no leading zeros from Vec() */
 
 The B[k]=R[k+1] and difference L[k]=R[k+1]-R[k] from L</Boundary Length>
 above also give
@@ -2014,10 +2141,10 @@ above also give
 
 =for Test-Pari gJA(x) == (gRplus1(x) - gLplus1(x))/4
 
-The geometric interpretation of this difference form is that if the two
-copies of the curve did not touch at all then their boundary would be
-2*(R[k]+L[k]) = 2*R[k+1].  But the doubled-out boundary is in fact only
-R[k+1]+L[k+1] so the shortfall is
+The geometric interpretation of this difference is that if the two copies of
+the curve did not touch at all then their boundary would be 2*(R[k]+L[k]) =
+2*R[k+1].  But the doubled-out boundary is in fact only R[k+1]+L[k+1] so the
+shortfall is
 
     2*R[k+1] - (R[k+1]+L[k+1]) = R[k+1] - L[k+1]
 
@@ -2090,10 +2217,9 @@ Area[N]=N/2-B[N]/4 above.
 
 =head2 Single Points
 
-The singles for N=0 to N=2^k inclusive from the boundary is
+The number of single points for N=0 to N=2^k inclusive is
 
-    S[k] = 2^k + 1 - 2*(2^(k-1) - B[k]/4)
-         = 1 + B[k]/2
+    S[k] = B[k]/2 + 1
     = 2, 3, 5, 9, 15, 25, 43, 73, 123, 209, 355, 601, 1019, 1729, ...
 
     S[k+3] = S[k+2] + 2*S[k]   for k >= 0
@@ -2104,6 +2230,12 @@ The singles for N=0 to N=2^k inclusive from the boundary is
     generating function   -------------
                           1 - x - 2*x^3
 
+=for Test-Pari-DEFINE Ssamples = [2, 3, 5, 9, 15, 25, 43, 73, 123, 209, 355, 601, 1019, 1729]
+
+=for Test-Pari-DEFINE SfromB(k) = B(k)/2 + 1
+
+=for Test-Pari vector(length(Ssamples), k, SfromB(k-1)) == Ssamples
+
 =for Test-Pari k=0; 2*2 + 5 == 9
 
 =for Test-Pari k=1; 2*3 + 9 == 15
@@ -2112,7 +2244,7 @@ The singles for N=0 to N=2^k inclusive from the boundary is
 
 =for Test-Pari gS(x) == gOnes(x)+gB(x)/2
 
-=for Test-Pari Vec(gS(x) - O(x^14)) == [2, 3, 5, 9, 15, 25, 43, 73, 123, 209, 355, 601, 1019, 1729]
+=for Test-Pari Vec(gS(x) - O(x^14)) == Ssamples
 
 This is the same recurrence as left boundary L[k] but with different initial
 values.  S[0] through S[4] inclusive are S[k]=2^k+1 since for kE<lt>=4 all
@@ -2120,8 +2252,8 @@ points are singles.  But for k>=5 some points double so there are fewer
 singles.
 
 For the generating function the B[k]/2+1 cancels out the 2* and -1/(1-x) in
-the generating function of B (as per L</Total Boundary> above) leaving just
-the 1-x-2*x^3 denominator.
+the generating function of B (L</Total Boundary> above) leaving just the
+1-x-2*x^3 denominator.
 
 =head2 Total Points
 
@@ -2272,10 +2404,326 @@ actual total visited is less and the shortfall is the join points.
 
 =for Test-Pari gJP(x) == 2*gP(x) - gPplus1(x)
 
+=head2 Two Arm Endpoint Boundary
+
+The boundary length between the endpoints of two arms is
+
+    W[k] = / 2            for k=0
+           | 4            for k=1
+           \ 2*L[k-1]     for k>=2
+    = 2, 4, 4, 8, 16, 24, 40, 72, 120, 200, 344, ...
+
+    2
+    ^
+    |   W     boundary between endpoints 1 and 2
+    |
+    0----->1
+
+=for Test-Pari-DEFINE  Wsamples = [2, 4, 4, 8, 16, 24, 40, 72, 120, 200, 344]
+
+=for Test-Pari-DEFINE  W(k) = if(k<2,2*2^k, 2*L(k-1))
+
+=for Test-Pari vector(length(Wsamples), k, W(k-1)) == Wsamples
+
+The two arms expand each on the right as follows, giving an L and a V.  (The
+following diagram rotated 45 degrees.)
+
+       L
+    2----->*      1      W[k+1] = V[k] + L[k]
+           ^  V   |             = 2*L[k]    for k>=1
+           |      v      since V[k]=L[k] for k>=1
+           0----->*
+
+The 2*L[k-1] can also be seen in a second expansion.  The 1 to m and m to 2
+are both T sections and which is the same as an L of one higher level (as
+per L</Left Boundary>).
+
+    2
+    |  T[k]=L[k+1]                1 to 2 = W[k+2]
+    v                                    = 2*T[k]
+    *<-----m                             = 2*L[k+1]
+    ^      |   T[k]=L[k+1]
+    |      v
+    0----->*<-----1
+    |      ^
+    v      |
+    *<-----*
+
+W[k] is two curves directed away from a common origin whereas L[k+1] is two
+curves directed towards a common point.
+
+    2  <-----3                  2<-----  3
+    ^ \      |                  ^       /|
+    |  \     |                  |      / |
+    |    W   |                  |    L   |
+    |      \ v                  |  /     |
+    |       \                     /      v
+    0------->1                  0------->1
+
+    W[k] = 2*L[k-1]               L[k+1]
+    W[0] = 2                      L[0+1]=2
+
+W[k] is smaller, since some substitutions of the L recurrence gives L[k+1]
+as W[k] plus positive terms
+
+    L[k+1] = L[k] + 2*L[k-2]
+           = L[k-1] + 2*L[k-2] + 2*L[k-3]
+           = L[k-1] + (L[k-1] - 2*L[k-4]) + L[k-2] + 2*L[k-3]
+           = 2*L[k-1]  + L[k-2] + 2*(L[k-3] - L[k-4])
+           = 2*L[k-1]  + L[k-2] + 4*L[k-6]
+           = W[k]  + L[k-2] + 4*L[k-6]
+
+=for Test-Pari vector(20, k, L(4+ k+1)) == vector(20, k, 2*L(4+ k-1)   + L(4+ k-2) + 2*(L(4+ k-3) - L(4+ k-4)))
+
+=for Test-Pari vector(20, k, L(6+ k+1)) == vector(20, k, 2*L(6+ k-1)   + L(6+ k-2) + 4*L(6+ k-6))
+
+=for Test-Pari vector(20, k, L(6+ k+1)) == vector(20, k, W(6+ k)   + L(6+ k-2) + 4*L(6+ k-6))
+
+=cut
+
+# 2*L[k-1] < L[k+1]  ??
+
+# L[k+3] = L[k+2] + 2*L[k]
+# L[k+3] - 2*L[k] = L[k+2]
+# L[k-1] - 2*L[k-4] = L[k-2]
+
+# L[k+3]-L[k+2] = 2*L[k]
+# L[k-3]-L[k-4] = 2*L[k-6]
+
+=pod
+
+=head2 Two Arm Boundary
+
+The boundary length around the whole of two arms is
+
+    Ba2[k] = B[k] + W[k]
+    = 4, 8, 12, 24, 44, 72, 124, 216, 364, 616, 1052, 1784, 3020, ...
+
+=for Test-Pari-DEFINE  Ba2samples = [4, 8, 12, 24,44,72,124,216,364,616,1052,1784,3020,5128,8700,14744]
+
+=for Test-Pari-DEFINE  Ba2BW(k) = if(k<2,4*2^k, B(k) + W(k))
+
+=for Test-Pari vector(length(Ba2samples), k, Ba2BW(k-1)) == Ba2samples
+
+=for Test-Pari-DEFINE  Ba2LR(k) = if(k<2,4*2^k, R(k+1) + 2*L(k-1))
+
+=for Test-Pari vector(length(Ba2samples), k, Ba2LR(k-1)) == Ba2samples
+
+=for Test-Pari-DEFINE  gBa2(k) = 4 + 8*x + x^2 *( (14 + 12*x + 20*x^2)/(1 - x - 2*x^3) - 2/(1-x) )
+
+=for Test-Pari  gBa2(k) == (gR(x)-1)/x + 2*x*gL(x) + 2 + 2*x
+
+=for Test-Pari Vec(gBa2(x) - O(x^length(Ba2samples))) == Ba2samples
+
+=cut
+
+    #                                    / 14 + 12*x + 20*x^2     2   \
+    # generating function 4 + 8x + x^2 * | ------------------  - ---  |
+    #                                    \   1 - x - 2*x^3       1-x  /
+
+#                               1            *   *---*
+#                               |            |   |   |
+#  3       2---*   1        *---*---*        *---*---*---*
+#  |           |   |        |   |   |            |   |   |
+# 0,1--2       O---*    2---*   O---*        *---*   O---*
+#                                            |
+#  Ba2=4     Ba2=8        Ba2=12             *---*    Ba2[3]=24
+#    W=2       W=4          W=4                  |    Aa2[3]=2
+#  Aa2=0     Aa2=0        Aa2=1              *---*
+
+# gBa2(x) = (gR(x)-1)/x + 2*x*gL(x) + 2 + 2*x
+# gBa2(x) == 2 + 2*x -2/(1-x) + (4+2*x+4*x^2)/(1 - x - 2*x^3)  +  2*x*(1 + x)*(1 + 2*x^2) / (1 - x - 2*x^3)
+# gBa2(x) == 2 + 2*x -2/(1-x) + (4+2*x+4*x^2 + 2*x*(1 + x)*(1 + 2*x^2))/(1 - x - 2*x^3)
+# gBa2(x) == 2 + 2*x -2/(1-x) + (4*x^4 + 4*x^3 + 6*x^2 + 4*x + 4)/(1 - x - 2*x^3)
+# gBa2(x) == 2 + 2*x -2/(1-x) + 4 + x*(4*x^3 + 12*x^2 + 6*x + 8)/(1 - x - 2*x^3)
+# gBa2(x) == 6 + 2*x -2/(1-x) + 8*x + x^2*(20*x^2 + 12*x + 14)/(1 - x - 2*x^3)
+# gBa2(x) == 4 + 8*x + x^2*((20*x^2 + 12*x + 14)/(1 - x - 2*x^3) - 2/(1-x))
+
+=pod
+
+       2
+       ^
+       |  W          Ba2 = L+R + W
+    L  |                 =  B  + W
+       0----->1
+          R
+
+=head2 Three Arms Boundary
+
+The boundary length around the whole of two arms is
+
+    Ba3[k] = B[k] + 2*W[k]
+    = 6, 12, 16, 32, 60, 96, 164, 288, 484, 816, 1396, 2368, 4004, ...
+
+=for Test-Pari-DEFINE  Ba3samples = [6, 12, 16, 32, 60, 96, 164, 288, 484, 816, 1396, 2368, 4004, 6800, 11540, 19552]
+
+=for Test-Pari-DEFINE  Ba3(k) = if(k<2,6*2^k, B(k) + 2*W(k))
+
+=for Test-Pari vector(length(Ba3samples), k, Ba3(k-1)) == Ba3samples
+
+           2
+           ^
+       W   |  W
+           |
+    3<-----0----->1
+       L      R
+
+=head2 Four Arms Boundary
+
+The boundary length around the whole of four arms is
+
+    Ba4[k] = 4*W[k]
+    = 8, 16, 16, 32, 64, 96, 160, 288, 480, 800, 1376, 2336, 3936, ...
+
+=for Test-Pari-DEFINE  Ba4samples = [8, 16, 16, 32, 64, 96, 160, 288, 480, 800, 1376, 2336, 3936, 6688, 11360, 19232, 32608, 55328, 93792]
+
+=for Test-Pari-DEFINE  Ba4(k) = 4*W(k)
+
+=for Test-Pari vector(length(Ba4samples), k, Ba4(k-1)) == Ba4samples
+
+           2
+           ^
+       W   |  W
+           |
+    3<-----0----->1
+           |
+       W   v  W
+           4
+
+This arms=4 boundary is almost the same as arms=3 for the first few terms,
+but for kE<gt>=8 the arms=3 is longer, and longer by an ever-increasing
+amount.
+
+    Ba3[k]  > Ba4[k]   for k >= 8      (values 484, 480 onwards)
+    Ba3[k] >= Ba4[k]   for k >= 5      (value 96 onwards)
+
+=for Test-Pari Ba3(8) == 484
+
+=for Test-Pari Ba4(8) == 480
+
+=for Test-Pari Ba3(5) == 96
+
+=for Test-Pari Ba4(5) == 96
+
+=for Test-Pari Ba3(4) < Ba4(4)
+
+=for Test-Pari vector(20, k, Ba3(k+6 -1) >= Ba4(k+6 -1)) == vector(20, k, 1)  /* all compares true */
+
+=for Test-Pari vector(20, k, Ba3(k+8 -1) > Ba4(k+8 -1)) == vector(20, k, 1)  /* all compares true */
+
+This is found by
+
+    Ba3[k] = 4*L[k-1] + B[k]
+    Ba4[k] = 8*L[k-1]
+
+and with B[k]=L[k]+R[k] expanding R[k] as a sum of L's and repeatedly
+applying the recurrence for L gives an identity
+
+    B[k] = 4*L[k-1]
+           - L[k-4] - L[k-5] + 5*L[k-6]
+           + R[k-6]                      identity for k >= 7
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1)  +  2*L(k-3) + -3*L(k-4) + -1*L(k-5) + R(k-5)  /* ok */
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1)  +  -2*L(k-5) + 5*L(k-6) + -1*L(k-7) + R(k-7)  /* ok */
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1)  +  3*L(k-6) + -1*L(k-7) + -3*L(k-8) + R(k-8)  /* ok */
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1) +   -1*L(k-2) + 3*L(k-3) + -3*L(k-4) + R(k-4)  /* ok */
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1) +   -1*L(k-8) + 7*L(k-9) + 5*L(k-10) + R(k-10)  /* ok */
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1) +   6*L(k-9) + 5*L(k-10) + -1*L(k-11) + R(k-11)  /* ok */
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1)  +  6*L(k-9) + 4*L(k-10) + L(k-12) + 3*L(k-13) + R(k-13)  /* ok */
+
+=for Test-Pari-DEFINE  Bfrom4L(k) = 4*L(k-1)  +  -1*L(k-4) + -1*L(k-5) + 5*L(k-6) + R(k-6)  /* ok */
+
+=for Test-Pari vector(10, k, Bfrom4L(k+13)) == vector(10, k, B(k+13))
+
+The middle sum of L's is positive for kE<gt>=8,
+
+    - L[k-4] - L[k-5] + 5*L[k-6] >= 0    for k >= 8
+
+=for Test-Pari-DEFINE  L115(k) = - L(k-4) - L(k-5) + 5*L(k-6)
+
+=for Test-Pari vector(20, k, L115(k+8 -1) >= 0) == vector(20, k, 1)
+
+=for Test-Pari-DEFINE  BfromL115(k) = 4*L(k-1)  +  L115(k) + R(k-6)
+
+=for Test-Pari vector(20, k, BfromL115(k+7 -1)) == vector(20, k, B(k+7 -1))
+
+This is seen by direct evaluation until k=15 at which point repeated
+expansion by the L recurrence has positive multiples above negatives (or
+continuing two more steps to all positive multiples)
+
+    - L[k-4] - L[k-5] + 5*L[k-6]
+    =
+    5*L[k-12] + 10*L[k-13] - 2*L[k-14]     for k >= 15
+
+=for Test-Pari-DEFINE  L115from12(k) = 5*L(k-12) + 10*L(k-13) - 2*L(k-14)
+
+=for Test-Pari vector(10, k, L115from12(k+14)) == vector(10, k, L115(k+14))
+
+=cut
+
+# k -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -14
+#            -1 -1  5
+#               -2  5 -2
+#                   3 -2 -4
+#                      1 -4  6
+#                        -3  6   2
+#                            3   2  -6
+#                                5  -6   6
+#                                   -1   6  10
+#                                        5  10  -2
+#                                           15  -2  10
+
+# k -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13
+# 1  1  1  1  1  1  1  1  1  1   1   1   1   1        B[k] = L[k]+R[k]
+#    2     3
+#    4 -1  3 -3
+#          2 -3 -1
+#            -1 -1  5
+#               -2  5 -1
+#                   3 -1 -3
+#                      2 -3  7
+#                        -1  7   5
+#                            6   5  -1
+#    4                       6   4   0   1   3
+
+#         3  -4 -1 -1
+#            -1 -1  5      is >=0 without further R terms
+#               -2  5 -2
+#                   3 -2 -4
+#                      1 -4  6
+#                        -3  6  2
+#                            3  2  -6
+#                               5  -6  6
+#                                  -1  6  10
+#                                      5  10 -2
+#                                      5   8  0  0  4
+
+#              *
+#              |
+#         *----*
+#         |
+#         *----*
+#              |
+#         *----*
+
+=pod
+
+Roughly speaking L[k] grows as r^k where r=1.69562 is the root above.  The
+power multiples -1,-1,5 is positive so the combination is positive
+eventually (in this case kE<gt>=8).
+
+    - r^2 - r + 5 = 0.4292   > 0
+
 =head2 Twin Dragons
 
 Two dragons placed head to tail mesh perfectly.  The second dragon is
-rotated 180 degrees and the two left sides match.
+rotated 180 degrees and the two left sides mesh.
 
              9----8    5---4
              |    |    |   |
@@ -2286,12 +2734,13 @@ rotated 180 degrees and the two left sides match.
        15---14        14--15
                        |   |      ^   second copy
     1---0         12--13  16      |   rotated 180
-    |              |              |   left sides mesh
+    |              |              |   left sides mesh,
     2---3     6---7,11-10             N=0 and N=16
         |     |    |    |             head to tail
         4-----5    8----9
 
-The meshing can be starting from an initial 1x1 square.
+This left side meshing can be seen by starting from an initial 1x1 square
+which is two dragons N=0 to N=2.
 
                           1
                          ^ ^
@@ -2307,10 +2756,10 @@ The meshing can be starting from an initial 1x1 square.
                          v v
                           1
 
-The arrows show the directions the subsequent expansion on the right.  The
-directions are per the odd/even point pattern and as the expansions above
-the enclosed square remains enclosed and all interior segments traversed
-precisely once, which means a perfect meshing.
+The arrows show the directions for the subsequent expansion on the right.
+The directions are per the odd/even X,Y point pattern and as per the
+expansions above the enclosed square remains enclosed and all interior
+segments are traversed precisely once, which means a perfect meshing.
 
 =head2 Other Formulas
 
@@ -2346,10 +2795,15 @@ L<http://oeis.org/A014577> (etc)
     A034947   turn, 1=left,-1=right, Jacobi (-1/n)
     A112347   turn, 1=left,-1=right, Kronecker (-1/n), extra 0
     A121238   turn, 1=left,-1=right, -1^(n + some partitions) extra 1
-    A014577   next turn, 0=left,1=right
-    A014707   next turn, 1=left,0=right
-    A014709   next turn, 2=left,1=right
-    A014710   next turn, 1=left,2=right
+    A014577   next turn, 1=left,0=right
+    A014707   next turn, 0=left,1=right
+    A014709   next turn, 1=left,2=right
+    A014710   next turn, 2=left,1=right
+
+These numerous turn sequences differ only in having left or right
+represented as 0, 1, -1, etc, and possibly "extra" initial 0 or 1 at n=0
+arising from the definitions and the first turn being at n=N=1.  The "next
+turn" forms begin at n=0 for turn at N=1 and so are the turn at N=n+1.
 
     A005811   total turn
     A088748   total turn + 1
@@ -2383,10 +2837,11 @@ L<http://oeis.org/A014577> (etc)
                 and initial 1 for N=0 to N=0
     A164395   single points N=0 to N=2^k-1 inclusive, for k=4 up
 
-The numerous turn sequences differ only in having left or right represented
-as 0, 1, -1, etc, and possibly "extra" initial 0 or 1 at n=0 arising from
-the definitions and the first turn being at n=N=1.  The "next turn" forms
-begin at n=0 for turn at N=1 and so are the turn at N=n+1.
+For reference, "dragon-like" A059125 is similar to the turn sequence
+A014707, but differs in having the "middle" values for each replication come
+from successive values of the sequence itself, or something like that.
+
+=head2 A088431 and A007400
 
 The run lengths A088431 and A007400 are from a continued fraction expansion
 of an infinite sum
@@ -2396,8 +2851,8 @@ of an infinite sum
         2   4   16   256   65536         2^(2^k)
 
 X<Shallit, Jeffrey>X<Kmosek>Jeffrey Shallit and independently M. Kmosek show
-how continued fraction terms which are repeated in reverse give rise to this
-sort of power sum,
+how continued fraction terms repeated in reverse give rise to this sort of
+power sum,
 
 =over
 
@@ -2418,6 +2873,8 @@ L<http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps>
 
 =back
 
+=head2 A126937
+
 The A126937 C<SquareSpiral> numbering has the dragon curve and square
 spiralling with their Y axes in opposite directions, as shown in its
 F<a126937.pdf>.  So the dragon curve turns up towards positive Y but the
@@ -2428,10 +2885,6 @@ C<PlanePath> code for this starting at C<$i=0> would be
       my $square = Math::PlanePath::SquareSpiral->new (n_start => 0);
       my ($x, $y) = $dragon->n_to_xy ($i);
       my $A126937_of_i = $square->xy_to_n ($x, -$y);
-
-For reference, "dragon-like" A059125 is similar to the turn sequence
-A014707, but differs in having the "middle" values for each replication come
-from successive values of the sequence itself, or something like that.
 
 =head1 SEE ALSO
 

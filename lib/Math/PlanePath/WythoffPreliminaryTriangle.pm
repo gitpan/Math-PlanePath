@@ -35,10 +35,9 @@
 package Math::PlanePath::WythoffPreliminaryTriangle;
 use 5.004;
 use strict;
-use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -55,6 +54,15 @@ use Math::PlanePath::Base::Digits
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant y_minimum => 1;
+use constant diffxy_maximum => -1;  # Y>=X+1 so X-Y <= -1
+
+# Apparent minimum dx=F(i),dy=F(i+5)
+# eg. N=57313   dx=377,dy=34    F(14),F(9)
+#     N=392835  dx=987,dy=89    F(16),F(11)
+#     N=2692537 dx=2584,dy=233  F(18),F(13)
+# dy/dx -> 1/phi^5
+use constant dir_minimum_dxdy => (((1+sqrt(5))/2)**5, 1);
+use constant dir_maximum_dxdy => (1,-1);  # SE at N=5
 
 use Math::PlanePath::WythoffArray;
 my $wythoff = Math::PlanePath::WythoffArray->new;
@@ -174,7 +182,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::WythoffPreliminaryTriangle -- table of Fibonacci recurrences
+Math::PlanePath::WythoffPreliminaryTriangle -- Wythoff row containing X,Y recurrence
 
 =head1 SYNOPSIS
 
@@ -210,26 +218,14 @@ Kimberling,
          +-----------------------------------------------------
            X=0   1   2   3   4   5   6   7   8   9  10  11  12
 
-A coordinate pair Y and X are the start of a Fibonacci style recurrence,
-
-    F[1]=Y, F[2]=X    F[i+i] = F[i] + F[i-1]
-
-Such a sequence eventually becomes a row of the Wythoff array
-(L<Math::PlanePath::WythoffArray>) after some number of initial iterations.
-The N value at X,Y is the row number of the Wythoff array which is reached
-from initial Y and X.  Rows are numbered starting from 1.  Eg.
-
-    Y=4,X=1 sequence:       4, 1, 5, 6, 11, 17, 28, 45, ...
-    row 7 of WythoffArray:                  17, 28, 45, ...
-    so N=7 at Y=4,X=1
-
-Taking this in reverse, a given N is at an X,Y position in the triangle
-according to where row number N of the Wythoff array "precurses" back to.
-The Wythoff row is run in reverse,
+A given N is at an X,Y position in the triangle according to where row
+number N of the Wythoff array "precurses" back to.  Each Wythoff row is a
+Fibonacci recurrence.  Starting from the pair of values in the first and
+second columns of row N it can be run in reverse by
 
     F[i-1] = F[i+i] - F[i]
 
-It can be shown that such a precurse always reaches a pair Y and X with
+It can be shown that such a reverse always reaches a pair Y and X with
 YE<gt>=1 and 0E<lt>=XE<lt>Y, hence making the triangular X,Y arrangement
 above.
 
@@ -240,22 +236,40 @@ above.
         5 = 11 - 6
         1 = 6 - 5
         4 = 5 - 1
-    stop on reaching 4,1 which is Y=4,X=1 satisfying Y>=1 and 0<=X<Y
+    stop on reaching 4,1 which is Y=4,X=1 with Y>=1 and 0<=X<Y
 
-=head2 Phi Slope Blocks
+Conversely a coordinate pair X,Y are reckoned as the start of a Fibonacci
+style recurrence,
 
-The effect of each step backwards is to move to successive blocks of values,
-with slope golden ratio phi=(sqrt(5)+1)/2.
+    F[i+i] = F[i] + F[i-1]   starting F[1]=Y, F[2]=X       
 
-Suppose no backwards steps were applied, so Y,X were the first two values of
-Wythoff row N.  In the example above that would be N=7 at Y=17,X=28.  The
-first two values of the Wythoff array are
+Iterating these values gives a row of the Wythoff array
+(L<Math::PlanePath::WythoffArray>) after some initial iterations.  The N
+value at X,Y is the row number of the Wythoff array which is reached.  Rows
+are numbered starting from 1.  For example,
 
-    Y = W[0,r] = r-1 + floor(r*phi)       # r = row numbered from 1
-    X = W[1,r] = r-1 + 2*floor(r*phi)
+    Y=4,X=1 sequence:       4, 1, 5, 6, 11, 17, 28, 45, ...
+    row 7 of WythoffArray:                  17, 28, 45, ...
+    so N=7 at Y=4,X=1
 
-So this would put N values on a line of slope Y/X = 1/phi = 0.618.  The
-portion of that line which falls within 0E<lt>=XE<lt>Y
+=cut
+
+# =head2 Phi Slope Blocks
+# 
+# The effect of each step backwards is to move to successive blocks of values
+# with slope golden ratio phi=(sqrt(5)+1)/2.
+# 
+# Suppose no backwards steps were applied, so Y,X were the first two values of
+# Wythoff row N.  In the example above that would be N=7 at Y=17,X=28.  The
+# first two values of the Wythoff array are
+# 
+#     Y = W[0,r] = r-1 + floor(r*phi)       # r = row numbered from 1
+#     X = W[1,r] = r-1 + 2*floor(r*phi)
+# 
+# So this would put N values on a line of slope Y/X = 1/phi = 0.618.  The
+# portion of that line which falls within 0E<lt>=XE<lt>Y
+
+=pod
 
 =cut
 
@@ -265,7 +279,6 @@ portion of that line which falls within 0E<lt>=XE<lt>Y
 #   -> r*(phi+1) / r*(2*phi+1)
 #    = (phi+1) / (2*phi+1)
 #    = 1/phi = 0.618
-
 
 =pod
 
@@ -284,8 +297,8 @@ Create and return a new path object.
 
 =head1 OEIS
 
-The Wythoff array is in Sloane's Online Encyclopedia of Integer Sequences
-in various forms,
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
 
 =over
 

@@ -21,12 +21,15 @@ use 5.004;
 use strict;
 use List::Util 'min','max','sum';
 use Scalar::Util 'blessed';
+use Math::BaseCnv;
 use List::Pairwise;
 use lib 'xt';
 use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 use Math::BigInt try => 'GMP';
 use Math::BigRat;
+use Math::Geometry::Planar ();
+use Module::Load;
 use POSIX 'ceil';
 
 use MyOEIS;
@@ -38,15 +41,576 @@ our $seg_len;
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
+
+
 # The total points along the horizontal, including the endpoints, is
-# 
+#
 #     H[k] = a[k] + 1 + e[k] + 1 + a[k]
 #          = 2*d[k-3] + 2*d[k-7] + 2
 
 # The pairs of terms are the Jocobsthal sequence
-# 
+#
 #     j[k+1] = j[k] + d[k-1] + j[k-2] + 2*j[k-3]
 
+
+
+{
+  # right boundary N
+
+  my $path = Math::PlanePath::CCurve->new;
+  my %non_values;
+  my %n_values;
+  my @n_values;
+  my @values;
+  foreach my $k (8) {
+    print "k=$k\n";
+    my $n_limit = 2**$k;
+    foreach my $n (0 .. $n_limit-1) {
+      $non_values{$n} = 1;
+    }
+    my $points = MyOEIS::path_boundary_points ($path, $n_limit,
+                                               side => 'right');
+    for (my $i = 0; $i+1 <= $#$points; $i++) {
+      my ($x,$y) = @{$points->[$i]};
+      my ($x2,$y2) = @{$points->[$i+1]};
+      # my @n_list = $path->xy_to_n_list($x,$y);
+      my @n_list = path_xyxy_to_n($path, $x,$y, $x2,$y2);
+      foreach my $n (@n_list) {
+        delete $non_values{$n};
+        if ($n <= $n_limit) { $n_values{$n} = 1; }
+        my $n2 = Math::BaseCnv::cnv($n,10,2);
+        my $pred = 1; # $path->_UNDOCUMENTED__n_segment_is_right_boundary($n);
+        my $diff = $pred ? '' : '  ***';
+        if ($k <= 8) { printf "%3d  %*s%s\n", $n, $k, $n2, $diff; }
+      }
+    }
+    @n_values = keys %n_values;
+    @n_values = sort {$a<=>$b} @n_values;
+    my @non_values = keys %non_values;
+    @non_values = sort {$a<=>$b} @non_values;
+    my $count = scalar(@n_values);
+    print "count $count\n";
+
+    # push @values, $count;
+    @values = @n_values;
+
+    # if ($k <= 4) {
+    #   foreach my $n (@non_values) {
+    #     my $pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n);
+    #     my $diff = $pred ? '  ***' : '';
+    #     my $n2 = Math::BaseCnv::cnv($n,10,3);
+    #     print "non $n  $n2$diff\n";
+    #   }
+    # }
+    # @values = @non_values;
+
+    # print "func ";
+    # foreach my $i (0 .. $count-1) {
+    #   my $n = $path->_UNDOCUMENTED__right_boundary_i_to_n($i);
+    #   my $n2 = Math::BaseCnv::cnv($n,10,3);
+    #   print "$n2,";
+    # }
+    # print "\n";
+
+    print "vals ";
+    foreach my $i (0 .. $count-1) {
+      my $n = $values[$i];
+      my $n2 = Math::BaseCnv::cnv($n,10,2);
+      print "$n,";
+    }
+    print "\n";
+  }
+
+  # @values = MyOEIS::first_differences(@values);
+  # shift @values;
+  # shift @values;
+  # shift @values;
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+
+  sub path_xyxy_to_n {
+    my ($path, $x1,$y1, $x2,$y2) = @_;
+    ### path_xyxy_to_n(): "$x1,$y1, $x2,$y2"
+    my @n_list = $path->xy_to_n_list($x1,$y1);
+    ### @n_list
+    my $arms = $path->arms_count;
+    foreach my $n (@n_list) {
+      my ($x,$y) = $path->n_to_xy($n + $arms);
+      if ($x == $x2 && $y == $y2) {
+        return $n;
+      }
+    }
+    return;
+  }
+}
+
+{
+
+=head2 Two Curves
+
+Two curves can be placed back-to-back, as if starting from a line segment
+traversed in both directions.
+
+                     <---------         back-to-back
+                     --------->          lines
+
+For example to N=16,
+
+           11-----10-----9,7-----6------5     k=4       3
+            |             |             |
+    13-----12             8             4------3        2
+     |                                         |
+    14                                         2        1
+     |                                         |
+    15-----16                           0------1   <- Y=0
+     1------0                           16----15   <- Y=0
+     |                                         |
+     2                                        14       -1
+     |                                         |
+     3------4             8            12-----13       -2
+            |             |             |
+            5------6-----7,9----10-----11              -3
+
+The boundary and area of this shape are
+
+    Btwo[k] = /  2                        if k=0
+              |  8*2^h - 8                if k even >= 2
+              \ 12*2^h - 8                if k odd
+            = 2, 4, 8, 16, 24, 40, 56, 88, 120, 184, 248, 376, 504, 760, 1016, 1528, 2040, ...
+
+    Atwo[k] = / 0                         if k=0
+              | (7/2)*2^k -  7*2^h + 4    if k even >= 2
+              \ (7/2)*2^k - 10*2^h + 4    if k odd
+            = 0, 1, 4, 12, 32, 76, 172, 372, 788, 1636, 3364, 6852, 13892, 28036, 56452, 113412, 227588
+
+=for Test-Pari-DEFINE  S(h) = 2^h
+
+=for Test-Pari-DEFINE  Z(h) = 2*2^h-2
+
+=for Test-Pari-DEFINE  Btwo_samples = [ 2, 4, 8, 16, 24, 40, 56, 88, 120, 184, 248, 376, 504, 760, 1016, 1528, 2040 ]
+
+=for Test-Pari-DEFINE  Btwo(k) = local(h); h=floor(k/2); if(k==0, 2, if(k%2, 12*2^h-8, 8*2^h-8))
+
+=for Test-Pari-DEFINE  Btwo_from_SZ(k) = local(h); h=floor(k/2); if(k==0, 2, if(k%2, 4*S(h)+4*Z(h), 4*S(h)+4*Z(h-1)))
+
+=for Test-Pari  vector(length(Btwo_samples), k, Btwo(k-1)) == Btwo_samples
+
+=for Test-Pari  vector(50, k, Btwo(k-1)) == vector(50, k, Btwo_from_SZ(k-1))
+
+The straight and zigzag parts are the two middle sides of the right and
+convex hull shapes shown above.  So the boundary
+
+    Btwo[k] = 4*S[h] + 4*Z[h-1]                for k even >= 2
+            = 4*(2^h) + 4*(2*2^(h-1) - 2)
+            = 8*2^h - 8
+
+    Btwo[k] = 4*S[h] + 4*Z[h]                  for k odd
+            = 4*(2^h) + 4*(2*2^h - 2)
+            = 12*2^h - 8
+
+The area can be calculated from the enclosing square S[h]+Z[h-1] from which
+subtract the four zigzag triangles at the corners.
+
+    Atwo[k] = 4*(S[h]+Z[h-1])^2 + 4*Z[h-1]/2*(Z[h-1]/2 + 1)/2
+     for k even >= 2
+
+    Atwo[k] = 4*(S[h]+Z[h])^2   + 4*Z[h]/2  *(Z[h]/2   + 1)/2
+     for k odd
+
+=for Test-Pari-DEFINE  Atwo_samples = [ 0, 1, 4, 12, 32, 76, 172, 372, 788, 1636, 3364, 6852, 13892, 28036, 56452, 113412, 227588 ]
+
+=for Test-Pari-DEFINE  Atwo(k) = local(h); h=floor(k/2); if(k==0, 0, if(k%2, (7/2)*2^k - 10*2^h + 4, (7/2)*2^k - 7*2^h + 4))
+
+=for Test-Pari-DEFINE  Atwo_from_SZ_even(h) = (S(h)+Z(h-1))^2 - 4*Z(h-1)/2*(Z(h-1)/2 + 1)/2
+
+=for Test-Pari-DEFINE  Atwo_from_SZ_odd(h) = (S(h)+Z(h))^2 - 4*Z(h)/2*(Z(h)/2 + 1)/2
+
+=for Test-Pari-DEFINE  Atwo_from_SZ(k) = local(h); h=floor(k/2); if(k==0, 0, if(k%2, Atwo_from_SZ_odd(h), Atwo_from_SZ_even(h)))
+
+=for Test-Pari  vector(length(Atwo_samples), k, Atwo(k-1)) == Atwo_samples
+
+=for Test-Pari  vector(50, k, Atwo(k-1)) == vector(50, k, Atwo_from_SZ(k-1))
+
+=cut
+
+# area
+# = (2^h + 2*2^(h-1)-2)^2 - 4*(2*2^(h-1) - 2)/2*((2*2^(h-1) - 2)/2 + 1)/2
+# = (2^h + 2^h-2)^2 - 4*(2^h - 2)/2*((2^h - 2)/2 + 1)/2
+# = (x + x-2)^2 - 4*(x - 2)/2*((x - 2)/2 + 1)/2
+# = 7/2*x^2 - 7*x + 4
+# = (7/2)*2^k - 7*2^h + 4
+# odd
+# = (2^h + 2*2^h-2)^2 - 4*(2*2^h - 2)/2*((2*2^h - 2)/2 + 1)/2
+# = (x + 2*x-2)^2 - 4*(2*x - 2)/2*((2*x - 2)/2 + 1)/2
+# = 7*x^2 - 10*x + 4
+# = (7/2)*2^k - 10*2^h + 4
+
+  # 2 back-to-back boundary     N=0 to 2^k each
+  #
+  # h=0 n=4^h=1  boundary=2
+  # h=2 n=4^h=16 boundary=6*4=24  area=36-4=32
+
+  #              2^h/4        zig (2^h/4 - 2)*2
+  #        *--------------*
+  #        |              |
+  #     *--*              *--*
+  #     |                    |  side 2^h/4 same by symmetry
+  #     +                    +
+  #
+  # total
+  #
+  # A159741 8*(2^n-1)      whole
+  # A028399 2^n - 4        half  cf A173033
+  # A000918 2^n - 2        quarter
+
+  #        7------6------5     k=3       3     straight
+  #        |             |                     = 2^h
+  # 7-----8,8            4------3        2
+  # |                           |              zig
+  # 6                           2        1     = 2*2^h-2
+  # |                           |
+  # 5------4            0,0-----1   <- Y=0
+  #        |             |
+  #        3------2------1
+  # h=0 n=2*4^h=2   boundary=4
+  # h=1 n=2*4^h=8   boundary=16   area=12
+  # h=2 n=2*4^h=32  boundary=40
+  # h=3 n=2*4^h=128 boundary=88
+  # total 4*(2^h) + 4*(2*2^h - 2)
+  #     = 3*2^h-8
+  # A182461             whole except 4    a(n) = a(n-1)*2+8 16,40,88,
+  # A131128 3*2^n - 4   half
+  # A033484 3*2^n - 2   quarter
+  # A153893 3*2^n - 1   eighth  h>=1
+
+  require MyOEIS;
+  my @values;
+  foreach my $k (0 .. 16) {
+    my $n_end = 2**$k;
+    my $h = int($k/2);
+    my ($n1, $n2) = ($k % 2 ? diagonal_4k_axis_n_ends($h) : width_4k_axis_n_ends($h));
+    my ($x1,$y1) = $path->n_to_xy ($n1);
+    my ($x2,$y2) = $path->n_to_xy ($n2);
+    my $points = MyOEIS::path_boundary_points_ft($path, $n_end,
+                                                 $x1,$y1, $x2,$y2,
+                                                 side => 'right',
+                                                 dir => $h,
+                                                );
+    if (@$points < 30) {
+      print "k=$k from N=$n1 $x1,$y1 to N=$n2 $x2,$y2\n";
+      print "  ",points_str($points),"\n";
+    }
+    my $boundary = 2 * (scalar(@$points) - 1);
+
+    my $area;
+    if (@$points > 2) {
+      my $planar = Math::Geometry::Planar->new;
+      $planar->points($points);
+      $area = 2 * $planar->area;
+    } else {
+      $area = 0;
+    }
+
+    # push @values, $boundary;
+    push @values, $area;
+    print "$h B=$boundary A=$area   n=$n1 xy=$x1,$y1 to n=$n2 xy=$x2,$y2  limit $n_end\n";
+  }
+  print join(',',@values),"\n";
+  shift @values;
+  shift @values;
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+
+  sub points_str {
+    my ($points) = @_;
+    ### points_str(): $points
+    my $count = scalar(@$points);
+    return  "count=$count  ".join(' ',map{join(',',@$_)}@$points)
+  }
+}
+
+{
+  my @sdir = (2,2,0,-2, -2,-2,0,2);
+  sub s0_by_formula {
+    my ($k) = @_;
+    {
+      my $h = int($k/2);
+      return 2**$k/4 + $sdir[$k%8]*2**$h/4;
+    }
+    {
+      # (1/4)*(2^k +   (1-I)^k +   (1+I)^k))
+      require Math::Complex;
+      return (2**$k / 2
+              + (Math::Complex->new(1,-1)**$k * Math::Complex->new(1,-1)
+                 + Math::Complex->new(1,1) **$k * Math::Complex->new(1,1)) / 4);
+    }
+  }
+  my @s1dir = (0,2,2,2, 0,-2,-2,-2);
+  sub s1_by_formula {
+    my ($k) = @_;
+    my $h = int($k/2);
+    return 2**$k/4 + $sdir[($k-2)%8]*2**$h/4;
+  }
+  my @s2dir = (0,2,2,2, 0,-2,-2,-2);
+  sub s2_by_formula {
+    my ($k) = @_;
+    my $h = int($k/2);
+    return 2**$k/4 + $sdir[($k-4)%8]*2**$h/4;
+  }
+  sub s3_by_formula {
+    my ($k) = @_;
+    my $h = int($k/2);
+    return 2**$k/4 + $sdir[($k-6)%8]*2**$h/4;
+  }
+#  print "  1,  1,  1,  1,  2,  6, 16, 36, 72,136,256,496,992,2016,4096,8256,16512,32896,65536,\n";  # M0
+#  print "  0,  1,  2,  3,  4,  6, 12, 28, 64,136,272,528,1024,2016,4032,8128,16384,32896,65792,\n"; # M1
+#  print "  0,  0,  1,  3,  6, 10, 16, 28, 56,120,256,528,1056,2080,4096,8128,16256,32640,65536,\n"; # M2
+  print "  0,  0,  0,  1,  4, 10, 20, 36, 64,120,240,496,1024,2080,4160,8256,16384,32640,65280,\n"; # M3
+  foreach my $k (0 .. 17) {
+    printf "%3d,", s3_by_formula($k);
+  }
+  exit 0;
+}
+
+
+
+
+
+
+
+
+
+
+{
+  # triangle area parts by individual recurrence
+  # e[k+8] = e[k+7] + 2*e[k+6] - e[k+4] + e[k+3] + 2*e[k+1] + 4*e[k]
+  # 1,0,0,0,0,0,0,2,6,10,22,40,80,156,308,622,1242,2494,4994,9988,19988,39952,79904,159786
+
+  my @e = (1,0,0,0,0,0,0,2);
+  foreach my $k (0 .. 15) {
+    push @e, $e[-1] + 2*$e[-2] - $e[-4] + $e[-5] + 2*$e[-7] + 4*$e[-8];
+  }
+  print join(",",@e),"\n";
+  exit 0;
+}
+{
+  # area parts by a-z recurrence
+  #
+  # a 0,0,0,2,4,8,16,30,60,116,232,466,932,1872,3744,7494
+  # c 0,1,1,1,1,2,4,8,18,39,79,159,315,628,1250,2494
+  # e 1,0,0,0,0,0,0,2,6,10,22,40,80,156,308,622
+  # g 0,0,0,0,0,0,0,2,2,6,10,20,40,76,156,310
+
+  # b 0,0,1,1,3,5,10,20,38,78,155,311,625,1247,2500,4994
+  # d 0,0,0,1,1,3,5,10,20,38,78,155,311,625,1247,2500
+  # f 0,0,0,0,1,1,3,5,10,20,38,78,155,311,625,1247
+  # h 0,0,0,0,0,1,1,3,5,10,20,38,78,155,311,625
+  # i 0,0,0,0,0,0,1,1,3,5,10,20,38,78,155,311
+  #
+  # [4]
+  # [2]
+  # [0]
+  # [1]
+  # [-1]
+  # [0]
+  # [2]
+  # [1]
+  # x^8 - (4*x^7 + 2*x^6 + 0*x^5 + 1*x^4 + -1*x^3 + 0*x^2 + 2*x + 1)
+  #
+  # 2,6,10,22,40,80,156,308,622,1242,2494,4994,9988,19988,39952,79904,159786,319550,639122,1278222,2556512,5113048,10226116,20452300,40904486
+  #
+  # 4*2 + 2*6 + 0*10 + 22 - 40 + 0*80 + 2*156 + 308
+  # a*x^2*g(x) + b*x*g(x) - g(x) = initial
+  # (-2 - 4*x)/(-1 + 1*x + 2*x^2 + 0*x^3 - x^4 + x^5 + 0*x^6 + 2*x^7 + 4*x^8)
+  #
+  #
+  my (@a,@b,@c,@d,@e,@f,@g,@h,@i);
+  my $a = 0;
+  my $b = 0;
+  my $c = 0;
+  my $d = 0;
+  my $e = 1;
+  my $f = 0;
+  my $g = 0;
+  my $h = 0;
+  my $i = 0;
+  my @values;
+  foreach my $k (0 .. 15) {
+    print "$a $b $c $d $e $f $g $h $i\n";
+    push @a, $a;
+    push @b, $b;
+    push @c, $c;
+    push @d, $d;
+    push @e, $e;
+    push @f, $f;
+    push @g, $g;
+    push @h, $h;
+    push @i, $i;
+    if ($k % 2) {
+      push @values, $b;
+    } else {
+      push @values, $b;
+    }
+
+    (    $a,        $b,    $c,          $d, $e,        $f, $g,   $h, $i)
+      = (2*$d+2*$b, $a+$c, $c+$e+$f+$h, $b, 2*$g+2*$i, $d, 2*$i, $f, $h);
+
+    $k < 2 || $e == 4*$i[-1 -1] + 2*$i[0 -1] or die;
+    $k < 6 || $e == 4*$b[-5 -1] + 2*$b[-4 -1] or die;
+    $k < 2 || $a == 2*$b[-1 -1] + 2*$b[0 -1] or die;
+    $k < 2 || $f == $b[-1 -1] or die;
+    $k < 3 || $h == $b[-2 -1] or die;
+    $k < 7 || $c == ($c[0 -1] + 4*$b[-6 -1] + 2*$b[-5 -1]
+                     + $b[-2 -1] + $b[-3 -1]) or die;
+    $k < 8 || $b == $b[-1] + 2*$b[-2] + 0 - $b[-4] + $b[-5] + 0 + 2*$b[-7] + 4*$b[-8] or die;
+  }
+  shift @values;
+  while (@values && $values[0] == 0) {
+    shift @values;
+  }
+  shift @values;
+  shift @values;
+  print join(",",@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+
+  print "a ",join(',',@a),"\n";
+  print "b ",join(',',@b),"\n";
+  print "c ",join(',',@c),"\n";
+  print "d ",join(',',@d),"\n";
+  print "e ",join(',',@e),"\n";
+  print "f ",join(',',@f),"\n";
+  print "g ",join(',',@g),"\n";
+  print "h ",join(',',@h),"\n";
+  print "i ",join(',',@i),"\n";
+
+  my $t = $a + 2*$b + 2*$c + 2*$d + $e + 2*$f + $g + 2*$h + 2*$i;
+  # $a+$b+$c+$d+$e+$f+$g+$h+$i;
+  $a /= $t;
+  $b /= $t;
+  $c /= $t;
+  $d /= $t;
+  $e /= $t;
+  $f /= $t;
+  $g /= $t;
+  $h /= $t;
+  $i /= $t;
+  printf  "%.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n",
+    $a, $b, $c, $d, $e, $f, $g, $h, $i;
+  printf  "%.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n",
+    $a/$i, $b/$i, $c/$i, $d/$i, $e/$i, $f/$i, $g/$i, $h/$i, $i/$i;
+  printf  "sum %f  %.5f\n", $t,
+    $a + 2*$b + 2*$c + 2*$d + $e + 2*$f + $g + 2*$h + 2*$i;
+
+  printf  "above %.5f\n", $a+2*$b+2*$c+2*$d+$e;
+  printf  "below %.5f\n", 2*$f+$g+2*$h+2*$i;
+  printf  "peak above %.5f\n", $a+2*$b+2*$c;
+  printf  "peak below %.5f\n", +2*$d + $e + 2*$f+$g+2*$h+2*$i;
+
+
+  @values = ();
+  $seg_len = 1;
+  $|=1;
+  foreach my $k (0 .. 10) {
+    my @count = ((0) x 21);
+    my $n_end = 4**$k;
+    my $x = 0;
+    my $y = 0;
+    foreach my $n (0 .. $n_end-1) {
+      my ($dx,$dy) = $path->n_to_dxdy($n);
+      {
+        my ($x,$y) = div_90($x,$y, $k);
+        my ($dx,$dy) = div_90($dx,$dy, $k);
+
+        ($x,$y) = (-$x,-$y); # rotate 180
+        ($dx,$dy) = (-$dx,-$dy); # rotate 180
+        # $x -= 1;
+        if ($k < 2) { print "$x,$y  $dx,$dy\n"; }
+        my $part = seg_to_part($x,$y,$dx,$dy);
+        $count[$part]++;
+      }
+      $x += $dx;
+      $y += $dy;
+    }
+    if ($k < 0) {
+      print "end $x,$y\n";
+      ($x,$y) = div_90($x,$y, $k);
+      ($x,$y) = (-$x,-$y); # rotate 180
+      print "end rot $x,$y\n";
+
+      printcounts(\@count);
+      print "\n";
+    }
+    my $value = $count[1];
+    push @values, $value;
+    print "$value,";
+  }
+  print "\n";
+
+  print join(",",@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+
+  exit 0;
+
+  sub div_90 {
+    my ($x,$y, $n) = @_;
+    foreach (1 .. $n) {
+      ($x,$y) = ($y,-$x);  # rotate -90
+      $x /= 2;
+      $y /= 2;
+    }
+    return ($x,$y);
+  }
+}
+
+
+{
+  # points count on axes
+
+  # x axis k even  A052953 Expansion of 2*(1-x-x^2)/((x-1)(2x-1)(1+x)).
+  #                A128209 Jacobsthal numbers(A001045) + 1.
+  #                A001045   a(n) = a(n-1)+2*a(n-2)   x/(1-x-2*x^2)  (1-2x)(1+x)
+  # A001045 Jacobsthal x/(1-x-2*x^2)  near 2^n/3
+  # axis a
+
+  my @values;
+  $seg_len = 1;
+  $|=1;
+  foreach my $k (0 .. 18) {
+    my $n_end = 2**$k;
+    my $xaxis = 0;
+    my $yaxis = 0;
+    my $xpos = 0;
+    my $ypos = 0;
+    my $xneg = 0;
+    my $yneg = 0;
+    foreach my $n (0 .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      # foreach (1 .. $k) {
+      #   ($x,$y) = ($y,-$x);  # rotate -90
+      # }
+      if ($x == 0) { $yaxis++;}
+      if ($y == 0) { $xaxis++;}
+      if ($y == 0 && $x > 0) { $xpos++; }
+      if ($y == 0 && $x < 0) { $xneg++; }
+      if ($x == 0 && $y > 0) { $ypos++; }
+      if ($x == 0 && $y < 0) { $yneg++; }
+      if ($k < 2) {
+        print "$n  xy=$x,$y\n";
+      }
+    }
+    print "k=$k  $xaxis $yaxis  $xpos $xneg  $ypos $yneg\n";
+    my $value = $xpos;
+    push @values, $value;
+    #    print "$value,";
+  }
+  print "\n";
+
+  print join(",",@values),"\n";
+  Math::OEIS::Grep->search(array => \@values);
+
+  exit 0;
+}
 
 {
   # d alts gf
@@ -157,7 +721,7 @@ our $seg_len;
     # push @values, 2*$a[$i] + $e[$i] + 2;
   }
   print join(',',@values),"\n";
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 
@@ -221,6 +785,28 @@ our $seg_len;
   #         |/     \|
   #         *       *
 
+=pod
+
+X positive
+Xpos[8i+0] = e[8i+0] + a[8i+0] + 1 = 2*d[8i-7] + d[8i-3] + 1
+Xpos[8i+1] = d[8i+1]
+Xpos[8i+2] = c[8i+2] = d[8i+1]
+Xpos[8i+3] = b[8i+3] = d[8i+1]
+Xpos[8i+4] = a[8i+4] = d[8i+1]
+Xpos[8i+5] = h[8i+5] = d[8i+1]
+Xpos[8i+6] = g[8i+6] = d[8i+1]
+Xpos[8i+7] = f[8i+7] = d[8i+1]
+1,1,1,1,1,1,1,1, 7, 17,17,17,17,17,17,17, 103, 273,273
+
+X axis
+X[4i+0] = 2*a[4i+0] + e[4i+0] = 2*d[4i-3] + 2*d[4i-7]
+X[4i+1] =   d[4i+1] + h[4i+1] = d[4i+1] + d[4i-3]
+X[4i+2] =   c[4i+2] + g[4i+2] = d[4i+1] + d[4i-3]
+X[4i+3] =   b[4i+3] + f[4i+3] = d[4i+1] + d[4i-3]
+2,2,2,2, 4, 6,6,6, 12, 22,22,22, 44, 86,86,86, 172, 342,342,342, 684
+
+=cut
+
   my ($len,$x,$y);
   my $xy_to_part = sub {
     if ($y == 0 && $x > 0) { return 0; } # a
@@ -272,61 +858,13 @@ our $seg_len;
     shift @values;
     print "part=$part  ",join(",",@values),"\n";
     if (@values) {
-      print MyOEIS->grep_for_values(array => \@values);
+      Math::OEIS::Grep->search(array => \@values);
     }
   }
   exit 0;
 }
 
 
-
-{
-  # points count on axes
-
-  # x axis k even  A052953 Expansion of 2*(1-x-x^2)/((x-1)(2x-1)(1+x)).
-  #                A128209 Jacobsthal numbers(A001045) + 1.
-  #                A001045   a(n) = a(n-1)+2*a(n-2)   x/(1-x-2*x^2)  (1-2x)(1+x)
-  # A001045 Jacobsthal x/(1-x-2*x^2)  near 2^n/3
-  # axis a 
-
-  my @values;
-  $seg_len = 1;
-  $|=1;
-  foreach my $k (0 .. 8) {
-    my $n_end = 4**$k;
-    my $xaxis = 0;
-    my $yaxis = 0;
-    my $xpos = 0;
-    my $ypos = 0;
-    my $xneg = 0;
-    my $yneg = 0;
-    foreach my $n (0 .. $n_end) {
-      my ($x,$y) = $path->n_to_xy($n);
-      foreach (1 .. $k) {
-        ($x,$y) = ($y,-$x);  # rotate -90
-      }
-      if ($x == 0) { $yaxis++;}
-      if ($y == 0) { $xaxis++;}
-      if ($x > 0) { $xpos++; }
-      if ($x < 0) { $xneg++; }
-      if ($y > 0) { $ypos++; }
-      if ($y < 0) { $yneg++; }
-      if ($k < 2) {
-        print "$n  xy=$x,$y\n";
-      }
-    }
-    print "k=$k  $xaxis $yaxis  $xpos $xneg  $ypos $yneg\n";
-    my $value = $xpos+1;
-    push @values, $value;
-    #    print "$value,";
-  }
-  print "\n";
-
-  print join(",",@values),"\n";
-  print MyOEIS->grep_for_values(array => \@values);
-
-  exit 0;
-}
 {
   # single, double etc point counts
 
@@ -360,206 +898,24 @@ our $seg_len;
     shift @values;
     print "s=$s\n";
     print join(",",@values),"\n";
-    print MyOEIS->grep_for_values(array => \@values);
+    Math::OEIS::Grep->search(array => \@values);
   }
   exit 0;
 }
+
 {
-  # area parts by recurrence
-  #
+  # area parts of fractal
   #    a      b(2)    c(2)    d(2)     e      f(2)    g      h(2)     i(2)
   # 0.36364 0.24242 0.12121 0.12121 0.03030 0.06061 0.01515 0.03030 0.01515
   #
   # 0.22857 0.15238 0.07619 0.07619 0.01905 0.03810 0.00952 0.01905 0.00952
   # 24   +  16   +  8  +    8+      2 +     4  +    1 +     2 +     1   = 66
   #
-  # a 0,0,2,4,8,16,30,60,116,232,466,932,1872,3744,7494,14988
-  # c 1,1,1,1,2,4,8,18,39,79,159,315,628,1250,2494,4988
-  # e 0,0,0,0,0,0,2,6,10,22,40,80,156,308,622,1242
-  # g 0,0,0,0,0,0,2,2,6,10,20,40,76,156,310,622   = 2*i[-1]
-  #
-  # b 0,1,1,3,5,10,20,38,78,155,311,625,1247,2500,4994,9988
-  # d 0,0,1,1,3,5,10,20,38,78,155,311,625,1247,2500,4994
-  # f 0,0,0,1,1,3,5,10,20,38,78,155,311,625,1247,2500
-  # h 0,0,0,0,1,1,3,5,10,20,38,78,155,311,625,1247
-  # i 0,0,0,0,0,1,1,3,5,10,20,38,78,155,311,625
-  # 
-  # [4]
-  # [2]
-  # [0]
-  # [1]
-  # [-1]
-  # [0]
-  # [2]
-  # [1]
-  # x^8 - (4*x^7 + 2*x^6 + 0*x^5 + 1*x^4 + -1*x^3 + 0*x^2 + 2*x + 1)
-  #
-  # 2,6,10,22,40,80,156,308,622,1242,2494,4994,9988,19988,39952,79904,159786,319550,639122,1278222,2556512,5113048,10226116,20452300,40904486
-  #
-  # 4*2 + 2*6 + 0*10 + 22 - 40 + 0*80 + 2*156 + 308
-  # a*x^2*g(x) + b*x*g(x) - g(x) = initial
-  # (-2 - 4*x)/(-1 + 1*x + 2*x^2 + 0*x^3 - x^4 + x^5 + 0*x^6 + 2*x^7 + 4*x^8)
-  #
-  # i[1]=h[0]=f[-1]=d[-2]=b[-3]
-  # e[1] = 2g[0] + 2i[0]
-  #      = 4i[-1] + 2i[0]
-  #      = 4b[-5] + 2b[-4]
-  # a[1] = 2d[0] + 2b[0]
-  #      = 2b[-1] + 2b[0]
-  # b[1] = a[0] + c[0]
-  #      = 2b[-2] + 2b[-1] + c[0]
-  # so c[0] = b[1] - 2b[-2] - 2b[-1]
-  # c[1] = c[0] + e[0]            + f[0]  + h[0]
-  #      = c[0] + 4b[-6] + 2b[-5] + b[-2] + b[-3]
-  # b[2] - 2b[-1] - 2b[0] =  b[1] - 2b[-2] - 2b[-1] + 4b[-6] + 2b[-5] + b[-2] + b[-3]
-  # b[2] = 2b[-1] + 2b[0] + b[1] - 2b[-2] - 2b[-1] + 4b[-6] + 2b[-5] + b[-2] + b[-3]
-  # b[2] = b[1] + 2b[0] + 0 - b[-2] + b[-3] + 0 + 2b[-5] + 4b[-6]
-  # b[0] = b[-1] + 2b[-2] + 0 - b[-4] + b[-5] + 0 + 2b[-7] + 4b[-8]
-  # for 625 upwards
-  # b = 1,1,3,5,10,20,38,78,155,311,625
-  # 4*1 + 2*3 + 0*5 + 10 - 20 + 0*38 + 2*78 + 155
-  # 4*3 + 2*5 + 0*10 + 20 - 38 + 0*78 + 2*155 + 311
-  # (-1)/(-1 + 1*x + 2*x^2 + 0*x^3 - x^4 + x^5 + 0*x^6 + 2*x^7 + 4*x^8)
-  #
-  #
-
-  my (@a,@b,@c,@d,@e,@f,@g,@h,@i);
-  my $a = 0;
-  my $b = 0;
-  my $c = 0;
-  my $d = 0;
-  my $e = 1;
-  my $f = 0;
-  my $g = 0;
-  my $h = 0;
-  my $i = 0;
-  my @values;
-  foreach my $k (0 .. 15) {
-    print "$a $b $c $d $e $f $g $h $i\n";
-    (    $a,        $b,    $c,          $d, $e,        $f, $g,   $h, $i)
-      = (2*$d+2*$b, $a+$c, $c+$e+$f+$h, $b, 2*$g+2*$i, $d, 2*$i, $f, $h);
-
-    $k < 2 || $e == 4*$i[-1 -1] + 2*$i[0 -1] or die;
-    $k < 6 || $e == 4*$b[-5 -1] + 2*$b[-4 -1] or die;
-    $k < 2 || $a == 2*$b[-1 -1] + 2*$b[0 -1] or die;
-    $k < 2 || $f == $b[-1 -1] or die;
-    $k < 3 || $h == $b[-2 -1] or die;
-    $k < 7 || $c == ($c[0 -1] + 4*$b[-6 -1] + 2*$b[-5 -1]
-                     + $b[-2 -1] + $b[-3 -1]) or die;
-    $k < 8 || $b == $b[-1] + 2*$b[-2] + 0 - $b[-4] + $b[-5] + 0 + 2*$b[-7] + 4*$b[-8] or die;
-
-    push @a, $a;
-    push @b, $b;
-    push @c, $c;
-    push @d, $d;
-    push @e, $e;
-    push @f, $f;
-    push @g, $g;
-    push @h, $h;
-    push @i, $i;
-    if ($k % 2) {
-      push @values, $b;
-    } else {
-      push @values, $b;
-    }
-  }
-  shift @values;
-  while (@values && $values[0] == 0) {
-    shift @values;
-  }
-  shift @values;
-  shift @values;
-  print join(",",@values),"\n";
-  print MyOEIS->grep_for_values(array => \@values);
-
-  print "a ",join(',',@a),"\n";
-  print "b ",join(',',@b),"\n";
-  print "c ",join(',',@c),"\n";
-  print "d ",join(',',@d),"\n";
-  print "e ",join(',',@e),"\n";
-  print "f ",join(',',@f),"\n";
-  print "g ",join(',',@g),"\n";
-  print "h ",join(',',@h),"\n";
-  print "i ",join(',',@i),"\n";
-
-  my $t = $a + 2*$b + 2*$c + 2*$d + $e + 2*$f + $g + 2*$h + 2*$i;
-  # $a+$b+$c+$d+$e+$f+$g+$h+$i;
-  $a /= $t;
-  $b /= $t;
-  $c /= $t;
-  $d /= $t;
-  $e /= $t;
-  $f /= $t;
-  $g /= $t;
-  $h /= $t;
-  $i /= $t;
-  printf  "%.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n",
-    $a, $b, $c, $d, $e, $f, $g, $h, $i;
-  printf  "%.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n",
-    $a/$i, $b/$i, $c/$i, $d/$i, $e/$i, $f/$i, $g/$i, $h/$i, $i/$i;
-  printf  "sum %f  %.5f\n", $t,
-    $a + 2*$b + 2*$c + 2*$d + $e + 2*$f + $g + 2*$h + 2*$i;
-
-  printf  "above %.5f\n", $a+2*$b+2*$c+2*$d+$e;
-  printf  "below %.5f\n", 2*$f+$g+2*$h+2*$i;
-  printf  "peak above %.5f\n", $a+2*$b+2*$c;
-  printf  "peak below %.5f\n", +2*$d + $e + 2*$f+$g+2*$h+2*$i;
-
-
-  @values = ();
-  $seg_len = 1;
-  $|=1;
-  foreach my $k (0 .. 10) {
-    my @count = ((0) x 21);
-    my $n_end = 4**$k;
-    my $x = 0;
-    my $y = 0;
-    foreach my $n (0 .. $n_end-1) {
-      my ($dx,$dy) = $path->n_to_dxdy($n);
-      {
-        my ($x,$y) = div_90($x,$y, $k);
-        my ($dx,$dy) = div_90($dx,$dy, $k);
-
-        ($x,$y) = (-$x,-$y); # rotate 180
-        ($dx,$dy) = (-$dx,-$dy); # rotate 180
-        # $x -= 1;
-        if ($k < 2) { print "$x,$y  $dx,$dy\n"; }
-        my $part = seg_to_part($x,$y,$dx,$dy);
-        $count[$part]++;
-      }
-      $x += $dx;
-      $y += $dy;
-    }
-    if ($k < 0) {
-      print "end $x,$y\n";
-      ($x,$y) = div_90($x,$y, $k);
-      ($x,$y) = (-$x,-$y); # rotate 180
-      print "end rot $x,$y\n";
-
-      printcounts(\@count);
-      print "\n";
-    }
-    my $value = $count[1];
-    push @values, $value;
-    print "$value,";
-  }
-  print "\n";
-
-  print join(",",@values),"\n";
-  print MyOEIS->grep_for_values(array => \@values);
 
   exit 0;
-
-  sub div_90 {
-    my ($x,$y, $n) = @_;
-    foreach (1 .. $n) {
-      ($x,$y) = ($y,-$x);  # rotate -90
-      $x /= 2;
-      $y /= 2;
-    }
-    return ($x,$y);
-  }
 }
+
+
 
 {
   sub seg_to_quad {
@@ -667,11 +1023,11 @@ our $seg_len;
 
 
 {
-  # area as triangle spread
+  # area as triangle spread, counted from path
 
 # len 16384
 # half 8192
-# 
+#
 # 61356740 40904429 20452175 20452175 40904429 20452243 5113048 20452243 10226127 2556512 10226127 5113058 2556546 2556546 5113058
 # total 268435456
 # sum   268435456
@@ -776,8 +1132,8 @@ our $seg_len;
   #
   # 6 -> left 2bit 2,9
 
-  # expanded
-  #             0  1 2 3  4   5 6 7   8 9 10  11 12 13 14
+  # expanded            a  b c d  e   f g h   i j k    l  m  n  p
+  #                     0  1 2 3  4   5 6 7   8 9 10  11 12 13 14
   my $left_bitperm  = [13, 6,3,12,9,  0,2,8,  3,6,11,  2,0,5,1];
   my $right_bitperm = [12, 9,13,2,6, 10,3,0, 14,6,2,   4,7,0,3];
 
@@ -1316,7 +1672,7 @@ our $seg_len;
   # shift @values;
   # shift @values;
   print join(",",@values),"\n";
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   sub is_integer {
@@ -1445,7 +1801,7 @@ our $seg_len;
 }
 
 {
-  # left vs recurrence
+  # left boundary vs recurrence
   # L[k] = 4*L[k-1] - 5*L[k-2] + 2*L[k-3]   k >= 6
   # x^3 - 4*x^2 + 5*x - 2 = (x-1)^2 * (x-2)      so a*2^k + b*k + c
   #
@@ -1481,9 +1837,6 @@ our $seg_len;
   }
   exit 0;
 }
-
-
-
 
 {
   # right boundary formula vs recurrence
@@ -1788,81 +2141,8 @@ our $seg_len;
   }
 }
 
-{
-  # 2 back-to-back boundary     N=0 to 2^k each
-  #
-  #        11-----10-----9,7-----6------5               3
-  #         |             |             |
-  # 13-----12             8             4------3        2
-  #  |                                         |
-  # 14                                         2        1
-  #  |                                         |
-  # 15-----16                           0------1   <- Y=0
-  # 15-----16                           0------1   <- Y=0
-  #  |                                         |
-  # 14                                         2        1
-  #  |                                         |
-  # 13-----12             8             4------3        2
-  #         |             |             |
-  #        11-----10-----9,7-----6------5               3
-  # k=0 n=4^k=1  boundary=2
-  # k=2 n=4^k=16 boundary=6*4=24
 
-  #              2^k/4        zig (2^k/4 - 2)*2
-  #        *--------------*
-  #        |              |
-  #     *--*              *--*
-  #     |                    |  side 2^k/4 same by symmetry
-  #     +                    +
-  #
-  # total 4*(2^k/4) + 4*(2^k/4 - 2)
-  #     = 2*2^k-8
-  # A159741 8*(2^n-1)      whole
-  # A028399 2^n - 4        half  cf A173033
-  # A000918 2^n - 2        quarter
 
-  #        7------6------5               3     straight
-  #        |             |                     = 2^k
-  # 7-----8,8            4------3        2
-  # |                           |              zig
-  # 6                           2        1     = 2*2^k-2
-  # |                           |
-  # 5------4            0,0-----1   <- Y=0
-  #        |             |
-  #        3------2------1
-  # k=0 n=2*4^k=2   boundary=4
-  # k=1 n=2*4^k=8   boundary=16
-  # k=2 n=2*4^k=32  boundary=40
-  # k=3 n=2*4^k=128 boundary=88
-  # total 4*(2^k) + 4*(2*2^k - 2)
-  #     = 3*2^k-8
-  # A182461             whole except 4    a(n) = a(n-1)*2+8 16,40,88,
-  # A131128 3*2^n - 4   half
-  # A033484 3*2^n - 2   quarter
-  # A153893 3*2^n - 1   eighth  k>=1
-
-  require MyOEIS;
-  my @values;
-  foreach my $k (0 .. 12) {
-    my $n_end = 2*4**$k;
-    my ($n1, $n2) = diagonal_4k_axis_n_ends($k);
-    # my ($n1, $n2) = width_4k_axis_n_ends($k);
-    my ($x1,$y1) = $path->n_to_xy ($n1);
-    my ($x2,$y2) = $path->n_to_xy ($n2);
-    my $points = MyOEIS::path_boundary_points_ft($path, $n_end,
-                                                 $x1,$y1, $x2,$y2,
-                                                 side => 'right',
-                                                 dir => $k,
-                                                );
-    my $boundary = scalar(@$points) - 1;
-    push @values, $boundary*2;
-    print "$k $boundary   n=$n1 xy=$x1,$y1 to n=$n2 xy=$x2,$y2  limit $n_end\n";
-  }
-  shift @values;
-  shift @values;
-  print MyOEIS->grep_for_values(array => \@values);
-  exit 0;
-}
 {
   # diagonal N endpoints search
   my @values;
@@ -1879,12 +2159,12 @@ our $seg_len;
     printf "$n1 xy=$x1,$y1    $n2 xy=$x2,$y2     %b %b\n", $n1, $n2;
   }
   require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   sub diagonal_4k_axis_n_ends {
     my ($k) = @_;
-    if ($k == 0) { return (0, 1); }
+    if ($k == 0) { return (0, 2); }
     my $start = 2*(4**($k-1)-1)/3;
     return ($start, 2*4**$k - $start);
   }
@@ -1927,7 +2207,7 @@ our $seg_len;
     printf "$k $n_limit  xy=$x,$y   $n_list_str  %b\n", $n_list[0];
   }
   require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 
@@ -1947,7 +2227,7 @@ our $seg_len;
     printf "$n1 xy=$x1,$y1    $n2 xy=$x2,$y2     %b %b\n", $n1, $n2;
   }
   require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   # 0,1, 5,21, 85,... binary      1, 101, 10101, ...
@@ -2017,12 +2297,12 @@ our $seg_len;
   }
 
   require MyOEIS;
-  # print MyOEIS->grep_for_values(array => \@w_min, name => "w_min");
-  # print MyOEIS->grep_for_values(array => \@h_min);
-  # print MyOEIS->grep_for_values(array => \@w_max);
+  # Math::OEIS::Grep->search(array => \@w_min, name => "w_min");
+  # Math::OEIS::Grep->search(array => \@h_min);
+  # Math::OEIS::Grep->search(array => \@w_max);
   shift @h_max;
   shift @h_max;
-  print MyOEIS->grep_for_values(array => \@h_max, name => "h_max");
+  Math::OEIS::Grep->search(array => \@h_max, name => "h_max");
   exit 0;
 }
 

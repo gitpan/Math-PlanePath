@@ -34,7 +34,7 @@ my $path = Math::PlanePath::TheodorusSpiral->new;
 # VERSION
 
 {
-  my $want_version = 115;
+  my $want_version = 116;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,

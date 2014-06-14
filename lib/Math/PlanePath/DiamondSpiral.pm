@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,11 +35,11 @@ use constant xy_is_visited => 1;
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 3;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 4;
 }
@@ -47,11 +47,15 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E at bottom
-                                          1,1,   # NE
-                                          -1,1,  # NW
-                                          -1,-1, # SW
-                                          1,-1); # SE
+use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E  N=1 and other bottom
+                           1,1,   # NE N=6
+                           -1,1,  # NW N=2
+                           -1,-1, # SW N=3
+                           1,-1); # SE N=4
+sub _UNDOCUMENTED__dxdy_list_at_n {
+  my ($self) = @_;
+  return $self->n_start + 5;
+}
 use constant absdx_minimum => 1;
 use constant dsumxy_minimum => -2; # diagonals
 use constant dsumxy_maximum => 2;

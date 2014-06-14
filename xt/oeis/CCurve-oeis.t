@@ -66,6 +66,35 @@ use Memoize;
 Memoize::memoize('right_boundary');
 
 #------------------------------------------------------------------------------
+# A038503 etc counts of segments in direction
+
+foreach my $elem ([0, 'A038503', 0],
+                  [1, 'A038504', 0],
+                  [2, 'A038505', 1],
+                  [3, 'A000749', 0]) {
+  my ($dir, $anum, $initial_k) = @$elem;
+  MyOEIS::compare_values
+      (anum => $anum,
+       max_value => 100_000,
+       func => sub {
+         my ($count) = @_;
+         my @got;
+         my $n = $path->n_start;
+         my $total = 0;
+         my $k = $initial_k;
+         while (@got < $count) {
+           my $n_end = 2**$k;
+           for ( ; $n < $n_end; $n++) {
+             $total += (dxdy_to_dir4($path->n_to_dxdy($n)) == $dir);
+           }
+           push @got, $total;
+           $k++;
+         }
+         return \@got;
+       });
+}
+
+#------------------------------------------------------------------------------
 # A007814 - count low 0s, is turn right - 1
 
 MyOEIS::compare_values
@@ -125,6 +154,14 @@ MyOEIS::compare_values
 
 #------------------------------------------------------------------------------
 # A027383 right boundary differences
+# cf
+# CCurve right boundary diffs even terms
+# 6,14,30,62,126
+# A000918 2^n - 2.
+# CCurve right boundary diffs odd terms
+# 10,22,46,94,190
+# A033484 3*2^n - 2.
+
 MyOEIS::compare_values
   (anum => 'A027383',
    max_value => 10_000,

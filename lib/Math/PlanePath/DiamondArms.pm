@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -46,17 +46,17 @@ use Math::PlanePath::DiamondSpiral;
 
 use constant arms_count => 4;
 use constant xy_is_visited => 1;
-use constant _UNDOCUMENTED__x_negative_at_n => 8;
-use constant _UNDOCUMENTED__y_negative_at_n => 5;
+use constant x_negative_at_n => 8;
+use constant y_negative_at_n => 5;
 
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant _UNDOCUMENTED__dxdy_list => (1,1,   # NE  diagonals
-                                          -1,1,  # NW
-                                          -1,-1, # SW
-                                          1,-1); # SE
+                           -1,1,  # NW
+                           -1,-1, # SW
+                           1,-1); # SE
 use constant absdx_minimum => 1;
 use constant absdy_minimum => 1;
 use constant dsumxy_minimum => -2; # diagonals

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -52,6 +52,51 @@ sub gcd {
     ($x,$y) = ($y, $x % $y);
   }
 }
+
+
+#------------------------------------------------------------------------------
+# A044051  N+1 of those N where SB and CW gives same X,Y
+#          being binary palindromes below high 1-bit
+
+MyOEIS::compare_values
+  (anum => 'A044051',
+   func => sub {
+     my ($count) = @_;
+     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got = (1);
+     for (my $n = $sb->n_start; @got < $count; $n++) {
+       my ($x1,$y1) = $sb->n_to_xy($n) or die;
+       my ($x2,$y2) = $cw->n_to_xy($n) or die;
+       if ($x1 == $x2 && $y1 == $y2) {
+         push @got, $n + 1;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A008776  total X+Y across row, 2*3^depth
+
+MyOEIS::compare_values
+  (anum => 'A008776',
+   max_count => 14,
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new;
+     my @got;
+     require Math::BigInt;
+     for (my $depth = 0; @got < $count; $depth++) {
+       my ($n_lo, $n_hi) = $path->tree_depth_to_n_range($depth);
+       my $total = 0;
+       foreach my $n ($n_lo .. $n_hi) {
+         my ($x,$y) = $path->n_to_xy ($n);
+         $total += $x + $y;
+       }
+       push @got, $total;
+     }
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------
@@ -111,8 +156,8 @@ MyOEIS::compare_values
 
 #------------------------------------------------------------------------------
 # A229742 -- HCS numerators
-# 0, 1, 2, 1, 3, 3, 1, 2, 4, 5, 4, 5, 1, 2, 3, 3, 5, 7, 7, 8, 5, 7, 7, 8,   
- 
+# 0, 1, 2, 1, 3, 3, 1, 2, 4, 5, 4, 5, 1, 2, 3, 3, 5, 7, 7, 8, 5, 7, 7, 8,
+
 MyOEIS::compare_values
   (anum => 'A229742',
    func => sub {

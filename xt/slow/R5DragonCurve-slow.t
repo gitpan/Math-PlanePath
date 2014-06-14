@@ -35,9 +35,206 @@ use MyOEIS;
 
 use Memoize;
 use Math::PlanePath::R5DragonCurve;
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
+use Math::PlanePath;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+
+
+#------------------------------------------------------------------------------
+# right boundary N
+
+{
+  my $bad = 0;
+  foreach my $arms (1) {
+    my $path = Math::PlanePath::R5DragonCurve->new (arms => $arms);
+    my $i = 0;
+    foreach my $n (0 .. 5**5-1) {
+      my ($x1,$y1) = $path->n_to_xy($n);
+      my ($x2,$y2) = $path->n_to_xy($n + $arms);
+      my $want_pred = path_xyxy_is_right_boundary($path, $x1,$y1, $x2,$y2) ? 1 : 0;
+      {
+        my $got_pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n) ? 1 : 0;
+        unless ($want_pred == $got_pred) {
+          MyTestHelpers::diag ("oops, _UNDOCUMENTED__n_segment_is_right_boundary() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
+          last if $bad++ > 10;
+        }
+      }
+      {
+        my $got_pred = n_segment_is_right_boundary__by_digitpairs($path,$n) ? 1 : 0;
+        unless ($want_pred == $got_pred) {
+          MyTestHelpers::diag ("oops, n_segment_is_right_boundary__by_digitpairs() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
+          last if $bad++ > 10;
+        }
+      }
+      {
+        my $got_pred = n_segment_is_right_boundary_by_hightolow_states($path,$n) ? 1 : 0;
+        unless ($want_pred == $got_pred) {
+          MyTestHelpers::diag ("n_segment_is_right_boundary_by_hightolow_states(), n_segment_is_right_boundary__by_digitpairs() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
+          last if $bad++ > 10;
+        }
+      }
+    }
+  }
+  ok ($bad, 0);
+}
+
+BEGIN {
+  my @table
+    = (undef,
+       [    1, 1, 2, 3, 4 ],   # R -> RRCDE
+       [    1, 2          ],   # C -> RC___
+       [undef, 3          ],   # D -> _D___
+       [undef, 4, 2, 3, 4 ],   # E -> _ECDE
+      );
+
+  sub n_segment_is_right_boundary_by_hightolow_states {
+    my ($self, $n) = @_;
+    my $state = 1;
+    foreach my $digit (reverse digit_split_lowtohigh($n,5)) { # high to low
+      $state = $table[$state][$digit] || return 0;
+    }
+    return 1;
+  }
+}
+BEGIN {
+  my @table
+    = ([     1, undef, 1, 1, 1 ],  # 00, 02, 03, 04
+       undef,
+       [     1                 ],  # 20
+       [                       ],  # 3 none
+       [ undef, undef, 1, 1, 1 ],  # 4
+      );
+  sub n_segment_is_right_boundary__by_digitpairs {
+    my ($self, $n) = @_;
+    ### n_segment_is_right_boundary__by_digitpairs(): "n=$n"
+    if (_divrem_mutate($n, $self->{'arms'})) {
+      return 0;
+    }
+    my $prev = 0;
+    foreach my $digit (reverse digit_split_lowtohigh($n,5)) { # high to low
+      next if $digit == 1;
+      ### pair: "$prev $digit   table=".($table[$prev][$digit] || 0)
+      unless ($table[$prev][$digit]) {
+        ### no ...
+        return 0;
+      }
+      $prev = $digit;
+    }
+    ### yes ...
+    return 1;
+  }
+}
+
+# return true if line segment $x1,$y1 to $x2,$y2 is on the right boundary
+sub path_xyxy_is_right_boundary {
+  my ($path, $x1,$y1, $x2,$y2) = @_;
+  ### path_xyxy_is_right_boundary() ...
+  my $dx = $x2-$x1;
+  my $dy = $y2-$y1;
+  ($dx,$dy) = ($dy,-$dx); # rotate -90
+  ### one: "$x1,$y1 to ".($x1+$dx).",".($y1+$dy)
+  ### two: "$x2,$y2 to ".($x2+$dx).",".($y2+$dy)
+  return (! path_xyxy_is_traversed ($path, $x1,$y1, $x1+$dx,$y1+$dy)
+          || ! path_xyxy_is_traversed ($path, $x2,$y2, $x2+$dx,$y2+$dy)
+          || ! path_xyxy_is_traversed ($path, $x1+$dx,$y1+$dy, $x2+$dx,$y2+$dy));
+}
+
+# return true if line segment $x1,$y1 to $x2,$y2 is traversed,
+# ie. consecutive N goes from $x1,$y1 to $x2,$y2, in either direction.
+sub path_xyxy_is_traversed {
+  my ($path, $x1,$y1, $x2,$y2) = @_;
+  ### path_xyxy_is_traversed(): "$x1,$y1, $x2,$y2"
+  my $arms = $path->arms_count;
+  foreach my $n1 ($path->xy_to_n_list($x1,$y1)) {
+    foreach my $n2 ($path->xy_to_n_list($x2,$y2)) {
+      if (abs($n1-$n2) == $arms) {
+        ### yes: "$n1 to $n2"
+        return 1;
+      }
+    }
+  }
+  ### no ...
+  return 0;
+}
+
 my $path = Math::PlanePath::R5DragonCurve->new;
 
+#------------------------------------------------------------------------------
+# B
 
+{
+  # POD samples
+  my @want = (2, 10, 34, 106, 322, 970, 2914);
+  foreach my $k (0 .. $#want) {
+    my $got = B_from_path($path,$k);
+    my $want = $want[$k];
+    ok ($got,$want);
+  }
+}
+{
+  # B[k] = 4*R[k] + 2*U[k]
+
+  foreach my $k (0 .. 10) {
+    my $r = R_from_path($path,$k);
+    my $u = U_from_path($path,$k);
+    my $b = B_from_path($path,$k+1);
+    ok (4*$r+2*$u,$b);
+  }
+}
+{
+  # B[k+2] = 4*B[k+1] - 3*B[k]
+
+  foreach my $k (0 .. 10) {
+    my $b0 = B_from_path($path,$k);
+    my $b1 = B_from_path($path,$k+1);
+    my $got = 4*$b1 - 3*$b0;
+    my $want = B_from_path($path,$k+2);
+    ok ($got,$want);
+  }
+}
+{
+  # B[k] = 4*3^k - 2
+
+  foreach my $k (0 .. 10) {
+    my $want = b_from_path($path,$k);
+    my $got = 4*3**$k - 2;
+    ok ($got,$want);
+  }
+}
+
+#------------------------------------------------------------------------------
+# R
+
+{
+  # R[k] = B[k]/2
+  my $sum = 1;
+  foreach my $k (0 .. 8) {
+    my $b = B_from_path($path,$k);
+    my $r = R_from_path($path,$k);
+    ok ($r,$b/2);
+  }
+}
+{
+  # POD samples
+  my @want = (1,5,17,53);
+  foreach my $k (0 .. $#want) {
+    my $got = R_from_path($path,$k);
+    my $want = $want[$k];
+    ok ($got,$want);
+  }
+}
+{
+  # R[k+1] = 2*R[k] + U[k]
+
+  foreach my $k (1 .. 8) {
+    my $r0 = R_from_path($path,$k);
+    my $r1 = R_from_path($path,$k+1);
+    my $u = R_from_path($path,$k);
+    ok (2*$r0+$u, $r1);
+  }
+}
 
 #------------------------------------------------------------------------------
 # Area
@@ -87,38 +284,6 @@ BEGIN { memoize('A_recurrence') }
 
 
 #------------------------------------------------------------------------------
-# R
-
-{
-  # R[k] = B[k]/2
-  my $sum = 1;
-  foreach my $k (0 .. 8) {
-    my $b = B_from_path($path,$k);
-    my $r = R_from_path($path,$k);
-    ok ($r,$b/2);
-  }
-}
-{
-  # POD samples
-  my @want = (1, 2, 4, 8, 16, 28, 48, 84, 144, 244, 416, 708, 1200, 2036);
-  foreach my $k (0 .. $#want) {
-    my $got = R_from_path($path,$k);
-    my $want = $want[$k];
-    ok ($got,$want);
-  }
-}
-{
-  # R[k+1] = 2*R[k] + U[k]
-
-  foreach my $k (1 .. 8) {
-    my $r0 = R_from_path($path,$k);
-    my $r1 = R_from_path($path,$k+1);
-    my $u = R_from_path($path,$k);
-    ok (2*$r0+$u, $r1);
-  }
-}
-
-#------------------------------------------------------------------------------
 # boundary lengths
 
 sub B_from_path {
@@ -162,49 +327,6 @@ sub A_from_path {
   return MyOEIS::path_enclosed_area($path, 5**$k);
 }
 BEGIN { memoize('A_from_path') }
-
-#------------------------------------------------------------------------------
-# B
-
-{
-  # POD samples
-  my @want = (2, 10, 34, 106, 322, 970, 2914);
-  foreach my $k (0 .. $#want) {
-    my $got = B_from_path($path,$k);
-    my $want = $want[$k];
-    ok ($got,$want);
-  }
-}
-{
-  # B[k] = 4*R[k] + 2*U[k]
-
-  foreach my $k (0 .. 10) {
-    my $r = R_from_path($path,$k);
-    my $u = U_from_path($path,$k);
-    my $b = B_from_path($path,$k+1);
-    ok ($4*$r+2*$u,$b);
-  }
-}
-{
-  # B[k+2] = 4*B[k+1] - 3*B[k]
-
-  foreach my $k (0 .. 10) {
-    my $b0 = B_from_path($path,$k);
-    my $b1 = B_from_path($path,$k+1);
-    my $got = 4*$b1 - 3*$b0;
-    my $want = B_from_path($path,$k+2);
-    ok ($got,$want);
-  }
-}
-{
-  # B[k] = 4*3^k - 2
-
-  foreach my $k (0 .. 10) {
-    my $want = b_from_path($path,$k);
-    my $got = 4*3**$k - 2;
-    ok ($got,$want);
-  }
-}
 
 # #------------------------------------------------------------------------------
 # # U

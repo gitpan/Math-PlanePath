@@ -44,6 +44,27 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['gcd-rationals-rows-big.png',
+    "math-image --path=GcdRationals --expression='i<=68*67/2?i:0' --scale=2 --size=140x140"],
+   ['gcd-rationals-diagonals-big.png',
+    "math-image --path=GcdRationals,pairs_order=diagonals_down --expression='i<=47**2?i:0' --scale=2 --size=160x200"],
+   ['gcd-rationals-small.png',
+    'math-image --path=GcdRationals --lines --scale=6 --size=32 --offset=-4,-4'],
+   ['gcd-rationals-big.png',
+    'math-image --path=GcdRationals --lines --scale=15 --size=200'],
+   ['gcd-rationals-reverse-big.png',
+    'math-image --path=GcdRationals,pairs_order=rows_reverse --lines --scale=15 --size=200'],
+
+   ['wythoff-preliminary-triangle-small.png',
+    'math-image --path=WythoffPreliminaryTriangle --lines --scale=5 --size=32'],
+   ['wythoff-preliminary-triangle-big.png',
+    'math-image --path=WythoffPreliminaryTriangle --lines --scale=12 --size=200'],
+
+   ['wythoff-array-small.png',
+    'math-image --path=WythoffArray --lines --scale=8 --size=32'],
+   ['wythoff-array-big.png',
+    'math-image --path=WythoffArray --lines --scale=16 --size=200'],
+
    ['pythagorean-tree-ltoh.png',
     'math-image --path=PythagoreanTree,digit_order=LtoH --values=LinesTree --scale=2 --size=200'],
    ['pythagorean-tree-big.png',
@@ -92,17 +113,6 @@ foreach my $elem
     'math-image --path=CfracDigits,radix=3 --lines --scale=10 --size=200'],
    ['cfrac-digits-radix4.png',
     'math-image --path=CfracDigits,radix=4 --lines --scale=10 --size=200'],
-
-   ['gcd-rationals-rows-big.png',
-    "math-image --path=GcdRationals --expression='i<=68*67/2?i:0' --scale=2 --size=160x200"],
-   ['gcd-rationals-diagonals-big.png',
-    "math-image --path=GcdRationals,pairs_order=diagonals_down --expression='i<=47**2?i:0' --scale=2 --size=160x200"],
-   ['gcd-rationals-small.png',
-    'math-image --path=GcdRationals --lines --scale=6 --size=32 --offset=-4,-4'],
-   ['gcd-rationals-big.png',
-    'math-image --path=GcdRationals --lines --scale=15 --size=200'],
-   ['gcd-rationals-reverse-big.png',
-    'math-image --path=GcdRationals,pairs_order=rows_reverse --lines --scale=15 --size=200'],
 
    ['chan-tree-lines.png',
     'math-image --path=ChanTree --values=LinesTree --scale=12 --size=200'],
@@ -415,11 +425,6 @@ foreach my $elem
     'math-image --path=PowerArray --lines --scale=16 --size=200'],
    ['power-array-radix5-big.png',
     'math-image --path=PowerArray,radix=5 --lines --scale=16 --size=200'],
-
-   ['wythoff-array-small.png',
-    'math-image --path=WythoffArray --lines --scale=8 --size=32'],
-   ['wythoff-array-big.png',
-    'math-image --path=WythoffArray --lines --scale=16 --size=200'],
 
 
    ['complexminus-small.png',

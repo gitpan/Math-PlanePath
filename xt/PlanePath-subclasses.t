@@ -51,9 +51,65 @@ my @modules = (
 
                # module list begin
 
-               'MPeaks',
-               'MPeaks,n_start=0',
-               'MPeaks,n_start=37',
+               'WythoffPreliminaryTriangle',
+
+               'WythoffArray',
+               'WythoffArray,x_start=1',
+               'WythoffArray,y_start=1',
+               'WythoffArray,x_start=1,y_start=1',
+               'WythoffArray,x_start=5,y_start=7',
+
+               'ComplexRevolving',
+               'ComplexPlus',
+               'ComplexPlus,realpart=2',
+               'ComplexPlus,realpart=3',
+               'ComplexPlus,realpart=4',
+               'ComplexPlus,realpart=5',
+               'ComplexMinus',
+               'ComplexMinus,realpart=2',
+               'ComplexMinus,realpart=3',
+               'ComplexMinus,realpart=4',
+               'ComplexMinus,realpart=5',
+
+               'Flowsnake',
+               'Flowsnake,arms=2',
+               'Flowsnake,arms=3',
+               'FlowsnakeCentres',
+               'FlowsnakeCentres,arms=2',
+               'FlowsnakeCentres,arms=3',
+
+               'DiagonalsAlternating',
+               'DiagonalsAlternating,n_start=0',
+               'DiagonalsAlternating,n_start=37',
+               'DiagonalsAlternating,x_start=5',
+               'DiagonalsAlternating,x_start=2,y_start=5',
+
+               'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+               'SierpinskiArrowhead',
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+
+               # Math::PlanePath::CellularRule::Line
+               'CellularRule,rule=2',  # left line
+               'CellularRule,rule=2,n_start=0',
+               'CellularRule,rule=2,n_start=37',
+               'CellularRule,rule=4',  # centre line
+               'CellularRule,rule=4,n_start=0',
+               'CellularRule,rule=4,n_start=37',
+               'CellularRule,rule=16', # right line
+               'CellularRule,rule=16,n_start=0',
+               'CellularRule,rule=16,n_start=37',
+
+               'CellularRule,rule=6',   # left 1,2 line
+               'CellularRule,rule=6,n_start=0',
+               'CellularRule,rule=6,n_start=37',
+               'CellularRule,rule=20',  # right 1,2 line
+               'CellularRule,rule=20,n_start=0',
+               'CellularRule,rule=20,n_start=37',
 
                # Math::PlanePath::CellularRule::Two
                'CellularRule,rule=14',  # left 2 cell line
@@ -62,6 +118,38 @@ my @modules = (
                'CellularRule,rule=84',  # right 2 cell line
                'CellularRule,rule=84,n_start=0',
                'CellularRule,rule=84,n_start=37',
+
+               'CellularRule',
+               'CellularRule,n_start=0',
+               'CellularRule,n_start=37',
+
+               'CellularRule,rule=206', # left solid
+               'CellularRule,rule=206,n_start=0',
+               'CellularRule,rule=206,n_start=37',
+
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+
+               'CellularRule,rule=0',   # blank
+               'CellularRule,rule=60',
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=222', # full solid
+
+               'CretanLabyrinth',
+
+               'AlternatePaper',
+               'AlternatePaper,arms=2',
+               'AlternatePaper,arms=3',
+               'AlternatePaper,arms=4',
+               'AlternatePaper,arms=5',
+               'AlternatePaper,arms=6',
+               'AlternatePaper,arms=7',
+               'AlternatePaper,arms=8',
+
+               'MPeaks',
+               'MPeaks,n_start=0',
+               'MPeaks,n_start=37',
 
                '*ToothpickSpiral',
                '*ToothpickSpiral,n_start=0',
@@ -188,53 +276,6 @@ my @modules = (
                'MultipleRings,step=8',
                'MultipleRings,step=37',
 
-               'CellularRule',
-               'CellularRule,n_start=0',
-               'CellularRule,n_start=37',
-
-               'CellularRule,rule=206', # left solid
-               'CellularRule,rule=206,n_start=0',
-               'CellularRule,rule=206,n_start=37',
-
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=18,n_start=0',
-               'CellularRule,rule=18,n_start=37',
-
-               'CellularRule,rule=0',   # blank
-               'CellularRule,rule=60',
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=222', # full solid
-
-               'ComplexRevolving',
-               'ComplexPlus',
-               'ComplexPlus,realpart=2',
-               'ComplexPlus,realpart=3',
-               'ComplexPlus,realpart=4',
-               'ComplexPlus,realpart=5',
-               'ComplexMinus',
-               'ComplexMinus,realpart=2',
-               'ComplexMinus,realpart=3',
-               'ComplexMinus,realpart=4',
-               'ComplexMinus,realpart=5',
-
-               # Math::PlanePath::CellularRule::Line
-               'CellularRule,rule=2',  # left line
-               'CellularRule,rule=2,n_start=0',
-               'CellularRule,rule=2,n_start=37',
-               'CellularRule,rule=4',  # centre line
-               'CellularRule,rule=4,n_start=0',
-               'CellularRule,rule=4,n_start=37',
-               'CellularRule,rule=16', # right line
-               'CellularRule,rule=16,n_start=0',
-               'CellularRule,rule=16,n_start=37',
-
-               'CellularRule,rule=6',   # left 1,2 line
-               'CellularRule,rule=6,n_start=0',
-               'CellularRule,rule=6,n_start=37',
-               'CellularRule,rule=20',  # right 1,2 line
-               'CellularRule,rule=20,n_start=0',
-               'CellularRule,rule=20,n_start=37',
-
                'TriangularHypot',
                'TriangularHypot,n_start=0',
                'TriangularHypot,n_start=37',
@@ -352,17 +393,6 @@ my @modules = (
                'AlternatePaperMidpoint,arms=7',
                'AlternatePaperMidpoint,arms=8',
 
-               'CretanLabyrinth',
-
-               'AlternatePaper',
-               'AlternatePaper,arms=2',
-               'AlternatePaper,arms=3',
-               'AlternatePaper,arms=4',
-               'AlternatePaper,arms=5',
-               'AlternatePaper,arms=6',
-               'AlternatePaper,arms=7',
-               'AlternatePaper,arms=8',
-
                'R5DragonMidpoint',
                'R5DragonMidpoint,arms=2',
                'R5DragonMidpoint,arms=3',
@@ -385,12 +415,6 @@ my @modules = (
                'PentSpiralSkewed',
                'PentSpiralSkewed,n_start=0',
                'PentSpiralSkewed,n_start=37',
-
-               'DiagonalsAlternating',
-               'DiagonalsAlternating,n_start=0',
-               'DiagonalsAlternating,n_start=37',
-               'DiagonalsAlternating,x_start=5',
-               'DiagonalsAlternating,x_start=2,y_start=5',
 
                'CellularRule54',
                'CellularRule54,n_start=0',
@@ -462,22 +486,6 @@ my @modules = (
 
                'PixelRings',
                'HilbertSpiral',
-
-               'Flowsnake',
-               'Flowsnake,arms=2',
-               'Flowsnake,arms=3',
-               'FlowsnakeCentres',
-               'FlowsnakeCentres,arms=2',
-               'FlowsnakeCentres,arms=3',
-
-               'SierpinskiArrowheadCentres',
-               'SierpinskiArrowheadCentres,align=right',
-               'SierpinskiArrowheadCentres,align=left',
-               'SierpinskiArrowheadCentres,align=diagonal',
-               'SierpinskiArrowhead',
-               'SierpinskiArrowhead,align=right',
-               'SierpinskiArrowhead,align=left',
-               'SierpinskiArrowhead,align=diagonal',
 
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
@@ -671,12 +679,6 @@ my @modules = (
                'DiagonalRationals,direction=up',
                'DiagonalRationals,direction=up,n_start=37',
 
-               'WythoffArray',
-               'WythoffArray,x_start=1',
-               'WythoffArray,y_start=1',
-               'WythoffArray,x_start=1,y_start=1',
-               'WythoffArray,x_start=5,y_start=7',
-
                'FilledRings',
                'FilledRings,n_start=0',
                'FilledRings,n_start=37',
@@ -852,7 +854,7 @@ BEGIN {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 115;
+my $want_version = 116;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1172,30 +1174,30 @@ sub pythagorean_diag {
     my $n_limit = $n_start + $limit;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
     
-    my $x_negative_at_n = $path->_UNDOCUMENTED__x_negative_at_n;
+    my $x_negative_at_n = $path->x_negative_at_n;
     if (defined $x_negative_at_n) {
       $x_negative_at_n >= $n_start
-        or &$report ("_UNDOCUMENTED__x_negative_at_n() = $x_negative_at_n is < n_start=$n_start");
+        or &$report ("x_negative_at_n() = $x_negative_at_n is < n_start=$n_start");
     }
-    my $y_negative_at_n = $path->_UNDOCUMENTED__y_negative_at_n;
+    my $y_negative_at_n = $path->y_negative_at_n;
     if (defined $y_negative_at_n) {
       $y_negative_at_n >= $n_start
-        or &$report ("_UNDOCUMENTED__y_negative_at_n() = $y_negative_at_n is < n_start=$n_start");
+        or &$report ("y_negative_at_n() = $y_negative_at_n is < n_start=$n_start");
     }
     
-    # dxdy_list()
+    # _UNDOCUMENTED__dxdy_list()
     #
-    my @dxdy_list = $path->_UNDOCUMENTED__dxdy_list; # list ($dx,$dy, $dx,$dy, ...)
-    @dxdy_list % 2 == 0
+    my @_UNDOCUMENTED__dxdy_list = $path->_UNDOCUMENTED__dxdy_list; # list ($dx,$dy, $dx,$dy, ...)
+    @_UNDOCUMENTED__dxdy_list % 2 == 0
       or &$report ("_UNDOCUMENTED__dxdy_list() not an even number of values");
-    my %dxdy_list;  # keys "$dx,$dy"
-    for (my $i = 0; $i < $#dxdy_list; $i += 2) {
-      $dxdy_list{"$dxdy_list[$i],$dxdy_list[$i+1]"} = 1;
+    my %_UNDOCUMENTED__dxdy_list;  # keys "$dx,$dy"
+    for (my $i = 0; $i < $#_UNDOCUMENTED__dxdy_list; $i += 2) {
+      $_UNDOCUMENTED__dxdy_list{"$_UNDOCUMENTED__dxdy_list[$i],$_UNDOCUMENTED__dxdy_list[$i+1]"} = 1;
     }
-    for (my $i = 2; $i < $#dxdy_list; $i += 2) {
-      if (dxdy_cmp ($dxdy_list[$i-2],$dxdy_list[$i-1],
-                    $dxdy_list[$i],$dxdy_list[$i+1]) >= 0) {
-        &$report ("_UNDOCUMENTED__dxdy_list() entries not sorted: $dxdy_list[$i-2],$dxdy_list[$i-1] then $dxdy_list[$i],$dxdy_list[$i+1]");
+    for (my $i = 2; $i < $#_UNDOCUMENTED__dxdy_list; $i += 2) {
+      if (dxdy_cmp ($_UNDOCUMENTED__dxdy_list[$i-2],$_UNDOCUMENTED__dxdy_list[$i-1],
+                    $_UNDOCUMENTED__dxdy_list[$i],$_UNDOCUMENTED__dxdy_list[$i+1]) >= 0) {
+        &$report ("_UNDOCUMENTED__dxdy_list() entries not sorted: $_UNDOCUMENTED__dxdy_list[$i-2],$_UNDOCUMENTED__dxdy_list[$i-1] then $_UNDOCUMENTED__dxdy_list[$i],$_UNDOCUMENTED__dxdy_list[$i+1]");
       }
     }
     
@@ -1620,7 +1622,7 @@ sub pythagorean_diag {
     my ($dx_minimum, $dy_minimum);
     my ($dx_maximum, $dy_maximum);
     my %seen_dxdy;
-    my $seen_dxdy_list_at_n;
+    my $seen__UNDOCUMENTED__dxdy_list_at_n;
     my @n_to_x;
     my @n_to_y;
     foreach my $n ($n_start .. $n_limit) {
@@ -1737,11 +1739,11 @@ sub pythagorean_diag {
       if (defined $dxdy_str) {
         if (! defined $seen_dxdy{$dxdy_str}) {
           $seen_dxdy{$dxdy_str} ||= [$dx,$dy];
-          $seen_dxdy_list_at_n = $n-$arms_count;
+          $seen__UNDOCUMENTED__dxdy_list_at_n = $n-$arms_count;
         }
-        if (@dxdy_list) {
-          $dxdy_list{$dxdy_str}
-            or &$report ("N=$n dxdy=$dxdy_str not in dxdy_list");
+        if (@_UNDOCUMENTED__dxdy_list) {
+          $_UNDOCUMENTED__dxdy_list{$dxdy_str}
+            or &$report ("N=$n dxdy=$dxdy_str not in _UNDOCUMENTED__dxdy_list");
         }
       }
       if (defined $dx) {
@@ -1930,27 +1932,55 @@ sub pythagorean_diag {
     }
     
     #--------------------------------------------------------------------------
+    ### _UNDOCUMENTED__n_is_x_positive() ...
+    
+    if ($path->can('_UNDOCUMENTED__n_is_x_positive')) {
+      foreach my $n (0 .. $arms_count * 256) {
+        my ($x,$y) = $path->n_to_xy($n);
+        my $want = ($x >= 0 && $y == 0 ? 1 : 0);
+        my $got = $path->_UNDOCUMENTED__n_is_x_positive($n) ? 1 : 0;
+        unless ($got == $want) {
+          &$report ("_UNDOCUMENTED__n_is_x_positive() n=$n want $want got $got");
+        }
+      }
+    }
+
+    #--------------------------------------------------------------------------
+    ### _UNDOCUMENTED__n_is_diagonal_NE() ...
+    
+    if ($path->can('_UNDOCUMENTED__n_is_diagonal_NE')) {
+      foreach my $n (0 .. $arms_count * 256) {
+        my ($x,$y) = $path->n_to_xy($n);
+        my $want = ($x >= 0 && $x == $y ? 1 : 0);
+        my $got = $path->_UNDOCUMENTED__n_is_diagonal_NE($n) ? 1 : 0;
+        unless ($got == $want) {
+          &$report ("_UNDOCUMENTED__n_is_diagonal_NE() n=$n want $want got $got");
+        }
+      }
+    }
+
+    #--------------------------------------------------------------------------
     ### _UNDOCUMENTED__dxdy_list() completeness ...
     
-    if (@dxdy_list) {
-      my $dxdy_list_at_n;
-      my $dxdy_num = int(scalar(@dxdy_list)/2);
+    if (@_UNDOCUMENTED__dxdy_list) {
+      my $_UNDOCUMENTED__dxdy_list_at_n;
+      my $dxdy_num = int(scalar(@_UNDOCUMENTED__dxdy_list)/2);
       my $seen_dxdy_num = scalar keys %seen_dxdy;
-      $dxdy_list_at_n = $path->_UNDOCUMENTED__dxdy_list_at_n;
-      if (defined $dxdy_list_at_n) {
-        $dxdy_list_at_n >= $n_start
-          or &$report ("_UNDOCUMENTED__dxdy_list_at_n() = $dxdy_list_at_n is < n_start=$n_start");
+      $_UNDOCUMENTED__dxdy_list_at_n = $path->_UNDOCUMENTED__dxdy_list_at_n;
+      if (defined $_UNDOCUMENTED__dxdy_list_at_n) {
+        $_UNDOCUMENTED__dxdy_list_at_n >= $n_start
+          or &$report ("_UNDOCUMENTED__dxdy_list_at_n() = $_UNDOCUMENTED__dxdy_list_at_n is < n_start=$n_start");
         if ($seen_dxdy_num == $dxdy_num) {
-          $seen_dxdy_list_at_n == $dxdy_list_at_n
-            or &$report ("_UNDOCUMENTED__dxdy_list_at_n() = $dxdy_list_at_n but seen_dxdy_list_at_n=$seen_dxdy_list_at_n");
+          $seen__UNDOCUMENTED__dxdy_list_at_n == $_UNDOCUMENTED__dxdy_list_at_n
+            or &$report ("_UNDOCUMENTED__dxdy_list_at_n() = $_UNDOCUMENTED__dxdy_list_at_n but seen__UNDOCUMENTED__dxdy_list_at_n=$seen__UNDOCUMENTED__dxdy_list_at_n");
         }
       } else {
-        $dxdy_list_at_n = $n_start;
+        $_UNDOCUMENTED__dxdy_list_at_n = $n_start;
       }
-      if ($n_limit - $arms_count < $dxdy_list_at_n) {
-        MyTestHelpers::diag ("  skip n_limit=$n_limit <= dxdy_list_at_n=$dxdy_list_at_n");
+      if ($n_limit - $arms_count < $_UNDOCUMENTED__dxdy_list_at_n) {
+        MyTestHelpers::diag ("  skip n_limit=$n_limit <= _UNDOCUMENTED__dxdy_list_at_n=$_UNDOCUMENTED__dxdy_list_at_n");
       } else {
-        foreach my $dxdy_str (keys %dxdy_list) {
+        foreach my $dxdy_str (keys %_UNDOCUMENTED__dxdy_list) {
           if (! $seen_dxdy{$dxdy_str}) {
             &$report ("_UNDOCUMENTED__dxdy_list() has $dxdy_str not seen to n_limit=$n_limit");
           }
@@ -1984,14 +2014,14 @@ sub pythagorean_diag {
       my $x_negative = ($path->x_negative ? 1 : 0);
       my $got_x_negative = (defined $got_x_negative_at_n ? 1 : 0);
       
-      if ($mod eq 'ComplexPlus,realpart=2'
-          || $mod eq 'ComplexPlus,realpart=3'
-          || $mod eq 'ComplexPlus,realpart=4'
-          || $mod eq 'ComplexPlus,realpart=5'
-         ) {
-        # these don't get to X negative in small rectangle
-        $got_x_negative = 1;
-      }
+      # if ($mod eq 'ComplexPlus,realpart=2'
+      #     || $mod eq 'ComplexPlus,realpart=3'
+      #     || $mod eq 'ComplexPlus,realpart=4'
+      #     || $mod eq 'ComplexPlus,realpart=5'
+      #    ) {
+      #   # these don't get to X negative in small rectangle
+      #   $got_x_negative = 1;
+      # }
       
       if ($n_limit < (defined $x_negative_at_n ? $x_negative_at_n : $n_start)) {
         MyTestHelpers::diag ("  skip n_limit=$n_limit <= x_negative_at_n=$x_negative_at_n");
@@ -2020,21 +2050,21 @@ sub pythagorean_diag {
       my $y_negative = ($path->y_negative ? 1 : 0);
       my $got_y_negative = (defined $got_y_negative_at_n ? 1 : 0);
       
-      if (($mod eq 'ComplexPlus' && $limit < 32) # first y_neg at N=32
-          || $mod eq 'ComplexPlus,realpart=2'  # y_neg big
-          || $mod eq 'ComplexPlus,realpart=3'
-          || $mod eq 'ComplexPlus,realpart=4'
-          || $mod eq 'ComplexPlus,realpart=5'
-          || $mod eq 'ComplexMinus,realpart=3'
-          || $mod eq 'ComplexMinus,realpart=4'
-          || $mod eq 'ComplexMinus,realpart=5'
-         ) {
-        # GosperSide take a long time to get
-        # to Y negative, not reached by the rectangle
-        # considered here.  ComplexMinus doesn't get there
-        # on realpart==5 or bigger too.
-        $got_y_negative = 1;
-      }
+      # if (($mod eq 'ComplexPlus' && $limit < 32) # first y_neg at N=32
+      #     || $mod eq 'ComplexPlus,realpart=2'  # y_neg big
+      #     || $mod eq 'ComplexPlus,realpart=3'
+      #     || $mod eq 'ComplexPlus,realpart=4'
+      #     || $mod eq 'ComplexPlus,realpart=5'
+      #     || $mod eq 'ComplexMinus,realpart=3'
+      #     || $mod eq 'ComplexMinus,realpart=4'
+      #     || $mod eq 'ComplexMinus,realpart=5'
+      #    ) {
+      #   # GosperSide take a long time to get
+      #   # to Y negative, not reached by the rectangle
+      #   # considered here.  ComplexMinus doesn't get there
+      #   # on realpart==5 or bigger too.
+      #   $got_y_negative = 1;
+      # }
       
       if ($n_limit < (defined $y_negative_at_n ? $y_negative_at_n : $n_start)) {
         MyTestHelpers::diag ("  skip n_limit=$n_limit <= y_negative_at_n=$y_negative_at_n");
@@ -2049,13 +2079,18 @@ sub pythagorean_diag {
 
       if (defined $y_negative_at_n && $y_negative_at_n < 0x100_0000) {
         {
+          # n_to_xy() of y_negative_at_n should be Y < 0
           my ($x,$y) = $path->n_to_xy($y_negative_at_n);
           $y < 0 or &$report ("y_negative_at_n()=$y_negative_at_n but xy=$x,$y");
         }
-        if ($y_negative_at_n > $n_start) {
+        {
+          # n_to_xy() of y_negative_at_n - 1 should be Y >= 0,
+          # unless y_negative_at_n is at n_start
           my $n = $y_negative_at_n - 1;
-          my ($x,$y) = $path->n_to_xy($n);
-          $y >= 0 or &$report ("y_negative_at_n()=$y_negative_at_n but at N=$n xy=$x,$y");
+          if ($n >= $n_start) {
+            my ($x,$y) = $path->n_to_xy($n);
+            $y >= 0 or &$report ("y_negative_at_n()=$y_negative_at_n but at N=$n xy=$x,$y");
+          }
         }
       }
     }

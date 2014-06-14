@@ -25,12 +25,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'round_nearest';
+use Math::PlanePath::Base::NSEW;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -79,7 +80,7 @@ sub _UNDOCUMENTED__dxdy_list {
              0,2,   # N by 2
              -1,0,  # W
              0,-1)  # S
-          : Math::PlanePath::_UNDOCUMENTED__dxdy_list_four())
+          : Math::PlanePath::Base::NSEW->_UNDOCUMENTED__dxdy_list)
 }
 
 use constant dsumxy_minimum => -1; # straight S

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -144,7 +144,7 @@ use Math::PlanePath::KochSnowflakes;
     print "$level $count\n";
   }
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   sub strpoint_cmp_by_atan2 {
@@ -189,7 +189,7 @@ use Math::PlanePath::KochSnowflakes;
     print "$level $count $calc\n";
   }
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 {
@@ -229,7 +229,7 @@ use Math::PlanePath::KochSnowflakes;
     print "$level $count\n";
   }
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
 
@@ -279,7 +279,7 @@ use Math::PlanePath::KochSnowflakes;
   }
   shift @values;
   use lib 'xt'; require MyOEIS;
-  print MyOEIS->grep_for_values(array => \@values);
+  Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
   sub triangular_to_unit_side {

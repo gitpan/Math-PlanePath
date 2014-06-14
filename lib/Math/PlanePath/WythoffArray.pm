@@ -36,7 +36,9 @@
 # Return the $x,$y which has ($a,$b).
 # Advance $a,$b if before start of row.
 
-# Carlitz and Hoggart "Fibonacci Representations" FQ vol 10,  1972
+# Carlitz and Hoggatt "Fibonacci Representations", Fibonacci Quarterly,
+# volume 10, number 1, January 1972
+# http://www.fq.math.ca/10-1.html
 # http://www.fq.math.ca/Scanned/10-1/carlitz1.pdf
 
 
@@ -47,7 +49,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

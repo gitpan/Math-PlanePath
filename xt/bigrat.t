@@ -37,7 +37,7 @@ BEGIN { MyTestHelpers::nowarnings(); }
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 467)[1];
+my $test_count = (tests => 469)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -413,6 +413,12 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'WythoffPreliminaryTriangle',
+               'WythoffArray',
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
+
                'AztecDiamondRings',     # but not across ring end
                'PyramidSpiral',
 
@@ -497,11 +503,6 @@ my @modules = (
                'AlternatePaper,arms=6',
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
-
-               'WythoffArray',
-               'PowerArray',
-               'PowerArray,radix=3',
-               'PowerArray,radix=4',
 
                'Diagonals',
                'Diagonals,direction=up',

@@ -16,41 +16,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# ENHANCE-ME:
-# AlternatePaper boundary (by powers full ):
-# 12,20,28,44,60,92,124,188,252,380,508,764,1020
-# [HALF]
-# A027383
-# a(2n) = 3*2^n-2 = A033484(n);                                                     
-# a(2n-1) = 2^(n+1)-2 = A000918(n+1)
-
-# ENHANCE-ME:
-# AlternatePaper area (by powers full diffs):
-# 1,2,6,12,28,56,120,240,496,992,2016,4032,8128
-# match 1,2,6,12,28,56,120,240,496,992,2016,4032,8128
-# A122746 G.f.: 1/((1-2*x)*(1-2*x^2)).
-# a(n) = 2^(n-1)-2^floor((n-1)/2)
-
-
-# Explanation ...
+# ENHANCE-ME: Explanation for this bit ...
 # 'arms=4' =>
 # { dSum  => 'A020985', # GRS
 #   # OEIS-Other: A020985 planepath=AlternatePaper,arms=4 delta_type=dSum
 # },
-
-# area to 4^k
-# match 3,21,105,465,1953
-# A134057 Binomial(2^n-1,2) = (2^n-1)(2^n-2)/2
-# area to 2*4^k
-# A060867 Number of n X n matrices over GF(2) with rank 1.
-# A060867 ,1,9,49,225,961,39
-#
-# boundary to 4^k
-# match 8,20,44,92,188,380,764
-# A131128 Binomial transform of [1, 1, 5, 1, 5, 1, 5,...].
-# boundary to 2*4^k
-# A028399 2^n - 4.
-
 
 
 package Math::PlanePath::AlternatePaper;
@@ -59,8 +29,12 @@ use strict;
 use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 116;
 use Math::PlanePath;
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::NSEW;
+@ISA = ('Math::PlanePath::Base::NSEW',
+        'Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -70,13 +44,11 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh',
   'digit_join_lowtohigh',
   'bit_split_lowtohigh';
-
-use vars '$VERSION', '@ISA';
-$VERSION = 115;
-@ISA = ('Math::PlanePath');
+*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant parameter_info_array => [ { name      => 'arms',
@@ -100,21 +72,21 @@ sub y_negative {
   return ($self->{'arms'} >= 5);
 }
 {
-  my @_UNDOCUMENTED__x_negative_at_n = (undef,
-                                        undef,undef,8,7,
-                                        4,4,4,4);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my @x_negative_at_n = (undef,
+                         undef,undef,8,7,
+                         4,4,4,4);
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n[$self->{'arms'}];
+    return $x_negative_at_n[$self->{'arms'}];
   }
 }
 {
-  my @_UNDOCUMENTED__y_negative_at_n = (undef,
+  my @y_negative_at_n = (undef,
                                         undef,undef,undef,undef,
                                         44,23,13,14);
-  sub _UNDOCUMENTED__y_negative_at_n {
+  sub y_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__y_negative_at_n[$self->{'arms'}];
+    return $y_negative_at_n[$self->{'arms'}];
   }
 }
 
@@ -130,17 +102,6 @@ sub diffxy_minimum {
           ? 0        # 1 arms right of X=Y diagonal
           : undef);
 }
-
-use constant dx_minimum => -1;
-use constant dx_maximum => 1;
-use constant dy_minimum => -1;
-use constant dy_maximum => 1;
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::_UNDOCUMENTED__dxdy_list_four;
-use constant dsumxy_minimum => -1; # straight only
-use constant dsumxy_maximum => 1;
-use constant ddiffxy_minimum => -1;
-use constant ddiffxy_maximum => 1;
-use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------
@@ -523,7 +484,7 @@ sub n_to_dxdy {
   # $dir initial direction from the arm.
   # $inc +/-1 according to the bit position odd or even, but also odd
   # numbered arms are transposed so flip them.
-  # 
+  #
   my @bits = bit_split_lowtohigh($int);
   my $dir = ($arm+1) >> 1;
   my $inc = (($#bits ^ $arm) & 1 ? -1 : 1);
@@ -577,7 +538,7 @@ sub n_to_dxdy {
 #     my ($name, $aref) = @_;
 #     print "my \@$name = (";
 #     my $entry_width = max (map {length($_//'')} @$aref);
-# 
+#
 #     foreach my $i (0 .. $#$aref) {
 #       printf "%*s", $entry_width, $aref->[$i]//'undef';
 #       if ($i == $#$aref) {
@@ -593,10 +554,10 @@ sub n_to_dxdy {
 #       }
 #     }
 #   }
-# 
+#
 #   my @next_state;
 # my @state_to_dxdy;
-# 
+#
 # sub make_state {
 #   my %values = @_;
 #   #  if ($oddpos) { $rot = ($rot-1)&3; }
@@ -618,7 +579,7 @@ sub n_to_dxdy {
 #   #  if ($oddpos) { $rot = ($rot+1)&3; }
 #   return "rot=$rot,oddpos=$oddpos nextturn=$nextturn  lowerbit=$lowerbit (bit=$bit)";
 # }
-# 
+#
 # foreach my $nextturn (0, 1, 2) {
 #   foreach my $rot (0, 1, 2, 3) {
 #     foreach my $oddpos (0, 1) {
@@ -630,12 +591,12 @@ sub n_to_dxdy {
 #                                   oddpos   => $oddpos,
 #                                   nextturn => $nextturn);
 #           ### $state
-# 
+#
 #           my $new_nextturn = $nextturn;
 #           my $new_lowerbit = $bit;
 #           my $new_rot = $rot;
 #           my $new_oddpos = $oddpos ^ 1;
-# 
+#
 #           if ($bit != $lowerbit) {
 #             if ($oddpos) {
 #               $new_rot++;
@@ -647,7 +608,7 @@ sub n_to_dxdy {
 #           if ($lowerbit == 0 && ! $nextturn) {
 #             $new_nextturn = ($bit ^ $oddpos ? 1 : 2);  # bit above lowest 0
 #           }
-# 
+#
 #           my $dx = 1;
 #           my $dy = 0;
 #           if ($rot & 2) {
@@ -658,13 +619,13 @@ sub n_to_dxdy {
 #             ($dx,$dy) = (-$dy,$dx); # rotate +90
 #           }
 #           ### rot to: "$dx, $dy"
-# 
+#
 #           # if ($oddpos) {
 #           #   ($dx,$dy) = (-$dy,$dx); # rotate +90
 #           # } else {
 #           #   ($dx,$dy) = ($dy,-$dx); # rotate -90
 #           # }
-# 
+#
 #           my $next_dx = $dx;
 #           my $next_dy = $dy;
 #           if ($nextturn == 2) {
@@ -674,14 +635,14 @@ sub n_to_dxdy {
 #           }
 #           my $frac_dx = $next_dx - $dx;
 #           my $frac_dy = $next_dy - $dy;
-# 
+#
 #           # mask to rot,oddpos only, ignore bit,lowerbit
 #           my $masked_state = $state & ~3;
 #           $state_to_dxdy[$masked_state]     = $dx;
 #           $state_to_dxdy[$masked_state + 1] = $dy;
 #           $state_to_dxdy[$masked_state + 2] = $frac_dx;
 #           $state_to_dxdy[$masked_state + 3] = $frac_dy;
-# 
+#
 #           my $next_state =  make_state (bit      => 0,
 #                                         lowerbit => $new_lowerbit,
 #                                         rot      => $new_rot,
@@ -693,7 +654,7 @@ sub n_to_dxdy {
 #     }
 #   }
 # }
-# 
+#
 # my @arm_to_state;
 # foreach my $arm (0 .. 7) {
 #   my $rot = $arm >> 1;
@@ -708,54 +669,201 @@ sub n_to_dxdy {
 #                                     oddpos => $oddpos,
 #                                     nextturn => 0);
 # }
-# 
+#
 # ### @next_state
 # ### @state_to_dxdy
 # ### next_state length: 4*(4*2*2 + 4*2)
-# 
+#
 # print "# next_state length ", scalar(@next_state), "\n";
 # print_table ("next_state", \@next_state);
 # print_table ("state_to_dxdy", \@state_to_dxdy);
 # print_table ("arm_to_state", \@arm_to_state);
 # print "\n";
-# 
+#
 # foreach my $arm (0 .. 7) {
 #   print "# arm=$arm  ",state_string($arm_to_state[$arm]),"\n";
 # }
 # print "\n";
-# 
-# 
-# 
+#
+#
+#
 #   use Smart::Comments;
-# 
+#
 #   sub n_to_dxdy {
 #     my ($self, $n) = @_;
 #     ### n_to_dxdy(): $n
-# 
+#
 #     my $int = int($n);
 #     $n -= $int;  # $n fraction part
 #     ### $int
 #     ### $n
-# 
+#
 #     my $state = _divrem_mutate ($int, $self->{'arms'}) << 2;
 #     ### arm as initial state: $state
-# 
+#
 #     foreach my $bit (bit_split_lowtohigh($int)) {
 #       $state = $next_state[$state + $bit];
 #     }
 #     $state &= 0x1C;  # mask out "prevbit"
-# 
+#
 #     ### final state: $state
 #     ### dx: $state_to_dxdy[$state]
 #     ### dy: $state_to_dxdy[$state+1],
 #     ### frac dx: $state_to_dxdy[$state+2],
 #     ### frac dy: $state_to_dxdy[$state+3],
-# 
+#
 #     return ($state_to_dxdy[$state]   + $n * $state_to_dxdy[$state+2],
 #             $state_to_dxdy[$state+1] + $n * $state_to_dxdy[$state+3]);
 #   }
-# 
+#
 # }
+
+#------------------------------------------------------------------------------
+
+sub _UNDOCUMENTED_level_to_right_line_boundary {
+  my ($self, $level) = @_;
+  if ($level == 0) {
+    return 1;
+  }
+  my ($h,$odd) = _divrem($level,2);
+  return ($odd
+          ? 6 * 2**$h - 4
+          : 2 * 2**$h);
+}
+sub _UNDOCUMENTED_level_to_left_line_boundary {
+  my ($self, $level) = @_;
+  if ($level == 0) {
+    return 1;
+  }
+  my ($h,$odd) = _divrem($level,2);
+  return ($odd
+          ? 2 * 2**$h
+          : 4 * 2**$h - 4);
+}
+sub _UNDOCUMENTED_level_to_line_boundary {
+  my ($self, $level) = @_;
+  my ($h,$odd) = _divrem($level,2);
+  return (($odd?8:6) * 2**$h - 4);
+}
+
+sub _UNDOCUMENTED_level_to_hull_area {
+  my ($self, $level) = @_;
+  return (2**$level - 1)/2;
+}
+
+sub _UNDOCUMENTED__n_is_x_positive {
+  my ($self, $n) = @_;
+  if (! ($n >= 0) || is_infinite($n)) { return 0; }
+
+  $n = int($n);
+  {
+    my $arm = _divrem_mutate($n, $self->{'arms'});
+
+    # arm 1 good only on N=1 which is remaining $n==0
+    if ($arm == 1) {
+      return ($n == 0);
+    }
+
+    # arm 0 good
+    # arm 8 good for N>=15 which is remaining $n>=1
+    unless ($arm == 0
+            || ($arm == 7 && $n > 0)) {
+      return 0;
+    }
+  }
+
+  return _is_base4_01($n);
+}
+
+sub _UNDOCUMENTED__n_is_diagonal_NE {
+  my ($self, $n) = @_;
+  if (! ($n >= 0) || is_infinite($n)) { return 0; }
+
+  $n = int($n);
+  if ($self->{'arms'} >= 8 && $n == 15) { return 1; }
+  if (_divrem_mutate($n, $self->{'arms'}) >= 2) { return 0; }
+  return _is_base4_02($n);
+}
+
+# X axis N is base4 digits 0,1
+# and -1 from even is 0,1 low 0333333
+# and -2 from even is 0,1 low 0333332
+# so $n+2 low digit any then 0,1s above
+sub _UNDOCUMENTED__n_segment_is_right_boundary {
+  my ($self, $n) = @_;
+  if ($self->{'arms'} >= 8
+      || ! ($n >= 0)
+      || is_infinite($n)) {
+    return 0;
+  }
+  $n = int($n);
+
+  if (_divrem_mutate($n, $self->{'arms'}) >= 1) {
+    return 0;
+  }
+  $n += 2;
+  _divrem_mutate($n,4);
+  return _is_base4_01($n);
+}
+
+# diagonal N is base4 digits 0,2,
+# and -1 from there is 0,2 low 1
+#                   or 0,2 low 13333
+# so $n+1 low digit possible 1 or 3 then 0,2s above
+# which means $n+1 low digit any and 0,2s above
+#use Smart::Comments;
+
+sub _UNDOCUMENTED__n_segment_is_left_boundary {
+  my ($self, $n) = @_;
+  ### _UNDOCUMENTED__n_segment_is_left_boundary(): $n
+
+  my $arms = $self->{'arms'};
+  if ($arms >= 8
+      || ! ($n >= 0)
+      || is_infinite($n)) {
+    return 0;
+  }
+  $n = int($n);
+
+  if (($n == 1 && $arms >= 4)
+      || ($n == 3 && $arms >= 5)
+      || ($n == 5 && $arms == 7)) {
+    return 1;
+  }
+  if (_divrem_mutate($n, $arms) < $arms-1) {
+    ### no, not last arm ...
+    return 0;
+  }
+
+  if ($arms % 2) {
+    ### odd arms, stair-step boundary ...
+    $n += 1;
+    _divrem_mutate($n,4);
+    return _is_base4_02($n);
+  } else {
+    # even arms, notched like right boundary
+    $n += 2;
+    _divrem_mutate($n,4);
+    return _is_base4_01($n);
+  }
+}
+
+sub _is_base4_01 {
+  my ($n) = @_;
+  while ($n) {
+    my $digit = _divrem_mutate($n,4);
+    if ($digit >= 2) { return 0; }
+  }
+  return 1;
+}
+sub _is_base4_02 {
+  my ($n) = @_;
+  while ($n) {
+    my $digit = _divrem_mutate($n,4);
+    if ($digit == 1 || $digit == 3) { return 0; }
+  }
+  return 1;
+}
 
 1;
 __END__
@@ -1237,7 +1345,7 @@ bit position of the transition, instead of always left for the DragonCurve.
 =head2 dX,dY
 
 Since there's always a turn either left or right, never straight ahead, the
-X coordinate changes, then the Y, alternately.
+X coordinate changes, then Y coordinate changes, alternately.
 
         N=0
     dX   1  0  1  0  1  0 -1  0  1  0  1  0 -1  0  1  0  ...
@@ -1323,15 +1431,368 @@ The sum X+Y is a numbering of anti-diagonal lines,
 The curve steps each time either up to the next or back to the previous
 according to dSum=GRS(N).
 
-The way the curve visits edge outer X,Y points once each and inner X,Y
-points twice each means an anti-diagonal d=X+Y is visited a total of d many
-times.  The diagonal has floor(d/2)+1 many points.  When d is odd the first
-is visited once and the rest visited twice.  When d is even the X=Y point is
-only visited once.  In each case the total is d many visits.
+The way the curve visits outside edge X,Y points once each and inner X,Y
+points twice each means an anti-diagonal s=X+Y is visited a total of s many
+times.  The diagonal has floor(s/2)+1 many points.  When s is odd the first
+is visited once and the rest visited twice.  When s is even the X=Y point is
+only visited once.  In each case the total is s many visits.
 
-The way the coordinate sum d=X+Y occurs d many times is a geometric
+The way the coordinate sum s=X+Y occurs s many times is a geometric
 interpretation to the way the cumulative GRS sequence has each value k
 occurring k many times.  (See L<Math::NumSeq::GolayRudinShapiroCumulative>.)
+
+=head2 Area
+
+The area enclosed by the curve for points N=0 to N=2^k inclusive is
+
+    A[k] = (2^floor((k-1)/2) - 1) * (2^ceil((k-1)/2) - 1)
+         = / (2^k - 3*2^h + 2) / 2   if k odd 
+           \ (2^k - 4*2^h + 2) / 2   if k even
+           where h=floor(k/2)
+    = 1/2*0, 0*0, 0*1, 1*1, 1*3, 3*3, 3*7, 7*7, 7*15, 15*15, ...
+    = 0, 0, 0, 1, 3, 9, 21, 49, 105, 225, 465, 961, 1953, 3969, ...
+
+=for Test-Pari-DEFINE  AsamplesP = [0, 0, 0, 1*1, 1*3, 3*3, 3*7, 7*7, 7*15, 15*15, 15*31, 31*31, 31*63, 63*63, 63*127, 127*127, 127*255]
+
+=for Test-Pari-DEFINE  Asamples = [0, 0, 0, 1, 3, 9, 21, 49, 105, 225, 465, 961, 1953, 3969, 8001, 16129, 32385]
+
+=for Test-Pari-DEFINE  A(k) = (2^floor((k-1)/2) - 1) * (2^ceil((k-1)/2) - 1)
+
+=for Test-Pari-DEFINE  A2(k)= local(h); h=floor(k/2); if(k%2, (2^k - 4*2^h + 2)/2, (2^k - 3*2^h + 2)/2)
+
+=for Test-Pari-DEFINE  A3(k)= local(h); h=floor(k/2); (2^h-1)*(2^if(k%2,h,h-1) - 1)
+
+=for Test-Pari vector(length(Asamples), k, A(k-1)) == Asamples
+
+=for Test-Pari vector(length(Asamples), k, A2(k-1)) == Asamples
+
+=for Test-Pari vector(length(Asamples), k, A3(k-1)) == Asamples
+
+=for Test-Pari Asamples == AsamplesP
+
+=cut
+
+# Pari: for(k=0,16,print1(A(k),", "))
+
+# K = H^2
+# (H-1)*(H-1 + 1)/2 - (H-2)/2 - (H-2)/2 - 1
+# = 1/2*H^2 - 3/2*H + 1
+# = (H^2 - 3*H + 2)/2
+# = (H-1)(H-2)/2
+
+=pod
+
+When k is even the curve is a triangular stack with every second block along
+the bottom and right sides unfilled.
+
+                         *--*    Y=2^h-1
+                         |  |      where h=k/2
+                      *--*--*
+                      |  |
+                   *--*--*--*
+                   |  |  |  |
+                *--*--*--*--*
+                |  |  |  |
+             *--*--*--*--*--*
+             |  |  |  |  |  |
+          *--*--*--*--*--*--*
+          |  |  |  |  |  |
+       *--*--*--*--*--*--*--*
+       |  |  |  |  |  |  |  |
+    *--*  *--*  *--*  *--*  *   Y=0
+      X=1                  X=2^h
+
+The area formula can be found by moving the alternating blocks in the right
+column to fill the gaps in the bottom row, and moving the top half of the
+triangle down to complete a rectangle
+
+    *--------*--*--*--*--*
+    |        |  |  |  |  |    height = 2^(h-1) - 1
+    |     *--*--*--*--*--*           = 2^floor((k-1)/2) - 1
+    |     |  |  |  |  |  |
+    |  *--*--*--*--*--*--*    width = 2^h - 1
+    |  |  |  |  |  |  |  |          = 2^ceil((k-1)/2) - 1
+    *--*__*--*__*--*__*--*
+
+When k is odd the curve is a pyramid stack with every second block along the
+bottom unfilled.
+
+
+                            *          Y=2^h
+                            |
+                         *--*--*       Y=2^h-1
+                         |  |  |         where h=floor(k/2)
+                      *--*--*--*--*
+                      |  |  |  |  |
+                   *--*--*--*--*--*--*
+                   |  |  |  |  |  |  |
+                *--*--*--*--*--*--*--*--*
+                |  |  |  |  |  |  |  |  |
+             *--*--*--*--*--*--*--*--*--*--*
+             |  |  |  |  |  |  |  |  |  |  |
+          *--*--*--*--*--*--*--*--*--*--*--*--*
+          |  |  |  |  |  |  |  |  |  |  |  |  |
+       *--*--*--*--*--*--*--*--*--*--*--*--*--*--*
+       |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+    *--*  *--*  *--*  *--*  *--*  *--*  *--*  *--*
+      X=1                  X=2^h                X=2^(2h)-1
+
+This too can be rearranged, this time to make a square.  The right hand half
+of the bottom row fills the gaps in the left.  The remaining right hand
+triangle then goes above the left triangle.
+
+                            *    Y=2^h
+                            |
+       *-----------------*--*    Y=2^h - 1
+       |                 |  |
+       |              *--*--*
+       |              |  |  |
+       |           *--*--*--*    height = 2^h - 1
+       |           |  |  |  |           = 2^floor((k-1)/2)
+       |        *--*--*--*--*
+       |        |  |  |  |  |    width = 2^h - 1
+       |     *--*--*--*--*--*          = 2^ceil((k-1)/2)
+       |     |  |  |  |  |  |
+       |  *--*--*--*--*--*--*    floor((k-1)/2) = ceil((k-1)/2)
+       |  |  |  |  |  |  |  |    since (k-1)/2 is an integer
+       *--*--*--*--*--*--*--*    when k is odd
+       |  |  |  |  |  |  |  |
+    *--*__*--*__*--*__*--*__*
+      X=1                  X=2^h
+
+For k=0 through k=2 there are no areas to copy this way but 2^0-1=0 in the
+formula gives the desired A[0]=A[1]=A[2]=0.
+
+=head2 Area Increment
+
+The new area added between N=2^k and N=2^(k+1) is
+
+    dA[k] = A[k+1] - A[k]
+          = (2^floor(k/2) - 1) * 2^ceil(k/2) / 2
+          = (2^k - 2^ceil(k/2)) / 2
+    = 0, 0, 1, 2, 6, 12, 28, 56, 120, 240, 496, 992, 2016, 4032, ...
+
+=for Test-Pari-DEFINE dAsamples = [0, 0, 1, 2, 6, 12, 28, 56, 120, 240, 496, 992, 2016, 4032, 8128, 16256, 32640]
+
+=for Test-Pari-DEFINE dA(k) = (2^floor(k/2) - 1) * 2^ceil(k/2) / 2
+
+=for Test-Pari-DEFINE dA2(k) = (2^k - 2^ceil(k/2)) / 2
+
+=for Test-Pari vector(length(dAsamples), k, dA(k-1)) == dAsamples
+
+=for Test-Pari vector(length(dAsamples), k, dA2(k-1)) == dAsamples
+
+=for Test-Pari vector(20, k, dA(k-1)) == vector(20, k, A(k+1 -1) - A(k -1))
+
+=cut
+
+# dA[k] = A[k+1]-A[k]
+#  = (2^floor(k/2) - 1) * (2^ceil(k/2) - 1)
+#    - (2^floor((k-1)/2) - 1) * (2^ceil((k-1)/2) - 1)
+# if k even  h=floor(k/2)  k/2 integer
+#  = (2^h - 1) * (2^h - 1) - (2^h/2 - 1) * (2^h - 1)
+#  = (2^h - 1 - (2^h/2 - 1)) * (2^h - 1)
+#  = (2^h - 1 - 2^h/2 + 1) * (2^h - 1)
+#  = 2^h * (2^h - 1) / 2
+#  = 2^k/2 - 2^h/2
+# if k odd  h=floor(k/2)   k/2 not integer
+#  = (2^h - 1) * (2*2^h - 1) - (2^h - 1) * (2^h - 1)
+#  = (2^h - 1) * (2*2^h - 1 - (2^h - 1))
+#  = (2^h - 1) * (2*2^h - 1 - 2^h + 1)
+#  = (2^h - 1) * 2^h
+#  = 2^k/2 - 2^h
+# dA[k] = (2^floor(k/2) - 1) * 2^ceil(k/2) / 2
+
+=pod
+
+=head2 Convex Hull Area
+
+A convex hull is the smallest convex polygon which contains a given set of
+points.  For the alternate paper the area of the convex hull for points N=0
+to N=2^k inclusive is
+
+    HA[k] = (2^k - 1)/2
+
+The hull is a triangle of area 2^k/2 except for an end triangle of area 1/2
+at the top for even level or right for odd level.
+
+=head2 Right Boundary
+
+The boundary length of the curve from N=0 to N=2^k on its right side is
+
+    R[k] = /  1           if k=0
+           |  2*2^h       if k even >= 2
+           \  6*2^h - 4   if k odd  >= 1
+           where h=floor(k/2)
+    = 1, 2, 4, 8, 8, 20, 16, 44, 32, 92, 64, 188, 128, 380, 256, 764, 512, ...
+
+=for Test-Pari-DEFINE  Rsamples = [1, 2, 4, 8, 8, 20, 16, 44, 32, 92, 64, 188, 128, 380, 256, 764, 512]
+
+=for Test-Pari-DEFINE  R(k) = local(h); h=floor(k/2); if(k==0, 1, if(k%2, 6*2^h-4, 2*2^h))
+
+=for Test-Pari vector(length(Rsamples), k, R(k-1)) == Rsamples
+
+For k even the right boundary is along the X axis
+
+      2^h        X axis horizontals
+      2^h        X axis indentations, if k >= 2
+    -----
+    2*2^h
+
+For k odd the right boundary is along the X axis and then up the right side
+to the top,
+
+    2*2^h - 1    X axis horizontals
+    2*2^h - 2    X axis indentations
+      2^h        right slope verticals
+      2^h - 1    right slope horizontals
+    -------
+    6*2^h - 4
+
+=head2 Left Boundary
+
+The boundary length of the curve from N=0 to N=2^k on its left side is
+
+    L[k] = /  1           if k=0
+           |  4*2^h - 4   if k even >= 2
+           \  2*2^h       if k odd  >= 1
+           where h=floor(k/2)
+    = 1, 2, 4, 4, 12, 8, 28, 16, 60, 32, 124, 64, 252, 128, 508, 256, 1020, ...
+
+=for Test-Pari-DEFINE  Lsamples = [1, 2, 4, 4, 12, 8, 28, 16, 60, 32, 124, 64, 252, 128, 508, 256, 1020]
+
+=for Test-Pari-DEFINE  L(k) = local(h); h=floor(k/2); if(k==0, 1, if(k%2, 2*2^h, 4*2^h-4))
+
+=for Test-Pari vector(length(Lsamples), k, L(k-1)) == Lsamples
+
+For k even the left boundary is up the left slope then down the vertical
+
+      2^h        left slope horizontals
+      2^h - 1    left slope verticals
+      2^h - 1    right edge verticals
+      2^h - 2    right edge indentations
+    -----
+    4*2^h - 4
+
+For k odd the left boundary is the left slope, and this time it includes a
+final vertical line segment
+
+      2^h        left slope horizontals
+      2^h        left slope verticals
+    -------
+    2*2^h
+
+=cut
+
+#      *---*    k=2
+#      |   |    right=4
+#  O---*   E    left=4
+#
+#          E       k=3
+#          |       right=8
+#      *---*---*   left=4
+#      |   |   |
+#  O---*   *---*
+#                  E
+#                  |
+#              *---*---*
+#              |   |   |
+#          *---*---*---*---*       k=5
+#          |   |   |   |   |       right=20
+#      *---*---*---*---*---*---*   left=8
+#      |   |   |   |   |   |   |
+#  O---*   *---*   *---*   *---*
+#
+
+=pod
+
+=head2 Boundary
+
+The total boundary length of the curve from N=0 to N=2^k is
+
+    B[k] = L[k] + R[k] = /  6*2^h - 4   if k even
+                         \  8*2^h - 4   if k odd
+                         where h=floor(k/2)
+    = 2, 4, 8, 12, 20, 28, 44, 60, 92, 124, 188, 252, 380, 508, 764, 1020, ...
+
+=for Test-Pari-DEFINE  Bsamples = [2, 4, 8, 12, 20, 28, 44, 60, 92, 124, 188, 252, 380, 508, 764, 1020, 1532]
+
+=for Test-Pari-DEFINE  B(k) = local(h); h=floor(k/2); if(k%2, 8*2^h-4, 6*2^h-4)
+
+=for Test-Pari vector(length(Bsamples), k, B(k-1)) == Bsamples
+
+=for Test-Pari vector(20, k, B(k-1)) == vector(20, k, R(k-1)+L(k-1))
+
+=for Test-Pari vector(20, k, 4*A(k-1)+B(k-1)) == vector(20, k, 2*2^(k-1))
+
+=for Test-Pari 4*(p/2 - 1)*(p-1) + 6*p-4 == 2*p^2
+
+=for Test-Pari 4*(p-1)*(p-1) + 8*p-4 == 4*p^2
+
+The special case for k=0 is eliminated since the k even 6*2^h-4 is the
+desired 2 when k=0, h=0.
+
+The alternate paper curve encloses unit squares in the same way as as the
+dragon curve per L<Math::PlanePath::DragonCurve/Area from Boundary>.  So 2*N
+= 4*A[N] + B[N]
+
+    4*A[k] + B[k] = 4* / (2^h/2 - 1) * (2^h - 1)  if k even
+                       \ (2^h - 1) * (2^h - 1)  if k odd
+                    + /  6*2^h - 4   if k even
+                      \  8*2^h - 4   if k odd
+                  = / 2 * 2^h * 2^h  if k even
+                    \ 4 * 2^h * 2^h  if k odd
+                  = 2*2^k
+
+This also gives a formula for the boundary using the floor and ceil pair
+from the area
+
+    B[k] = 2*2^k - 4*A[k]
+         = 2*2^k - (2^floor((k+1)/2) - 2) * (2^ceil((k+1)/2) - 2)
+
+=for Test-Pari-DEFINE  BfromA(k) = 2*2^k - (2^floor((k+1)/2) - 2) * (2^ceil((k+1)/2) - 2)
+
+=for Test-Pari vector(length(Bsamples), k, BfromA(k-1)) == Bsamples
+
+=head2 Single Points
+
+The number of single-visited points for N=0 to N=2^k inclusive is
+
+    S[k] = /  3*2^h - 1   if k even
+           \  4*2^h - 1   if k odd
+    = 2, 3, 5, 7, 11, 15, 23, 31, 47, 63, 95, 127, 191, 255, 383, ...
+
+=for Test-Pari-DEFINE  Ssamples = [2, 3, 5, 7, 11, 15, 23, 31, 47, 63, 95, 127, 191, 255, 383, 511, 767]
+
+=for Test-Pari-DEFINE  S(k) = local(h); h=floor(k/2); if(k%2, 4*2^h-1, 3*2^h-1)
+
+=for Test-Pari vector(length(Ssamples), k, S(k-1)) == Ssamples
+
+=cut
+
+# Pari: for(k=0,16,print1(S(k),", "))
+
+=pod
+
+The single points are all on the outer edges and those sides can be counted
+easily.
+
+The singles can also be obtained from the boundary.  Per
+L<Math::PlanePath::DragonCurve/Single Points from Boundary> the singles and
+boundary are always related by
+
+    S[N] = B[N]/2 + 1
+
+=for Test-Pari vector(20, k, S(k-1)) == vector(20, k, B(k-1)/2+1)
+
+The singles can also be obtained from the area.  Per
+L<Math::PlanePath::DragonCurve/Double Points from Area> the number of
+double-visited points is the same as the area, so the total singles and
+doubles add up to N+1 points, with N+1=2^k+1.
+
+    S[N] + 2*D[N] = N+1          with D[N]=A[N]
+
+=for Test-Pari vector(20, k, S(k-1)) == vector(20, k, 2^(k-1)+1 - 2*A(k-1))
 
 =head1 OEIS
 
@@ -1344,45 +1805,61 @@ L<http://oeis.org/A106665> (etc)
 
 =back
 
-    A106665  next turn 1=left,0=right, a(0) is turn at N=1
-    A209615  turn 1=left,-1=right
-    A020985  Golay/Rudin/Shapiro sequence +1,-1
-               dX and dY alternately
-               dSum, change in X+Y
-    A020986  Golay/Rudin/Shapiro cumulative
-               X coordinate (undoubled)
-               X+Y coordinate sum
-    A020990  Golay/Rudin/Shapiro * (-1)^n cumulative
-               Y coordinate (undoubled)
-               X-Y diff, starting from N=1
-    A020987  GRS with values 0,1 instead of +1,-1
+    A106665   next turn 1=left,0=right, a(0) is turn at N=1
+    A209615   turn 1=left,-1=right
+    A020985   Golay/Rudin/Shapiro sequence +1,-1
+                dX and dY alternately
+                dSum, change in X+Y
+    A020986   Golay/Rudin/Shapiro cumulative
+                X coordinate (undoubled)
+                X+Y coordinate sum
+    A020990   Golay/Rudin/Shapiro * (-1)^n cumulative
+                Y coordinate (undoubled)
+                X-Y diff, starting from N=1
+    A020987   GRS with values 0,1 instead of +1,-1
 
 Since the X and Y coordinates each change alternately, each coordinate
 appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990
 are "undoubled" X and Y in the sense of just one copy of each of those
 paired values.
 
-    A077957  Y at N=2^k, being alternately 0 and 2^(k/2)
+    A077957   Y at N=2^k, being alternately 0 and 2^(k/2)
 
-    A000695  N on X axis,   base 4 digits 0,1 only
-    A062880  N on diagonal, base 4 digits 0,2 only
+    A000695   N on X axis,   base 4 digits 0,1 only
+    A062880   N on diagonal, base 4 digits 0,2 only
 
-    A022155  N positions of left or down segment,
-               being GRS < 0,
-               ie. dSum < 0 so move to previous anti-diagonal
-    A203463  N positions of up or right segment,
-               being GRS > 0,
-               ie. dSum > 0 so move to next anti-diagonal
+    A022155   N positions of left or down segment,
+                being GRS < 0,
+                ie. dSum < 0 so move to previous anti-diagonal
+    A203463   N positions of up or right segment,
+                being GRS > 0,
+                ie. dSum > 0 so move to next anti-diagonal
 
-    A020991  N-1 of first time on X+Y=k anti-diagonal
-    A212591  N-1 of last time on X+Y=k anti-diagonal
-    A093573  N-1 of points on the anti-diagonals d=X+Y,
-               by ascending N-1 value within each diagonal
+    A020991   N-1 of first time on X+Y=k anti-diagonal
+    A212591   N-1 of last time on X+Y=k anti-diagonal
+    A093573   N-1 of points on the anti-diagonals d=X+Y,
+                by ascending N-1 value within each diagonal
 
 A020991 etc have values N-1, ie. the numbering differs by 1 from the N here,
 since they're based on the A020986 cumulative GRS starting at n=0 for value
 GRS(0).  This matches the turn sequence A106665 starting at n=0 for the
 first turn, whereas for the path here that's N=1.
+
+    A027556   area*2 to N=2^k
+    A134057   area to N=4^k
+    A060867   area to N=2*4^k
+    A122746   area increment N=2^k to N=2^(k+1)
+
+    A000225   convex hull area*2, being 2^k-1
+
+    A027383   boundary/2 to N=2^k
+               also boundary verticals or horizontals
+               (boundary is half verticals half horizontals)
+    A131128   boundary to N=4^k
+    A028399   boundary to N=2*4^k
+
+    A052955   single-visited points to N=2^k
+    A052940   single-visited points to N=4^k, being 3*2^n-1
 
     arms=2
       A062880   N on X axis, base 4 digits 0,2 only

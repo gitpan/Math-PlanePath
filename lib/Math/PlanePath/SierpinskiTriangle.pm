@@ -52,7 +52,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -88,7 +88,7 @@ sub x_negative {
   my ($self) = @_;
   return $x_negative{$self->{'align'}};
 }
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return ($self->{'align'} eq 'triangular' || $self->{'align'} eq 'left'
           ? $self->n_start + 1

@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -74,11 +74,11 @@ use Math::PlanePath::SquareSpiral;
 #      2w+5 ----------------- 3w+7    w=2; 1+3*w+7=14
 #                       ^
 #                      X=0
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + ($self->{'wider'} ? 0 : 3);
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 2*$self->{'wider'} + 5;
 }

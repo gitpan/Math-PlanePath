@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -60,8 +60,8 @@ use constant n_start => 0;
 #                                          description => 'Arms',
 #                                        } ];
 
-use constant _UNDOCUMENTED__x_negative_at_n => 113;
-use constant _UNDOCUMENTED__y_negative_at_n => 11357;
+use constant x_negative_at_n => 113;
+use constant y_negative_at_n => 11357;
 
 use constant dx_minimum => -2;
 use constant dx_maximum => 2;

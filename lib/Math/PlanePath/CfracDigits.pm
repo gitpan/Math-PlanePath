@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -346,7 +346,7 @@ Shallit encoding continued fraction terms in digit strings, as per
 
 =over
 
-"Number Theory and Formal Languages", part 3,
+Jeffrey Shallit, "Number Theory and Formal Languages", part 3,
 L<https://cs.uwaterloo.ca/~shallit/Papers/ntfl.ps>
 
 =back

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -122,7 +122,8 @@ diag "module count ",scalar(@lib_modules);
                 'Hypot', 'HypotOctant',
                 'TriangularHypot', 'VogelFloret',
                 'PythagoreanTree', 'RationalsTree', 'FractionsTree', 'ChanTree',
-                'FactorRationals', 'GcdRationals', 'CfracDigits');
+                'FactorRationals', 'GcdRationals', 'CfracDigits',
+                'WythoffPreliminaryTriangle');
     my %seen;
     while ($list =~ /([A-Z]\S+)/g) {
       my $elem = $1;

@@ -34,7 +34,7 @@ use Carp;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -82,11 +82,11 @@ sub y_negative {
   return $self->{'parts'} eq '4';
 }
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return ($self->{'parts'} >= 2 ? $self->n_start + 3 : undef);
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return ($self->{'parts'} >= 4 ? $self->n_start + 4 : undef);
 }

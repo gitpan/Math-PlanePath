@@ -35,6 +35,20 @@ use Math::PlanePath::R5DragonCurve;
 my $path = Math::PlanePath::R5DragonCurve->new;
 
 #------------------------------------------------------------------------------
+# A008776 single-visited points  to N=5^k
+MyOEIS::compare_values
+  (anum => 'A008776',
+   max_value => 10_0,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_singles ($path, 5**$k);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A198859 boundary, one side only, N=0 to 25^k, even levels
 foreach my $side ('right', 'left') {
   MyOEIS::compare_values

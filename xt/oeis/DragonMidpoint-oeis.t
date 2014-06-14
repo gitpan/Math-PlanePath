@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 3;
+plan tests => 26;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,6 +32,23 @@ use Math::PlanePath::DragonMidpoint;
 # uncomment this to run the ### lines
 # use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A203175 figure boundary length to N=2^k-1
+
+MyOEIS::compare_values
+  (anum => 'A203175',
+   name => 'boundary length',
+   max_value => 10_000,
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::DragonMidpoint->new;
+     my @got = (1,1,2);
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_figure_boundary($path, 2**$k-1);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A077860 -- Y at N=2^k, starting k=1 N=2

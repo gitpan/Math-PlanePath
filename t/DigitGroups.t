@@ -33,27 +33,11 @@ require Math::PlanePath::DigitGroups;
 my $path = Math::PlanePath::DigitGroups->new;
 
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
-
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 115;
+  my $want_version = 116;
   ok ($Math::PlanePath::DigitGroups::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DigitGroups->VERSION,  $want_version,

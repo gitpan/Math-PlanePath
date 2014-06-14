@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -87,7 +87,7 @@ use Math::PlanePath::PeanoCurve;
 *dy_minimum = Math::PlanePath::PeanoCurve->can('dy_minimum');
 *dy_maximum = Math::PlanePath::PeanoCurve->can('dy_maximum');
 
-*_UNDOCUMENTED__dxdy_list = Math::PlanePath::PeanoCurve->can('_UNDOCUMENTED__dxdy_list');
+*_UNDOCUMENTED__dxdy_list = Math::PlanePath::PeanoCurve->can('_UNDOCUMENTED__dxdy_list');  # same
 #
 #     bit=0           bit=1
 #  *---  b^2-1 -- b^2 

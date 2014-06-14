@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,16 +45,15 @@ use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 
 use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E    four plus
-                                          0,1,   # N    NW and SE
-                                          -1,1,  # NW
-                                          -1,0,  # W
-                                          0,-1,  # S
-                                          1,-1,  # SE
-                                         );
-*_UNDOCUMENTED__x_negative_at_n
-  = \&Math::PlanePath::HexSpiral::_UNDOCUMENTED__x_negative_at_n;
-*_UNDOCUMENTED__y_negative_at_n
-  = \&Math::PlanePath::HexSpiral::_UNDOCUMENTED__y_negative_at_n;
+                           0,1,   # N    NW and SE
+                           -1,1,  # NW
+                           -1,0,  # W
+                           0,-1,  # S
+                           1,-1,  # SE
+                          );
+*x_negative_at_n = \&Math::PlanePath::HexSpiral::x_negative_at_n;
+*y_negative_at_n
+  = \&Math::PlanePath::HexSpiral::y_negative_at_n;
 *_UNDOCUMENTED__dxdy_list_at_n
   = \&Math::PlanePath::HexSpiral::_UNDOCUMENTED__dxdy_list_at_n;
 

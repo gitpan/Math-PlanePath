@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,23 +54,23 @@ use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E       # no N,S
-                                          1,1,   # NE
-                                          -1,1,  # NW
-                                          -1,0,  # W
-                                          -1,-1, # SW
-                                          1,-1); # SE
+                           1,1,   # NE
+                           -1,1,  # NW
+                           -1,0,  # W
+                           -1,-1, # SW
+                           1,-1); # SE
 # last NW at lower right
-#     2w+4 ------- w+1      
+#     2w+4 ------- w+1
 #       \          /
 #        *  0---- w  *
 #       /             \
 #     2w+6 ---------- 3w+10    w=3; 1+3*w+10=20
 #
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + ($self->{'wider'} ? 0 : 3);
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 2*$self->{'wider'} + 6;
 }

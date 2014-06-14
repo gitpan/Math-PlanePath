@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,8 +47,8 @@ use Math::PlanePath::Base::Digits
 use constant n_start => 0;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_even;
 
-use constant _UNDOCUMENTED__x_negative_at_n => 3;
-use constant _UNDOCUMENTED__y_negative_at_n => 5;
+use constant x_negative_at_n => 3;
+use constant y_negative_at_n => 5;
 use constant absdx_minimum => 1;
 use constant dir_maximum_dxdy => (3,-1);
 

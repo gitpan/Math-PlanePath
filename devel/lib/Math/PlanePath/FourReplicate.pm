@@ -40,7 +40,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

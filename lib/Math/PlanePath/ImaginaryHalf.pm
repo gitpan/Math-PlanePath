@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -68,16 +68,16 @@ use constant parameter_info_array =>
   ];
 
 {
-  my %_UNDOCUMENTED__x_negative_at_n = (XYX => 2,
-                                        XXY => 1,
-                                        YXX => 2,
-                                        XnYX => 0,
-                                        XnXY => 0,
-                                        YXnX => 1,
-                                       );
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my %x_negative_at_n = (XYX => 2,
+                         XXY => 1,
+                         YXX => 2,
+                         XnYX => 0,
+                         XnXY => 0,
+                         YXnX => 1,
+                        );
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $self->{'radix'} ** $_UNDOCUMENTED__x_negative_at_n{$self->{'digit_order'}};
+    return $self->{'radix'} ** $x_negative_at_n{$self->{'digit_order'}};
   }
 }
 

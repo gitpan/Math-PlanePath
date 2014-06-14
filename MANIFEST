@@ -75,7 +75,6 @@ devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
 devel/l-tiling.pl
 devel/lib/Math/PlanePath/BalancedArray.pm
-devel/lib/Math/PlanePath/Base/NSEW.pm
 devel/lib/Math/PlanePath/BinaryTerms-oeis.t
 devel/lib/Math/PlanePath/BinaryTerms.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
@@ -102,8 +101,6 @@ devel/lib/Math/PlanePath/wythoff-lines.pl
 devel/lib/Math/PlanePath/WythoffDifference-oeis.t
 devel/lib/Math/PlanePath/WythoffDifference.pm
 devel/lib/Math/PlanePath/WythoffLines.pm
-devel/lib/Math/PlanePath/WythoffPreliminaryTriangle-oeis.t
-devel/lib/Math/PlanePath/WythoffPreliminaryTriangle.pm
 devel/lib/Math/PlanePath/WythoffTriangle-oeis.t
 devel/lib/Math/PlanePath/WythoffTriangle.pm
 devel/lib/Math/PlanePath/z2-dragon.pl
@@ -160,6 +157,7 @@ examples/other/dragon-curve.m4
 examples/other/dragon-pgf-latex.tex
 examples/other/dragon-pgf-plain.tex
 examples/other/dragon-recursive.gri
+examples/other/fibonacci-word-fractal.logo
 examples/other/sierpinski-triangle-bitand.gnuplot
 examples/other/sierpinski-triangle-replicate.gnuplot
 examples/other/sierpinski-triangle-text.gnuplot
@@ -183,6 +181,7 @@ lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
 lib/Math/PlanePath/Base/Digits.pm
 lib/Math/PlanePath/Base/Generic.pm
+lib/Math/PlanePath/Base/NSEW.pm
 lib/Math/PlanePath/BetaOmega.pm
 lib/Math/PlanePath/CCurve.pm
 lib/Math/PlanePath/CellularRule.pm
@@ -290,6 +289,7 @@ lib/Math/PlanePath/VogelFloret.pm
 lib/Math/PlanePath/WunderlichMeander.pm
 lib/Math/PlanePath/WunderlichSerpentine.pm
 lib/Math/PlanePath/WythoffArray.pm
+lib/Math/PlanePath/WythoffPreliminaryTriangle.pm
 lib/Math/PlanePath/ZOrderCurve.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -502,15 +502,18 @@ xt/oeis/TriangularHypot-oeis.t
 xt/oeis/UlamWarburton-oeis.t
 xt/oeis/UlamWarburtonQuarter-oeis.t
 xt/oeis/WythoffArray-oeis.t
+xt/oeis/WythoffPreliminaryTriangle-oeis.t
 xt/oeis/ZOrderCurve-oeis.t
 xt/PixelRings-image.t
 xt/PlanePath-subclasses.t
 xt/pod-lists.t
+xt/slow/AlternatePaper-slow.t
 xt/slow/CCurve-slow.t
 xt/slow/CellularRule-slow.t
 xt/slow/ComplexMinus-slow.t
 xt/slow/DragonCurve-slow.t
 xt/slow/GcdRationals-slow.t
+xt/slow/HilbertCurve-slow.t
 xt/slow/NumSeq-PlanePathCoord.t
 xt/slow/R5DragonCurve-slow.t
 xtools/my-check-copyright-years.sh

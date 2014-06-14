@@ -22,10 +22,154 @@ use strict;
 use List::Util 'min', 'max';
 use Math::Trig 'pi';
 use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
+use lib 'xt';
+use MyOEIS;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+=head2 Right Boundary Segment N
+
+The segment numbers which are the right boundary, being the X axis and
+notches there, are
+
+    N such that N+2 in base-4 has
+      least significant digit any 0,1,2,3
+      above that only digits 0,2
+
+    = 0,1, 2,3,4,5, 14,15,16,17, 18,19,20,21, 62,63,64,65, ...
+
+=head2 Left Boundary Segment N
+
+The segment numbers which are the left boundary, being the stair-step
+diagonal, are
+
+    N such that N+1 in base-4 has
+      least significant digit any 0,1,2,3
+      above that only digits 0,2
+
+    = 0,1,2, 7,8,9,10, 31,32,33,34, 39,40,41,42, 127,128,129,130, ...
+
+=cut
+
+{
+  # left boundary
+  require Math::PlanePath::AlternatePaper;
+  my $path = Math::PlanePath::AlternatePaper->new;
+  my @values;
+  for (my $n = $path->n_start; @values < 30; $n++) {
+    if ($path->_UNDOCUMENTED__n_segment_is_right_boundary($n)) {
+      push @values, $n;
+    }
+  }
+  print join(',',@values),"\n";
+  Math::OEIS::Grep->search(array=>\@values);
+  exit;
+}
+
+{
+  # base 4 reversal
+
+  # 1000     0
+  #  111     1
+  #  110    10
+  #  101    11
+  #  100   100
+  #   11   101
+  #   10   110
+  #    1   111
+  #    0  1000
+
+  require Math::BaseCnv;
+  require Math::PlanePath::AlternatePaper;
+  my $path = Math::PlanePath::AlternatePaper->new;
+  foreach my $i (0 .. 32) {
+    my $nx = $path->xy_to_n($i,0);
+    my $nxr = $path->xy_to_n(32-$i,0);
+    printf "%6s  ", Math::BaseCnv::cnv($nx, 10,4);
+    printf "%6s  ", Math::BaseCnv::cnv($nxr, 10,4);
+
+    my $c = 3*$nx + 3*$nxr;
+    printf "%6s  ", Math::BaseCnv::cnv($c, 10,4);
+    print "\n";
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  # N pairs in X=2^k columns
+
+  #   8 |                                                      128
+  #     |                                                       |
+  #   7 |                                                42---43/127
+  #     |                                                |      |
+  #   6 |                                         40---41/45--44/124
+  #     |                                         |      |      |
+  #   5 |                                  34---35/39--38/46--47/123
+  #     |                                  |      |      |      |
+  #   4 |                           32---33/53--36/52--37/49--48/112
+  #     |                           |      |      |      |      |
+  #   3 |                    10---11/31--30/54--51/55--50/58--59/111
+  #     |                    |      |      |      |      |      |
+  #   2 |              8----9/13--12/28--29/25--24/56--57/61--60/108
+  #     |              |     |      |      |      |      |      |
+  #   1 |        2----3/7---6/14--15/27--26/18--19/23---22/62--63/107
+  #     |        |     |     |      |      |      |      |      |
+  # Y=0 |  0-----1     4-----5     16-----17     20-----21     64---..
+  #
+  #     *
+  #   / | \
+  # *---*---*
+  #                                      2000-0
+  #                                      2000-1
+  #                                      2000-10
+  #                                      2000-11
+  #                                      2000-100
+  #                             1000-1001
+  #
+  # 0  1  10  11  100 101 110 111 1000  1001 1010 1011 1100 1101 1110 1111 10000
+  #                               X=8
+  #                               N=64
+  # left vert = 1000 - horiz
+  # right vert = 2000 - horiz reverse
+  #
+  require Math::PlanePath::AlternatePaper;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::AlternatePaper->new;
+
+  print "X  ";
+  foreach my $x (0 .. 16) {
+    my $nx = $path->xy_to_n($x,0);
+    print " ",Math::BaseCnv::cnv($nx, 10,4);
+  }
+  print "\n";
+
+
+  foreach my $k (0 .. 3) {
+    my $x = 2**$k;
+    my $x4 = Math::BaseCnv::cnv($x,10,4);
+
+    print "k=$k  x=$x [$x4]\n";
+    foreach my $y (reverse 0 .. $x) {
+      printf " y=%2d", $y;
+      my $nx = $path->xy_to_n($y,0);
+      my $nxr = $path->xy_to_n($x-$y,0);
+      my $nd = $path->xy_to_n($y,$y);
+
+      my @n_list = $path->xy_to_n_list($x,$y);
+      foreach my $n (@n_list) {
+        printf " %3d[%6s]", $n, Math::BaseCnv::cnv($n,10,4);
+      }
+      my ($na,$nb) = @n_list;
+      print "   ";
+      print "  ",Math::BaseCnv::cnv(4**$k - $nx, 10,4);
+      print "  ",Math::BaseCnv::cnv(2*4**$k - $nxr, 10,4);
+      print "\n";
+    }
+  }
+  exit 0;
+}
 
 {
   # revisit
@@ -39,7 +183,7 @@ use Smart::Comments;
     print "$n  $want   $got$diff\n";
     last if $diff;
   }
-    
+
   sub n_to_revisit {
     my ($n) = @_;
     ### n_to_revisit(): $n
@@ -198,7 +342,7 @@ use Smart::Comments;
 
     # print "$total,";
     push @values, $total;
-    
+
     $bits_total = total_turn_by_bits($n);
 
     my $turn = path_n_turn ($path, $n);
@@ -211,9 +355,8 @@ use Smart::Comments;
     }
   }
 
-  use lib 'xt'; require MyOEIS;
   print join(',',@values),"\n";
-  print MyOEIS->grep_for_values_aref(\@values);
+  Math::OEIS::Grep->search(array=>\@values);
 
   use Math::PlanePath;
   use Math::PlanePath::GrayCode;

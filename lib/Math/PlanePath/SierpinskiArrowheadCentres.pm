@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,14 +56,14 @@ use constant n_start => 0;
 use constant class_y_negative => 0;
 *x_negative = \&Math::PlanePath::SierpinskiArrowhead::x_negative;
 {
-  my %_UNDOCUMENTED__x_negative_at_n = (triangular => 2,
-                                        # right      => undef,
-                                        left       => 2,
-                                        # diagonal   => undef,
-                                       );
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my %x_negative_at_n = (triangular => 2,
+                         # right      => undef,
+                         left       => 2,
+                         # diagonal   => undef,
+                        );
+  sub x_negative_at_n {
     my ($self) = @_;
-    return $_UNDOCUMENTED__x_negative_at_n{$self->{'align'}};
+    return $x_negative_at_n{$self->{'align'}};
   }
 }
 *x_maximum  = \&Math::PlanePath::SierpinskiArrowhead::x_maximum;
@@ -76,7 +76,7 @@ use constant dy_maximum => 1;
 *dx_minimum = \&Math::PlanePath::SierpinskiArrowhead::dx_minimum;
 *dx_maximum = \&Math::PlanePath::SierpinskiArrowhead::dx_maximum;
 
-*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::SierpinskiArrowhead::_UNDOCUMENTED__dxdy_list;
+*_UNDOCUMENTED__dxdy_list = \&Math::PlanePath::SierpinskiArrowhead::_UNDOCUMENTED__dxdy_list; # same
 use constant _UNDOCUMENTED__dxdy_list_at_n => 15;
 
 *absdx_minimum = \&Math::PlanePath::SierpinskiArrowhead::absdx_minimum;

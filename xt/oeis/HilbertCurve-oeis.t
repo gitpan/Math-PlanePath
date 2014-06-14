@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -104,6 +104,118 @@ sub zorder_is_3cycle {
   return ($p3 == $n);
 }
 
+#------------------------------------------------------------------------------
+# A083885 etc counts of segments in direction
+
+foreach my $elem ([0, 'A083885', 0],
+                  # [1, '', 0],
+                  # [2, '', 1],
+                  # [3, '', 0]
+                 ) {
+  my ($dir, $anum, $initial_k) = @$elem;
+  MyOEIS::compare_values
+      (anum => $anum,
+       max_value => 10_000,
+       func => sub {
+         my ($count) = @_;
+         my @got;
+         my $n = $hilbert->n_start;
+         my $total = 0;
+         my $k = $initial_k;
+         while (@got < $count) {
+           my $n_end = 4**$k;
+           for ( ; $n < $n_end; $n++) {
+             $total += (dxdy_to_dir4($hilbert->n_to_dxdy($n)) == $dir);
+           }
+           push @got, $total;
+           $k++;
+         }
+         return \@got;
+       });
+}
+
+# return 0,1,2,3, with Y reckoned increasing upwards
+sub dxdy_to_dir4 {
+  my ($dx, $dy) = @_;
+  if ($dx > 0) { return 0; }  # east
+  if ($dx < 0) { return 2; }  # west
+  if ($dy > 0) { return 1; }  # north
+  if ($dy < 0) { return 3; }  # south
+}
+
+#------------------------------------------------------------------------------
+# A165466 -- dx^2+dy^2 of Hilbert->Peano transposed
+MyOEIS::compare_values
+  (anum => 'A165466',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($hx,$hy) = $hilbert->n_to_xy($n);
+       my ($px,$py) = $peano->n_to_xy($n);
+       ($px,$py) = ($py,$px);
+       push @got, ($px-$hx)**2 + ($py-$hy)**2;
+     }
+     return \@got;
+   });
+
+# A165464 -- dx^2+dy^2 of Hilbert->Peano
+MyOEIS::compare_values
+  (anum => 'A165464',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($hx,$hy) = $hilbert->n_to_xy($n);
+       my ($px,$py) = $peano->n_to_xy($n);
+       push @got, ($px-$hx)**2 + ($py-$hy)**2;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A165467 -- N where Hilbert and Peano same X,Y
+MyOEIS::compare_values
+  (anum => 'A165467',
+   max_value => 100000,
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($hx,$hy) = $hilbert->n_to_xy($n);
+       my ($px,$py) = $peano->n_to_xy($n);
+       if ($hx == $py && $hy == $px) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+# A165465 -- N where Hilbert and Peano same X,Y
+MyOEIS::compare_values
+  (anum => 'A165465',
+   max_value => 100000,
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($hx,$hy) = $hilbert->n_to_xy($n);
+       my ($px,$py) = $peano->n_to_xy($n);
+       if ($hx == $px && $hy == $py) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
 
 #------------------------------------------------------------------------------
 # A163538 -- dX
@@ -169,45 +281,6 @@ MyOEIS::compare_values
      return \@got;
    });
 
-
-#------------------------------------------------------------------------------
-# A165465 -- N where Hilbert and Peano same X,Y
-
-MyOEIS::compare_values
-  (anum => 'A165465',
-   max_value => 100000,
-   func => sub {
-     my ($count) = @_;
-     require Math::PlanePath::PeanoCurve;
-     my $peano  = Math::PlanePath::PeanoCurve->new;
-     my @got;
-     for (my $n = $hilbert->n_start; @got < $count; $n++) {
-       my ($hx,$hy) = $hilbert->n_to_xy($n);
-       my ($px,$py) = $peano->n_to_xy($n);
-       if ($hx == $px && $hy == $py) {
-         push @got, $n;
-       }
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A165464 -- dx^2+dy^2 of Hilbert->Peano
-
-MyOEIS::compare_values
-  (anum => 'A165464',
-   func => sub {
-     my ($count) = @_;
-     require Math::PlanePath::PeanoCurve;
-     my $peano  = Math::PlanePath::PeanoCurve->new;
-     my @got;
-     for (my $n = $hilbert->n_start; @got < $count; $n++) {
-       my ($hx,$hy) = $hilbert->n_to_xy($n);
-       my ($px,$py) = $peano->n_to_xy($n);
-       push @got, ($px-$hx)**2 + ($py-$hy)**2;
-     }
-     return \@got;
-   });
 
 #------------------------------------------------------------------------------
 # A163540 -- absolute direction 0=east, 1=south, 2=west, 3=north

@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -85,11 +85,11 @@ sub x_maximum {
           : undef);
 }
 {
-  my %_UNDOCUMENTED__x_negative_at_n = (left  => 3,
-                                        right => 5,
-                                        up    => 3,
-                                        down  => 5);
-  sub _UNDOCUMENTED__x_negative_at_n {
+  my %x_negative_at_n = (left  => 3,
+                         right => 5,
+                         up    => 3,
+                         down  => 5);
+  sub x_negative_at_n {
     my ($self) = @_;
     return (($self->{'align'} eq 'left' && $self->{'step'} >= 1)
             || ($self->{'align'} eq 'centre' && $self->{'step'} >= 2)
@@ -478,9 +478,9 @@ than the preceding, an extra point at the left and the right,
         10  11  12  13  14  15  16             3
              5   6   7   8   9                 2
                  2   3   4                     1
-                     1                   <-  y=0
+                     1                   <-  Y=0
 
-    -4  -3  -2  -1  x=0  1   2   3   4 ...
+    -4  -3  -2  -1  X=0  1   2   3   4 ...
 
 X<Square numbers>The right end N=1,4,9,16,etc is the perfect squares.  The
 vertical 2,6,12,20,etc at x=-1 is the X<Pronic numbers>pronic numbers
@@ -503,18 +503,18 @@ makes each row 2 wider on each side successively
          16 17 18 19 20 21 22 23 24 25 26 27 28              3
                 7  8  9 10 11 12 13 14 15                    2
                       2  3  4  5  6                          1
-                            1                          <-  y=0
+                            1                          <-  Y=0
 
-         -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6 ...
+         -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6 ...
 
 If the step is an odd number then the extra is at the right, so step 3 gives
 
     13  14  15  16  17  18  19  20  21  22        3
          6   7   8   9  10  11  12                2
              2   3   4   5                        1
-                 1                          <-  y=0
+                 1                          <-  Y=0
 
-    -3  -2  -1  x=0  1   2   3   4 ...
+    -3  -2  -1  X=0  1   2   3   4 ...
 
 Or step 1 goes solely to the right.  This is equivalent to the Diagonals
 path, but columns shifted up to make horizontal rows.
@@ -525,9 +525,9 @@ path, but columns shifted up to make horizontal rows.
      7   8   9  10                    3
      4   5   6                        2
      2   3                            1
-     1                          <-  y=0
+     1                          <-  Y=0
 
-    x=0  1   2   3   4 ...
+    X=0  1   2   3   4 ...
 
 Step 0 means simply a vertical, each row 1 wide and not increasing.  This is
 unlikely to be much use.  The Rows path with C<width> 1 does this too.
@@ -540,7 +540,7 @@ unlikely to be much use.  The Rows path with C<width> 1 does this too.
      2        1
      1    <-y=0
 
-    x=0
+    X=0
 
 Various number sequences fall in regular patterns positions depending on the
 step.  Large steps are not particularly interesting and quickly become very

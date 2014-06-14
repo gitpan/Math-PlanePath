@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -71,9 +71,9 @@ use constant::defer parameter_info_array =>
 
                          # 'RSL',
                          # 'Straight',
-                          'Turn4',  # Turn4 is 0<=value<4.
+                         # 'Turn4',  # Turn4 is 0<=value<4.
                          # 'Turn4n',
-                          'TTurn6',
+                         # 'TTurn6',
                         ],
              description => 'Left is 1=left, 0=right or straight.
 Right is 1=right, 0=left or straight.
@@ -1596,7 +1596,7 @@ sub characteristic_non_decreasing {
      #   \    N=2  turn=4
      # 2---3
      #   \
-     # 0---1    
+     # 0---1
      'n_start=-1,width=2' =>
      { TTurn6 => 'A010694', # repeat 2,4 with OFFSET=0
        # OEIS-Other: A010694 planepath=Rows,width=2,n_start=-1 turn_type=TTurn6
@@ -2098,6 +2098,12 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_Turn4_max =>   # apparent maximum
     Math::NumSeq::PlanePathTurn::_turn_func_Turn4(-2,3, 5,-4);  # at N=12
 }
+{ package Math::PlanePath::WythoffPreliminaryTriangle;
+  # apparent maximum, searched through to N=10_000_000
+  # turn4 = 3.17777777777778
+  use constant _NumSeq_Turn_Turn4_max =>
+    Math::NumSeq::PlanePathTurn::_turn_func_Turn4(-54,-16, -8,13);  # at N=1344
+}
 { package Math::PlanePath::PowerArray;
 
   sub _NumSeq_Turn_SLR_min {
@@ -2285,7 +2291,7 @@ The C<turn_type> choices are
     "Right"    1=right 0=left or straight
     "LSR"      1=left  0=straight -1=right
     "SLR"      0=straight 1=left  2=right
-    "SRL"      0=straight 1=right 2=left  
+    "SRL"      0=straight 1=right 2=left
 
 In each case the value at i is the turn which occurs at N=i,
 
@@ -2354,14 +2360,14 @@ PlanePath object.
 A turn left or right is identified by considering the dX,dY at N-1 and at N.
 
     N+1      *
+             |
+             |
              |   dx2,dy2
              |
-             |
-             |
     N        *
-            /   dx1,dy1
+            /
            /
-          /
+          /  dx1,dy1
     N-1  *
 
 With the two vectors dx1,dy1 and dx2,dy2 at a common origin, if the dx2,dy2
@@ -2384,8 +2390,8 @@ At dx2 the Y value of the dx1,dy1 vector is
             dy2 > dx2 * dy1/dx1
        so   dy2 * dx1 > dx2 * dy1
 
-This comparison dy2*dx1 > dx2*dy1 works when dx1=0 too, ie. when dx1,dy1 is
-vertical
+This cross-product comparison dy2*dx1 E<gt> dx2*dy1 works when dx1=0 too,
+ie. when dx1,dy1 is vertical
 
     left if dy2 * 0 > dx2 * dy1
                   0 > dx2*dy1

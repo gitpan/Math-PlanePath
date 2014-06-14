@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,11 +39,11 @@ use constant parameter_info_array =>
    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 3;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 4;
 }
@@ -57,11 +57,11 @@ use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant _UNDOCUMENTED__dxdy_list => (2,0,   # E by 2
-                                          1,1,   # NE
-                                          -2,1,  # WNW
-                                          -2,-1, # WSW
-                                          1,-1,  # SE
-                                         );
+                           1,1,   # NE
+                           -2,1,  # WNW
+                           -2,-1, # WSW
+                           1,-1,  # SE
+                          );
 use constant absdx_minimum => 1;
 use constant dsumxy_minimum => -3; # SW -2,-1
 use constant dsumxy_maximum => 2;  # dX=+2 and NE diag
@@ -240,7 +240,7 @@ fit on a square grid.
 
           24    11     3     9    20                  1
 
-    25    12     4     1     2     8    19       <- y=0
+    25    12     4     1     2     8    19       <- Y=0
 
        26    13     5     6     7    18    ...       -1
 
@@ -250,7 +250,7 @@ fit on a square grid.
 
 
      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
-    -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6  7
+    -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
 Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
 x=2,y=0.  The lower diagonals are 1 across and 1 down, so n=17 is at
@@ -356,6 +356,7 @@ L<http://oeis.org/A140066> (etc)
 =back
 
     n_start=1 (the default)
+      A192136    N on X axis, (5*n^2 - 3*n + 2)/2
       A140066    N on Y axis
       A116668    N on X negative axis
       A005891    N on South-East diagonal, centred pentagonals

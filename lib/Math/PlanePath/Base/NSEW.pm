@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 115;
+$VERSION = 116;
 
 use constant dx_minimum => -1; # NSEW straight only
 use constant dx_maximum => 1;
@@ -35,9 +35,9 @@ use constant ddiffxy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
 
 use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E
-                                          0,1,   # N
-                                          -1,0,  # W
-                                          0,-1); # S
+                           0,1,   # N
+                           -1,0,  # W
+                           0,-1); # S
 
 1;
 __END__
@@ -46,20 +46,24 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::Base::NSEW -- multi-inheritance mixin for North, South, East, West steps
+Math::PlanePath::Base::NSEW -- multi-inheritance mixin for North, South, East, West unit steps
 
 =head1 SYNOPSIS
+
+=for test_synopsis my @ISA; # normally a package variable of course, but this satisfies Test::Synopsis
 
  package Math::PlanePath::Foo;
  use Math::PlanePath;
  use Math::PlanePath::Base::NSEW;
- @ISA = ('Math::PlanePath::Base::NSEW','Math::PlanePath');
+ @ISA = ('Math::PlanePath::Base::NSEW', 'Math::PlanePath');
 
 =head1 DESCRIPTION
 
-This is a multi-inheritance mixin for paths which take unit steps North,
-South, East and West.  It provides the following path descriptive methods
-for such steps
+This is a multi-inheritance mixin for paths which take only steps North,
+South, East and West by distance 1 each time.  This includes for example the
+C<SquareSpiral> and also things like the C<DragonCurve> or C<CCurve>.
+
+The following path descriptive methods are provided
 
                         value
     dx_minimum()         -1
@@ -72,6 +76,12 @@ for such steps
     ddiffxy_minimum()    -1
     ddiffxy_maximum()     1
     dir_maximum_dxdy()   0,-1    # maximum South
+
+=cut
+
+#    _UNDOCUMENTED__dxdy_list()          1,0, 0,1, -1,0, 0,-1
+
+=pod
 
 =head1 SEE ALSO
 

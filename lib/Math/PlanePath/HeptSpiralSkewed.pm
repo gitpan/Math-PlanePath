@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,11 +35,11 @@ use Math::PlanePath::Base::Generic
 
 
 use constant xy_is_visited => 1;
-sub _UNDOCUMENTED__x_negative_at_n {
+sub x_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 3;
 }
-sub _UNDOCUMENTED__y_negative_at_n {
+sub y_negative_at_n {
   my ($self) = @_;
   return $self->n_start + 5;
 }
@@ -52,10 +52,10 @@ use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E    four plus NW
-                                          0,1,   # N
-                                          -1,1,  # NW
-                                          -1,0,  # W
-                                          0,-1); # S
+                           0,1,   # N
+                           -1,1,  # NW
+                           -1,0,  # W
+                           0,-1); # S
 use constant dsumxy_minimum => -1; # W,S straight
 use constant dsumxy_maximum => 1;  # N,E straight
 use constant ddiffxy_minimum => -2; # NW diagonal
@@ -228,7 +228,7 @@ This path makes a seven-sided spiral by cutting one corner of a square
     37-38-39-40-41-...               -3
 
               ^
-    -3 -2 -1 x=0 1  2  3
+    -3 -2 -1 X=0 1  2  3
 
 The path is as if around a heptagon, with the left and bottom here as two
 sides of the heptagon straightened out, and the flat top here skewed across

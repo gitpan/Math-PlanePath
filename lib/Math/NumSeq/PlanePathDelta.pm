@@ -41,7 +41,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 115;
+$VERSION = 116;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -697,9 +697,9 @@ sub _dxdy_to_dir4 {
   sub _NumSeq_Delta_Dir4_integer {
     my ($self) = @_;
     {
-      my @dxdy_list = $self->_UNDOCUMENTED__dxdy_list;
-      for (my $i = 0; $i < $#dxdy_list; $i+=2) {
-        unless (_dxdy_is_dir4($dxdy_list[$i], $dxdy_list[$i+1])) {
+      my @_UNDOCUMENTED__dxdy_list = $self->_UNDOCUMENTED__dxdy_list;
+      for (my $i = 0; $i < $#_UNDOCUMENTED__dxdy_list; $i+=2) {
+        unless (_dxdy_is_dir4($_UNDOCUMENTED__dxdy_list[$i], $_UNDOCUMENTED__dxdy_list[$i+1])) {
           return 0;
         }
       }
@@ -733,9 +733,9 @@ sub _dxdy_to_dir4 {
   sub _NumSeq_Delta_TDir6_integer {
     my ($self) = @_;
     {
-      my @dxdy_list = $self->_UNDOCUMENTED__dxdy_list;
-      for (my $i = 0; $i < @dxdy_list; $i+=2) {
-        unless (_dxdy_is_tdir6($dxdy_list[$i], $dxdy_list[$i+1])) {
+      my @_UNDOCUMENTED__dxdy_list = $self->_UNDOCUMENTED__dxdy_list;
+      for (my $i = 0; $i < @_UNDOCUMENTED__dxdy_list; $i+=2) {
+        unless (_dxdy_is_tdir6($_UNDOCUMENTED__dxdy_list[$i], $_UNDOCUMENTED__dxdy_list[$i+1])) {
           return 0;
         }
       }
@@ -4099,6 +4099,9 @@ sub _dxdy_to_dir4 {
 }
 { package Math::PlanePath::WythoffArray;
   use constant _NumSeq_Delta_TDSquared_min => 1;
+}
+{ package Math::PlanePath::WythoffPreliminaryTriangle;
+  use constant _NumSeq_Dir4_min_is_infimum => 1;
 }
 { package Math::PlanePath::PowerArray;
 
