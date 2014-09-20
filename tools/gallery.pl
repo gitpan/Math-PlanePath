@@ -20,8 +20,9 @@
 
 # Usage: perl gallery.pl
 #
-# Create the .png files in $target_dir = "$ENV{HOME}/tux/web/math-planepath"
-# as appearing at http://user42.tuxfamily.org/math-planepath/gallery.html
+# Create .png files as for the web page
+# http://user42.tuxfamily.org/math-planepath/gallery.html
+# Output is to $target_dir = "$ENV{HOME}/tux/web/math-planepath".
 #
 
 use 5.004;
@@ -44,6 +45,16 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['ulam-warburton-quarter-small.png',
+    "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],
+   ['ulam-warburton-quarter-octant.png',
+    "math-image --path=UlamWarburtonQuarter,parts=octant --expression='i<132?i:0' --scale=4 --size=150"],
+   ['ulam-warburton-quarter-octant-up.png',
+    "math-image --path=UlamWarburtonQuarter,parts=octant_up --values=Lines --scale=2 --size=150 --figure=point"],
+   ['ulam-warburton-quarter-big.png',
+    "math-image --path=UlamWarburtonQuarter --expression='i<233?i:0' --scale=4 --size=150"],
+
+
    ['gcd-rationals-rows-big.png',
     "math-image --path=GcdRationals --expression='i<=68*67/2?i:0' --scale=2 --size=140x140"],
    ['gcd-rationals-diagonals-big.png',
@@ -188,12 +199,6 @@ foreach my $elem
     "math-image --path=UlamWarburton --expression='i<50?i:0' --scale=2 --size=32"],
    ['ulam-warburton-big.png',
     "math-image --path=UlamWarburton --expression='i<233?i:0' --scale=4 --size=150"],
-
-
-   ['ulam-warburton-quarter-small.png',
-    "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],
-   ['ulam-warburton-quarter-big.png',
-    "math-image --path=UlamWarburtonQuarter --expression='i<233?i:0' --scale=4 --size=150"],
 
 
    ['one-of-eight-wedge.png',

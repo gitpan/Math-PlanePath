@@ -22,7 +22,9 @@ use strict;
 use Math::Trig 'pi';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
+
+
 
 
 
@@ -39,7 +41,6 @@ use Math::Trig 'pi';
   my $radix = $realpart*$realpart + 1;
   my $planepath;
   $planepath = "RationalsTree,tree_type=Drib";
-  $planepath = "UlamWarburtonQuarter";
   $planepath = "GosperReplicate";
   $planepath = "QuintetReplicate";
   $planepath = "RationalsTree,tree_type=HCS";
@@ -90,22 +91,25 @@ use Math::Trig 'pi';
   $planepath = "CellularRule,rule=6";
   $planepath = "Z2DragonCurve";
   $planepath = "WythoffPreliminaryTriangle";
-  # my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-  #                                              # delta_type => 'dX',
-  #                                              delta_type => 'Dir4',
-  #                                              # delta_type => 'dTRadius',
-  #                                              # delta_type => 'dRSquared',
-  #                                              # delta_type => 'dDiffXY',
-  #                                              # delta_type => 'TDir6',
-  #                                              # delta_type => 'dAbsDiff',
-  #                                             );
+  $planepath = "UlamWarburton,parts=octant";
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+                                               # delta_type => 'dX',
+                                               delta_type => 'Dir4',
+                                               # delta_type => 'dTRadius',
+                                               # delta_type => 'dRSquared',
+                                               # delta_type => 'dDiffXY',
+                                               # delta_type => 'TDir6',
+                                               # delta_type => 'dAbsDiff',
+                                              );
+
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dX');
   my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dY');
-  my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
-                                              turn_type => 'Turn4',
-                                             );
+  # my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
+  #                                             turn_type => 'Turn4',
+  #                                            );
+
   # my $dx_seq = Math::NumSeq::PlanePathCoord->new (planepath => $planepath,
   #                                                 coordinate_type => 'X');
   # my $dy_seq = Math::NumSeq::PlanePathCoord->new (planepath => $planepath,
@@ -152,6 +156,176 @@ use Math::Trig 'pi';
   }
 
   exit 0;
+}
+{
+  require Math::NumSeq::PlanePathCoord;
+  foreach my $path_type (@{Math::NumSeq::PlanePathCoord->parameter_info_array->[0]->{'choices'}}) {
+    my $class = "Math::PlanePath::$path_type";
+    ### $class
+    eval "require $class; 1" or die;
+    my @pinfos = $class->parameter_info_list;
+    my $params = parameter_info_list_to_parameters(@pinfos);
+
+  PAREF:
+    foreach my $paref (@$params) {
+      ### $paref
+      my $path = $class->new(@$paref);
+      my $seq = Math::NumSeq::PlanePathCoord->new(planepath_object => $path,
+                                                  coordinate_type => 'RSquared');
+
+      foreach (1 .. 10) {
+        $seq->next;
+      }
+      foreach (1 .. 1000) {
+        my ($i, $value) = $seq->next;
+        if (! defined $i || $value < $i) {
+          next PAREF;
+        }
+      }
+      print "$path_type ",join(',',@$paref),"\n";
+    }
+  }
+  exit 0;
+
+  sub parameter_info_list_to_parameters {
+    my @parameters = ([]);
+    foreach my $info (@_) {
+      info_extend_parameters($info,\@parameters);
+    }
+    return \@parameters;
+  }
+
+  sub info_extend_parameters {
+    my ($info, $parameters) = @_;
+    my @new_parameters;
+
+    if ($info->{'name'} eq 'planepath') {
+      my @strings;
+      foreach my $choice (@{$info->{'choices'}}) {
+        my $path_class = "Math::PlanePath::$choice";
+        Module::Load::load($path_class);
+
+        my @parameter_info_list = $path_class->parameter_info_list;
+
+        if ($path_class->isa('Math::PlanePath::Rows')) {
+          push @parameter_info_list,{ name       => 'width',
+                                      type       => 'integer',
+                                      width      => 3,
+                                      default    => '1',
+                                      minimum    => 1,
+                                    };
+        }
+        if ($path_class->isa('Math::PlanePath::Columns')) {
+          push @parameter_info_list, { name       => 'height',
+                                       type       => 'integer',
+                                       width      => 3,
+                                       default    => '1',
+                                       minimum    => 1,
+                                     };
+        }
+
+        my $path_parameters
+          = parameter_info_list_to_parameters(@parameter_info_list);
+        ### $path_parameters
+
+        foreach my $aref (@$path_parameters) {
+          my $str = $choice;
+          while (@$aref) {
+            $str .= "," . shift(@$aref) . '=' . shift(@$aref);
+          }
+          push @strings, $str;
+        }
+      }
+      ### @strings
+      foreach my $p (@$parameters) {
+        foreach my $choice (@strings) {
+          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
+        }
+      }
+      @$parameters = @new_parameters;
+      return;
+    }
+
+    if ($info->{'name'} eq 'arms') {
+      print "  skip parameter $info->{'name'}\n";
+      return;
+    }
+
+    if ($info->{'choices'}) {
+      my @new_parameters;
+      foreach my $p (@$parameters) {
+        foreach my $choice (@{$info->{'choices'}}) {
+          next if ($info->{'name'} eq 'rotation_type' && $choice eq 'custom');
+          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
+        }
+      }
+      @$parameters = @new_parameters;
+      return;
+    }
+
+    if ($info->{'type'} eq 'boolean') {
+      my @new_parameters;
+      foreach my $p (@$parameters) {
+        foreach my $choice (0, 1) {
+          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
+        }
+      }
+      @$parameters = @new_parameters;
+      return;
+    }
+
+    if ($info->{'type'} eq 'integer'
+        || $info->{'name'} eq 'multiples') {
+      ### $info
+      my $max = ($info->{'minimum'}||-5)+10;
+      if ($info->{'name'} eq 'straight_spacing') { $max = 2; }
+      if ($info->{'name'} eq 'diagonal_spacing') { $max = 2; }
+      if ($info->{'name'} eq 'radix') { $max = 17; }
+      if ($info->{'name'} eq 'realpart') { $max = 3; }
+      if ($info->{'name'} eq 'wider') { $max = 3; }
+      if ($info->{'name'} eq 'modulus') { $max = 32; }
+      if ($info->{'name'} eq 'polygonal') { $max = 32; }
+      if ($info->{'name'} eq 'factor_count') { $max = 12; }
+      if (defined $info->{'maximum'} && $max > $info->{'maximum'}) {
+        $max = $info->{'maximum'};
+      }
+      if ($info->{'name'} eq 'power' && $max > 6) { $max = 6; }
+      my @new_parameters;
+      foreach my $choice ($info->{'minimum'} .. $max) {
+        foreach my $p (@$parameters) {
+          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
+        }
+      }
+      @$parameters = @new_parameters;
+      return;
+    }
+
+    if ($info->{'name'} eq 'fraction') {
+      ### fraction ...
+      my @new_parameters;
+      foreach my $p (@$parameters) {
+        my $radix = p_radix($p) || die;
+        foreach my $den (995 .. 1021) {
+          next if $den % $radix == 0;
+          my $choice = "1/$den";
+          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
+        }
+        foreach my $num (2 .. 10) {
+          foreach my $den ($num+1 .. 15) {
+            next if $den % $radix == 0;
+            next unless _coprime($num,$den);
+            my $choice = "$num/$den";
+            push @new_parameters, [ @$p, $info->{'name'}, $choice ];
+          }
+        }
+      }
+      @$parameters = @new_parameters;
+      return;
+    }
+
+    print "  skip parameter $info->{'name'}\n";
+  }
+
 }
 {
   # dx,dy seen
@@ -450,177 +624,6 @@ use Math::Trig 'pi';
   exit 0;
 }
 
-
-
-{
-  require Math::NumSeq::PlanePathCoord;
-  foreach my $path_type (@{Math::NumSeq::PlanePathCoord->parameter_info_array->[0]->{'choices'}}) {
-    my $class = "Math::PlanePath::$path_type";
-    ### $class
-    eval "require $class; 1" or die;
-    my @pinfos = $class->parameter_info_list;
-    my $params = parameter_info_list_to_parameters(@pinfos);
-
-  PAREF:
-    foreach my $paref (@$params) {
-      ### $paref
-      my $path = $class->new(@$paref);
-      my $seq = Math::NumSeq::PlanePathCoord->new(planepath_object => $path,
-                                                  coordinate_type => 'RSquared');
-
-      foreach (1 .. 10) {
-        $seq->next;
-      }
-      foreach (1 .. 1000) {
-        my ($i, $value) = $seq->next;
-        if (! defined $i || $value < $i) {
-          next PAREF;
-        }
-      }
-      print "$path_type ",join(',',@$paref),"\n";
-    }
-  }
-  exit 0;
-
-  sub parameter_info_list_to_parameters {
-    my @parameters = ([]);
-    foreach my $info (@_) {
-      info_extend_parameters($info,\@parameters);
-    }
-    return \@parameters;
-  }
-
-  sub info_extend_parameters {
-    my ($info, $parameters) = @_;
-    my @new_parameters;
-
-    if ($info->{'name'} eq 'planepath') {
-      my @strings;
-      foreach my $choice (@{$info->{'choices'}}) {
-        my $path_class = "Math::PlanePath::$choice";
-        Module::Load::load($path_class);
-
-        my @parameter_info_list = $path_class->parameter_info_list;
-
-        if ($path_class->isa('Math::PlanePath::Rows')) {
-          push @parameter_info_list,{ name       => 'width',
-                                      type       => 'integer',
-                                      width      => 3,
-                                      default    => '1',
-                                      minimum    => 1,
-                                    };
-        }
-        if ($path_class->isa('Math::PlanePath::Columns')) {
-          push @parameter_info_list, { name       => 'height',
-                                       type       => 'integer',
-                                       width      => 3,
-                                       default    => '1',
-                                       minimum    => 1,
-                                     };
-        }
-
-        my $path_parameters
-          = parameter_info_list_to_parameters(@parameter_info_list);
-        ### $path_parameters
-
-        foreach my $aref (@$path_parameters) {
-          my $str = $choice;
-          while (@$aref) {
-            $str .= "," . shift(@$aref) . '=' . shift(@$aref);
-          }
-          push @strings, $str;
-        }
-      }
-      ### @strings
-      foreach my $p (@$parameters) {
-        foreach my $choice (@strings) {
-          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
-        }
-      }
-      @$parameters = @new_parameters;
-      return;
-    }
-
-    if ($info->{'name'} eq 'arms') {
-      print "  skip parameter $info->{'name'}\n";
-      return;
-    }
-
-    if ($info->{'choices'}) {
-      my @new_parameters;
-      foreach my $p (@$parameters) {
-        foreach my $choice (@{$info->{'choices'}}) {
-          next if ($info->{'name'} eq 'rotation_type' && $choice eq 'custom');
-          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
-        }
-      }
-      @$parameters = @new_parameters;
-      return;
-    }
-
-    if ($info->{'type'} eq 'boolean') {
-      my @new_parameters;
-      foreach my $p (@$parameters) {
-        foreach my $choice (0, 1) {
-          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
-        }
-      }
-      @$parameters = @new_parameters;
-      return;
-    }
-
-    if ($info->{'type'} eq 'integer'
-        || $info->{'name'} eq 'multiples') {
-      my $max = $info->{'minimum'}+10;
-      if ($info->{'name'} eq 'straight_spacing') { $max = 2; }
-      if ($info->{'name'} eq 'diagonal_spacing') { $max = 2; }
-      if ($info->{'name'} eq 'radix') { $max = 17; }
-      if ($info->{'name'} eq 'realpart') { $max = 3; }
-      if ($info->{'name'} eq 'wider') { $max = 3; }
-      if ($info->{'name'} eq 'modulus') { $max = 32; }
-      if ($info->{'name'} eq 'polygonal') { $max = 32; }
-      if ($info->{'name'} eq 'factor_count') { $max = 12; }
-      if (defined $info->{'maximum'} && $max > $info->{'maximum'}) {
-        $max = $info->{'maximum'};
-      }
-      if ($info->{'name'} eq 'power' && $max > 6) { $max = 6; }
-      my @new_parameters;
-      foreach my $choice ($info->{'minimum'} .. $max) {
-        foreach my $p (@$parameters) {
-          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
-        }
-      }
-      @$parameters = @new_parameters;
-      return;
-    }
-
-    if ($info->{'name'} eq 'fraction') {
-      ### fraction ...
-      my @new_parameters;
-      foreach my $p (@$parameters) {
-        my $radix = p_radix($p) || die;
-        foreach my $den (995 .. 1021) {
-          next if $den % $radix == 0;
-          my $choice = "1/$den";
-          push @new_parameters, [ @$p, $info->{'name'}, $choice ];
-        }
-        foreach my $num (2 .. 10) {
-          foreach my $den ($num+1 .. 15) {
-            next if $den % $radix == 0;
-            next unless _coprime($num,$den);
-            my $choice = "$num/$den";
-            push @new_parameters, [ @$p, $info->{'name'}, $choice ];
-          }
-        }
-      }
-      @$parameters = @new_parameters;
-      return;
-    }
-
-    print "  skip parameter $info->{'name'}\n";
-  }
-
-}
 
 
 

@@ -47,12 +47,12 @@
 package Math::PlanePath::SierpinskiTriangle;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -683,6 +683,14 @@ sub _n0_to_depthbits {
   return (\@depthbits, $ndepth, $nwidth);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::SierpinskiArrowheadCentres;
+*level_to_n_range = \&Math::PlanePath::SierpinskiArrowheadCentres::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::SierpinskiArrowheadCentres::n_to_level;
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -740,7 +748,7 @@ sequence rather than rows jumping across gaps.
 The number of points in each row is always a power of 2.  The power is the
 count of 1-bits in Y.  (This count is sometimes called Gould's sequence.)
 
-    rowpoints(Y) = 2^(count of 1 bits in Y)
+    rowpoints(Y) = 2^count_1_bits(Y)
 
 For example Y=13 is binary 1101 which has three 1-bits so in row Y=13 there
 are 2^3=8 points.
@@ -759,12 +767,13 @@ triangles and sub-triangles.
 
 =head2 Replication Sizes
 
-Counting the N=0,1,2 part as level 1, each replication level goes from
+Counting the single point N=0 as level=0, then N=0,1,2 as level 1, each
+replication level goes from
 
     Nstart = 0
     Nlevel = 3^level - 1     inclusive
 
-For example level 2 is from N=0 to N=3^2-1=9.  Each level doubles in size,
+For example level 2 is from N=0 to N=3^2-1=8.  Each level doubles in size,
 
                0  <= Y <= 2^level - 1
     - 2^level + 1 <= X <= 2^level - 1
@@ -858,7 +867,7 @@ set.
 
 This bit-and rule is an easy way to test for visited or not visited cells of
 the pattern.  The visited cells can be calculated by this diagonal X,Y
-bit-and, but then plotted X,X+Y for the "right" align or X-Y,X+Y for
+bitand, but then plotted X,X+Y for the "right" align or X-Y,X+Y for
 "triangular".
 
 =head2 Cellular Automaton
@@ -1010,6 +1019,16 @@ alignment it's the same as C<xy_to_n(-$depth,$depth)>.
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 3**$level - 1)>.
+
+=back
+
 =head1 FORMULAS
 
 =head2 X,Y to N
@@ -1125,10 +1144,10 @@ The number of children follows a pattern based on the depth.
       0                2   
 
 If depth is even then all points have 2 children.  For example row depth=6
-has 4 points all with 2 children each.
+has 4 points and all have 2 children each.
 
-At odd depth the number of children is either 1 or 0 according to Noffset
-masked down by the trailing 1-bits of the depth.
+At odd depth the number of children is either 1 or 0 according to the
+Noffset position in the row masked down by the trailing 1-bits of the depth.
 
     depth  = ...011111 in binary, its trailing 1s
 
@@ -1136,10 +1155,10 @@ masked down by the trailing 1-bits of the depth.
             = ...11111   /
             = ...other   num children = 0
 
-For example depth=11 is binary 1011 which has low 1-bits "11".  If those two
-low bits of Noffset are "00" or "11" then 1 child.  Any other bit pattern in
-Noffset ("01" or "10" in this case) is 0 children.  Hence the pattern
-1,0,0,1,1,0,0,1 reading across the depth=11 row.
+For example depth=11 is binary "1011" which has low 1-bits "11".  If those
+two low bits of Noffset are "00" or "11" then 1 child.  Any other bit
+pattern in Noffset ("01" or "10" in this case) is 0 children.  Hence the
+pattern 1,0,0,1,1,0,0,1 reading across the depth=11 row.
 
 In general when the depth doubles the triangle is replicated twice and the
 number of children is carried with the replications, except the middle two
@@ -1171,7 +1190,7 @@ The points in such a row are cousins or second cousins, etc, but none share
 a parent.
 
 In an odd row each parent node (an even row) has 2 children and so each of
-those point has 1 sibling.
+those points has 1 sibling.
 
 The effect is to conflate the NumChildren=1 and NumChildren=0 cases in the
 picture above, those two becoming a single sibling.
@@ -1209,7 +1228,7 @@ to Y=15.
 
 =head1 OEIS
 
-The Sierpinski Triangle is in Sloane's Online Encyclopedia of Integer
+The Sierpinski triangle is in Sloane's Online Encyclopedia of Integer
 Sequences in various forms,
 
 =over

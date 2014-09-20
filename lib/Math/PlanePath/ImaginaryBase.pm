@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -358,6 +358,23 @@ sub _negaradix_range_level {
 }
 
 
+#------------------------------------------------------------------------------
+# levels
+
+# shared by ImaginaryHalf and CubicBase
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, $self->{'radix'}**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, $self->{'radix'});
+  return $exp;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -529,6 +546,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, $radix**$level - 1)>.
 
 =back
 

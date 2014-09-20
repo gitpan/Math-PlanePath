@@ -73,7 +73,7 @@ use Math::PlanePath::KochSquareflakes;
     $prev_len_log = $len_log;
   }
   shift @values;
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
@@ -124,7 +124,7 @@ use Math::PlanePath::KochSquareflakes;
 
     print "level $level start=$start[$coord] max offset $max_offset at N=$max_offset_n (of $nstart to $nend) Y=$max_offset_c\n";
   }
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
@@ -145,7 +145,7 @@ use Math::PlanePath::KochSquareflakes;
     my ($x,$y) = $path->n_to_xy($nstart);
     push @values, -$y;
   }
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }

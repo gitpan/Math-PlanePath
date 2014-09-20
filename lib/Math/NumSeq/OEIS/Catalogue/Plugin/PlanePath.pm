@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
@@ -69,7 +69,7 @@ use constant info_arrayref =>
       'planepath',
       'PyramidSpiral,n_start=0',
       'coordinate_type',
-      'AbsX'
+      'ExperimentalAbsX'
     ]
   },
   {
@@ -381,7 +381,7 @@ use constant info_arrayref =>
       'planepath',
       'Diagonals,x_start=1,y_start=0',
       'coordinate_type',
-      'Numerator'
+      'ExperimentalNumerator'
     ]
   },
   {
@@ -391,7 +391,7 @@ use constant info_arrayref =>
       'planepath',
       'Diagonals,x_start=1,y_start=0',
       'coordinate_type',
-      'Denominator'
+      'ExperimentalDenominator'
     ]
   },
   {
@@ -501,7 +501,7 @@ use constant info_arrayref =>
       'planepath',
       'Diagonals,n_start=0',
       'coordinate_type',
-      'HammingDist'
+      'ExperimentalHammingDist'
     ]
   },
   {
@@ -571,7 +571,7 @@ use constant info_arrayref =>
       'planepath',
       'Diagonals,direction=up,x_start=1,y_start=1',
       'coordinate_type',
-      'Numerator'
+      'ExperimentalNumerator'
     ]
   },
   {
@@ -581,7 +581,7 @@ use constant info_arrayref =>
       'planepath',
       'Diagonals,direction=up,x_start=1,y_start=1',
       'coordinate_type',
-      'Denominator'
+      'ExperimentalDenominator'
     ]
   },
   {
@@ -891,7 +891,7 @@ use constant info_arrayref =>
       'planepath',
       'CornerReplicate',
       'coordinate_type',
-      'HammingDist'
+      'ExperimentalHammingDist'
     ]
   },
   {

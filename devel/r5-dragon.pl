@@ -37,6 +37,45 @@ use MyOEIS;
 # use Smart::Comments;
 
 {
+  # partial fractions
+  require Math::Polynomial;
+  Math::Polynomial->string_config({ascending=>1});
+
+  # dragon JA[k] area
+  # x^4/ ((1 - x - 2*x^3)*(1-x)*(1-2*x))
+  my @numerators = MyOEIS::polynomial_partial_fractions
+    (Math::Polynomial->new(1),         # numerator
+     Math::Polynomial->new(1,-1,0,-2), # 1-x-2*x^3
+     Math::Polynomial->new(1,-1));     # 1-x
+  print "@numerators\n";
+
+  # # dragon A[k] area
+  # # x^4/ ((1 - x - 2*x^3)*(1-x)*(1-2*x))
+  # my @numerators = MyOEIS::polynomial_partial_fractions
+  #   (Math::Polynomial->new(2),         # numerator
+  #    Math::Polynomial->new(1,-1,0,-2), # 1-x-2*x^3
+  #    Math::Polynomial->new(1,-2),      # 1-2*x
+  #    Math::Polynomial->new(1,-1));     # 1-x
+  # print "@numerators\n";
+
+  # # dragon B[k]=R[k+1] total boundary
+  # # (4 + 2 x + 4 x^2)/(1-x-2*x^3) +  (-2)/(1-x)
+  # my @numerators = MyOEIS::polynomial_partial_fractions
+  #   (Math::Polynomial->new(2,0,2),     # numerator reduced 2*x + 2*x^3
+  #    Math::Polynomial->new(1,-1,0,-2), # 1-x-2*x^3
+  #    Math::Polynomial->new(1,-1));     # 1-x
+  # print "@numerators\n";
+
+  # # dragon R right boundary
+  # my @numerators = MyOEIS::polynomial_partial_fractions
+  #   (Math::Polynomial->new(1,0,1,0,2),
+  #    Math::Polynomial->new(1,-1,0,-2),
+  #    Math::Polynomial->new(1,-1));
+  # print "@numerators\n";
+  exit 0;
+}
+
+{
   # convex hull
   # hull 8 new vertices
 
@@ -464,26 +503,7 @@ use MyOEIS;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
-{
-  # partial fractions
-  require Math::Polynomial;
-  Math::Polynomial->string_config({ascending=>1});
 
-  # dragon B total boundary
-  my @numerators = MyOEIS::polynomial_partial_fractions
-    (Math::Polynomial->new(2,0,2),
-     Math::Polynomial->new(1,-1,0,-2),
-     Math::Polynomial->new(1,-1));
-  print "@numerators\n";
-
-  # # dragon R right boundary
-  # my @numerators = MyOEIS::polynomial_partial_fractions
-  #   (Math::Polynomial->new(1,0,1,0,2),
-  #    Math::Polynomial->new(1,-1,0,-2),
-  #    Math::Polynomial->new(1,-1));
-  # print "@numerators\n";
-  exit 0;
-}
 
 {
   # recurrence
@@ -653,7 +673,7 @@ use MyOEIS;
   }
 
   print join(',',@values),"\n";
-  require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
@@ -683,7 +703,7 @@ use MyOEIS;
     print "$count,";
   }
   print "\n";
-  require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }

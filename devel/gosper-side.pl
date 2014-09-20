@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,6 +21,25 @@ use 5.006;
 use strict;
 use warnings;
 use Math::Libm 'M_PI', 'hypot';
+
+{
+  # horizontals have count_1_digits == 0 mod 3
+  # Easts       have count_1_digits == 0 mod 6
+  #
+  require Math::PlanePath::GosperSide;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::GosperSide->new;
+
+  foreach my $n (0 .. 500) {
+    my ($dx,$dy) = $path->n_to_dxdy($n);
+    my $n3 = Math::BaseCnv::cnv($n, 10, 3);
+    # next if $n3 =~ /1/;
+    next if $dy != 0;
+    # next if $dx < 0;
+    print "$n $n3  $dx $dy\n";
+  }
+  exit 0;
+}
 
 {
   # minimum hypot beyond N=3^level

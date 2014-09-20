@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 94;
+plan tests => 114;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::KochPeaks;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::KochPeaks::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochPeaks->VERSION,  $want_version,
@@ -74,6 +74,30 @@ require Math::PlanePath::KochPeaks;
   ok (join(',',@pnames), '');
 }
 
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::KochPeaks->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 1);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 4);
+    ok ($n_hi, 12); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 13);
+    ok ($n_hi, 45); }
+
+  foreach my $level (0 .. 6) {
+    my ($n_lo,$n_hi) = $path->level_to_n_range($level);
+    { my ($x,$y) =  $path->n_to_xy($n_lo);
+      ok ($y, 0, 'level at Y=0'); }
+    { my ($x,$y) =  $path->n_to_xy($n_hi);
+      ok ($y, 0, 'level at Y=0'); }
+  }
+}
 
 #------------------------------------------------------------------------------
 # first few points

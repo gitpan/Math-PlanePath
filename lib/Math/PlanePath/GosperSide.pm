@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -41,7 +41,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -202,6 +203,22 @@ sub rect_to_n_range {
           $self->{'arms'} * 3 ** $level - 1);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 3**$level);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n-1, 3);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -295,6 +312,138 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Fractional C<$n> gives a point on the straight line between integer N.
 
 =back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 3**$level)>.
+
+=back
+
+=head1 FORMULAS
+
+=head2 Level Endpoint
+
+The endpoint of each level N=3^k is at
+
+    X + Y*i*sqrt(3) = b^k
+    where b = 2 + w = 5/2 + sqrt(3)/2*i
+          where w=1/2 + sqrt(3)/2*i sixth root of unity
+
+    X(k) = ( 5*X(k-1) - 3*Y(k-1) )/2        for k>=1
+    Y(k) = (   X(k-1) + 5*Y(k-1) )/2
+           starting X(0)=2 Y(0)=0
+
+    X(k) = 5*X(k-1) - 7*X(k-2)        for k>=2
+           starting X(0)=2 X(1)=5
+         = 2, 5, 11, 20, 23, -25, -286, -1255, -4273, -12580, -32989,..
+
+    Y(k) = 5*Y(k-1) - Y*X(k-2)        for k>=2
+           starting Y(0)=0 Y(1)=1
+         = 0, 1,  5, 18, 55, 149,  360,   757,  1265, 1026, -3725, ...
+                                                            (A099450)
+
+=for Test-Pari-DEFINE  X(k) = if(k==0,2, k==1,5, 5*X(k-1)-7*X(k-2))
+
+=for Test-Pari-DEFINE  Y(k) = if(k==0,0, k==1,1, 5*Y(k-1)-7*Y(k-2))
+
+=for Test-Pari-DEFINE  X_samples = [ 2, 5, 11, 20, 23, -25, -286, -1255, -4273, -12580, -32989 ]
+
+=for Test-Pari-DEFINE  Y_samples = [ 0, 1,  5, 18, 55, 149,  360,   757,  1265, 1026, -3725 ]
+
+=for Test-Pari  vector(length(X_samples),k,my(k=k-1); X(k)) == X_samples
+
+=for Test-Pari  vector(length(Y_samples),k,my(k=k-1); Y(k)) == Y_samples
+
+=for Test-Pari  vector(20,k, X(k)) == vector(20,k, (5*X(k-1)-3*Y(k-1))/2) /* k>=1 */
+
+=for Test-Pari  vector(20,k, Y(k)) == vector(20,k, (X(k-1)+5*Y(k-1))/2)   /* k>=1 */
+
+The curve base figure is XY(k)=XY(k-1)+rot60(XY(k-1))+XY(k-1) giving XY(k) =
+(2+w)^k = b^k where w is the sixth root of unity giving the rotation by +60
+degrees.
+
+The mutual recurrences are similar with the rotation done by (X-3Y)/2,
+(Y+X)/2 per L<Math::PlanePath/Triangular Lattice>.  The separate recurrences
+are found by using the first to get Y(k-1) = -2/3*X(k) + 5/3*X(k-1) and
+substitute into the other to get X(k+1).  Similar the other way around for
+Y(k+1).
+
+=cut
+
+# w=1/2 + sqrt(3)/2*I; b = 2+w
+# nearly(x) = if(abs(x-round(x))<1e-10,round(x),x)
+# Y(k) = nearly(2*imag(b^k/sqrt(3)))
+# vector(20,k,my(k=k-1); Y(k))
+# 0, 1, 5, 18, 55, 149, 360, 757, 1265, 1026, -3725, -25807, -102960, -334151,
+# A099450 Expansion of 1/(1-5x+7x^2).
+
+# X(k) = nearly(2*real(b^k))
+# vector(20,k,my(k=k-1); X(k))
+# 2, 5, 11, 20, 23, -25, -286, -1255, -4273, -12580, -32989, -76885, -153502,
+
+#       *---*  2+w
+#      /
+# *---*
+# X+I*Y = a+b*w
+#       = a+b/2 + sqrt(3)/2*b*i
+# X = a+b/2  Y=sqrt(3)/2*b
+# b=2*Y/sqrt(3)
+# a = X - b = X - 2*Y/sqrt(3)
+#
+# a(k) = X(k) - 2*Y(k)
+# vector(20,k,my(k=k-1); a(k))
+# 2, 3, 1, -16, -87, -323, -1006, -2769, -6803, -14632, -25539, -25271, 52418,
+
+# XY(k) = 2*XY(k-1) + rot60 XY(k-1)
+# X(k) = 2*X(k-1) + (X(k-1) - 3*Y(k-1))/2
+# Y(k) = 2*Y(k-1) + (X(k-1) +   Y(k-1))/2
+#
+# X(k) = (5*X(k-1) - 3*Y(k-1))/2
+# Y(k) = (  X(k-1) + 5*Y(k-1))/2
+# 2 5 11
+# 0 1  5
+#
+# sep
+# Y(k-1) = -2/3*X(k) + 5/3*X(k-1)
+# X(k-1) =   2 *Y(k) -  5 *Y(k-1)
+#
+# subst Y
+# Y(k) = (  X(k-1) + 5*Y(k-1))/2
+# -2/3*X(k+1) + 5/3*X(k) = (  X(k-1) + 5*(-2/3*X(k) + 5/3*X(k-1)))/2
+# -2/3*X(k+1) + 5/3*X(k) = 1/2*X(k-1) + -5/2*2/3*X(k) + 5/2*5/3*X(k-1)
+# -2/3*X(k+1) + 10/3*X(k) =  14/3*X(k-1)
+# X(k+1) = 5*X(k) - 7*X(k-1)
+#
+# subst X
+# X(k) = (5*X(k-1) - 3*Y(k-1))/2
+# 2 *Y(k+1) -  5 *Y(k) = (5*(2 *Y(k) -  5 *Y(k-1)) - 3*Y(k-1))/2
+# 2 *Y(k+1) -  5 *Y(k) = 5*2/2 *Y(k) -  5*5/2 *Y(k-1) - 3/2*Y(k-1)
+# 2 *Y(k+1)  = 10*Y(k) - 14*Y(k-1)
+# Y(k+1)  = 5*Y(k) - 7*Y(k-1)
+# 5*5-7=18
+
+=pod
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+=over
+
+L<http://oeis.org/A099450> (etc)
+
+=back
+
+    A099450   Y at N=3^k (for k>=1)
+
+The turn sequence is the same as the terdragon curve, see
+L<Math::PlanePath::TerdragonCurve/OEIS> for the numerous turn forms, N
+positions of turns, etc.
 
 =head1 SEE ALSO
 

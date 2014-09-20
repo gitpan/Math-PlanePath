@@ -37,10 +37,10 @@
 package Math::PlanePath::CellularRule;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -1140,9 +1140,9 @@ sub _UNDOCUMENTED__rule_to_mirror {
 {
   package Math::PlanePath::CellularRule::Line;
   use strict;
-  use Carp;
+  use Carp 'croak';
   use vars '$VERSION', '@ISA';
-  $VERSION = 116;
+  $VERSION = 117;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1336,7 +1336,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 116;
+  $VERSION = 117;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1421,9 +1421,9 @@ sub _UNDOCUMENTED__rule_to_mirror {
 {
   package Math::PlanePath::CellularRule::OneTwo;
   use strict;
-  use Carp;
+  use Carp 'croak';
   use vars '$VERSION', '@ISA';
-  $VERSION = 116;
+  $VERSION = 117;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1660,9 +1660,9 @@ sub _UNDOCUMENTED__rule_to_mirror {
 {
   package Math::PlanePath::CellularRule::Two;
   use strict;
-  use Carp;
+  use Carp 'croak';
   use vars '$VERSION', '@ISA';
-  $VERSION = 116;
+  $VERSION = 117;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem = \&Math::PlanePath::_divrem;
@@ -1834,7 +1834,7 @@ sub _UNDOCUMENTED__rule_to_mirror {
 
     $n = 2*($n - $self->{'n_start'});  # to N=0 basis, and warn if $n undef
     if ($n < -1) { return; }
-    
+
     my ($y, $x) = _divrem ($n+3, 4);
     if ($y == 0) { $x += $self->{'sign'} - 1; }
     return (($x - $self->{'sign'} - 2)/2 + $y*$self->{'sign'},
@@ -1898,7 +1898,7 @@ __END__
 #     190,246                         CellularRule190
 #     18,26,82,90,146,154,210,218     SierpinskiTriangle n_start=1
 #     151,159,183,191,215,223,247,    PyramidRows step=2
-#       254,222,255                   
+#       254,222,255
 #     220,252                         PyramidRows step=1
 #     206,238                         PyramidRows step=1 left
 #     4,12,36,44,68,76,100,108,132,   Rows width=1
@@ -1906,7 +1906,7 @@ __END__
 
 
 
-=for stopwords Ryde Math-PlanePath PlanePath ie Xmax-Xmin superclass eg
+=for stopwords Ryde Math-PlanePath PlanePath ie Xmax-Xmin superclass eg OEIS
 
 =head1 NAME
 
@@ -2014,12 +2014,12 @@ start at 0,
 
     n_start => 0, rule => 62
 
-    18 19    20 21    22    23 24 25          5      
-       13 14    15 16          17             4    
-           7  8     9 10 11 12                3    
-              4  5        6                   2    
-                 1  2  3                      1    
-                    0                     <- Y=0   
+    18 19    20 21    22    23 24 25          5
+       13 14    15 16          17             4
+           7  8     9 10 11 12                3
+              4  5        6                   2
+                 1  2  3                      1
+                    0                     <- Y=0
 
     -5 -4 -3 -2 -1 X=0 1  2  3  4  5
 

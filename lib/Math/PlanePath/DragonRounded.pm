@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -38,6 +38,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest',
   'floor';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
@@ -262,10 +264,42 @@ sub rect_to_n_range {
           ($xmax*$xmax + $ymax*$ymax + 1) * $self->{'arms'} * 16);
 }
 
+#------------------------------------------------------------------------------
+
+# each 2 points is a line segment, so 2*DragonMidpoint
+# level 0  0--1
+# level 1  0--1 2--3
+# level 2  0--1 2--3 4--5 6--7
+#
+# arms=4
+# level 0  0--3  /  1--4  /  2--5  /  3--7
+# level 1  
+#
+# 2^level segments
+# 2*2^level rounded points
+# arms*2^level when multi-arm
+# numbered starting 0
+#
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 2**($level+1) * $self->{'arms'} - 1);
+}
+
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, 2*$self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 2);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices multi-arm Xadj,Yadj OEIS
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices multi-arm Xadj,Yadj OEIS Xadj
 
 =head1 NAME
 
@@ -279,7 +313,7 @@ Math::PlanePath::DragonRounded -- dragon curve, with rounded corners
 
 =head1 DESCRIPTION
 
-This is a version of the dragon curve by Heighway, Harter, et al, done with
+This is a version of the dragon curve by Harter, Heighway, et al, done with
 two points per edge and skipping vertices so as to make rounded-off corners,
 
                           17-16              9--8                 6
@@ -412,6 +446,21 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2 * 2**$level - 1)>, or for multiple arms return C<(0, $arms *
+2 * 2**$level - 1)>.
+
+There are 2^level segments comprising the dragon, or arms*2^level when
+multiple arms.  Each has 2 points in this rounded curve, numbered starting
+from 0.
 
 =back
 

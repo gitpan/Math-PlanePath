@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -53,7 +53,7 @@ require Math::NumSeq::PlanePathCoord;
 }
 
 #------------------------------------------------------------------------------
-# _coordinate_func_Parity()
+# _coordinate_func_ExperimentalParity()
 
 {
   my $path = MyPlanePath->new;
@@ -61,28 +61,28 @@ require Math::NumSeq::PlanePathCoord;
 
   $path->{'x'} = 0;
   $path->{'y'} = 10;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalParity($seq,0),   0);
 
   $path->{'x'} = -10;
   $path->{'y'} = 0;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalParity($seq,0),   0);
 
   $path->{'x'} = -11;
   $path->{'y'} = 0;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalParity($seq,0),   1);
 
   $path->{'x'} = 1.5;
   $path->{'y'} = 11;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   0.5);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalParity($seq,0),   0.5);
 
   $path->{'x'} = 1.5;
   $path->{'y'} = -20;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   1.5);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalParity($seq,0),   1.5);
 }
 
 #------------------------------------------------------------------------------
-# _coordinate_func_Numerator()
-# _coordinate_func_Denominator()
+# _coordinate_func_ExperimentalNumerator()
+# _coordinate_func_ExperimentalDenominator()
 
 {
   my $path = MyPlanePath->new;
@@ -90,33 +90,33 @@ require Math::NumSeq::PlanePathCoord;
 
   $path->{'x'} = 0;
   $path->{'y'} = 1;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   0);
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalNumerator($seq,0),   0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalDenominator($seq,0), 1);
 
   $path->{'x'} = -2;
   $path->{'y'} = 4;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),  -1);
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 2);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalNumerator($seq,0),  -1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalDenominator($seq,0), 2);
 
   $path->{'x'} = -2;
   $path->{'y'} = -5;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   2);
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 5);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalNumerator($seq,0),   2);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalDenominator($seq,0), 5);
 
   $path->{'x'} = 10;
   $path->{'y'} = 0;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   1);
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalNumerator($seq,0),   1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalDenominator($seq,0), 0);
 
   $path->{'x'} = -10;
   $path->{'y'} = 0;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   -1);
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalNumerator($seq,0),   -1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalDenominator($seq,0), 0);
 
   $path->{'x'} = 0;
   $path->{'y'} = 10;
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   0);
-  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalNumerator($seq,0),   0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_ExperimentalDenominator($seq,0), 1);
 }
 
 #------------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 157;
+plan tests => 165;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiArrowhead;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::SierpinskiArrowhead::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiArrowhead->VERSION,  $want_version,
@@ -69,6 +69,26 @@ require Math::PlanePath::SierpinskiArrowhead;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 0, 'y_negative()');
+}
+
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::SierpinskiArrowhead->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 9); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(3);
+    ok ($n_lo, 0);
+    ok ($n_hi, 27); }
 }
 
 

@@ -37,6 +37,32 @@ my $dragon = Math::PlanePath::DragonCurve->new;
 
 
 #------------------------------------------------------------------------------
+# A003476 Daykin and Tucker alpha[n]
+#   = squares on right boundary, OFFSET=1 values 1, 2, 3, 5
+#   = single points N=0 to N=2^(k-1) inclusive, with initial 1 for k=-1 one point
+#
+#                     *           
+#                     |           
+#   *---*         *---*
+#  
+#   k=0           k=1
+#   singles=2     singles=3
+#
+#   
+
+MyOEIS::compare_values
+  (anum => 'A003476',
+   max_value => 10000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $k = 0; @got < $count; $k++) {
+       push @got, MyOEIS::path_n_to_singles ($dragon, 2**$k);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A121238 - -1 power something is 1=left,-1=right, extra initial 1
 # A088585
 # A088575
@@ -510,21 +536,6 @@ MyOEIS::compare_values
      my @got;
      for (my $k = 4; @got < $count; $k++) {
        push @got, MyOEIS::path_n_to_singles ($dragon, 2**$k - 1);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A003476 single points N=0 to N=2^k inclusive
-
-MyOEIS::compare_values
-  (anum => 'A003476',
-   max_value => 10_000,
-   func => sub {
-     my ($count) = @_;
-     my @got = (1);
-     for (my $k = 0; @got < $count; $k++) {
-       push @got, MyOEIS::path_n_to_singles ($dragon, 2**$k);
      }
      return \@got;
    });

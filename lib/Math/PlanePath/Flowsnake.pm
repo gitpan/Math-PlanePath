@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -53,7 +53,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -354,7 +355,24 @@ sub _WORKING_BUT_SECRET__n_to_turn6 {
   return $turn6[$lowdigit];
 }
 
+#------------------------------------------------------------------------------
+# levels
 
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 7**$level * $self->{'arms'});
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n) - 1;
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 7);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -468,7 +486,7 @@ __END__
     #      \ /
 
 
-=for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath Ns
+=for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath Ns zdigit tdigit
 
 =head1 NAME
 
@@ -682,6 +700,22 @@ C<$n_hi> are the smallest and biggest in the rectangle, but don't rely on
 that yet since finding the exact range is a touch on the slow side.  (The
 advantage of which though is that it helps avoid very big ranges from a
 simple over-estimate.)
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 7**$level)>, or for multiple arms return C<(0, $arms *
+7**$level)>.
+
+There are 7^level + 1 points in a level, numbered starting from 0.  On the
+second and third arms the origin is omitted (so as not to repeat that point)
+and so just 7^level for them, giving 7^level+1 + (arms-1)*7^level =
+arms*7^level + 1 many points starting from 0.
 
 =back
 

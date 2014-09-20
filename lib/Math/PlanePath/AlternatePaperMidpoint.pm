@@ -27,7 +27,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -401,6 +401,14 @@ sub rect_to_n_range {
   return (0, 2*$arms*$len*$len-1);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::DragonMidpoint;
+*level_to_n_range = \&Math::PlanePath::DragonMidpoint::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::DragonMidpoint::n_to_level;
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -542,6 +550,17 @@ integer positions.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2**$level - 1)>, or for multiple arms return C<(0, $arms *
+(2**$level - 1)*$arms)>.  This is the same as the C<DragonMidpoint>.
 
 =back
 

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1236;
+plan tests => 1254;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurve;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::SierpinskiCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurve->VERSION,  $want_version,
@@ -88,6 +88,46 @@ require Math::PlanePath::SierpinskiCurve;
   }
 }
 
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::SierpinskiCurve->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 0); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 15); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(3);
+    ok ($n_lo, 0);
+    ok ($n_hi, 63); }
+}
+{
+  my $path = Math::PlanePath::SierpinskiCurve->new (arms => 2);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 7); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 31); }
+}
+{
+  my $path = Math::PlanePath::SierpinskiCurve->new (arms => 8);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 7); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 31); }
+}
 
 #------------------------------------------------------------------------------
 # rect_to_n_range() samples

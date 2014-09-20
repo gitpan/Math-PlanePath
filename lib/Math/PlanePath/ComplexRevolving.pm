@@ -17,9 +17,6 @@
 
 
 
-# math-image --path=ComplexRevolving --expression='i<128?i:0' --output=numbers --size=132x40
-
-
 package Math::PlanePath::ComplexRevolving;
 use 5.004;
 use strict;
@@ -27,7 +24,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -158,6 +155,23 @@ sub rect_to_n_range {
   return (0, int (32*($xm*$xm + $ym*$ym)));
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 2**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, 2);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -178,6 +192,12 @@ Math::PlanePath::ComplexRevolving -- points in revolving complex base i+1
 X<Knuth, Donald>This path traverses points by a complex number base i+1 with
 turn factor i (+90 degrees) at each 1 bit.  This is the "revolving binary
 representation" of Knuth's Seminumerical Algorithms section 4.1 exercise 28.
+
+=cut
+
+# math-image --path=ComplexRevolving --expression='i<64?i:0' --output=numbers --size=79x30
+
+=pod
 
              54 51       38 35            5
           60 53       44 37               4
@@ -231,6 +251,16 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2**$level - 1)>.
 
 =back
 

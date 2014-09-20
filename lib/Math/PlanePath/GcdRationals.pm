@@ -63,13 +63,13 @@
 package Math::PlanePath::GcdRationals;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 #use List::Util 'min','max';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

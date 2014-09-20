@@ -32,10 +32,10 @@
 package Math::PlanePath::PythagoreanTree;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 *_divrem = \&Math::PlanePath::_divrem;
 @ISA = ('Math::PlanePath');
@@ -1202,7 +1202,7 @@ __END__
 
 
 
-=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's coprime mixed-radix Nrow N-Nrow Liber Quadratorum gnomon gnomons Diophantus Nrem OEIS
+=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's coprime mixed-radix Nrow N-Nrow Liber Quadratorum gnomon gnomons Diophantus Nrem OEIS UArD mirrorings Firstov Semigroup Matematicheskie Zametki semigroup UMT LtoH
 
 =head1 NAME
 
@@ -1245,8 +1245,7 @@ here have triples ordered as A odd and B even.
 
 The trees are traversed breadth-first and tend to go out to rather large A,B
 values while yet to complete smaller ones.  The UAD tree goes out further
-than the FB.  See the author's mathematical write-up for a proof of the UMT
-and that these are the only trees with a fixed set of matrices.
+than the FB.  See the author's mathematical write-up for more properties.
 
 =over
 
@@ -1452,21 +1451,28 @@ digits are interpreted either high to low (the default) or low to high
 
 =head2 FB Tree
 
-X<Price, H. Lee>Option C<tree_type =E<gt> "FB"> selects the Fibonacci boxes
-tree per
+X<Firstov, V. E.>X<Price, H. Lee>Option C<tree_type =E<gt> "FB"> selects a
+tree independently by
 
 =over
+
+V. E. Firstov, "A Special Matrix Transformation
+Semigroup of Primitive Pairs and the Genealogy of Pythagorean Triples",
+Matematicheskie Zametki, 2008, volume 84, number 2, pages 281-299 (in
+Russian), and Mathematical Notes, 2008, volume 84, number 2, pages 263-279
+(in English)
 
 H. Lee Price, "The Pythagorean Tree: A New Species", 2008,
 L<http://arxiv.org/abs/0809.4324> (version 2)
 
 =back
 
-This tree is based on expressing triples in certain "Fibonacci boxes" with a
-box of four values q',q,p,p' having p=q+q' and p'=p+q so each is the sum of
-the preceding two in a fashion similar to the Fibonacci sequence.  A box
-where p and q have no common factor corresponds to a primitive triple.  See
-L</PQ Coordinates> and L</FB Transformations> below.
+Firstov finds this tree by semigroup transformations.  Price finds it by
+expressing triples in certain "Fibonacci boxes" with a box of four values
+q',q,p,p' having p=q+q' and p'=p+q so each is the sum of the preceding two
+in a fashion similar to the Fibonacci sequence.  A box where p and q have no
+common factor corresponds to a primitive triple.  See L</PQ Coordinates> and
+L</FB Transformations> below.
 
     tree_type => "FB"
 
@@ -1516,8 +1522,9 @@ N=2,3,4 are derived, then three more from each of those, etc.
 
 =head2 UMT Tree
 
-Option C<tree_type => "UMT"> is a third type made from a combination of "U"
-from Berggren, "M2" from Price, and a third matrix T.
+X<Firstov, V. E.>Option C<tree_type => "UMT"> is a third tree type by
+Firstov (reference above).  It's a combination of "U", "M2" and a third
+matrix T = M1*D.
 
 =cut
 

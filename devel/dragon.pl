@@ -42,14 +42,549 @@ use Memoize;
 # use Smart::Comments;
 
 
-# A003229 a(n) = a(n-1) + 2*a(n-3). 
-# A003230 Expansion of 1/((1-x)*(1-2*x)*(1-x-2*x^3)). 
-# A003476 a(n) = a(n-1) + 2a(n-3). 
-# A003477 Expansion of 1/((1-2x)(1+x^2)(1-x-2x^3)). 
-# A003478 Expansion of 1/(1-2x)(1-x-2x^3 ). 
-# A003479 Expansion of 1/((1-x)*(1-x-2*x^3)). 
+# A003229 area left side extra over doubling  a(n) = a(n-1) + 2*a(n-3). 
+# A003230 area enclosed          Expansion of 1/((1-x)*(1-2*x)*(1-x-2*x^3)). 
+# A003476 right boundary squares  a(n) = a(n-1) + 2a(n-3). 
+# A003477 area of connected blob Expansion of 1/((1-2x)(1+x^2)(1-x-2x^3)). 
+# A003478 area on left side      Expansion of 1/(1-2x)(1-x-2x^3 ). 
+# A003479 join area              Expansion of 1/((1-x)*(1-x-2*x^3)). 
+# A203175 left boundary squares
 # A227036
+# A077949 join area increments
 
+
+{
+  # N point number which is first to touch the next level
+  # A057744
+
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my @values;
+ LEVEL: foreach my $level (0 .. 8) {
+    my ($n_lo, $n_hi) = $path->level_to_n_range($level);
+    my ($next_n_lo, $next_n_hi) = $path->level_to_n_range($level+1);
+    foreach my $n ($n_lo .. $n_hi) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      my @n_list = $path->xy_to_n_list($x,$y);
+      @n_list == 2 or next;
+      my $n2 = $n_list[1];
+      if ($n_list[0] == $n
+          && $path->n_to_level($n2) == $level+1) {
+        print "level=$level  $n / $n2\n";
+        push @values, $n;
+        next LEVEL;
+      }
+    }
+  }
+  require Math::OEIS::Grep;
+  Math::OEIS::Grep->search(array => \@values, verbose => 1);
+  exit 0;
+}
+
+{
+  # count repeated points
+  # diff 4-term feedback 1/(1-2x)(1-x-2x^3)
+  # = 4*x^4 - 2*x^3 + 2*x^2 - 3*x + 1
+  # total 1/((1-x)*(1-2x)*(1-x-2x^3)).
+
+  # A003476 diff of unrepeated a(n) = a(n-1) + 2a(n-3).
+  # A003479 overlap points by next 2^n section,  x^4
+
+  # position of first/last across 2^k
+  # A155803 A023001 interleaved with 2*A023001 and 4*A023001.
+  # A023001 (8^n - 1)/7.
+  # ternary 100100100
+
+  $|=1;
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $count = 0;
+  my $prev = 0;
+  my $prev_diff = 0;
+  my $last_pos = 0;
+  foreach my $n (0 .. 2**20) {
+    if (is_pow2($n)) {
+      my $diff = $count - $prev;
+      my $diff_diff = $diff - $prev_diff;
+
+      # printf "%d count=%d[%b] diff=%d[%b]   dd=%d\n",
+      #   $n, $count,$count, $diff,$diff, $diff_diff;
+      # print "$n  $count $diff\n";
+      # print "$count,";
+      # print "$diff,";
+      # print "$last_pos,";
+      $prev = $count;
+      $prev_diff = $diff;
+      $last_pos = 0;
+    }
+    my ($x, $y) = $path->n_to_xy ($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    $count += (@n_list == 2 && $n_list[1] >= next_pow2($n));
+    if (@n_list == 2 && $n_list[1] >= next_pow2($n)) {
+      $last_pos = next_pow2($n) - $n;
+      print "$n_list[0] $n_list[1]  at $n  last=$last_pos\n";
+    }
+  }
+  exit 0;
+
+  sub is_pow2 {
+    my ($n) = @_;
+    while ($n > 1) {
+      if ($n & 1) {
+        return 0;
+      }
+      $n >>= 1;
+    }
+    return ($n == 1);
+  }
+  sub next_pow2 {
+    my ($n) = @_;
+    return 2*high_bit($n);
+  }
+}
+
+{
+  # DragonMidpoint abs(dY) sequence
+  # A073089 n=N+2 value = lowbit(N) XOR bit-above-lowest-zero(N)
+  # dX = 1 - A073089  inverse
+
+  require Math::NumSeq::PlanePathDelta;
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => 'DragonMidpoint',
+                                               delta_type => 'dY');
+  my @values;
+  foreach (0 .. 64) {
+    my ($i,$value) = $seq->next;
+    my $p = $i+2;
+    # while ($p && ! ($p&1)) {
+    #   $p/=2;
+    # }
+    my $v = calc_n_midpoint_vert($i+1);
+    printf "%d %d %7b\n", abs($value), $v, $p;
+    push @values, 1-abs($value);
+  }
+  require Math::OEIS::Grep;
+  Math::OEIS::Grep->search(array => \@values, verbose => 1);
+  exit 0;
+}
+{
+  # DragonMidpoint abs(dY) sequence
+  require Math::PlanePath::DragonMidpoint;
+  my $path = Math::PlanePath::DragonMidpoint->new;
+  foreach my $n (0 .. 64) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($nx,$ny) = $path->n_to_xy($n+1);
+    if ($nx == $x) {
+      my $p = $n+2;
+      # while ($p && ! ($p&1)) {
+      #   $p/=2;
+      # }
+      my $v = calc_n_midpoint_vert($n);
+      printf "%d %7b\n", $v, $p;
+    }
+  }
+  exit 0;
+
+  sub calc_n_midpoint_vert {
+    my ($n) = @_;
+    if ($n < 0) { return 0; }
+    my $vert = ($n & 1);
+    my $right = calc_n_turn($n);
+    return ((($vert && !$right)
+             || (!$vert && $right))
+            ? 0
+            : 1);
+  }
+  # return 0 for left, 1 for right
+  sub calc_n_turn {
+    my ($n) = @_;
+    my ($mask,$z);
+    $mask = $n & -$n;          # lowest 1 bit, 000100..00
+    $z = $n & ($mask << 1);    # the bit above it
+    my $turn = ($z == 0 ? 0 : 1);
+    # printf "%b   %b  %b  %d\n", $n,$mask, $z, $turn;
+    return $turn;
+  }
+}
+
+{
+  # direction which curve enters and leaves an X axis point
+  # all 4 arms
+  #
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new (arms => 4);
+
+  my $width = 30;
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0,$width+2,0);
+  my (@enter, @leave);
+  print "n_hi $n_hi\n";
+  for my $n (0 .. $n_hi) {
+    my ($x,$y) = $path->n_to_xy($n);
+
+    if ($y == 0 && $x >= 0) {
+      {
+        my ($nx,$ny) = $path->n_to_xy($n+4);
+        if ($ny > $y) {
+          $leave[$x] .= 'u';
+        }
+        if ($ny < $y) {
+          $leave[$x] .= 'd';
+        }
+        if ($nx > $x) {
+          $leave[$x] .= 'r';
+        }
+        if ($nx < $x) {
+          $leave[$x] .= 'l';
+        }
+      }
+      if ($n >= 4) {
+        my ($px,$py) = $path->n_to_xy($n-4);
+        if ($y > $py) {
+          $enter[$x] .= 'u';
+        }
+        if ($y < $py) {
+          $enter[$x] .= 'd';
+        }
+        if ($x > $px) {
+          $enter[$x] .= 'r';
+        }
+        if ($x < $px) {
+          $enter[$x] .= 'l';
+        }
+      }
+    }
+  }
+  foreach my $x (0 .. $width) {
+    print "$x  ",sort_str($enter[$x]),"  ",sort_str($leave[$x]),"\n";
+  }
+
+  sub sort_str {
+    my ($str) = @_;
+    if (! defined $str) {
+      return '-';
+    }
+    return join ('', sort split //, $str);
+
+  }
+  exit 0;
+}
+
+{
+  # repeat/unrepeat 0,1
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $n (0 .. 256) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    my $num = scalar(@n_list) - 1;
+    print "$num,";
+  }
+  exit 0;
+}
+{
+  # repeat points
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my %seen;
+  my %first;
+  foreach my $n (0 .. 2**10 - 1) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    next unless $n_list[0] == $n;
+    next unless @n_list >= 2;
+    my $dn = abs($n_list[0] - $n_list[1]);
+    ++$seen{$dn};
+    $first{$dn} ||= "$x,$y";
+  }
+
+  foreach my $dn (sort {$a<=>$b} keys %seen) {
+    my $dn2 = sprintf '%b', $dn;
+    print "dN=${dn}[$dn2]  first at $first{$dn}  count $seen{$dn}\n";
+  }
+
+  my @seen = sort {$a<=>$b} keys %seen;
+  print join(',',@seen),"\n";
+  foreach (@seen) { $_ /= 4; }
+  print join(',',@seen),"\n";
+  exit 0;
+}
+
+{
+  # unrepeated points
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $n (0 .. 256) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    next unless @n_list == 1;
+    #printf "%9b\n", $n;
+    print "$n,";
+  }
+  exit 0;
+}
+
+{
+  # area left side = first differences
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $prev = 0;
+  $| = 1;
+  foreach my $k (0 .. 15) {
+    my $a = A_from_path($path,$k);
+    my $al = A_from_path($path,$k) - $prev;
+    print "$al, ";
+    $prev = $a;
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  # boundary squares
+
+  #         k=0                k=1        *      k=2
+  #                                       |
+  #          left=1         *   left=1    *---*   left=2
+  #          right=1        |   right=2       |   right=3
+  #  *---*              *---*             *---*
+  #
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $side ('left',
+                    'right',
+                   ) {
+    my @values;
+    foreach my $k (
+                   # 1,
+                   0 .. 10
+                  ) {
+      my $n_limit = 2**$k;
+      # print "k=$k  n_limit=$n_limit\n";
+      my $points = MyOEIS::path_boundary_points ($path, $n_limit,
+                                                 side => $side,
+                                                );
+      # if ($side eq 'left') {
+      #   @$points = reverse @$points;
+      # }
+      my %seen;
+      my $count_edges  = 0;
+      my $count_squares = 0;
+      foreach my $i (1 .. $#$points) {
+        my $p1 = $points->[$i-1];
+        my $p2 = $points->[$i];
+        my ($x1,$y1) = @$p1;
+        my ($x2,$y2) = @$p2;
+        ### edge: "$x1,$y1 to $x2,$y2"
+        my $dx = $x2-$x1;
+        my $dy = $y2-$y1;
+        my $sx = 2*$x1 + ($dx + $dy);
+        my $sy = 2*$y1 + ($dy - $dx);
+        ### square: "$sx,$sy"
+        $count_edges++;
+        if (! $seen{"$sx,$sy"}++) {
+          $count_squares++;
+        }
+      }
+      print "k=$k edges=$count_edges squares=$count_squares\n";
+      push @values, $count_squares;
+    }
+
+    # shift @values; shift @values; shift @values; shift @values;
+    require Math::OEIS::Grep;
+    Math::OEIS::Grep->search(array=>\@values);
+  }
+  exit 0;
+}
+
+{
+  # convex hull iterations
+  #
+  require Math::Geometry::Planar;
+  my $points = [ [0,0], [1,0], [1,1] ];
+  my $nx = 1;
+  my $ny = 1;
+  foreach my $k (1 .. 20) {
+    ($nx,$ny) = ($nx-$ny, $ny+$nx); # add rotate +90
+    my $num_points = scalar(@$points);
+    print "k=$k  nxy=$nx,$ny  count=$num_points\n";
+
+    my @new_points = @$points;
+    foreach my $p (@$points) {
+      my ($x,$y) = @$p;
+      ($x,$y) = ($y,-$x);  # rotate -90
+      $x += $nx;
+      $y += $ny;
+      print "  $x,$y";
+      push @new_points, [ $nx + $x, $ny + $y ];
+    }
+    print "\n";
+    $points = \@new_points;
+
+    # foreach my $i (0 .. $#new_points) {
+    #   my $p = $new_points[$i];
+    #   my ($x,$y) = @$p;
+    # }
+
+    my $planar = Math::Geometry::Planar->new;
+    $planar->points($points);
+    $planar = $planar->convexhull2;
+    $points = $planar->points;
+
+    next if @$points < 10;
+
+    my $max_i = 0;
+    my $max_p = $points->[0];
+    foreach my $j (1 .. $#$points) {
+      if ($points->[$j]->[0] > $max_p->[0]
+          || ($points->[$j]->[0] == $max_p->[0]
+              && $points->[$j]->[1] < $max_p->[1])) {
+        $max_i = $j;
+        $max_p = $points->[$j];
+      }
+    }
+    $points = points_sort_by_dir($points, [$nx,$ny]);
+    foreach my $i (0 .. $#$points) {
+      my $p = $points->[$i - $max_i];
+      my ($x,$y) = @$p;
+      print "  $x,$y";
+    }
+    print "\n";
+  }
+  exit 0;
+
+  sub points_sort_by_dir {
+    my ($points, $point_start) = @_;
+    ### $points
+    require Math::NumSeq::PlanePathDelta;
+    my $start = Math::NumSeq::PlanePathDelta::_dxdy_to_dir4(@$point_start) + 0;
+    return [ sort {
+      my $a_dir = (Math::NumSeq::PlanePathDelta::_dxdy_to_dir4(@$a) + $start) % 4;
+      my $b_dir = (Math::NumSeq::PlanePathDelta::_dxdy_to_dir4(@$b) + $start) % 4;
+      $a_dir <=> $b_dir
+    } @$points ];
+  }
+}
+
+{
+  # mean X,Y
+  # at 2/5 - 1/5*i relative to endpoint
+
+  require Math::Complex;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my @values;
+  foreach my $k (0 .. 30) {
+    my ($n_start, $n_end) = $path->level_to_n_range($k);
+    my $x_total = 0;
+    my $y_total = 0;
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      $x_total += $x;
+      $y_total += $y;
+    }
+    my ($x_end,$y_end) = $path->n_to_xy($n_end);
+    $x_total -= $x_end/2;
+    $y_total -= $y_end/2;
+    my $total = 2**$k;
+    my $x = $x_total / $total;
+    my $y = $y_total / $total;
+    my $f = Math::Complex->make($x,$y);
+    my $rot = Math::Complex::root(1,8,$k);
+    my $div = Math::Complex->make($x_end,$y_end);
+    my $fr = $f / $div;
+    print "k=$k X=$x_total Y=$y_total x=$x y=$y\n";
+    print "    f=$f rot=$rot div=$div  $fr\n";
+    print "    fr=$fr\n";
+    push @values, $y_total;
+  }
+  shift @values; shift @values; shift @values; shift @values;
+  require Math::OEIS::Grep;
+  Math::OEIS::Grep->search(array=>\@values);
+  exit 0;
+}
+{
+  # mean X,Y by replication
+  #
+  # 1/2 --- 1/2    = .5, 0
+  #
+  #        1/2    X = (1+1/2) / 2 = 3/4
+  #         |     Y = 1/2  / 2    = 1/4
+  # 1/2 --- 1    
+
+  my $fx = 0;
+  my $fy = 0;
+  for my $k (0 .. 40) {
+    my ($ax,$ay) = (($fx + $fy)/sqrt(2),    # rotate -45
+                    ($fy - $fx)/sqrt(2));
+
+    my ($bx,$by) = ((-$fx + $fy)/sqrt(2) + 1,    # rotate -135
+                    (-$fy - $fx)/sqrt(2));
+
+    print "$fx $fy     $ax $ay  $bx $by\n";
+    ($fx,$fy) = ($ax/2 + $bx/2,
+                 $ay/2 + $by/2);
+  }
+  exit 0;
+}
+
+
+{
+  # fractal convex hull Benedek and Panzone
+  # perimeter 4.12927310015371
+  # = (9 + sqrt(13) + sqrt(26) + 5*sqrt(2)) / 6
+  #
+  require Math::BigRat;
+  require Math::Geometry::Planar;
+  my $polygon = Math::Geometry::Planar->new;
+  my $points = [ [Math::BigRat->new('2/3')->copy, Math::BigRat->new('2/3')->copy],
+                 [Math::BigRat->new('0')->copy, Math::BigRat->new('2/3')->copy],
+                 [Math::BigRat->new('-1/3')->copy, Math::BigRat->new('1/3')->copy],
+                 [Math::BigRat->new('-1/3')->copy, Math::BigRat->new('0')->copy],
+                 [Math::BigRat->new('-1/6')->copy, Math::BigRat->new('-1/6')->copy],
+                 [Math::BigRat->new('2/3')->copy, Math::BigRat->new('-1/3')->copy],
+                 [Math::BigRat->new('1')->copy, Math::BigRat->new('-1/3')->copy],
+                 [Math::BigRat->new('7/6')->copy, Math::BigRat->new('-1/6')->copy],
+                 [Math::BigRat->new('7/6')->copy, Math::BigRat->new('0')->copy],
+                 [Math::BigRat->new('5/6')->copy, Math::BigRat->new('3/6')->copy],
+               ];
+  $polygon->points($points);
+  print "area = ",$polygon->area,"\n";
+  print "perimeter = ",$polygon->perimeter,"\n";
+  my %root;
+  foreach my $i (0 .. $#$points) {
+    my $hsquared = ($points->[$i]->[0] - $points->[$i-1]->[0])**2
+      + ($points->[$i]->[1] - $points->[$i-1]->[1])**2;
+    $hsquared *= 36;
+    my $root = square_free_part($hsquared);
+    my $factor = sqrt($hsquared / $root);
+    $root{$root} ||= 0;
+    $root{$root} += $factor;
+    print "$hsquared  $root $factor\n";
+  }
+  foreach my $root (keys %root) {
+    print "$root{$root} * sqrt($root)\n";
+  }
+
+  print "\nminrectangle\n";
+  my $minrect = $polygon->minrectangle;
+  my $p = $minrect->points;
+  print "$p->[0]->[0],$p->[0]->[1]  $p->[1]->[0],$p->[1]->[1]  $p->[2]->[0],$p->[2]->[1]  $p->[3]->[0],$p->[3]->[1]\n";
+  print "area = ",$minrect->area,"\n";
+  print "perimeter = ",$minrect->perimeter,"\n";
+
+  exit 0;
+
+  sub square_free_part {
+    my ($n) = @_;
+    my $ret = 1;
+    for (my $p = 2; $p <= $n; $p++) {
+      while ($n % ($p*$p) == 0) {
+        $n /= ($p*$p);
+      }
+      if ($n % $p == 0) {
+        $ret *= $p;
+        $n /= $p;
+      }
+    }
+    return $ret;
+  }      
+}
 {
   # (i-1)^k
   use lib 'xt';
@@ -303,14 +838,14 @@ use Memoize;
 
   sub Ba2_from_path {
     my ($path, $k) = @_;
-    my ($n_start, $n_end) = $path->_UNDOCUMENTED_level_to_n_range($k);
+    my ($n_start, $n_end) = $path->level_to_n_range($k);
     my $points = MyOEIS::path_boundary_points($path, $n_end);
     print join(" ", map{"$_->[0],$_->[1]"} @$points),"\n";
     return scalar(@$points);
   }
   sub Aa2_from_path {
     my ($path, $k) = @_;
-    my ($n_start, $n_end) = $path->_UNDOCUMENTED_level_to_n_range($k);
+    my ($n_start, $n_end) = $path->level_to_n_range($k);
     return MyOEIS::path_enclosed_area($path, $n_end);
   }
 
@@ -928,7 +1463,7 @@ use Memoize;
   }
   while ($values[0] < 20) { shift @values };
   print join(',',@values),"\n";
-  require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
@@ -1095,7 +1630,7 @@ use Memoize;
       print "duplicate $value\n";
     }
   }
-  require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
 
   foreach my $i (0 .. $#values) {
@@ -1131,111 +1666,10 @@ use Memoize;
   $lo->disconnect("Finished...");
   exit 0;
 }
-{
-  # count repeated points
-  # diff 4-term feedback 1/(1-2x)(1-x-2x^3)
-  # = 4*x^4 - 2*x^3 + 2*x^2 - 3*x + 1
-  # total 1/((1-x)*(1-2x)*(1-x-2x^3)).
-
-  # A003476 diff of unrepeated a(n) = a(n-1) + 2a(n-3).
-  # A003479 overlap points by next 2^n section,  x^4
-
-  # position of first/last across 2^k
-  # A155803 A023001 interleaved with 2*A023001 and 4*A023001.
-  # A023001 (8^n - 1)/7.
-  # ternary 100100100
-
-  $|=1;
-  require Math::PlanePath::DragonCurve;
-  my $path = Math::PlanePath::DragonCurve->new;
-  my $count = 0;
-  my $prev = 0;
-  my $prev_diff = 0;
-  my $last_pos = 0;
-  foreach my $n (0 .. 2**20) {
-    if (is_pow2($n)) {
-      my $diff = $count - $prev;
-      my $diff_diff = $diff - $prev_diff;
-
-      # printf "%d count=%d[%b] diff=%d[%b]   dd=%d\n",
-      #   $n, $count,$count, $diff,$diff, $diff_diff;
-      # print "$n  $count $diff\n";
-      # print "$count,";
-      # print "$diff,";
-      # print "$last_pos,";
-      $prev = $count;
-      $prev_diff = $diff;
-      $last_pos = 0;
-    }
-    my ($x, $y) = $path->n_to_xy ($n);
-    my @n_list = $path->xy_to_n_list($x,$y);
-    $count += (@n_list == 2 && $n_list[1] >= next_pow2($n));
-    if (@n_list == 2 && $n_list[1] >= next_pow2($n)) {
-      $last_pos = next_pow2($n) - $n;
-       print "$n_list[0] $n_list[1]  at $n  last=$last_pos\n";
-    }
-  }
-  exit 0;
-
-  sub is_pow2 {
-    my ($n) = @_;
-    while ($n > 1) {
-      if ($n & 1) {
-        return 0;
-      }
-      $n >>= 1;
-    }
-    return ($n == 1);
-  }
-  sub next_pow2 {
-    my ($n) = @_;
-    return 2*high_bit($n);
-  }
-}
 
 
 
-{
-  # unrepeated points
-  require Math::PlanePath::DragonCurve;
-  my $path = Math::PlanePath::DragonCurve->new;
-  foreach my $n (0 .. 256) {
-    my ($x, $y) = $path->n_to_xy ($n);
-    my @n_list = $path->xy_to_n_list($x,$y);
-    next unless @n_list == 1;
-    printf "%9b\n", $n;
-    #print "$n,";
-  }
-  exit 0;
-}
 
-{
-  # repeat points
-  require Math::PlanePath::DragonCurve;
-  my $path = Math::PlanePath::DragonCurve->new;
-  my %seen;
-  my %first;
-  foreach my $n (0 .. 2**10 - 1) {
-    my ($x, $y) = $path->n_to_xy ($n);
-    my @n_list = $path->xy_to_n_list($x,$y);
-    next unless $n_list[0] == $n;
-    next unless @n_list >= 2;
-    my $dn = abs($n_list[0] - $n_list[1]);
-    ++$seen{$dn};
-    $first{$dn} ||= "$x,$y";
-  }
-
-  foreach my $dn (sort {$a<=>$b} keys %seen) {
-    my $dn2 = sprintf '%b', $dn;
-    print "dN=${dn}[$dn2]  first at $first{$dn}  count $seen{$dn}\n";
-  }
-
-  my @seen = sort {$a<=>$b} keys %seen;
-  print join(',',@seen),"\n";
-  foreach (@seen) { $_ /= 4; }
-  print join(',',@seen),"\n";
-  exit 0;
-}
 
 # {
 #   # X,Y recurrence n = 2^k + rem
@@ -2483,7 +2917,7 @@ sub high_bit {
 
 
 {
-  # A088431
+  # A088431 run lengths
   require Math::ContinuedFraction;
   require Math::BigInt;
   require Math::BigRat;
@@ -2666,63 +3100,6 @@ sub high_bit {
     }
   }
   exit 0;
-}
-
-
-{
-  # DragonMidpoint abs(dY) sequence
-  require Math::NumSeq::PlanePathDelta;
-  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => 'DragonMidpoint',
-                                               delta_type => 'dY');
-  foreach (0 .. 64) {
-    my ($i,$value) = $seq->next;
-    my $p = $i+2;
-    # while ($p && ! ($p&1)) {
-    #   $p/=2;
-    # }
-    my $v = calc_n_midpoint_vert($i+1);
-    printf "%d %d %7b\n", abs($value), $v, $p;
-  }
-  exit 0;
-}
-{
-  # DragonMidpoint abs(dY) sequence
-  require Math::PlanePath::DragonMidpoint;
-  my $path = Math::PlanePath::DragonMidpoint->new;
-  foreach my $n (0 .. 64) {
-    my ($x,$y) = $path->n_to_xy($n);
-    my ($nx,$ny) = $path->n_to_xy($n+1);
-    if ($nx == $x) {
-      my $p = $n+2;
-      # while ($p && ! ($p&1)) {
-      #   $p/=2;
-      # }
-      my $v = calc_n_midpoint_vert($n);
-      printf "%d %7b\n", $v, $p;
-    }
-  }
-  exit 0;
-
-  sub calc_n_midpoint_vert {
-    my ($n) = @_;
-    if ($n < 0) { return 0; }
-    my $vert = ($n & 1);
-    my $right = calc_n_turn($n);
-    return ((($vert && !$right)
-             || (!$vert && $right))
-            ? 0
-            : 1);
-  }
-  # return 0 for left, 1 for right
-  sub calc_n_turn {
-    my ($n) = @_;
-    my ($mask,$z);
-    $mask = $n & -$n;          # lowest 1 bit, 000100..00
-    $z = $n & ($mask << 1);    # the bit above it
-    my $turn = ($z == 0 ? 0 : 1);
-    # printf "%b   %b  %b  %d\n", $n,$mask, $z, $turn;
-    return $turn;
-  }
 }
 
 
@@ -2982,65 +3359,7 @@ sub high_bit {
 }
 
 
-{
-  # x axis absolute direction
-  require Math::PlanePath::DragonCurve;
-  my $path = Math::PlanePath::DragonCurve->new (arms => 4);
 
-  my $width = 30;
-  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0,$width+2,0);
-  my (@enter, @leave);
-  print "n_hi $n_hi\n";
-  for my $n (0 .. $n_hi) {
-    my ($x,$y) = $path->n_to_xy($n);
-
-    if ($y == 0 && $x >= 0) {
-      {
-        my ($nx,$ny) = $path->n_to_xy($n+4);
-        if ($ny > $y) {
-          $leave[$x] .= 'u';
-        }
-        if ($ny < $y) {
-          $leave[$x] .= 'd';
-        }
-        if ($nx > $x) {
-          $leave[$x] .= 'r';
-        }
-        if ($nx < $x) {
-          $leave[$x] .= 'l';
-        }
-      }
-      if ($n >= 4) {
-        my ($px,$py) = $path->n_to_xy($n-4);
-        if ($y > $py) {
-          $enter[$x] .= 'u';
-        }
-        if ($y < $py) {
-          $enter[$x] .= 'd';
-        }
-        if ($x > $px) {
-          $enter[$x] .= 'r';
-        }
-        if ($x < $px) {
-          $enter[$x] .= 'l';
-        }
-      }
-    }
-  }
-  foreach my $x (0 .. $width) {
-    print "$x  ",sort_str($enter[$x]),"  ",sort_str($leave[$x]),"\n";
-  }
-
-  sub sort_str {
-    my ($str) = @_;
-    if (! defined $str) {
-      return '-';
-    }
-    return join ('', sort split //, $str);
-
-  }
-  exit 0;
-}
 
 
 {
@@ -3445,27 +3764,6 @@ sub high_bit {
     return ($n % 2);
   }
 
-  exit 0;
-}
-
-{
-  # BigFloat log()
-  use Math::BigFloat;
-  my $b = Math::BigFloat->new(3)**64;
-  my $log = log($b);
-  my $log3 = $log/log(3);
-  # $b->blog(undef,100);
-  print "$b\n$log\n$log3\n";
-  exit 0;
-}
-{
-  # BigInt log()
-  use Math::BigInt;
-  use Math::BigFloat;
-  my $b = Math::BigInt->new(1025);
-  my $log = log($b);
-  $b->blog(undef,100);
-  print "$b $log\n";
   exit 0;
 }
 

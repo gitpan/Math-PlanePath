@@ -77,13 +77,13 @@
 package Math::PlanePath::FactorRationals;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 use List::Util 'min';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -552,7 +552,7 @@ sub _limit {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf McCrimmon Freilich Yoram Sagher negabinary Denumerability
+=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf McCrimmon Freilich Yoram Sagher negabinary Denumerability revbinary Niven
 
 =head1 NAME
 

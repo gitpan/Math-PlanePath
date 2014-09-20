@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 335;
+plan tests => 347;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::FlowsnakeCentres;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::FlowsnakeCentres::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FlowsnakeCentres->VERSION,  $want_version,
@@ -74,6 +74,34 @@ require Math::PlanePath::FlowsnakeCentres;
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::FlowsnakeCentres->parameter_info_list;
   ok (join(',',@pnames), 'arms');
+}
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 0); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 6); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 48); }  # 1*49 numbered 9 onwards so 49-1 = 48
+}
+{
+  my $path = Math::PlanePath::FlowsnakeCentres->new (arms => 3);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 2); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 20); }  # 3*7 numbered 0 onwards so 3*7-1 = 20
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 146); }  # 3*49 numbered 0 onwards so 3*49-1 = 146
 }
 
 #------------------------------------------------------------------------------

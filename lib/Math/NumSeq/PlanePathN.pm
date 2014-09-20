@@ -24,11 +24,11 @@
 package Math::NumSeq::PlanePathN;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1705,7 +1705,7 @@ sub values_max {
       'radix=2,digit_order=YXnX' =>
       { Y_axis   => 'A033045',  # base 8 digits 0,1 only
         # OEIS-Other: A033045 planepath=ImaginaryHalf,digit_order=YXnX line_type=Y_axis
-      }
+      },
     };
 }
 # { package Math::PlanePath::CubicBase;
@@ -2697,7 +2697,7 @@ sub values_max {
   # 4^3*3 = 192                 150 +27 = 3^3
 
   use constant _NumSeq_N_oeis_anum =>
-    { 'n_start=1' =>
+    { 'parts=1,n_start=1' =>
       { Depth_end => 'A151920', # 3^count1bits(n), OFFSET=0 1,2,5,6,9
         # OEIS-Catalogue: A151920 planepath=UlamWarburtonQuarter line_type=Depth_end
       },

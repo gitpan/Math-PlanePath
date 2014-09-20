@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -34,7 +34,25 @@ use Math::PlanePath::UlamWarburtonQuarter;
 #use Smart::Comments '###';
 
 #------------------------------------------------------------------------------
-# A147610 - 3^(count 1-bits), width of depth level
+# A079318 - (3^(count 1-bits) + 1)/2, width of octant row
+#   extra initial 1 in A079318
+
+foreach my $parts ('octant','octant_up') {
+  MyOEIS::compare_values
+      (anum => 'A079318',
+       func => sub {
+         my ($count) = @_;
+         my $path = Math::PlanePath::UlamWarburtonQuarter->new(parts=>$parts);
+         my @got = (1);
+         for (my $depth = 0; @got < $count; $depth++) {
+           push @got, $path->tree_depth_to_width($depth);
+         }
+         return \@got;
+       });
+}
+
+#------------------------------------------------------------------------------
+# A147610 - 3^(count 1-bits), width of parts=1 row
 
 MyOEIS::compare_values
   (anum => 'A147610',
@@ -42,12 +60,8 @@ MyOEIS::compare_values
      my ($count) = @_;
      my $path = Math::PlanePath::UlamWarburtonQuarter->new;
      my @got;
-     my $prev_depth = 0;
-     my $count = 0;
      for (my $depth = 0; @got < $count; $depth++) {
-       push @got,
-         $path->tree_depth_to_n($depth+1)
-           - $path->tree_depth_to_n($depth);
+       push @got, $path->tree_depth_to_width($depth);
      }
      return \@got;
    });

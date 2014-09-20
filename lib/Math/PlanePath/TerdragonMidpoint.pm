@@ -31,7 +31,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,7 +39,9 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_join_lowtohigh';
+  'digit_join_lowtohigh',
+  'round_down_pow';
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -452,6 +454,29 @@ sub rect_to_n_range {
           * $self->{'arms'});
 }
 
+#-----------------------------------------------------------------------------
+# level_to_n_range()
+
+# 3^level segments, one midpoint each
+# arms*3^level when multi-arm
+# numbered starting 0
+#
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0,
+          3**$level * $self->{'arms'} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 3);
+  return $exp + 1;
+}
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -651,6 +676,20 @@ integer positions.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 3**$level - 1)>, or for multiple arms return C<(0, $arms *
+3**$level - 1)>.
+
+There are 3^level segments comprising the terdragon, or arms*3^level when
+multiple arms, numbered starting from 0.
 
 =back
 

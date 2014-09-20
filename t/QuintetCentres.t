@@ -20,14 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 345;
+plan tests => 357;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::QuintetCentres;
 
@@ -36,7 +36,7 @@ require Math::PlanePath::QuintetCentres;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::QuintetCentres::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::QuintetCentres->VERSION,  $want_version,
@@ -71,6 +71,34 @@ require Math::PlanePath::QuintetCentres;
   ok ($path->y_negative, 1, 'y_negative()');
 }
 
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::QuintetCentres->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 0); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 4); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 24); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(3);
+    ok ($n_lo, 0);
+    ok ($n_hi, 124); }
+}
+{
+  my $path = Math::PlanePath::QuintetCentres->new (arms => 4);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 19); }  # 4*5 -1
+}
 
 #------------------------------------------------------------------------------
 # first few points

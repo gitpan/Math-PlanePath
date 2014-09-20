@@ -2158,7 +2158,7 @@ X[4i+3] =   b[4i+3] + f[4i+3] = d[4i+1] + d[4i-3]
     push @values, $n2;
     printf "$n1 xy=$x1,$y1    $n2 xy=$x2,$y2     %b %b\n", $n1, $n2;
   }
-  require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
@@ -2206,7 +2206,7 @@ X[4i+3] =   b[4i+3] + f[4i+3] = d[4i+1] + d[4i-3]
     my $n_list_str = join(',',@n_list);
     printf "$k $n_limit  xy=$x,$y   $n_list_str  %b\n", $n_list[0];
   }
-  require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
@@ -2226,7 +2226,7 @@ X[4i+3] =   b[4i+3] + f[4i+3] = d[4i+1] + d[4i-3]
     push @values, $n2;
     printf "$n1 xy=$x1,$y1    $n2 xy=$x2,$y2     %b %b\n", $n1, $n2;
   }
-  require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
@@ -2296,7 +2296,7 @@ X[4i+3] =   b[4i+3] + f[4i+3] = d[4i+1] + d[4i-3]
     }
   }
 
-  require MyOEIS;
+  require Math::OEIS::Grep;
   # Math::OEIS::Grep->search(array => \@w_min, name => "w_min");
   # Math::OEIS::Grep->search(array => \@h_min);
   # Math::OEIS::Grep->search(array => \@w_max);

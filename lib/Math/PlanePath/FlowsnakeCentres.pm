@@ -30,7 +30,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -40,7 +40,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest',
   'xy_is_even';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'round_down_pow';
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
@@ -641,6 +642,27 @@ sub rect_to_n_range {
   return ($n_lo, $n_hi);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+# level 7^k points
+# or arms*7^k
+# counting from 0
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 7**$level * $self->{'arms'} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n) - 1;
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n+1, 7);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -903,6 +925,20 @@ C<$n_hi> are the smallest and biggest in the rectangle, but don't rely on
 that yet since finding the exact range is a touch on the slow side.  (The
 advantage of which though is that it helps avoid very big ranges from a
 simple over-estimate.)
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 7**$level - 1)>, or for multiple arms return C<(0, $arms *
+7**$level - 1)>.
+
+There are 7^level points in a level, or arms*7^level for multiple arms,
+numbered starting from 0.
 
 =back
 

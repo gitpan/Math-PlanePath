@@ -45,7 +45,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -286,10 +286,28 @@ sub _UNDOCUMENTED_level_to_figure_boundary {
   }
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, $self->{'norm'}**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, $self->{'norm'});
+  return $exp + 1;
+}
+
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie 0xC 0,1,0xC,0xD OEIS ACM
+=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie 0xC 0,1,0xC,0xD OEIS ACM abcde Xnew Ynew Realpart characterises
 
 =head1 NAME
 
@@ -437,6 +455,17 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 C<$n> should be an integer, it's unspecified yet what will be done for a
 fraction.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2**$level - 1)>, or with C<realpart> option return C<(0,
+$norm**$level - 1)> where norm=realpart^2+1.
 
 =back
 

@@ -31,7 +31,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -236,6 +236,24 @@ sub rect_to_n_range {
           * $self->{'arms'});
 }
 
+#-----------------------------------------------------------------------------
+# level_to_n_range()
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, (5**$level - 1) * $self->{'arms'});
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 5);
+  return $exp + 1;
+}
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -358,6 +376,20 @@ integer positions.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 5**$level - 1)>, or for multiple arms return C<(0, $arms *
+5**$level - 1)>.
+
+There are 5^level segments comprising the curve, or arms*5^level when
+multiple arms, numbered starting from 0.
 
 =back
 

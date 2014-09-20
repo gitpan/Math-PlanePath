@@ -60,7 +60,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -71,7 +71,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh',
-  'digit_join_lowtohigh';
+  'digit_join_lowtohigh',
+  'round_down_pow';
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
@@ -399,10 +400,25 @@ sub rect_to_n_range {
 #     (sqrt(2)*$x1, sqrt(2)*$y1, sqrt(2)*$x2, sqrt(2)*$y2);
 # }
 
+#------------------------------------------------------------------------------
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 2**$level * $self->{'arms'} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 2);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
-
-
 
 
 # wider drawn arms ...
@@ -490,7 +506,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al bignum Xadj,Yadj lookup OEIS 0b.zz111 0b..zz11 ie tilingsearch
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al bignum Xadj,Yadj lookup OEIS 0b.zz111 0b..zz11 ie tilingsearch Xadj
 
 =head1 NAME
 
@@ -736,6 +752,20 @@ integer positions.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2**$level - 1)>, or for multiple arms return C<(0, $arms *
+2**$level - 1)>.
+
+There are 2^level segments comprising the dragon, or arms*2^level when
+multiple arms, numbered starting from 0.
 
 =back
 

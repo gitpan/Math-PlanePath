@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -585,6 +585,23 @@ sub _apply_max {
   }
 }
 
+#------------------------------------------------------------------------------
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 4**$level * $self->{'arms'} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n) + ($self->{'arms'} - 1);
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 4);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -600,7 +617,7 @@ __END__
 # #   ..03332 ..03333
 # #   ..13332 ..13333
 # #   ..23332 ..23333
-# 
+#
 # my @lowdigit_to_dir = (1,-2, 1, 0);
 # my @digit_to_dir    = (0, 2,-2, 0);
 # my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
@@ -611,35 +628,35 @@ __END__
 # sub _WORKING_BUT_HAIRY__n_to_dxdy {
 #   my ($self, $n) = @_;
 #   ### n_to_dxdy(): $n
-# 
+#
 #   if ($n < 0) {
 #     return;  # first direction at N=0
 #   }
 #   if (is_infinite($n)) {
 #     return ($n,$n);
 #   }
-# 
+#
 #   my $int = int($n);
 #   $n -= $int;
 #   my @digits = digit_split_lowtohigh($int,4);
 #   ### @digits
-# 
+#
 #   # strip low 3s
 #   my $any_low3s;
 #   while (($digits[0]||0) == 3) {
 #     shift @digits;
 #     $any_low3s = 1;
 #   }
-# 
+#
 #   my $dir8 = $lowdigit_to_dir[$digits[0] || 0];
 #   $dir8 += sum(0, map {$digit_to_dir[$_]} @digits);
 #   $dir8 &= 7;
 #   my $dx = $dir8_to_dx[$dir8];
 #   my $dy = $dir8_to_dy[$dir8];
-# 
+#
 #   if ($n) {
 #     # fraction part
-# 
+#
 #     if ($any_low3s) {
 #       $dir8 += $digit_to_nextturn2[$digits[0]||0];
 #     } else {
@@ -797,32 +814,67 @@ axis.)
 
 =head2 Level Ranges
 
-Counting the N=0 to N=3 as level=1, N=0 to N=15 as level 2, etc, the end of
-each level, back at the X axis, is
+Counting the N=0 point as level=0, and with each level being 4 copies of the
+previous, the levels end at
 
-    Nlevel = 4^level - 1
-    Xlevel = 3*2^level - 2
+    Nlevel = 4^level - 1     = 0, 3, 15, ...
+    Xlevel = 3*2^level - 2   = 1, 4, 10, ...
     Ylevel = 0
 
-For example level=2 is Nend = 2^(2*2)-1 = 15 at X=3*2^2-2 = 10.
+For example level=2 is Nlevel = 2^(2*2)-1 = 15 at X=3*2^2-2 = 10.
 
-The top of each level is half way along,
+=for Test-Pari-DEFINE  Nlevel(level) = 4^level - 1
 
-    Ntop = (4^level)/2 - 1
-    Xtop = 3*2^(level-1) - 1
-    Ytop = 3*2^(level-1) - 2
+=for Test-Pari-DEFINE  Xlevel(level) = 3*2^level - 2
 
-For example level=3 is Ntop = 2^(2*3-1)-1 = 31 at X=3*2^(3-1)-1 = 11 and
-Y=3*2^(3-1)-2 = 10.
+=for Test-Pari  Nlevel(0) == 0
+
+=for Test-Pari  Nlevel(1) == 3
+
+=for Test-Pari  Nlevel(2) == 15
+
+=for Test-Pari  Xlevel(0) == 1
+
+=for Test-Pari  Xlevel(1) == 4
+
+=for Test-Pari  Xlevel(2) == 10
+
+Doubling a level is the middle of the next level and is the top of the
+triangle in that next level.
+
+    Ntop = 2*4^level - 1               = 1, 7, 31, ...
+    Xtop = 3*2^level - 1               = 2, 5, 11, ...
+    Ytop = 3*2^level - 2  = Xlevel     = 1, 4, 10, ...
+
+For example doubling level=2 is Ntop = 2*4^2-1 = 31 at X=3*2^2-1 = 11 and
+Y=3*2^2-2 = 10.
+
+=for Test-Pari-DEFINE  Ntop(level) = 2*4^level - 1
+
+=for Test-Pari-DEFINE  Xtop(level) = 3*2^level - 1
+
+=for Test-Pari-DEFINE  Ytop(level) = 3*2^level - 2
+
+=for Test-Pari  2*4^2-1 == 31
+
+=for Test-Pari  Ntop(2) == 31
+
+=for Test-Pari  X=3*2^2-1 == 11
+
+=for Test-Pari  Xtop(2) == 11
+
+=for Test-Pari  3*2^2-2 == 10
+
+=for Test-Pari  Ytop(2) == 10
 
 The factor of 3 arises from the three steps which make up the N=0,1,2,3
 section.  The Xlevel width grows as
 
     Xlevel(1) = 3
-    Xlevel(level+1) = 2*Xwidth(level) + 3
+    Xlevel(level) = 2*Xwidth(level-1) + 3
 
-which dividing out the factor of 3 is 2*w+1, given 2^k-1 (in binary a left
-shift and bring in a new 1 bit, giving 2^k-1).
+which dividing out the factor of 3 is 2*w+1, giving 2^k-1 (in binary a left
+shift and bring in a new 1 bit).
 
 Notice too the Nlevel points as a fraction of the triangular area
 Xlevel*(Xlevel-1)/2 gives the 4 out of 9 points filled,
@@ -833,41 +885,45 @@ Xlevel*(Xlevel-1)/2 gives the 4 out of 9 points filled,
 =head2 Arms
 
 The optional C<arms> parameter can draw multiple curves, each advancing
-successively.  For example C<arms =E<gt> 2>,
+successively.  For example 2 arms,
 
-                                  ...
-                                   |
-       33       39       57       63         11
-      /  \     /  \     /  \     /
-    31    35-37    41 55    59-61    62-..   10
-      \           /     \           /
-       29       43       53       60          9
-        |        |        |        |
-       27       45       51       58          8
-      /           \     /           \
-    25    21-19    47-49    50-52    56       7
-      \  /     \           /     \  /
-       23       17       48       54          6
-                 |        |
-        9       15       46       40          5
-      /  \     /           \     /  \
-     7    11-13    14-16    44-42    38       4
-      \           /     \           /
-        5       12       18       36          3
-        |        |        |        |
-        3       10       20       34          2
-      /           \     /           \
-     1     2--4     8 22    26-28    32       1
-         /     \  /     \  /     \  /
-        0        6       24       30      <- Y=0
 
-     ^
-    X=0 1  2  3  4  5  6  7  8  9 10 11
+    arms => 2                            ...
+                                          |
+    11  |     33       39       57       63
+        |    /  \     /  \     /  \     /
+    10  |  31    35-37    41 55    59-61    62-...
+        |    \           /     \           /
+     9  |     29       43       53       60
+        |      |        |        |        |
+     8  |     27       45       51       58
+        |    /           \     /           \
+     7  |  25    21-19    47-49    50-52    56
+        |    \  /     \           /     \  /
+     6  |     23       17       48       54
+        |               |        |
+     5  |      9       15       46       40
+        |    /  \     /           \     /  \
+     4  |   7    11-13    14-16    44-42    38
+        |    \           /     \           /
+     3  |      5       12       18       36
+        |      |        |        |        |
+     2  |      3       10       20       34
+        |    /           \     /           \
+     1  |   1     2--4     8 22    26-28    32
+        |       /     \  /     \  /     \  /
+    Y=0 |      0        6       24       30
+        |
+        +-----------------------------------------
+            ^
+           X=0 1  2  3  4  5  6  7  8  9 10 11
 
 The N=0 point is at X=1,Y=0 (in all arms forms) so that the second arm is
 within the first quadrant.
 
-1 to 8 arms can be done this way.  C<arms=E<gt>8> is as follows.
+1 to 8 arms can be done this way.  For example 8 arms are
+
+    arms => 8
 
            ...                       ...           6
             |                          |
@@ -902,7 +958,7 @@ within the first quadrant.
 
 The middle "." is the origin X=0,Y=0.  It would be more symmetrical to make
 the origin the middle of the eight arms, at X=-0.5,Y=-0.5 in the above, but
-that would give fractional X,Y values.  Apply an offset with X+0.5,Y+0.5 to
+that would give fractional X,Y values.  Apply an offset X+0.5,Y+0.5 to
 centre it if desired.
 
 =head2 Spacing
@@ -936,9 +992,12 @@ each is 1.
    X=0  1   2   3   4   5   6   7   8   9  10  11  12  13 ...
 
 
-The effect is only to spread the points.  In the level formulas above the
-"3" factor becomes 2*d+s, effectively being the N=0 to N=3 section sized as
-d+s+d.
+The effect is only to spread the points.  The straight lines are both
+horizontal and vertical so when they're stretched the curve remains on a 45
+degree angle in an eighth of the plane.
+
+In the level formulas above the "3" factor becomes 2*d+s, effectively being
+the N=0 to N=3 section sized as d+s+d.
 
     d = diagonal_spacing
     s = straight_spacing
@@ -978,35 +1037,77 @@ ever greater self-similar detail,
     \/ \/ \/ \/ \/ \/ \/ \/
 
 The code here might be pressed into use for this by drawing a mirror image
-of the curve N=0 through Nlevel (above).  Or using the C<arms=E<gt>2> form
-N=0 to N=4^level, inclusive, and joining up the ends.
+of the curve N=0 through Nlevel.  Or using the C<arms=E<gt>2> form N=0 to
+N=4^level - 1, inclusive, and joining up the ends.
 
 The curve is also usually conceived as scaling down by quarters.  This can
 be had with C<straight_spacing =E<gt> 2> and then an offset to X+1,Y+1 to
 centre in a 4*2^level square
 
-=head2 Koch Curve
+=head2 Koch Curve Midpoints
 
 The replicating structure is the same as the Koch curve
-(L<Math::PlanePath::KochCurve>), in that the curve repeats four times to
-make the next level,
+(L<Math::PlanePath::KochCurve>) in that the curve repeats four times to make
+the next level.
 
-    Koch Curve           Sierpinski Curve
-                          (mirror image)
+The Sierpinski curve points are midpoints of a Koch curve of 90 degree
+angles with a unit gap between verticals.
 
-                               | |
-         / \                   | |
-        /   \                  | |
-    ---       ---           ---   ---
+     Koch Curve                  Koch Curve
+                          90 degree angles, unit gap
 
-The turns in the Sierpinski curve are by 90 degrees and 180 degrees, done in
-two steps 45+45=90 when turning right or 90+90=180 when turning left.
+           /\                       |  |
+          /  \                      |  |
+         /    \                     |  |
+    -----      -----          ------    ------
 
-The turn sequence left or right is the same as the Koch curve
-(L<Math::PlanePath::KochCurve/N to Turn>) except the Sierpinski curve makes
-each turn in two steps, and mirrored to swap LE<lt>-E<gt>R.  For example the
-Koch curve starts with Left at N=1 which for the Sierpinski curve becomes
-two turns Right,Right at N=1,N=2.
+=cut
+
+=pod
+
+   Sierpinski curve points "*" as midpoints
+
+                      |  |
+                      7  8
+                      |  |
+               ---6---    ---9---
+
+               ---5---    --10---
+           |  |       |  |       |  |
+           1  2       4  11     13  14
+           |  |       |  |       |  |
+    ---0---    ---3---    --12---    --15---
+
+
+=head2 Koch Curve Rounded
+
+The Sierpinski curve in mirror image across the X=Y diagonal and rotated -45
+degrees is pairs of points on the lines of the Koch curve 90 degree angles
+unit gap from above.
+
+    Sierpinski curve mirror image and turn -45 degrees
+    two points on each Koch line segment
+
+                          15   16
+                           |    |
+                          14   17
+
+                  12--13   .    .   18--19
+
+                  11--10   .    .   21--20
+
+           3   4           9   22            27   28
+           |   |           |    |             |    |
+           2   5           8   23            26   29
+
+    0---1  .   .   6---7   .    .   24--25    .    .   30--31
+
+This is a kind of "rounded" form of the 90-degree Koch, similar what
+C<DragonRounded> does for the C<DragonCurve>.  Each 90 turn of the Koch
+curve is done by two turns of 45 degrees in the Sierpinski curve here, and
+each 180 degree turn in the Koch is two 90 degree turns here.  So the
+Sierpinski turn sequence is pairs of the Koch turn sequence, as follows.
+The mirroring means a swap leftE<lt>-E<gt>right between the two.
 
            N=1    2    3    4    5     6      7      8
     Koch     L    R    L    L    L     R      L      R     ...
@@ -1040,14 +1141,28 @@ Return 0, the first N in the path.
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 4**$level - 1)>, or for multiple arms return C<(0, $arms *
+4**$level - 1)>.
+
+There are 4^level points in a level, or arms*4^level when multiple arms,
+numbered starting from 0.
+
+=back
+
 =head1 FORMULAS
 
 =head2 N to dX,dY
 
-The curve direction at an even N can be calculated from the base-4 digits of
+The curve direction at N even can be calculated from the base-4 digits of
 N/2 in a fashion similar to the Koch curve (L<Math::PlanePath::KochCurve/N
-to Direction>).  Counting direction in eighths so 0=east, 1=north-east,
-2=north, etc,
+to Direction>).  Counting direction in eighths so 0=East, 1=North-East,
+2=North, etc,
 
     digit     direction
     -----     ---------
@@ -1057,6 +1172,7 @@ to Direction>).  Counting direction in eighths so 0=east, 1=north-east,
       3           0
 
     direction = 1 + sum direction[base-4 digits of N/2]
+      for N even
 
 For example the direction at N=10 has N/2=5 which is "11" in base-4, so
 direction = 1+(-2)+(-2) = -3 = south-west.
@@ -1067,12 +1183,13 @@ digit direction is flipped, so a subtract instead of add,
 
     direction
     mirrored  = 1 - sum direction[base-4 digits of N/2]
+       for N even
 
 For odd N=2k+1 the direction at N=2k is calculated and then also the turn
 which is made from N=2k to N=2(k+1).  This is similar to the Koch curve next
 turn (L<Math::PlanePath::KochCurve/N to Next Turn>).
 
-   lowest non-3     next turn
+   lowest non-3      next turn
    digit of N/2   (at N=2k+1,N=2k+2)
    ------------   ----------------
         0           -1 (right)
@@ -1083,10 +1200,10 @@ Again the turn is in eighths, so -1 means -45 degrees (to the right).  For
 example at N=14 has N/2=7 which is "13" in base-4 so lowest non-3 is "1"
 which is turn +2, so at N=15 and N=16 turn by 90 degrees left.
 
-   N=2k or 2k+1
 
    direction = 1 + sum direction[base-4 digits of k]
                  + if N odd then nextturn[low-non-3 of k]
+     for N=2k or 2k+1
 
    dX,dY = direction to 1,0 1,1 0,1 etc
 
@@ -1124,12 +1241,12 @@ straight or diagonal so
        etc
 
 As an alternative, it's possible to take just base-4 digits of N, without
-separate handling for the low-bit of N, but it requires an adjustment for on
-the low base-4 digit, and the next turn calculation for fractional N becomes
-hairier.  A little state table could no doubt encode the cumulative and
-lowest whatever if desired, to take N by base-4 digits high to low, or
-equivalently by bits high to low with an initial state based on high bit at
-an odd or even bit position.
+separate handling for the low-bit of N, but it requires an adjustment on the
+low base-4 digit, and the next turn calculation for fractional N becomes
+hairier.  A little state table could encode the cumulative and lowest
+whatever if desired, to take N by base-4 digits high to low, or equivalently
+by bits high to low with an initial state based on high bit at an odd or
+even bit position.
 
 =head1 OEIS
 

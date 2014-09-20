@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -384,6 +384,23 @@ sub rect_to_n_range {
     }
   }
 }
+
+#------------------------------------------------------------------------------
+
+# ENHANCE-ME: is this good?
+#
+# Points which are on alternate X and Y axes
+# n=0    
+#  0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144
+#        ^        ^          ^           ^
+#        0        4         20          88
+# F(2+3*level)
+# or F(2+6*level) to go X axis each time
+#
+# sub level_to_n_range {
+#   my ($self, $level) = @_;
+#   return (0, F(2+3*$level)-1);
+# }
 
 1;
 __END__

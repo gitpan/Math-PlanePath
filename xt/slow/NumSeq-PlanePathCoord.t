@@ -404,6 +404,15 @@ my @modules = (
 
                # module list begin
 
+               'UlamWarburton,parts=octant',
+               'UlamWarburton,parts=octant_up',
+               'UlamWarburton',
+               'UlamWarburton,parts=2',
+               'UlamWarburton,parts=1',
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,parts=octant_up',
+               'UlamWarburtonQuarter,parts=octant',
+
                'WythoffPreliminaryTriangle',
                'WythoffArray',
                'WythoffArray,x_start=1',
@@ -1055,11 +1064,6 @@ my @modules = (
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
-
-               'UlamWarburton',
-               'UlamWarburton,parts=2',
-               'UlamWarburton,parts=1',
-               'UlamWarburtonQuarter',
 
                'CubicBase',
 

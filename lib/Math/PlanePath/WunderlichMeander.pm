@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -333,6 +333,14 @@ sub rect_to_n_range {
   return ($n_min, $n_max);
 }
 
+#-----------------------------------------------------------------------------
+# level_to_n_range()
+
+use Math::PlanePath::SquareReplicate;
+*level_to_n_range = \&Math::PlanePath::SquareReplicate::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::SquareReplicate::n_to_level;
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -429,6 +437,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 9**$level - 1)>.
 
 =back
 

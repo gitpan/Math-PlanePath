@@ -49,7 +49,7 @@ use Smart::Comments;
     my $pn = $perm->ith($n);
     push @values, $seq->ith($n);
   }
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }

@@ -26,12 +26,12 @@
 package Math::PlanePath::GrayCode;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -367,6 +367,14 @@ sub _digits_from_gray_modular {
   }
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::ZOrderCurve;
+*level_to_n_range = \&Math::PlanePath::ZOrderCurve::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::ZOrderCurve::n_to_level;
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -659,6 +667,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =item C<$n = $path-E<gt>n_start ()>
 
 Return the first N on the path, which is 0.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, $radix**(2*$level) - 1)>.
 
 =back
 

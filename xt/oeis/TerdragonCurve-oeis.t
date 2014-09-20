@@ -47,6 +47,37 @@ sub ternary_digit_above_low_zeros {
 }
 
 #------------------------------------------------------------------------------
+# A057682 level X
+# A057083 level Y
+
+foreach my $elem (['A057682', 1, 0, 0, [0,1]],  # X
+                  ['A057083', 1, 1, 1, []   ],  # Y
+
+                  ['A057681', 2, 0, 0, [1,1]],   # X arms=2
+                  ['A103312', 2, 0, 0, [0,1,1]], # X arms=2
+                  ['A057682', 2, 1, 0, [0]  ],   # Y arms=2
+
+                  ['A057681', 3, 1, 0, [1,1]],   # Y arms=3
+                  ['A103312', 3, 1, 0, [0,1,1]], # Y arms=3
+                 ) {
+  my ($anum, $arms, $coord, $initial_level, $initial_got) = @$elem;
+  my $path = Math::PlanePath::TerdragonCurve->new (arms => $arms);
+  MyOEIS::compare_values
+      (anum => $anum,
+       func => sub {
+         my ($count) = @_;
+         require Math::BigInt;
+         my @got = @$initial_got;
+         for (my $k = $initial_level; @got < $count; $k++) {
+           my ($n_lo,$n_hi) = $path->level_to_n_range(Math::BigInt->new($k));
+           my @coords = $path->n_to_xy($n_hi);
+           push @got, $coords[$coord];
+         }
+         return \@got;
+       });
+}
+
+#------------------------------------------------------------------------------
 # A092236 etc counts of segments in direction
 
 foreach my $elem ([1, 'A057083', [],  1],

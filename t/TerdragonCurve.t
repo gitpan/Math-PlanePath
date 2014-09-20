@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 943;
+plan tests => 630;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::TerdragonCurve;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::TerdragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TerdragonCurve->VERSION,  $want_version,
@@ -62,97 +62,33 @@ require Math::PlanePath::TerdragonCurve;
 }
 
 #------------------------------------------------------------------------------
-# left boundary N
+# level_to_n_range()
 
 {
   my $path = Math::PlanePath::TerdragonCurve->new;
-
-  # examples in the POD
-  ok ($path->_UNDOCUMENTED__left_boundary_i_to_n(8),
-     50);
-
-  my $i = 0;
-  my $ni = $path->_UNDOCUMENTED__left_boundary_i_to_n($i);
-  foreach my $n (0 .. 3**4-1) {
-    my ($x1,$y1) = $path->n_to_xy($n);
-    my ($x2,$y2) = $path->n_to_xy($n+1);
-    my $want_pred = path_triangular_xyxy_is_left_boundary($path, $x1,$y1, $x2,$y2) ? 1 : 0;
-    my $got_pred = $path->_UNDOCUMENTED__n_segment_is_left_boundary($n) ? 1 : 0;
-    ok ($want_pred, $got_pred, "n=$n pred want $want_pred got $got_pred");
-    ok (($n == $ni) == $want_pred, 1, "n=$n ni=$ni want_pred=$want_pred");
-
-    if ($n >= $ni) {
-      $i++;
-      $ni = $path->_UNDOCUMENTED__left_boundary_i_to_n($i);
-    }
-  }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 9); }
 }
-
-# return true if line segment $x1,$y1 to $x2,$y2 is on the left boundary
-# of triangular path $path
-sub path_triangular_xyxy_is_left_boundary {
-  my ($path, $x1,$y1, $x2,$y2) = @_;
-  my $dx = $x2-$x1;
-  my $dy = $y2-$y1;
-  my $x3 = $x1 + ($dx-3*$dy)/2;   # dx,dy rotate +60 so left
-  my $y3 = $y1 + ($dy+$dx)/2;
-  ### path_triangular_xyxy_is_right_boundary(): "$x1,$y1  $x2,$y2   $x3,$y3"
-  return (! path_xyxy_is_traversed ($path, $x1,$y1, $x3,$y3)
-          || ! path_xyxy_is_traversed ($path, $x2,$y2, $x3,$y3));
-}
-
-
-#------------------------------------------------------------------------------
-# right boundary N
 {
-  my $path = Math::PlanePath::TerdragonCurve->new;
-  my $i = 0;
-  my $ni = $path->_UNDOCUMENTED__right_boundary_i_to_n($i);
-  foreach my $n (0 .. 3**4-1) {
-    my ($x1,$y1) = $path->n_to_xy($n);
-    my ($x2,$y2) = $path->n_to_xy($n+1);
-    my $want_pred = path_triangular_xyxy_is_right_boundary($path, $x1,$y1, $x2,$y2) ? 1 : 0;
-    my $got_pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n) ? 1 : 0;
-    ok ($want_pred, $got_pred, "n=$n pred want $want_pred got $got_pred");
-    ok (($n == $ni) == $want_pred, 1);
-
-    if ($n >= $ni) {
-      $i++;
-      $ni = $path->_UNDOCUMENTED__right_boundary_i_to_n($i);
-    }
-  }
+  my $path = Math::PlanePath::TerdragonCurve->new (arms => 5);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, (3**0 + 1)*5 - 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, (3**1 + 1)*5 - 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, (3**2 + 1)*5 - 1); }
 }
 
-# return true if line segment $x1,$y1 to $x2,$y2 is on the right boundary
-# of triangular path $path
-sub path_triangular_xyxy_is_right_boundary {
-  my ($path, $x1,$y1, $x2,$y2) = @_;
-  my $dx = $x2-$x1;
-  my $dy = $y2-$y1;
-  my $x3 = $x1 + ($dx+3*$dy)/2;   # dx,dy rotate -60 so right
-  my $y3 = $y1 + ($dy-$dx)/2;
-  ### path_triangular_xyxy_is_right_boundary(): "$x1,$y1  $x2,$y2   $x3,$y3"
-  return (! path_xyxy_is_traversed ($path, $x1,$y1, $x3,$y3)
-          || ! path_xyxy_is_traversed ($path, $x2,$y2, $x3,$y3));
-}
-
-# return true if line segment $x1,$y1 to $x2,$y2 is traversed,
-# ie. consecutive N goes from $x1,$y1 to $x2,$y2, in either direction.
-sub path_xyxy_is_traversed {
-  my ($path, $x1,$y1, $x2,$y2) = @_;
-  ### path_xyxy_is_traversed(): "$x1,$y1, $x2,$y2"
-  my $arms = $path->arms_count;
-  foreach my $n1 ($path->xy_to_n_list($x1,$y1)) {
-    foreach my $n2 ($path->xy_to_n_list($x2,$y2)) {
-      if (abs($n1-$n2) == $arms) {
-        ### yes: "$n1 to $n2"
-        return 1;
-      }
-    }
-  }
-  ### no ...
-  return 0;
-}
 
 #------------------------------------------------------------------------------
 # xy_to_n_list()

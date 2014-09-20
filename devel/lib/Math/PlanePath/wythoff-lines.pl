@@ -34,13 +34,12 @@ use Math::PlanePath::WythoffLines;
 }
 
 {
-  use lib 'xt';
-  require MyOEIS;
   my @values;
   for (my $shift = 8; $shift < 28; $shift += 2) {
     push @values, Math::PlanePath::WythoffLines::_calc_minimum($shift);
   }
   print join(',',@values),"\n";
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array=>\@values);
   exit 0;
 }

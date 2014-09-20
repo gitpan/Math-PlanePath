@@ -54,24 +54,15 @@ use Math::PlanePath;
       my ($x1,$y1) = $path->n_to_xy($n);
       my ($x2,$y2) = $path->n_to_xy($n + $arms);
       my $want_pred = path_xyxy_is_right_boundary($path, $x1,$y1, $x2,$y2) ? 1 : 0;
-      {
+      foreach my $method
+        ('_UNDOCUMENTED__n_segment_is_right_boundary',
+         'main::n_segment_is_right_boundary__by_digitpairs_allowed',
+         'main::n_segment_is_right_boundary__by_digitpairs_disallowed',
+         'main::n_segment_is_right_boundary_by_hightolow_states',
+        ) {
         my $got_pred = $path->_UNDOCUMENTED__n_segment_is_right_boundary($n) ? 1 : 0;
         unless ($want_pred == $got_pred) {
-          MyTestHelpers::diag ("oops, _UNDOCUMENTED__n_segment_is_right_boundary() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
-          last if $bad++ > 10;
-        }
-      }
-      {
-        my $got_pred = n_segment_is_right_boundary__by_digitpairs($path,$n) ? 1 : 0;
-        unless ($want_pred == $got_pred) {
-          MyTestHelpers::diag ("oops, n_segment_is_right_boundary__by_digitpairs() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
-          last if $bad++ > 10;
-        }
-      }
-      {
-        my $got_pred = n_segment_is_right_boundary_by_hightolow_states($path,$n) ? 1 : 0;
-        unless ($want_pred == $got_pred) {
-          MyTestHelpers::diag ("n_segment_is_right_boundary_by_hightolow_states(), n_segment_is_right_boundary__by_digitpairs() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
+          MyTestHelpers::diag ("oops, $method() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
           last if $bad++ > 10;
         }
       }
@@ -99,24 +90,52 @@ BEGIN {
   }
 }
 BEGIN {
-  my @table
-    = ([     1, undef, 1, 1, 1 ],  # 00, 02, 03, 04
-       undef,
-       [     1                 ],  # 20
-       [                       ],  # 3 none
-       [ undef, undef, 1, 1, 1 ],  # 4
+  my @allowed_pairs
+    = ([ 1, '', 1, 1, 1 ],  # 00, __, 02, 03, 04  0s all allowed
+       '',                  # 1s deleted
+       [ 1, '', 0, 0, 0 ],  # 20, __, __, __, __
+       [ 0, '', 0, 0, 0 ],  # __, __, __, __, __  3s none allowed
+       [ 0, '', 1, 1, 1 ],  # __, __, 42, 43, 44
       );
-  sub n_segment_is_right_boundary__by_digitpairs {
+  my @disallowed_pairs
+    = ([ 0, '', 0, 0, 0 ],  # __, __, __, __, __  0s none disallowed
+       '',                  # 1s deleted
+       [ 0, '', 1, 1, 1 ],  # __, __, 22, 23, 24
+       [ 1, '', 1, 1, 1 ],  # 30, __, 32, 33, 34  3s all disallowed
+       [ 1, '', 0, 0, 0 ],  # 40, __, __, __, __
+      );
+  sub n_segment_is_right_boundary__by_digitpairs_disallowed {
     my ($self, $n) = @_;
     ### n_segment_is_right_boundary__by_digitpairs(): "n=$n"
-    if (_divrem_mutate($n, $self->{'arms'})) {
-      return 0;
-    }
     my $prev = 0;
+    if (_divrem_mutate($n, $self->{'arms'})) {
+      # FIXME: is this right ?
+      $prev = 4;
+    }
     foreach my $digit (reverse digit_split_lowtohigh($n,5)) { # high to low
       next if $digit == 1;
       ### pair: "$prev $digit   table=".($table[$prev][$digit] || 0)
-      unless ($table[$prev][$digit]) {
+      if ($disallowed_pairs[$prev][$digit]) {
+        ### no ...
+        return 0;
+      }
+      $prev = $digit;
+    }
+    ### yes ...
+    return 1;
+  }
+  sub n_segment_is_right_boundary__by_digitpairs_allowed {
+    my ($self, $n) = @_;
+    ### n_segment_is_right_boundary__by_digitpairs(): "n=$n"
+    my $prev = 0;
+    if (_divrem_mutate($n, $self->{'arms'})) {
+      # FIXME: is this right ?
+      $prev = 4;
+    }
+    foreach my $digit (reverse digit_split_lowtohigh($n,5)) { # high to low
+      next if $digit == 1;
+      ### pair: "$prev $digit   table=".($table[$prev][$digit] || 0)
+      if (! $allowed_pairs[$prev][$digit]) {
         ### no ...
         return 0;
       }
@@ -141,14 +160,144 @@ sub path_xyxy_is_right_boundary {
           || ! path_xyxy_is_traversed ($path, $x1+$dx,$y1+$dy, $x2+$dx,$y2+$dy));
 }
 
+#------------------------------------------------------------------------------
+# left boundary N
+
+{
+  my $bad = 0;
+  foreach my $arms (1) {
+    my $path = Math::PlanePath::R5DragonCurve->new (arms => $arms);
+    my $i = 0;
+    foreach my $level (0 .. 7) {
+      my ($n_start, $n_end) = $path->level_to_n_range($level);
+      foreach my $n ($n_start .. $n_end-1) {
+        my ($x1,$y1) = $path->n_to_xy($n);
+        my ($x2,$y2) = $path->n_to_xy($n + $arms);
+        my $want_pred = path_xyxy_is_left_boundary($path, $x1,$y1, $x2,$y2, $level) ? 1 : 0;
+        {
+          my $got_pred = $path->_UNDOCUMENTED__n_segment_is_left_boundary($n, $level) ? 1 : 0;
+          unless ($want_pred == $got_pred) {
+            MyTestHelpers::diag ("oops, _UNDOCUMENTED__n_segment_is_left_boundary() arms=$arms level=$level n=$n pred traverse=$want_pred method=$got_pred");
+            last if $bad++ > 10;
+          }
+        }
+      }
+    }
+  }
+  ok ($bad, 0);
+  exit 0;
+}
+{
+  my $bad = 0;
+  foreach my $arms (1) {
+    my $path = Math::PlanePath::R5DragonCurve->new (arms => $arms);
+    my $i = 0;
+    foreach my $n (0 .. 5**7-1) {
+      my ($x1,$y1) = $path->n_to_xy($n);
+      my ($x2,$y2) = $path->n_to_xy($n + $arms);
+      my $want_pred = path_xyxy_is_left_boundary($path, $x1,$y1, $x2,$y2) ? 1 : 0;
+      {
+        my $got_pred = $path->_UNDOCUMENTED__n_segment_is_left_boundary($n) ? 1 : 0;
+        unless ($want_pred == $got_pred) {
+          MyTestHelpers::diag ("oops, _UNDOCUMENTED__n_segment_is_left_boundary() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
+          last if $bad++ > 10;
+        }
+      }
+      # {
+      #   my $got_pred = n_segment_is_left_boundary__by_digitpairs($path,$n) ? 1 : 0;
+      #   unless ($want_pred == $got_pred) {
+      #     MyTestHelpers::diag ("oops, n_segment_is_left_boundary__by_digitpairs() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
+      #     last if $bad++ > 10;
+      #   }
+      # }
+      # {
+      #   my $got_pred = n_segment_is_left_boundary_by_hightolow_states($path,$n) ? 1 : 0;
+      #   unless ($want_pred == $got_pred) {
+      #     MyTestHelpers::diag ("n_segment_is_left_boundary_by_hightolow_states(), n_segment_is_left_boundary__by_digitpairs() arms=$arms n=$n pred traverse=$want_pred method=$got_pred");
+      #     last if $bad++ > 10;
+      #   }
+      # }
+    }
+  }
+  ok ($bad, 0);
+}
+
+BEGIN {
+  my @table
+    = (undef,
+       [    1, 1, 2, 3, 4 ],   # R -> RRCDE
+       [    1, 2          ],   # C -> RC___
+       [undef, 3          ],   # D -> _D___
+       [undef, 4, 2, 3, 4 ],   # E -> _ECDE
+      );
+
+  sub n_segment_is_left_boundary_by_hightolow_states {
+    my ($self, $n) = @_;
+    my $state = 1;
+    foreach my $digit (reverse digit_split_lowtohigh($n,5)) { # high to low
+      $state = $table[$state][$digit] || return 0;
+    }
+    return 1;
+  }
+}
+BEGIN {
+  my @table
+    = ([     1, undef, 1, 1, 1 ],  # 00, 02, 03, 04
+       undef,
+       [     1                 ],  # 20
+       [                       ],  # 3 none
+       [ undef, undef, 1, 1, 1 ],  # 4
+      );
+  sub n_segment_is_left_boundary__by_digitpairs {
+    my ($self, $n) = @_;
+    ### n_segment_is_left_boundary__by_digitpairs(): "n=$n"
+    my $prev = 0;
+    {
+      my $arms = $self->{'arms'};
+      if (_divrem_mutate($n, $arms) != $arms-1) {
+        $prev = 1;
+      }
+    }
+    foreach my $digit (reverse digit_split_lowtohigh($n,5)) { # high to low
+      next if $digit == 1;
+      ### pair: "$prev $digit   table=".($table[$prev][$digit] || 0)
+      unless ($table[$prev][$digit]) {
+        ### no ...
+        return 0;
+      }
+      $prev = $digit;
+    }
+    ### yes ...
+    return 1;
+  }
+}
+
+# return true if line segment $x1,$y1 to $x2,$y2 is on the left boundary
+sub path_xyxy_is_left_boundary {
+  my ($path, $x1,$y1, $x2,$y2, $level) = @_;
+  ### path_xyxy_is_left_boundary() ...
+  my $dx = $x2-$x1;
+  my $dy = $y2-$y1;
+  ($dx,$dy) = (-$dy,$dx); # rotate +90
+  ### one: "$x1,$y1 to ".($x1+$dx).",".($y1+$dy)
+  ### two: "$x2,$y2 to ".($x2+$dx).",".($y2+$dy)
+  return (! path_xyxy_is_traversed ($path, $x1,$y1, $x1+$dx,$y1+$dy, $level)
+          || ! path_xyxy_is_traversed ($path, $x2,$y2, $x2+$dx,$y2+$dy, $level)
+          || ! path_xyxy_is_traversed ($path, $x1+$dx,$y1+$dy, $x2+$dx,$y2+$dy, $level));
+}
+
 # return true if line segment $x1,$y1 to $x2,$y2 is traversed,
 # ie. consecutive N goes from $x1,$y1 to $x2,$y2, in either direction.
 sub path_xyxy_is_traversed {
-  my ($path, $x1,$y1, $x2,$y2) = @_;
+  my ($path, $x1,$y1, $x2,$y2, $level) = @_;
   ### path_xyxy_is_traversed(): "$x1,$y1, $x2,$y2"
   my $arms = $path->arms_count;
+  my $n_limit;
+  if (defined $level) { $n_limit = 5**$level; }
   foreach my $n1 ($path->xy_to_n_list($x1,$y1)) {
+    next if defined $n_limit && $n1 >= $n_limit;
     foreach my $n2 ($path->xy_to_n_list($x2,$y2)) {
+      next if defined $n_limit && $n2 >= $n_limit;
       if (abs($n1-$n2) == $arms) {
         ### yes: "$n1 to $n2"
         return 1;

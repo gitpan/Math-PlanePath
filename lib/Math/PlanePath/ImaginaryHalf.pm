@@ -19,12 +19,12 @@
 package Math::PlanePath::ImaginaryHalf;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -322,6 +322,13 @@ sub _digit_permutation_interleave {
   return @ret;
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+*level_to_n_range = \&Math::PlanePath::ImaginaryBase::level_to_n_range;
+*n_to_level = \&Math::PlanePath::ImaginaryBase::n_to_level;
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -561,6 +568,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, $radix**$level - 1)>.
 
 =back
 

@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -80,6 +80,7 @@ use constant parameter_info_array =>
       width     => 3,
     } ];
 
+# shared by WunderlichSerpentine
 sub dx_minimum {
   my ($self) = @_;
   return ($self->{'radix'} % 2
@@ -93,6 +94,7 @@ sub dx_maximum {
           : undef);   # even, unlimited
 }
 
+# shared by WunderlichSerpentine
 sub _UNDOCUMENTED__dxdy_list {
   my ($self) = @_;
   return ($self->{'radix'} % 2
@@ -110,6 +112,7 @@ sub _UNDOCUMENTED__dxdy_list_at_n {
   return ($self->{'radix'} + 1) * $self->{'radix'} - 1;
 }
 
+# shared by WunderlichSerpentine
 *dy_minimum = \&dx_minimum;
 *dy_maximum = \&dx_maximum;
 
@@ -404,6 +407,14 @@ sub rect_to_n_range {
   return ($min_n, $max_n);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::ZOrderCurve;
+*level_to_n_range = \&Math::PlanePath::ZOrderCurve::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::ZOrderCurve::n_to_level;
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -730,6 +741,16 @@ squares which are partly covered by the given rectangle are included.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, $radix**(2*$level) - 1)>.
 
 =back
 

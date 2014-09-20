@@ -43,7 +43,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -222,7 +222,7 @@ use Math::PlanePath::SacksSpiral;
 1;
 __END__
 
-=for stopwords Theodorus Ryde Math-PlanePath Archimedean Nhi Nlo arctan xlo,ylo xhi,yhi rlo Nlo Nhi Nhi-Nlo RSquared ceil OEIS
+=for stopwords Theodorus Ryde Math-PlanePath Archimedean Nhi Nlo arctan xlo,ylo xhi,yhi rlo Nlo Nhi Nhi-Nlo RSquared ceil OEIS xlo xhi
 
 =head1 NAME
 

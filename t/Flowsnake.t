@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 373;
+plan tests => 389;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::Flowsnake;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::Flowsnake::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Flowsnake->VERSION,  $want_version,
@@ -74,6 +74,44 @@ require Math::PlanePath::Flowsnake;
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Flowsnake->parameter_info_list;
   ok (join(',',@pnames), 'arms');
+}
+
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::Flowsnake->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 7); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 49); }
+}
+{
+  my $path = Math::PlanePath::Flowsnake->new (arms => 2);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 2); }  # 7^0+1 + 7^0 - 1 = 2
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 14); }  # 7^1+1 + 7^1 - 1 = 14
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 98); }  # 7^2+1 + 7^2 - 1 = 98
+}
+{
+  my $path = Math::PlanePath::Flowsnake->new (arms => 3);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 3); } # 7^0+1 + 2*7^0 - 1 = 3
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 21); } # 7^1+1 + 2*7^1 - 1 = 21
 }
 
 

@@ -30,11 +30,11 @@
 package Math::PlanePath::UlamWarburton;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -60,18 +60,26 @@ use constant parameter_info_array =>
      display         => 'Parts',
      type            => 'enum',
      default         => '4',
-     choices         => ['4','2','1',
-                        ],
+     choices         => ['4','2','1','octant','octant_up' ],
+     choices_display => ['4','2','1','Octant','Octant Up' ],
      description     => 'Which parts of the plane to fill.',
    },
    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
-use constant absdx_minimum => 1;
+# octant_up goes up the Y axis spine, dX=0
+# all others always have dX!=0
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'parts'} eq 'octant_up' ? 0 : 1);
+}
 
+# used also to validate $self->{'parts'}
 my %x_negative = (4         => 1,
                   2         => 1,
                   1         => 0,
+                  octant    => 0,
+                  octant_up => 0,
                  );
 sub x_negative {
   my ($self) = @_;
@@ -84,17 +92,28 @@ sub y_negative {
 
 sub x_negative_at_n {
   my ($self) = @_;
-  return ($self->{'parts'} >= 2 ? $self->n_start + 3 : undef);
+  return ($x_negative{$self->{'parts'}} ? $self->n_start + 3 : undef);
 }
 sub y_negative_at_n {
   my ($self) = @_;
-  return ($self->{'parts'} >= 4 ? $self->n_start + 4 : undef);
+  return ($self->{'parts'} eq '4' ? $self->n_start + 4 : undef);
+}
+
+sub diffxy_minimum {
+  my ($self) = @_;
+  return ($self->{'parts'} eq 'octant' ? 0 : undef);
+}
+sub diffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'parts'} eq 'octant_up' ? 0 : undef);
 }
 
 {
-  my %dir_maximum_dxdy = (4         => [1,-1], # N=4  South-East
-                          2         => [1,-1], # N=44 South-East
-                          1         => [2,-1], # N=3  ESE
+  my %dir_maximum_dxdy = (4         => [1,-1],  # N=4  South-East
+                          2         => [1,-1],  # N=44 South-East
+                          1         => [2,-1],  # N=3  ESE
+                          octant    => [10,-3], # N=51
+                          octant_up => [2,-1],  # N=8  ESE
                          );
   sub dir_maximum_dxdy {
     my ($self) = @_;
@@ -153,8 +172,14 @@ sub n_to_xy {
   ### $factor
   ### n rem within row: $nrem
 
-  $factor /= $parts;
-  if ($parts ne '4') {
+  if ($parts eq '4') {
+    $factor /= 4;
+  } elsif ($parts eq '2') {
+    $factor /= 2;
+    $nrem += ($factor-1)/2;
+  } elsif ($parts eq 'octant_up') {
+    $nrem += $factor;
+  } else {
     $nrem += ($factor-1)/2;
   }
   (my $quad, $nrem) = _divrem ($nrem, $factor);
@@ -219,7 +244,8 @@ sub xy_to_n {
   my $parts = $self->{'parts'};
   if ($parts ne '4'
       && ($y < 0
-          || ($parts eq '1' && $x < 0))) {
+          || ($parts ne '2' && $x < ($parts eq 'octant' ? $y : 0))
+          || ($parts eq 'octant_up' && $x > $y))) {
     return undef;
   }
 
@@ -329,7 +355,9 @@ sub xy_to_n {
   ### quad powered: $quad*3**$ndigits
 
   my $npower = 3**$ndigits;
-  if ($parts ne '4') {
+  if ($parts eq 'octant_up') {
+     $n -= $npower;
+  } elsif ($parts ne '4') {
      $n -= ($npower-1)/2;
   }
 
@@ -492,6 +520,8 @@ sub tree_n_parent {
 #
 sub tree_depth_to_n {
   my ($self, $depth) = @_;
+  ### UlamWarburton tree_depth_to_n(): $depth
+
   if ($depth == 0) {
     return $self->{'n_start'};
   }
@@ -507,7 +537,7 @@ sub tree_depth_to_n {
     return $n + $depth;
   }
   if ($parts eq 'octant' || $parts eq 'octant_up') {
-    return ($n + $depth + 1) / 2;
+    return ($n + 1);
   }
   ### assert: $parts eq '4'
   return 4*$n - 3*$self->{'n_start'} + 1;
@@ -523,6 +553,7 @@ sub tree_depth_to_n {
 
 sub tree_n_to_depth {
   my ($self, $n) = @_;
+  ### UlamWarburton tree_n_to_depth(): $n
 
   $n = $n - $self->{'n_start'};  # N=0 basis
   if ($n < 0) {
@@ -625,11 +656,12 @@ sub _n0_to_depthsum_factor_rem {
   my ($n, $parts) = @_;
   ### _n0_to_depthsum_factor_rem(): "$n  parts=$parts"
 
+  my $factor = ($parts eq '4' ? 4 : $parts eq '2' ? 2 : 1);
   if ($n == 0) {
-    return ([], $parts, 0);
+    return ([], $factor, 0);
   }
 
-  my $n3 = 3*$n+1;
+  my $n3 = 3*$n + 1;
   my $ndepth = 0;
   my $power = $n3;
   my $exp;
@@ -638,6 +670,9 @@ sub _n0_to_depthsum_factor_rem {
   } elsif ($parts eq '2') {
     $power /= 2;
     $ndepth = -1;
+  } elsif ($parts =~ /octant/) {
+    $power *= 2;
+    $ndepth = 2;
   }
   ($power, $exp) = round_down_pow ($power, 4);
   ### $n3
@@ -652,7 +687,6 @@ sub _n0_to_depthsum_factor_rem {
   # if ($parts ne '4') { $n -= $exp; }
   # ### n less pow base: $n
 
-  my $factor = $parts;
   my $twopow = 2**$exp;
   my @depthsum;
 
@@ -663,6 +697,11 @@ sub _n0_to_depthsum_factor_rem {
 
     my $nmore = $power * $factor;
     if ($parts ne '4') { $nmore += 3*$twopow; }
+    if ($parts =~ /octant/) {
+      ### assert: $nmore % 2 == 0
+      $nmore = $nmore/2;
+    }
+
     my $ncmp = $ndepth + $nmore;
     ### $nmore
     ### $ncmp
@@ -679,7 +718,7 @@ sub _n0_to_depthsum_factor_rem {
     $n3 += 1;
   }
 
-  ### assert: ($n3 - $ndepth)%3 == 0
+  # ### assert: ($n3 - $ndepth)%3 == 0
   $n = ($n3 - $ndepth) / 3;
   $factor /= 3;
 
@@ -707,8 +746,13 @@ sub tree_n_to_subheight {
   ### $nrem
 
   my $parts = $self->{'parts'};
-  $factor /= $parts;
-  if ($parts ne '4') {
+  if ($parts eq '4') {
+    $factor /= 4;
+  } elsif ($parts eq '2') {
+    $factor /= 2;
+    $nrem += ($factor-1)/2;
+  } elsif ($parts eq 'octant_up') {
+  } else {
     $nrem += ($factor-1)/2;
   }
   (my $quad, $nrem) = _divrem ($nrem, $factor);
@@ -724,6 +768,57 @@ sub tree_n_to_subheight {
   }
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return ($self->{'n_start'},
+          $self->tree_depth_to_n_end(2**($level+1)-1));
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  my $depth = $self->tree_n_to_depth($n);
+  if (! defined $depth) { return undef; }
+  my ($pow, $exp) = round_down_pow ($depth, 2);
+  return $exp + 1;
+}
+
+# parts=4
+# Ndepth(2^a) = 2 + 4*(4^a-1)/3
+# Nend(2^a-1) = 1 + 4*(4^a-1)/3 = (4^(a+1)-1)/3
+# parts=2
+#
+# {
+#   my %factor = (4         => 16,
+#                 2         => 8,
+#                 1         => 4,
+#                 octant    => 2,
+#                 octant_up => 2,
+#                );
+#   my %constant = (4         => -4,
+#                   2         => -5,
+#                   1         => -4,
+#                   octant    => 0,
+#                   octant_up => 0,
+#                  );
+#   my %spine = (4         => 0,
+#                2         => 2,
+#                1         => 2,
+#                octant    => 1,
+#                octant_up => 1,
+#               );
+#   sub level_to_n_range {
+#     my ($self, $level) = @_;
+#     my $parts = $self->{'parts'};
+#     return ($self->{'n_start'},
+#             $self->{'n_start'}
+#             + (4**$level * $factor{$parts} + $constant{$parts}) / 3
+#             + 2**$level * $spine{$parts});
+#   }
+# }
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -742,8 +837,8 @@ Math::PlanePath::UlamWarburton -- growth of a 2-D cellular automaton
 =head1 DESCRIPTION
 
 X<Ulam, Stanislaw>X<Warburton>This is the pattern of a cellular automaton
-studied by Ulam and Warburton, numbering cells by growth level and
-anti-clockwise within their level.
+studied by Ulam and Warburton, numbering cells by growth tree row and
+anti-clockwise within the rows.
 
 =cut
 
@@ -775,36 +870,36 @@ anti-clockwise within their level.
                                ^
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
-The rule is that a given cell grows up, down, left and right, but only if
-the new cell has no neighbours (up, down, left or right).  So the initial
-cell "a" is N=1,
+The growth rule is that a given cell grows up, down, left and right, but
+only if the new cell has no neighbours (up, down, left or right).  So the
+initial cell "a" is N=1,
 
-                a                  initial level 0 cell
+                a                  initial depth=0 cell
 
-The next level "b" cells are numbered N=2 to N=5 anti-clockwise from the
+The next row "b" cells are numbered N=2 to N=5 anti-clockwise from the
 right,
 
                 b
-             b  a  b               level 1
+             b  a  b               depth=1
                 b
 
-Likewise the next level "c" cells N=6 to N=9.  The "b" cells only grow
+Likewise the next row "c" cells N=6 to N=9.  The "b" cells only grow
 outwards as 4 "c"s since the other positions would have neighbours in the
 existing "b"s.
 
                 c
                 b
-          c  b  a  b  c            level 2
+          c  b  a  b  c            depth=2
                 b
                 c
 
-The "d" cells are then N=10 to N=21, numbered following the previous level
-"c" cell order and then anti-clockwise around each.
+The "d" cells are then N=10 to N=21, numbered following the previous row "c"
+cell order and then anti-clockwise around each.
 
                 d
              d  c  d
           d     b     d
-       d  c  b  a  b  c  d         level 3
+       d  c  b  a  b  c  d         depth=3
           d     b     d
              d  c  d
                 d
@@ -816,36 +911,37 @@ existing neighbours (the "b"s and "d"s).
                 d
              d  c  d
           d     b     d
-    e  d  c  b  a  b  c  d  e      level 4
+    e  d  c  b  a  b  c  d  e      depth=4
           d     b     d
              d  c  d
                 d
                 e
 
-In general each level always grows by 1 along the X and Y axes and travels
-into the quarter planes between with a sort of diamond shaped tree pattern
-which fills 11 cells of each 4x4 square block.
+In general the pattern always grows by 1 outward along the X and Y axes and
+travels into the quarter planes between with a diamond shaped tree pattern
+which fills 11 of 16 cells in each 4x4 square block.
 
-=head2 Level Ranges
+=head2 Tree Row Ranges
 
-Counting level 0 as the N=1 at the origin and level 1 as the next N=2,3,4,5
-generation, the number of new cells added in a growth level is
+Counting depth=0 as the N=1 at the origin and depth=1 as the next N=2,3,4,5
+generation, the number of cells in a row is
 
-    levelcells(0) = 1
+    rowwidth(0) = 1
       then
-    levelcells(level) = 4 * 3^((count 1 bits in level) - 1)
+    rowwidth(depth) = 4 * 3^((count_1_bits(depth) - 1)
 
-So level 1 has 4*3^0=4 cells, as does level 2 N=6,7,8,9.  Then level 3 has
-4*3^1=12 cells N=10 to N=21 because 3=0b11 has two 1-bits in binary.  The N
-start and end for a level is the cumulative total of those before it,
+So depth=1 has 4*3^0=4 cells, as does depth=2 at N=6,7,8,9.  Then depth=3
+has 4*3^1=12 cells N=10 to N=21 because depth=3=0b11 has two 1-bits in
+binary.  The N start and end for a row is the cumulative total of those
+before it,
 
-    Ndepth(level) = 1 + (levelcells(0) + ... + levelcells(level-1))
+    Ndepth(depth) = 1 + (rowwidth(0) + ... + rowwidth(depth-1))
 
-    Nend(level) = levelcells(0) + ... + levelcells(level)
+    Nend(depth) = rowwidth(0) + ... + rowwidth(depth)
 
-For example level 3 ends at N=(1+4+4)=9.
+For example depth 3 ends at N=(1+4+4)=9.
 
-    level    Ndepth   levelcells     Nend
+    depth    Ndepth   rowwidth     Nend
       0          1         1           1
       1          2         4           5
       2          6         4           9
@@ -857,46 +953,48 @@ For example level 3 ends at N=(1+4+4)=9.
       8         86         4          89
       9         90        12         101
 
-For a power-of-2 level the Ndepth is
+For a power-of-2 depth the Ndepth is
 
     Ndepth(2^a) = 2 + 4*(4^a-1)/3
 
-For example level=4=2^2 starts at N=2+4*(4^2-1)/3=22, or level=8=2^3 starts
+For example depth=4=2^2 starts at N=2+4*(4^2-1)/3=22, or depth=8=2^3 starts
 N=2+4*(4^3-1)/3=86.
 
-Further bits in the level value contribute powers-of-4 with a tripling for
-each bit above.  So if the level number has bits a,b,c,d,etc in descending
+Further bits in the depth value contribute powers-of-4 with a tripling for
+each bit above.  So if the depth number has bits a,b,c,d,etc in descending
 order,
 
-    level = 2^a + 2^b + 2^c + 2^d ...       a>b>c>d...
+    depth = 2^a + 2^b + 2^c + 2^d ...       a>b>c>d...
     Ndepth = 2 + 4*(-1
                     +       4^a
                     +   3 * 4^b
                     + 3^2 * 4^c
                     + 3^3 * 4^d + ... ) / 3
 
-For example level=6 = 2^2+2^1 is Ndepth = 2 + (1+4*(4^2-1)/3) + 4^(1+1) =
-38.  Or level=7 = 2^2+2^1+2^0 is Ndepth = 1 + (1+4*(4^2-1)/3) + 4^(1+1) +
+For example depth=6 = 2^2+2^1 is Ndepth = 2 + (1+4*(4^2-1)/3) + 4^(1+1) =
+38.  Or depth=7 = 2^2+2^1+2^0 is Ndepth = 1 + (1+4*(4^2-1)/3) + 4^(1+1) +
 3*4^(0+1) = 50.
 
 =head2 Self-Similar Replication
 
-The diamond shape growth up to a level 2^a repeats three times.  For example
-an "a" part going to the right,
+The diamond shape depth=1 to depth=2^level-1 repeats three times.  For
+example an "a" part going to the right of the origin "O",
 
-          d
-        d d d
-      a   d   c
-    a a a * c c c ...
-      a   b   c
-        b b b
-          b
+            d
+          d d d
+    |   a   d   c
+  --O a a a * c c c ...
+    |   a   b   c
+          b b b
+            b
 
 The 2x2 diamond shaped "a" repeats pointing up, down and right as "b", "c"
 and "d".  This resulting 4x4 diamond then likewise repeats up, down and
-right.  The points in the path here are numbered by growth level rather than
-in this sort of replication, but the replication helps to see the structure
-of the pattern.
+right.  The same happens in the other quarters of the plane.
+
+The points in the path here are numbered by tree rows rather than in this
+sort of replication, but the replication helps to see the structure of the
+pattern.
 
 =head2 Half Plane
 
@@ -922,7 +1020,8 @@ C<YE<gt>=0>,
     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
 Points are still numbered anti-clockwise around so X axis N=1,2,5,8,15,etc
-is the first of each level and X negative axis N=1,4,7,14,etc is the last.
+is the first of row depth=X.  X negative axis N=1,4,7,14,etc is the last of
+row depth=-X.  For depth=0 point N=1 is both the first and last of that row.
 
 Within a row a line from point N to N+1 is always a 45-degree angle.  This
 is true of each 3 direct children, but also across groups of children by
@@ -937,11 +1036,11 @@ Option C<parts =E<gt> '1'> confines the pattern to the first quadrant,
 
 =cut
 
-# math-image --path=UlamWarburton,parts=1 --expression='i<20?i:0' --output=numbers --size=99x16
+# math-image --path=UlamWarburton,parts=1 --expression='i<=73?i:0' --output=numbers --size=99x16
 
 =pod
 
-    parts => "1"
+    parts => "1"  to depth=14
 
     14  |  73
     13  |  63
@@ -961,14 +1060,14 @@ Option C<parts =E<gt> '1'> confines the pattern to the first quadrant,
         +-----------------------------------------------
           X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
-X axis N=1,2,4,6,10,etc is the first of each depth level and Y axis
-N=1,3,5,9,11,etc is the last.
+X axis N=1,2,4,6,10,etc is the first of each row X=depth.  Y axis
+N=1,3,5,9,11,etc is the last similarly Y=depth.
 
 In this arrangement horizontal arms have even N and vertical arms have
-odd N.  For example the vertical at X=8 N=30,33,37,etc has N odd and when it
-turns to horizontal at N=42 or N=56 it becomes N even.  The children of N=66
-are not shown but the verticals from there are N=79 below and N=81 above and
-so are odd again.
+odd N.  For example the vertical at X=8 N=30,33,37,etc has N odd from N=33
+up and when it turns to horizontal at N=42 or N=56 it switches to N even.
+The children of N=66 are not shown but the verticals from there are N=79
+below and N=81 above and so switch to odd again.
 
 This odd/even pattern is true of N=2 horizontal and N=3 vertical and
 thereafter is true due to each row having an even number of points and the
@@ -990,6 +1089,61 @@ and the Y axis of block 0 the horizontal of block 2.  Those axis parts are
 dropped since they're already covered by block 1 and 3 and dropping them
 flips the odd/even parity to match the vertical/horizontal flip due to the
 90-degree rotation.
+
+=head2 Octant
+
+Option C<parts =E<gt> 'octant'> confines the pattern to the first eighth of
+the plane 0E<lt>=YE<lt>=X.
+
+=cut
+
+# math-image --path=UlamWarburton,parts=octant  --expression='i<=51?i:0' --output=numbers --size=75x15
+
+=pod
+
+    parts => "octant"
+
+      7 |                         47     ...
+      6 |                      48 36 46
+      5 |                   49    31    45
+      4 |                50 37 32 27 30 35 44
+      3 |             14    51    24    43    41
+      2 |          15 10 13    25 20 23    42 34 40
+      1 |        5     8    12    18    22    29    39
+    Y=0 |  1  2  3  4  6  7  9 11 16 17 19 21 26 28 33 38
+        +-------------------------------------------------
+         X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+
+In this arrangement N=1,2,3,4,6,7,etc on the X axis is the first N of each
+row (C<tree_depth_to_n()>).
+
+=head2 Upper Octant
+
+Option C<parts =E<gt> 'octant_up'> confines the pattern to the upper octant
+0E<lt>=XE<lt>=Y of the first quadrant.
+
+=cut
+
+# math-image --path=UlamWarburton,parts=octant_up  --expression='i<=51?i:0' --output=numbers --size=75x15
+
+=pod
+
+    parts => "octant_up"
+
+      8 | 16 17 19 22 26 29 34 42
+      7 | 15    21    28    41
+      6 | 10 14    38 33 40
+      5 |  8    13    39
+      4 |  6  7  9 12
+      3 |  5    11
+      2 |  3  4
+      1 |  2
+    Y=0 |  1
+        +--------------------------
+          X=0 1  2  3  4  5  6  7
+
+In this arrangement N=1,2,3,5,6,8,etc on the Y axis the last N of each row
+(C<tree_depth_to_n_end()>).
 
 =head2 N Start
 
@@ -1047,9 +1201,9 @@ Create and return a new path object.  The C<parts> option (a string) can be
 Return the children of C<$n>, or an empty list if C<$n> has no children
 (including when C<$n E<lt> 1>, ie. before the start of the path).
 
-The children are the cells turned on adjacent to C<$n> at the next level.
-The way points are numbered means that when there's multiple children
-they're consecutive N values, for example at N=6 the children are 10,11,12.
+The children are the cells turned on adjacent to C<$n> at the next row.  The
+way points are numbered means that when there's multiple children they're
+consecutive N values, for example at N=6 the children are 10,11,12.
 
 =back
 
@@ -1059,24 +1213,43 @@ they're consecutive N values, for example at N=6 the children are 10,11,12.
 
 =item C<@nums = $path-E<gt>tree_num_children_list()>
 
-Return a list of the possible number of children at the nodes of C<$path>.
-This is the set of possible return values from C<tree_n_num_children()>.
-This list varies with the pattern parts,
+Return a list of the possible number of children in C<$path>.  This is the
+set of possible return values from C<tree_n_num_children()>.  The possible
+children varies with the C<parts>,
 
     parts     tree_num_children_list()
     -----     ------------------------
-      4             0, 1,    3, 4
+      4             0, 1,    3, 4        (the default)
       2             0, 1, 2, 3
       1             0, 1, 2, 3
 
 parts=4 has 4 children at the origin N=0 and thereafter either 0, 1 or 3.
-parts=2 or parts=1 can have 2 children on the boundaries where the 3rd child
-is chopped off.
+
+parts=2 and parts=1 can have 2 children on the boundaries where the 3rd
+child is chopped off, otherwise 0, 1 or 3.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
 Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the start of
 the path).
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<$n_lo = $n_start> and
+
+    parts    $n_hi
+    -----    -----
+      4      $n_start + (16*4**$level - 4) / 3
+      2      $n_start + ( 8*4**$level - 5) / 3  +  2*2**$level
+      1      $n_start + ( 4*4**$level - 4) / 3  +  2*2**$level
+
+C<$n_hi> is C<tree_depth_to_n_end(2**($level+1) - 1>.
 
 =back
 
@@ -1104,11 +1277,11 @@ L<http://oeis.org/A147582> (etc)
       A079314   added cells at depth=n
 
 The A147582 new cells sequence starts from n=1, so takes the innermost N=1
-single cell as level n=1, then N=2,3,4,5 as level n=2 with 5 cells, etc.
-This makes the formula a binary 1-bits count on n-1 rather than on N the way
-levelcells() above is expressed.
+single cell as row n=1, then N=2,3,4,5 as row n=2 with 5 cells, etc.  This
+makes the formula a binary 1-bits count on n-1 rather than on N the way
+rowwidth() above is expressed.
 
-The 1-bits-count power 3^(count 1-bits in level) part of the levelcells() is
+The 1-bits-count power 3^(count_1_bits(depth)) part of the rowwidth() is
 also separately in A048883, and as n-1 in A147610.
 
 =head1 SEE ALSO
@@ -1119,7 +1292,7 @@ L<Math::PlanePath::LCornerTree>,
 L<Math::PlanePath::CellularRule>
 
 L<Math::PlanePath::SierpinskiTriangle> (a similar binary 1s-count related
-level calculation)
+calculation)
 
 =head1 HOME PAGE
 

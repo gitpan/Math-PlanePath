@@ -30,7 +30,7 @@ use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -719,6 +719,13 @@ sub n_to_dxdy {
 # }
 
 #------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::DragonCurve;
+*level_to_n_range = \&Math::PlanePath::DragonCurve::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::DragonCurve::n_to_level;
+
+#------------------------------------------------------------------------------
 
 sub _UNDOCUMENTED_level_to_right_line_boundary {
   my ($self, $level) = @_;
@@ -1031,7 +1038,7 @@ __END__
 
 
 
-=for :stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA..AA Golay-Rudin-Shapiro Rudin-Shapiro dX dY dX,dY GRS dSum undoubled MendE<232>s Tenenbaum des Courbes Papiers de ie
+=for :stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA..AA Golay-Rudin-Shapiro Rudin-Shapiro dX dY dX,dY GRS dSum undoubled MendE<232>s Tenenbaum des Courbes Papiers de ie ceil
 
 =head1 NAME
 
@@ -1276,6 +1283,20 @@ Return 0, the first N in the path.
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2**$level)>, or for multiple arms return C<(0, $arms *
+2**$level + ($arms-1))>.
+
+This is the same as L<Math::PlanePath::DragonCurve/Level Methods>.  Each
+level is an unfold (on alternate sides left or right).
+
+=back
+
 =head1 FORMULAS
 
 =head2 Turn
@@ -1352,8 +1373,8 @@ X coordinate changes, then Y coordinate changes, alternately.
     dY   0  1  0 -1  0  1  0  1  0  1  0 -1  0 -1  0 -1  ...
 
 X changes when N is even, Y changes when N is odd.  Each change is either +1
-or -1.  The changes are the Golay-Rudin-Shapiro sequence, which is a parity
-of the count of adjacent 11 bit pairs.
+or -1.  Which it is follows the Golay-Rudin-Shapiro sequence which is parity
+odd or even of the count of adjacent 11 bit pairs.
 
 In the total turn above it can be seen that if the 0-E<gt>1 transition is at
 an odd position and 1-E<gt>0 transition at an even position then there's a
@@ -1450,7 +1471,7 @@ The area enclosed by the curve for points N=0 to N=2^k inclusive is
            \ (2^k - 4*2^h + 2) / 2   if k even
            where h=floor(k/2)
     = 1/2*0, 0*0, 0*1, 1*1, 1*3, 3*3, 3*7, 7*7, 7*15, 15*15, ...
-    = 0, 0, 0, 1, 3, 9, 21, 49, 105, 225, 465, 961, 1953, 3969, ...
+    = 0, 0, 0, 1, 3, 9, 21, 49, 105, 225, 465, 961, ... (A027556/2)
 
 =for Test-Pari-DEFINE  AsamplesP = [0, 0, 0, 1*1, 1*3, 3*3, 3*7, 7*7, 7*15, 15*15, 15*31, 31*31, 31*63, 63*63, 63*127, 127*127, 127*255]
 
@@ -1570,7 +1591,7 @@ The new area added between N=2^k and N=2^(k+1) is
     dA[k] = A[k+1] - A[k]
           = (2^floor(k/2) - 1) * 2^ceil(k/2) / 2
           = (2^k - 2^ceil(k/2)) / 2
-    = 0, 0, 1, 2, 6, 12, 28, 56, 120, 240, 496, 992, 2016, 4032, ...
+    = 0, 0, 1, 2, 6, 12, 28, 56, 120, 240, 496, 992, ... (A122746)
 
 =for Test-Pari-DEFINE dAsamples = [0, 0, 1, 2, 6, 12, 28, 56, 120, 240, 496, 992, 2016, 4032, 8128, 16256, 32640]
 
@@ -1624,7 +1645,7 @@ The boundary length of the curve from N=0 to N=2^k on its right side is
            |  2*2^h       if k even >= 2
            \  6*2^h - 4   if k odd  >= 1
            where h=floor(k/2)
-    = 1, 2, 4, 8, 8, 20, 16, 44, 32, 92, 64, 188, 128, 380, 256, 764, 512, ...
+    = 1, 2, 4, 8, 8, 20, 16, 44, 32, 92, 64, 188, 128, 380, 256, ...
 
 =for Test-Pari-DEFINE  Rsamples = [1, 2, 4, 8, 8, 20, 16, 44, 32, 92, 64, 188, 128, 380, 256, 764, 512]
 
@@ -1657,7 +1678,7 @@ The boundary length of the curve from N=0 to N=2^k on its left side is
            |  4*2^h - 4   if k even >= 2
            \  2*2^h       if k odd  >= 1
            where h=floor(k/2)
-    = 1, 2, 4, 4, 12, 8, 28, 16, 60, 32, 124, 64, 252, 128, 508, 256, 1020, ...
+    = 1, 2, 4, 4, 12, 8, 28, 16, 60, 32, 124, 64, 252, 128, 508, ...
 
 =for Test-Pari-DEFINE  Lsamples = [1, 2, 4, 4, 12, 8, 28, 16, 60, 32, 124, 64, 252, 128, 508, 256, 1020]
 
@@ -1713,7 +1734,7 @@ The total boundary length of the curve from N=0 to N=2^k is
     B[k] = L[k] + R[k] = /  6*2^h - 4   if k even
                          \  8*2^h - 4   if k odd
                          where h=floor(k/2)
-    = 2, 4, 8, 12, 20, 28, 44, 60, 92, 124, 188, 252, 380, 508, 764, 1020, ...
+    = 2, 4, 8, 12, 20, 28, 44, 60, 92, 124, 188, 252, 380, ... (2*A027383)
 
 =for Test-Pari-DEFINE  Bsamples = [2, 4, 8, 12, 20, 28, 44, 60, 92, 124, 188, 252, 380, 508, 764, 1020, 1532]
 
@@ -1732,9 +1753,9 @@ The total boundary length of the curve from N=0 to N=2^k is
 The special case for k=0 is eliminated since the k even 6*2^h-4 is the
 desired 2 when k=0, h=0.
 
-The alternate paper curve encloses unit squares in the same way as as the
-dragon curve per L<Math::PlanePath::DragonCurve/Area from Boundary>.  So 2*N
-= 4*A[N] + B[N]
+Every enclosed unit square has all four sides traversed so by counting
+inside and outside sides of the segments have 2*N = 4*A + B.  This can be
+verified for A[k] and B[k]
 
     4*A[k] + B[k] = 4* / (2^h/2 - 1) * (2^h - 1)  if k even
                        \ (2^h - 1) * (2^h - 1)  if k odd
@@ -1744,8 +1765,8 @@ dragon curve per L<Math::PlanePath::DragonCurve/Area from Boundary>.  So 2*N
                     \ 4 * 2^h * 2^h  if k odd
                   = 2*2^k
 
-This also gives a formula for the boundary using the floor and ceil pair
-from the area
+This relation also gives a formula for B[k] using the floor and ceil pair
+from A[k]
 
     B[k] = 2*2^k - 4*A[k]
          = 2*2^k - (2^floor((k+1)/2) - 2) * (2^ceil((k+1)/2) - 2)
@@ -1760,7 +1781,7 @@ The number of single-visited points for N=0 to N=2^k inclusive is
 
     S[k] = /  3*2^h - 1   if k even
            \  4*2^h - 1   if k odd
-    = 2, 3, 5, 7, 11, 15, 23, 31, 47, 63, 95, 127, 191, 255, 383, ...
+    = 2, 3, 5, 7, 11, 15, 23, 31, 47, 63, 95, 127, ...   (A052955)
 
 =for Test-Pari-DEFINE  Ssamples = [2, 3, 5, 7, 11, 15, 23, 31, 47, 63, 95, 127, 191, 255, 383, 511, 767]
 
@@ -1777,20 +1798,20 @@ The number of single-visited points for N=0 to N=2^k inclusive is
 The single points are all on the outer edges and those sides can be counted
 easily.
 
-The singles can also be obtained from the boundary.  Per
-L<Math::PlanePath::DragonCurve/Single Points from Boundary> the singles and
-boundary are always related by
+The singles can also be obtained from the boundary.  Each new line segment
+which increases the area also increases the double points, so area=doubles.
+Such a segment decreases the singles by -1 and the boundary by -2.  A new
+line segment which doesn't enclose new area increases the singles by +1 and
+the boundary by +2.  Starting from singles=1 boundary=0 means
 
     S[N] = B[N]/2 + 1
 
 =for Test-Pari vector(20, k, S(k-1)) == vector(20, k, B(k-1)/2+1)
 
-The singles can also be obtained from the area.  Per
-L<Math::PlanePath::DragonCurve/Double Points from Area> the number of
-double-visited points is the same as the area, so the total singles and
-doubles add up to N+1 points, with N+1=2^k+1.
+Or with singles and doubles adding up to N+1 points the doubles=area can
+give the singles from the area.
 
-    S[N] + 2*D[N] = N+1          with D[N]=A[N]
+    S + 2*D = N+1          N=number of segments, N+1=number of points
 
 =for Test-Pari vector(20, k, S(k-1)) == vector(20, k, 2^(k-1)+1 - 2*A(k-1))
 

@@ -19,12 +19,12 @@
 package Math::PlanePath::LTiling;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -251,6 +251,24 @@ sub rect_to_n_range {
 }
 
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 4**$level * $fill_factor{$self->{'L_fill'}} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $fill_factor{$self->{'L_fill'}});
+  my ($pow, $exp) = round_down_pow ($n, 4);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -456,6 +474,23 @@ Create and return a new path object.  The C<L_fill> choices are
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return
+
+    0,   4**$level - 1      middle, left, upper
+    0, 2*4**$level - 1      ends
+    0, 3*4**$level - 1      all
+
+There are 4^level L shapes in a level, each containing 1, 2 or 3 points,
+numbered starting from 0.
 
 =back
 

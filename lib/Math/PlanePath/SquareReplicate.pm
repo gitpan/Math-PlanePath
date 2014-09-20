@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -175,6 +175,22 @@ sub rect_to_n_range {
   return (0, 9*$pow*$pow - 1);  # 9^level-1
 }
 
+#-----------------------------------------------------------------------------
+# level_to_n_range()
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 9**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, 9);
+  return $exp;
+}
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -284,6 +300,16 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 9**$level - 1)>.
 
 =back
 

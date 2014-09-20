@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 25;
+plan tests => 39;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::TerdragonMidpoint;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::TerdragonMidpoint::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TerdragonMidpoint->VERSION,  $want_version,
@@ -60,6 +60,38 @@ require Math::PlanePath::TerdragonMidpoint;
       1,
       "VERSION object check $check_version");
 }
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::TerdragonMidpoint->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 0); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 2); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 8); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(3);
+    ok ($n_lo, 0);
+    ok ($n_hi, 26); }
+}
+{
+  my $path = Math::PlanePath::TerdragonMidpoint->new (arms => 5);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 4); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 14); }  # 5*3 - 1 = 14
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 44); }   # 5*9 - 1 = 44
+}
+
 
 #------------------------------------------------------------------------------
 # xy_to_n()

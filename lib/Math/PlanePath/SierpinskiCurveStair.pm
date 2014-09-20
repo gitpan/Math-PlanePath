@@ -30,7 +30,7 @@ use strict;
 use List::Util 'min','max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -508,77 +508,107 @@ sub _apply_max {
   }
 }
 
+
+#------------------------------------------------------------------------------
+
+# Nlevel = ((3L+2)*4^level - 5) / 3
+# LevelPoints = Nlevel+1
+# Nlevel(arms) = (Nlevel+1)*arms - 1
+#
+# Eg. L=1 level=1 (5*4-5)/3 = 5
+#     arms=8      ((5*4-5)/3+1)*8 - 1 = 47
+#
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0,
+          (4**$level * (3*$self->{'diagonal_length'}+2) - 2) / 3
+          * $self->{'arms'} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $self->{'arms'});
+  my $diagonal_div = 3*$self->{'diagonal_length'} + 2;
+  my ($pow,$exp) = round_down_pow ((3*$n + 2)
+                                   / (3*$self->{'diagonal_length'}+2), 4);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
 
-   #                                          84-85
-   #                                           |  |
-   #                                       82-83 ...
-   #                                        |
-   #                                    80-81
-   #                                     |
-   #                                    79-78
-   #                                        |
-   #                              68-69    77-76
-   #                               |  |        |
-   #                           66-67 70-71 74-75
-   #                            |        |  |
-   #                        64-65       72-73
-   #                         |
-   #                        63-62       55-54
-   #                            |        |  |
-   #                  20-21    61-60 57-56 53-52
-   #                   |  |        |  |        |
-   #               18-19 22-23    59-58    50-51
-   #                |        |              |
-   #            16-17       24-25       48-49
-   #             |              |        |
-   #            15-14       27-26       47-46
-   #                |        |              |
-   #       4--5    13-12 29-28    36-37    45-44
-   #       |  |        |  |        |  |        |
-   #    2--3  6--7 10-11 30-31 34-35 38-39 42-43
-   #    |        |  |        |  |        |  |
-   # 0--1        8--9       32-33       40-41
+#                                          84-85
+#                                           |  |
+#                                       82-83 ...
+#                                        |
+#                                    80-81
+#                                     |
+#                                    79-78
+#                                        |
+#                              68-69    77-76
+#                               |  |        |
+#                           66-67 70-71 74-75
+#                            |        |  |
+#                        64-65       72-73
+#                         |
+#                        63-62       55-54
+#                            |        |  |
+#                  20-21    61-60 57-56 53-52
+#                   |  |        |  |        |
+#               18-19 22-23    59-58    50-51
+#                |        |              |
+#            16-17       24-25       48-49
+#             |              |        |
+#            15-14       27-26       47-46
+#                |        |              |
+#       4--5    13-12 29-28    36-37    45-44
+#       |  |        |  |        |  |        |
+#    2--3  6--7 10-11 30-31 34-35 38-39 42-43
+#    |        |  |        |  |        |  |
+# 0--1        8--9       32-33       40-41
 
 
-     #               ..--90       89--..                      7
-     #                    |        |
-     #                   82-74 73-81                          6
-     #                       |  |
-     #                   58-66 65-57                          5
-     #                    |        |
-     #                42-50       49-41                       4
-     #                 |              |
-     #                34-26       25-33                       3
-     #                    |        |
-     # ...      43-35    18-10  9-17    32-40       ..        2
-     #  |        |  |        |  |        |  |        |
-     # 91-83 59-51 27-19     2  1    16-24 48-56 80-88        1
-     #     |  |        |              |        |  |
-     #    75-67       11--3     .  0--8       64-72      <- Y=0
-     # 
-     #    76-68       12--4        7-15       71-79          -1
-     #     |  |        |              |        |  |
-     # 92-84 60-52 28-20     5  6    23-31 55-63 87-95       -2
-     #  |        |  |        |  |        |  |        |
-     # ..       44-36    21-13 14-22    39-47       ..       -3
-     #                    |        |
-     #                37-29       30-38                      -4
-     #                 |              |
-     #                45-53       54-46                      -5
-     #                    |        |
-     #                   61-69 70-62                         -6
-     #                       |  |
-     #                   85-77 78-86                         -7
-     #                    |        |
-     #               ..--93       94--..                     -8
-     # 
-     #                          ^
-     # -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
+#               ..--90       89--..                      7
+#                    |        |
+#                   82-74 73-81                          6
+#                       |  |
+#                   58-66 65-57                          5
+#                    |        |
+#                42-50       49-41                       4
+#                 |              |
+#                34-26       25-33                       3
+#                    |        |
+# ...      43-35    18-10  9-17    32-40       ..        2
+#  |        |  |        |  |        |  |        |
+# 91-83 59-51 27-19     2  1    16-24 48-56 80-88        1
+#     |  |        |              |        |  |
+#    75-67       11--3     .  0--8       64-72      <- Y=0
+#
+#    76-68       12--4        7-15       71-79          -1
+#     |  |        |              |        |  |
+# 92-84 60-52 28-20     5  6    23-31 55-63 87-95       -2
+#  |        |  |        |  |        |  |        |
+# ..       44-36    21-13 14-22    39-47       ..       -3
+#                    |        |
+#                37-29       30-38                      -4
+#                 |              |
+#                45-53       54-46                      -5
+#                    |        |
+#                   61-69 70-62                         -6
+#                       |  |
+#                   85-77 78-86                         -7
+#                    |        |
+#               ..--93       94--..                     -8
+#
+#                          ^
+# -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
-=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel Nend Ntop Xlevel
+=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel Nend Ntop Xlevel PlanePath SierpinskiCurveStair OEIS
 
 =head1 NAME
 
@@ -636,15 +666,16 @@ stair step horizontal and vertical.  The correspondence is
      /     \  /               |  |  |
     0        3             0--1  4--5
 
-So the C<SierpinskiCurve> N=0 to N=1 diagonal corresponds to N=0 to N=2
-here, and N=2 to N=3 corresponds to N=3 to N=5.  The join section N=3 to N=4
-gets an extra point at N=6 here, and later similar N=19, etc.
+The C<SierpinskiCurve> N=0 to N=3 corresponds to N=0 to N=5 here.  N=7 to
+N=12 which is a copy of the N=0 to N=5 base.  Point N=6 is an extra in
+between the parts.  The next such extra is N=19.
 
 =head2 Diagonal Length
 
 The C<diagonal_length> option can make longer diagonals, still in stair-step
-style.  For example C<diagonal_length =E<gt> 4>,
+style.  For example
 
+             diagonal_length => 4
     10  |                                 36-37
         |                                  |  |
      9  |                              34-35 38-39
@@ -677,36 +708,38 @@ X=1 to X=5 for length 4 units.
 =head2 Arms
 
 The optional C<arms> parameter can give up to eight copies of the curve,
-each advancing successively.  For example C<arms =E<gt> 8>,
+each advancing successively.  For example
 
-       98-90 66-58       57-65 89-97            5   
-           |  |  |        |  |  |                   
-    99    82-74 50-42 41-49 73-81    96         4   
-     |              |  |              |             
-    91-83       26-34 33-25       80-88         3   
-        |        |        |        |                
-    67-75       18-10  9-17       72-64         2   
-     |              |  |              |             
-    59-51 27-19     2  1    16-24 48-56         1   
-        |  |  |              |  |  |                
-       43-35 11--3     .  0--8 32-40       <- Y=0   
-                                                    
-       44-36 12--4        7-15 39-47           -1   
-        |  |  |              |  |  |                
-    60-52 28-20     5  6    23-31 55-63        -2   
-     |              |  |              |             
-    68-76       21-13 14-22       79-71        -3   
-        |        |        |        |                
-    92-84       29-37 38-30       87-95        -4   
-                    |  |                            
-          85-77 53-45 46-54 78-86              -5   
-           |  |  |        |  |  |                   
-          93 69-61       62-70 94              -6   
-                                                    
+    arms => 8
+
+       98-90 66-58       57-65 89-97            5
+           |  |  |        |  |  |
+    99    82-74 50-42 41-49 73-81    96         4
+     |              |  |              |
+    91-83       26-34 33-25       80-88         3
+        |        |        |        |
+    67-75       18-10  9-17       72-64         2
+     |              |  |              |
+    59-51 27-19     2  1    16-24 48-56         1
+        |  |  |              |  |  |
+       43-35 11--3     .  0--8 32-40       <- Y=0
+
+       44-36 12--4        7-15 39-47           -1
+        |  |  |              |  |  |
+    60-52 28-20     5  6    23-31 55-63        -2
+     |              |  |              |
+    68-76       21-13 14-22       79-71        -3
+        |        |        |        |
+    92-84       29-37 38-30       87-95        -4
+                    |  |
+          85-77 53-45 46-54 78-86              -5
+           |  |  |        |  |  |
+          93 69-61       62-70 94              -6
+
                        ^
     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
-The multiplies of 8 (or however many arms) N=0,8,16,etc is the original
+The multiples of 8 (or however many arms) N=0,8,16,etc is the original
 curve, and the further mod 8 parts are the copies.
 
 The middle "." shown is the origin X=0,Y=0.  It would be more symmetrical to
@@ -716,36 +749,175 @@ X+0.5,Y+0.5 to centre if desired.
 
 =head2 Level Ranges
 
-For C<diagonal_length> = L and reckoning the first diagonal side N=0 to N=2L
-as level 0, a level extends out to a triangle
+The N=0 point is reckoned as level=0, then N=0 to N=5 inclusive is level=1,
+etc.  Each level is 4 copies of the previous and an extra 2 points between.
 
-    Nlevel = ((6L+4)*4^level - 4) / 3
-    Xlevel = (L+2)*2^level - 1
+    LevelPoints[k] = 4*LevelPoints[k-1] + 2   starting LevelPoints[0]=1
+                   = 2 + 2*4 + 2*4^2 + ... + 2*4^(k-1) + 1*4^k
+                   = (5*4^k - 2)/3
 
-For example level 2 in the default L=1 goes to N=((6*1+4)*4^2-4)/3=52 and
-Xlevel=(1+2)*2^2-1=11.  Or in the L=4 sample above level 1 is
-N=((6*4+4)*4^1-4)/3=36 and Xlevel=(4+2)*2^1-1=11.
+    Nlevel[k] = LevelPoints[k] - 1         since starting at N=0
+              = 5*(4^k - 1)/3
+              = 0, 5, 25, 105, 425, 1705, 6825, 27305, ...    (A146882)
 
-The power-of-4 in Nlevel is per the plain C<SierpinskiCurve>, with factor
-2L+1 for the points making the diagonal stair.  The "/3" arises from the
-extra points between replications.  They become a power-of-4 series
+=for Test-Pari-DEFINE  LevelPoints(k) = (5*4^k - 2)/3
 
-    Nextras = 1+4+4^2+...+4^(level-1) = (4^level-1)/3
+=for Test-Pari-DEFINE  Nlevel(k) = 5*(4^k - 1)/3
 
-For example level 1 is Nextras=(4^1-1)/3=1, being point N=6 in the default
-L=1.  Or for level 2 Nextras=(4^2-1)/3=5 at N=6 and N=19,26,33,46.
+=for Test-Pari-DEFINE  Nlevel_samples = [ 0, 5, 25, 105, 425, 1705, 6825, 27305 ]
+
+=for Test-Pari  vector(20,k,my(k=k-1); Nlevel(k)) == vector(20,k,my(k=k-1); LevelPoints(k) - 1)
+
+=for Test-Pari  vector(length(Nlevel_samples),k,my(k=k-1); Nlevel(k)) == Nlevel_samples
+
+The width along the X axis of a level doubles each time, plus an extra
+distance 3 between.
+
+    LevelWidth[k] = 2*LevelWidth[k-1] + 3     starting LevelWidth[0]=0
+                  = 3 + 3*2 + 3*2^2 + ... + 3*2^(k-1) + 0*2^k
+                  = 3*(2^k - 1)
+
+    Xlevel[k] = 1 + LevelWidth[k]
+              = 3*2^k - 2
+              = 1, 4, 10, 22, 46, 94, 190, 382, ...           (A033484)
+
+=for Test-Pari-DEFINE  LevelWidth(k) = 3*(2^k - 1)
+
+=for Test-Pari-DEFINE  Xlevel(k) = 3*2^k - 2
+
+=for Test-Pari-DEFINE  Xlevel_samples = [ 1, 4, 10, 22, 46, 94, 190, 382 ]
+
+=for Test-Pari  vector(20,k,my(k=k-1); Xlevel(k)) == vector(20,k,my(k=k-1); 1 + LevelWidth(k))
+
+=for Test-Pari  vector(length(Xlevel_samples),k,my(k=k-1); Xlevel(k)) == Xlevel_samples
+
+=head2 Level Ranges with Diagonal Length
+
+With C<diagonal_length> = L, level=0 is reckoned as having L many points
+instead of just 1.
+
+=cut
+
+# with 4*L+2 in level=1
+# LevelPoints[k] = 2 + 2*4 + 2*4^2 + ... + 2*4^(k-2) + (4*L+2)*4^(k-1)
+#                = 2*(4^(k-1) - 1)/3  +  (4*L+2)*4^(k-1)
+#                = ( 2*4^(k-1) - 2 + 3*(4*L+2)*4^(k-1) )/3
+#                = ( 2*4^(k-1) - 2 + (12*L+6)*4^(k-1) )/3
+#                = ( (12*L+8)*4^(k-1) - 2 )/3
+#                = ( (3*L+2)*4^k - 2 )/3
+#
+# with L in level=0
+# (4*L+2)*4^(k-1) = 2*4^(k-1) + L*4^k
+# LevelPoints[k] = 2 + 2*4 + 2*4^2 + ... + 2*4^(k-1) + L*4^k
+#                = ( (3*L+2)*4^k - 2 )/3
+#
+
+=pod
+
+    LevelPoints[k] = 2 + 2*4 + 2*4^2 + ... + 2*4^(k-1) + L*4^k
+                   = ( (3L+2)*4^k - 2 )/3
+
+    Nlevel[k] = LevelPoints[k] - 1
+              = ( (3L+2)*4^k - 5 )/3
+
+=for Test-Pari-DEFINE  LevelPoints(k,L) = ( (3*L+2)*4^k - 2 )/3
+
+=for Test-Pari-DEFINE  Nlevel(k,L) = ( (3*L+2)*4^k - 5 )/3
+
+=for Test-Pari  LevelPoints(0,4) == 4
+
+=for Test-Pari  Nlevel(0,4) == 3
+
+=for Test-Pari  Nlevel(1,4) == 17
+
+=for Test-Pari  Nlevel(2,4) == 73
+
+=for Test-Pari  vector(5,L, vector(20,k,my(k=k-1); Nlevel(k))) == vector(5,L, vector(20,k,my(k=k-1); LevelPoints(k) - 1))
+
+=for Test-Pari  vector(length(Nlevel_samples),k,my(k=k-1); Nlevel(k,1)) == Nlevel_samples
+
+The width of level=0 becomes L-1 instead of 0.
+
+=cut
+
+# LevelWidth[k] = 2*LevelWidth[k-1] + 3     starting LevelWidth[0]=L-1
+#               = 3 + 3*2 + 3*2^2 + ... + 3*2^(k-1) + (L-1)*2^k
+#               = 3*(2^k - 1) + (L-1)*2^k
+#               = 3*2^k - 3 + (L-1)*2^k
+#               = (L+2)*2^k - 3
+
+=pod
+
+    LevelWidth[k] = 2*LevelWidth[k-1] + 3     starting LevelWidth[0]=L-1
+                  = 3 + 3*2 + 3*2^2 + ... + 3*2^(k-1) + (L-1)*2^k
+                  = (L+2)*2^k - 3
+
+    Xlevel[k] = 1 + LevelWidth[k]
+              = (L+2)*2^k - 2
+
+=for Test-Pari-DEFINE  LevelWidth(k,L) = (L+2)*2^k - 3
+
+=for Test-Pari-DEFINE  Xlevel(k,L) = (L+2)*2^k - 2
+
+=for Test-Pari  vector(5,L, vector(20,k,my(k=k-1); Xlevel(k))) == vector(5,L, vector(20,k,my(k=k-1); 1 + LevelWidth(k)))
+
+=for Test-Pari  vector(length(Xlevel_samples),k,my(k=k-1); Xlevel(k,1)) == Xlevel_samples
+
+Level=0 as L many points can be thought of as a little block which is
+replicated in mirror image to make level=1.  For example the diagonal 4
+example above becomes
+
+                8  9            diagonal_length => 4
+                |  |
+             6--7 10-11
+             |        |
+          .  5       12  .
+
+       2--3             14-15
+       |                    |
+    0--1                   16-17
+
+The spacing between the parts is had in the tiling by taking a margin of 1/2
+at the base and 1 horizontally left and right.
+
+=head2 Level Fill
+
+=cut
+
+# 4/3 * (3L+2) / (L+2)^2
+# = 4*(3L+2) / 3*(L+2)^2
+# = 4*(3L+2) / 3*(L+2)^2
+#
+
+=pod
 
 The curve doesn't visit all the points in the eighth of the plane below the
 X=Y diagonal.  In general Nlevel+1 many points of the triangular area
-Xlevel*(Xlevel-1)/2 are visited, for a filled fraction which approaches a
-constant
+Xlevel^2/4 are visited, for a filled fraction which approaches a constant
 
-    FillFrac = Nlevel / (Xlevel*(Xlevel-1)/2)
-            -> 4/3 * (3L+2)/(L+2)^2
+                  Nlevel          4*(3L+2)
+    FillFrac = ------------   ->  ---------
+               Xlevel^2 / 4       3*(L+2)^2
 
 For example the default L=1 has FillFrac=20/27=0.74.  Or L=2
 FillFrac=2/3=0.66.  As the diagonal length increases the fraction decreases
 due to the growing holes in the pattern.
+
+=for Test-Pari-DEFINE  FillFrac(k,L) = Nlevel(k,L) / (Xlevel(k,L)^2 / 4)
+
+=for Test-Pari-DEFINE  FillFracLimit(L) = 4*(3*L+2) / (3* (L+2)^2)
+
+=for Test-Pari  FillFracLimit(1) == 20/27
+
+=for Test-Pari  FillFracLimit(2) == 2/3
+
+=for Test-Pari  abs(FillFrac(50,1) - FillFracLimit(1)) < 2^-25
+
+=for Test-Pari  abs(FillFrac(50,2) - FillFracLimit(2)) < 2^-25
+
+=for Test-Pari  abs(FillFrac(50,3) - FillFracLimit(3)) < 2^-25
+
+=for Test-Pari  abs(FillFrac(50,4) - FillFracLimit(4)) < 2^-25
 
 =head1 FUNCTIONS
 
@@ -773,6 +945,31 @@ integer positions.
 Return 0, the first N in the path.
 
 =back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, ((3*$diagonal_length +2) * 4**$level - 5)/3> as per L</Level
+Ranges with Diagonal Length> above.
+
+=back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+=over
+
+L<http://oeis.org/A146882> (etc)
+
+=back
+
+    A146882   Nlevel, for level=1 up
+    A033484   Xmax and Ymax in level, being 3*2^n - 2
 
 =head1 SEE ALSO
 

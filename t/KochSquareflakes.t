@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 362;
+plan tests => 382;
 
 use lib 't';
 use MyTestHelpers;
@@ -37,7 +37,7 @@ use Math::PlanePath::KochSquareflakes;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::KochSquareflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSquareflakes->VERSION,  $want_version,
@@ -70,6 +70,32 @@ use Math::PlanePath::KochSquareflakes;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+}
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::KochSquareflakes->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 1);
+    ok ($n_hi, 4); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 5);
+    ok ($n_hi, 20); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 21);
+    ok ($n_hi, 84); }
+
+  foreach my $level (0 .. 6) {
+    my ($n_lo,$n_hi) = $path->level_to_n_range($level);
+    my ($x_lo,$y_lo) =  $path->n_to_xy($n_lo);
+    my ($x_hi,$y_hi) =  $path->n_to_xy($n_hi);
+    my $dx = $x_hi - $x_lo;
+    my $dy = $y_hi - $y_lo;
+    ok($dx,0);
+    ok($dy,1);
+  }
 }
 
 #------------------------------------------------------------------------------

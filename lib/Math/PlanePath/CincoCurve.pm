@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -625,7 +625,24 @@ sub _rect_key {
   return (9-$z1)*$z1/2 + $z2;
 }
 
+#------------------------------------------------------------------------------
+# levels
 
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 25**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, 25);
+  return $exp;
+}
+
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -717,6 +734,16 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 25**$level - 1)>.
 
 =back
 

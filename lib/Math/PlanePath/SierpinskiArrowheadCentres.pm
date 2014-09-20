@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -314,6 +314,26 @@ sub rect_to_n_range {
   return (0, 3**($level+1) - 1);
 }
 
+#-----------------------------------------------------------------------------
+# level_to_n_range()
+
+# shared by SierpinskiTriangle
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  my $n_start = $self->n_start;
+  return ($n_start, $n_start + 3**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  $n = $n - $self->n_start;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, 3);
+  return $exp + 1;
+}
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -389,7 +409,7 @@ __END__
 
 #------------------------------------------------------------------------------
 
-=for stopwords eg Ryde Sierpinski Nlevel ie Math-PlanePath bitand dX,dY
+=for stopwords eg Ryde Sierpinski Nlevel ie Math-PlanePath bitand dX dY
 
 =head1 NAME
 
@@ -625,6 +645,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 If C<$n> is not an integer then the return is on a straight line between the
 integer points.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 3**$level - 1)>.
 
 =back
 

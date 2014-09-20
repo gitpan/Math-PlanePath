@@ -212,7 +212,7 @@ use Smart::Comments;
         next unless ($x%2==1 && $y%2==0);
         push @values, $n+$add;
       }
-      use lib 'xt'; require MyOEIS;
+      require Math::OEIS::Grep;
       Math::OEIS::Grep->search(array => \@values,
                                name => "$tree_type plus $add");
     }

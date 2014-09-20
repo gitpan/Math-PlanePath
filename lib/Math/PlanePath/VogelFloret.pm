@@ -80,11 +80,11 @@
 package Math::PlanePath::VogelFloret;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

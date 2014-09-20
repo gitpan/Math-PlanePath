@@ -23,7 +23,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -167,7 +167,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath Radix radix ie OEIS
+=for stopwords Ryde Math-PlanePath Radix radix ie OEIS DOI
 
 =head1 NAME
 

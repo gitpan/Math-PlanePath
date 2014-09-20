@@ -1417,42 +1417,7 @@ a single unit triangle.
   exit 0;
 }
 
-{
-  # triplications
-  require Math::BaseCnv;
-  my $path = Math::PlanePath::TerdragonCurve->new;
-  my %seen;
-  for (my $n = 0; $n < 2000; $n++) {
-    my ($x,$y) = $path->n_to_xy($n);
-    my $key = "$x,$y";
-    push @{$seen{$key}}, $n;
-    if (@{$seen{$key}} == 3) {
-      my @v3;
-      foreach my $v (@{delete $seen{$key}}) {
-        my $v3 = Math::BaseCnv::cnv($v,10,3);
-        push @v3, $v3;
-        printf "%4s %7s\n", $v, $v3;
-      }
-      my $lenmatch = 0;
-      foreach my $i (1 .. length($v3[0])) {
-        my $want = substr ($v3[0], -$i);
-        if ($v3[1] =~ /$want$/ && $v3[2] =~ /$want$/) {
-          next;
-        } else {
-         $lenmatch = $i-1;
-          last;
-          last;
-        }
-      }
-      my $zeros = ($v3[0] =~ /(0*)$/ && $1);
-      my $lenzeros = length($zeros);
-      my $same = ($lenmatch == $lenzeros+1 ? "same" : "diff");
-      print "low same $lenmatch zeros $lenzeros   $same\n";
-      print "\n";
-    }
-  }
-  exit 0;
-}
+
 
 
 {

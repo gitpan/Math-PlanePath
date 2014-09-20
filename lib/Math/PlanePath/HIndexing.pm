@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
@@ -293,6 +293,39 @@ sub rect_to_n_range {
   return (0, 2*$len*$len-1);
 }
 
+
+#------------------------------------------------------------------------------
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 2*4**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, 2);
+  my ($pow,$exp) = round_down_pow ($n, 4);
+  return $exp + 1;
+}
+
+sub _UNDOCUMENTED__level_to_area {
+  my ($self, $level) = @_;
+  return (2**$level - 1)**2;
+}
+sub _UNDOCUMENTED__level_to_area_Y {
+  my ($self, $level) = @_;
+  if ($level == 0) { return 0; }
+  return 2**(2*$level-1)  - 2**$level;
+}
+sub _UNDOCUMENTED__level_to_area_up {
+  my ($self, $level) = @_;
+  if ($level == 0) { return 0; }
+  return 2**(2*$level-1)  - 2**$level + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -311,18 +344,18 @@ Math::PlanePath::HIndexing -- self-similar right-triangle traversal
 =head1 DESCRIPTION
 
 X<Niedermeier, Rolf>X<Reinhardt, Klaus>X<Sanders, Peter>This is an infinite
-integer version of the H-indexing by Rolf Niedermeier, Klaus Reinhardt and
-Peter Sanders.
+integer version of H-indexing per
 
 =over
 
-"Towards Optimal Locality In Mesh Indexings", Discrete Applied Mathematics,
-volume 117, March 2002.
+Rolf Niedermeier, Klaus Reinhardt and Peter Sanders, "Towards Optimal
+Locality In Mesh Indexings", Discrete Applied Mathematics, volume 117, March
+2002, pages 211-237.
 L<http://theinf1.informatik.uni-jena.de/publications/dam01a.pdf>
 
 =back
 
-It traverses an octant of the plane by self-similar right triangles.  Notice
+It traverses an eighth of the plane by self-similar right triangles.  Notice
 the "H" shapes that arise from the backtracking, for example N=8 to N=23,
 and repeating above it.
 
@@ -392,10 +425,10 @@ further divided to have one point each, a little skewed.
     |  /
     +/
 
-The correspondence to the C<SierpinskiCurve> is as follows.  The 4-point
-verticals like N=0 to N=3 are a Sierpinski horizontal, and the 4-point "U"
-parts like N=4 to N=7 are a Sierpinski vertical.  In both cases there's an
-X,Y transpose and bit of stretching.
+The correspondence to the C<SierpinskiCurve> path is as follows.  The
+4-point verticals like N=0 to N=3 are a Sierpinski horizontal, and the
+4-point "U" parts like N=4 to N=7 are a Sierpinski vertical.  In both cases
+there's an X,Y transpose and bit of stretching.
 
 
     3                                       7
@@ -422,6 +455,9 @@ On even Y rows, the N on the X=Y diagonal is found by duplicating each bit
 in Y except the low zero (which is unchanged).  For example Y=10 decimal is
 1010 binary, duplicate to binary 1100110 is N=102.
 
+It would be possible to take a level as N=0 to N=4^k-1 too, which would be a
+triangle against the Y axis.  The 2*4^level - 1 is per the paper above.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -439,6 +475,183 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2*4**$level - 1)>.
+
+=back
+
+=head1 FORMULAS
+
+=head2 Area
+
+The area enclosed by curve in its triangular level k is
+
+    A[k] = (2^k-1)^2
+         = 0, 1, 9, 49, 225, 961, 3969, 16129, ...  (A060867)
+
+=for Test-Pari-DEFINE  A(k) = (2^k-1)^2
+
+=for Test-Pari-DEFINE  A_samples = [ 0, 1, 9, 49, 225, 961, 3969, 16129 ]
+
+=for Test-Pari  vector(length(A_samples),k,my(k=k-1); A(k)) == A_samples
+
+For example level k=2 enclosed area marked by "@" signs,
+
+      7 |   *---*---*---*---*---*---31
+        |   |   | @ |   | @ |   | @ |
+      6 |   *   *---*   *   *   *---*
+        |   |           | @ |
+      5 |   *   *---*   *   *
+        |   |   | @ |   | @ |
+      4 |   *---*   *   *---*         level k=2
+        |   | @   @ |                 N=0 to N=31
+      3 |   *-- *   *
+        |   |   | @ |                 A[2] = 9
+      2 |   *   *-- *
+        |   |
+      1 |   *
+        |   |
+    Y=0 |   0
+        +------------------------------
+           X=0  1   2   3   4   5   6
+
+The block breakdowns are
+
+    +---------------+     ^
+    | \  ^ |  | ^  /      |
+    |\ \ 2 |  | 3 /       | = 2^k - 1
+    | \ \  |  |  /        |
+    | 1\ \ |  | /         |
+    | v \ \+--+/          v
+    +----+
+    |    |
+    +----+
+    | ^  /
+    | 0 /
+    |  /
+    | /
+    +/
+
+    <---->  = 2^k - 2
+
+Parts 0 and 3 are identical.  Parts 1 and 2 are mirror images of 0 and 3
+respectively.  Parts 0 and 1 have an area in between 1 high and 2^k-2 wide
+(eg. 2^2-2=2 wide in the k=2 above).  Parts 2 and 3 have an area in between
+1 wide 2^k-1 high (eg. 2^2-1=3 high in the k=2 above).  So the total area is
+
+    A[k] = 4*A[k-1] + 2^k-2 + 2^k-1     starting A[0] = 0
+         =    4^0     * (2*2^k - 3)
+            + 4^1     * (2*2^(k-1) - 3)
+            + 4^2     * (2*2^(k-2) - 3)
+            + ...
+            + 4^(k-1) * (2*2^1 - 3)
+            + 4^k * A[0]
+         = 2*2*(4^k - 2^k)/(4-2) - 3*(4^k - 1)/(4-1)
+         = (2^k - 1)^2
+
+=for Test-Pari  A(0) == 0
+
+=for Test-Pari  vector(50,k, 4*A(k-1) + 2^k-2 + 2^k-1) == vector(50,k, A(k))
+
+=for Test-Pari  vector(50,k, sum(i=0,k-1, 4^i*(2*2^(k-i) - 3))) == vector(50,k, A(k))
+
+=for Test-Pari  vector(50,k, 2*2*(4^k - 2^k)/(4-2) - 3*(4^k - 1)/(4-1)) == vector(50,k, A(k))
+
+=cut
+
+# = 2*2*( 2^(k-1) + 4*2^(k-2) + ... + 4^(k-1)
+#    - 3*( 1 + 4 + ... + 4^*(k-1) )
+#
+# 2*(2^(k-1)*2^(k-1) - 2*2^(k-1) + 1) + 2^k - 2
+# = 2*(2^(k-1)*2^(k-1) - 2*2^(k-1)) + 2*2^(k-1)
+# = 2*2^(k-1)*(2^(k-1)*2^(k-1) - 2)
+# = 2^k * (2^(k-1) - 2)
+#
+# vector(10,k,my(k=k-1); A(k))
+# vector(10,k,my(k=k-1); Afirst(k))
+
+=pod
+
+=head2 Half Level Areas
+
+Block 1 ends at the top-left corner and block 2 start there.  The area
+before that midpoint enclosed to the Y axis can be calculated.  Likewise the
+area after that midpoint to the top line.  Both are two blocks, and with
+either 2^k-2 or 2^k-1 in between.  They're therefore half the total area
+A[k], with the extra unit square going to the top AT[k].
+
+    AY[k] = floor(A[k]/2)
+          = 0, 0, 4, 24, 112, 480, 1984, 8064, 32512, ...  (A059153)
+
+    AT[k] = ceil(A[k]/2)
+          = 0, 1, 5, 25, 113, 481, 1985, 8065, 32513, ...  (A092440)
+
+=for Test-Pari-DEFINE  AY(k) = floor(A(k)/2)
+
+=for Test-Pari-DEFINE  AT(k) = ceil(A(k)/2)
+
+=for Test-Pari-DEFINE  AY_samples = [0, 0, 4, 24, 112, 480, 1984, 8064, 32512, 130560]
+
+=for Test-Pari-DEFINE  AT_samples = [0, 1, 5, 25, 113, 481, 1985, 8065, 32513, 130561]
+
+=for Test-Pari  vector(length(AY_samples),k,my(k=k-1); AY(k)) == AY_samples
+
+=for Test-Pari  vector(length(AT_samples),k,my(k=k-1); AT(k)) == AT_samples
+
+=for Test-Pari-DEFINE  AY(k) = 2*(2^(k-1)*2^(k-1) - 2*2^(k-1)) + 2*2^(k-1)
+
+=for Test-Pari-DEFINE  AY(k) = 2*(2^(k-1)*2^(k-1) - 2^(k-1))
+
+=for Test-Pari-DEFINE  AY(k) = 2^k * (2^(k-1) - 1)
+
+=for Test-Pari-DEFINE  AY(k) = 4^k + 2^k * (2^(k-1) - 1 - 2^k)
+
+=for Test-Pari-DEFINE  AY(k) = 4^k + 2^k * (-2^(k-1) - 1)
+
+=for Test-Pari-DEFINE  AY(k) = (2^k-1)^2 - (2^k-1)^2 + 2^k * (2^(k-1) - 1)
+
+=for Test-Pari  vector(50,k, AY(k)) == vector(50,k, 2*A(k-1)+2^k-2)
+
+=for Test-Pari  vector(50,k, AT(k)) == vector(50,k, 2*A(k-1)+2^k-1)
+
+
+                                     15
+                                      |
+                                     14
+                                      |
+                                     13  10-- 9
+                                      |   | @ |
+                                     12--11   8
+                                        @   @ |
+                      3               3-- 4   7
+                      |               |   | @ |
+                      2               2   5-- 6
+                      |               |
+                      1               1
+                      |               |
+        0             0               0
+
+    AY[0] = 0     AY[1] = 0       AY[2] = 4
+
+=cut
+
+=pod
+
+       1       3-- 4   7       15--16  19--20  27--28  31
+                   | @ |            | @ |   | @ |   | @ |
+                   5-- 6           17--18  21  26  29--30
+                                            | @ |
+                                           22  25
+                                            | @ |
+                                           23--24
+
+    AT[0] = 0   AT[1] = 1      AT[2] = 5
+
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
@@ -451,6 +664,10 @@ L<http://oeis.org/A097110> (etc)
 =back
 
     A097110    Y at N=2^k, being successively 2^j-1, 2^j
+
+    A060867    area of level
+    A059153    area of level first half
+    A092440    area of level second half
 
 =head1 SEE ALSO
 

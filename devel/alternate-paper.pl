@@ -26,7 +26,7 @@ use lib 'xt';
 use MyOEIS;
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+# use Smart::Comments;
 
 =head2 Right Boundary Segment N
 
@@ -52,6 +52,188 @@ diagonal, are
 
 =cut
 
+
+{
+  # resistance
+  #
+  #     2---3
+  #     |   |
+  # 0---1   4
+  #
+  # vertices 5
+  # 4
+  # 4.000000000000000000000000000
+  # level=2
+  # vertices 14
+  # 28/5
+  # 5.600000000000000000000000000
+  # level=3
+  # vertices 44
+  # 32024446704/4479140261
+  # 7.149686064273931429806591627
+  # level=4
+  # vertices 152
+  # 6628233241945519690439003608662864691664896192990656/773186632952527929515144502921021371068970539201685
+  # 8.572617476112626473076554400
+  #
+  # shortcut on X axis
+  #     2---3
+  #     |   |     1 + 1/(1+1/3) = 1+3/4
+  # 0---1---4  
+  # 1
+  # 1.000000000000000000000000000
+  # level=1
+  # vertices 5
+  # 7/4
+  # 1.750000000000000000000000000
+  # level=2
+  # vertices 14
+  # 73/26
+  # 2.807692307692307692307692308
+  # level=3
+  # vertices 44
+  # 2384213425/588046352
+  # 4.054465123184711126309308352
+  # level=4
+  # vertices 152
+  # 2071307229966623393952039649887056624274965452048209/386986144302228882053693423947791758105522022410048
+  # 5.352406695855682889687320523
+  #
+  sub to_bigrat {
+    my ($n) = @_;
+    return $n;
+    require Math::BigRat;
+    return Math::BigRat->new($n);
+  }
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  require Math::PlanePath::AlternatePaper;
+  my $path = Math::PlanePath::AlternatePaper->new;
+  foreach my $level (0 .. 9) {
+    print "level=$level\n";
+    my %xy_to_index;
+    my %xy_to_value;
+    my $index = 0;
+    my @rows;
+    my $n_lo = 0;
+    my $n_hi = 2*4**$level;
+    foreach my $n ($n_lo .. $n_hi) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $xy = "$x,$y";
+      if (! exists $xy_to_index{$xy}) {
+        ### vertex: "$x,$y index=$index"
+        $xy_to_index{$xy} = $index++;
+        $xy_to_value{$xy} = ($n == $n_lo ? to_bigrat(-1)
+                             : $n == $n_hi ? to_bigrat(1)
+                             : to_bigrat(0));
+      }
+    }
+    foreach my $xy (keys %xy_to_index) {
+      my @row = (to_bigrat(0)) x $index;
+      $row[$index] = $xy_to_value{$xy};
+      my $i = $xy_to_index{$xy};
+      if ($i == 0) {
+        $row[$i] = 1;
+        $row[$index] = 0;
+      } else {
+        my ($x,$y) = split /,/, $xy;
+        ### point: "$x,$y"
+        foreach my $dir4 (0 .. $#dir4_to_dx) {
+          my $dx = $dir4_to_dx[$dir4];
+          my $dy = $dir4_to_dy[$dir4];
+          my $x2 = $x+$dx;
+          my $y2 = $y+$dy;
+          if (path_xyxy_is_traversed($path, $x,$y, $x2,$y2, $n_hi)) {
+            my $i2 = $xy_to_index{"$x2,$y2"};
+            ### edge: "$x,$y to $x2,$y2  $i to $i2"
+            $row[$i]++;
+            $row[$i2]--;
+          }
+        }
+      }
+      push @rows, \@row;
+    }
+    print "vertices $index\n";
+    ### @rows
+    require Math::Matrix;
+    my $m = Math::Matrix->new(@rows);
+    # print $m;
+    if (0) {
+      my $s = $m->solve;
+      # print $s;
+      foreach my $i (0 .. $index-1) {
+        print " ",$s->[$i][0],",";
+      }
+      print "\n";
+      my $V = $s->[0][0];
+      print int($V),"+",$V-int($V),"\n";
+    }
+    {
+      open my $fh, '>', '/tmp/x.gp' or die;
+      mm_print_pari($m,$fh);
+      print $fh "; s=matsolve(m,v); print(s[$index,1]);s[$index,1]+0.0\n";
+      close $fh;
+      require IPC::Run;
+      IPC::Run::run(['gp','--quiet'],'<','/tmp/x.gp');
+    }
+  }
+  exit 0;
+
+  sub mm_print_pari {
+    my ($m, $fh) = @_;
+    my ($rows, $cols) = $m->size;
+    print $fh "m=[\\\n";
+    my $semi = '';
+    foreach my $r (0 .. $rows-1) {
+      print $fh $semi;
+      $semi = ";\\\n";
+      my $comma = '';
+      foreach my $c (0 .. $cols-2) {
+        print $fh $comma, $m->[$r][$c];
+        $comma = ',';
+      }
+    }
+    print $fh "];\\\nv=[";
+    $semi = '';
+    foreach my $r (0 .. $rows-1) {
+      print $fh $semi, $m->[$r][$cols-1];
+      $semi = ';';
+    }
+    print $fh "]";
+  }
+
+  sub path_xyxy_is_traversed {
+    my ($path, $x1,$y1, $x2,$y2, $n_hi) = @_;
+
+    # shortcut
+    # if ($y1 == 0 && $y2 == 0) {
+    #   foreach my $n1 ($path->xy_to_n_list($x1,$y1)) {
+    #     next unless $n1 <= $n_hi;
+    #     foreach my $n2 ($path->xy_to_n_list($x2,$y2)) {
+    #       next unless $n2 <= $n_hi;
+    #       return 1;
+    #     }
+    #   }
+    #   return 0;
+    # }
+
+    ### xyxy_is_traversed(): "$x1,$y1 to $x2,$y2"
+    foreach my $n1 ($path->xy_to_n_list($x1,$y1)) {
+      next unless $n1 <= $n_hi;
+      foreach my $n2 ($path->xy_to_n_list($x2,$y2)) {
+        next unless $n2 <= $n_hi;
+        if (abs($n1-$n2) == 1) {
+          ### yes ...
+          return 1;
+        }
+      }
+    }
+    ### no ...
+    return 0;
+  }
+}
+
 {
   # left boundary
   require Math::PlanePath::AlternatePaper;
@@ -66,6 +248,7 @@ diagonal, are
   Math::OEIS::Grep->search(array=>\@values);
   exit;
 }
+
 
 {
   # base 4 reversal

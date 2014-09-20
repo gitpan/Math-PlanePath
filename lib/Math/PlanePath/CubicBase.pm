@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -259,7 +259,7 @@ sub rect_to_n_range {
   $x2 = round_nearest ($x2);
   $y2 = round_nearest ($y2);
 
-  my $radix = $self->{'radix'} ;
+  my $radix = $self->{'radix'};
   my $xm = max(abs($x1),abs($x2)) * $radix*$radix*$radix;
   my $ym = max(abs($y1),abs($y2)) * $radix*$radix*$radix;
 
@@ -267,6 +267,15 @@ sub rect_to_n_range {
           $xm*$xm+$ym*$ym);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::ImaginaryBase;
+*level_to_n_range = \&Math::PlanePath::ImaginaryBase::level_to_n_range;
+*n_to_level = \&Math::PlanePath::ImaginaryBase::n_to_level;
+
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -476,6 +485,16 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, $radix**$level - 1)>.
 
 =back
 

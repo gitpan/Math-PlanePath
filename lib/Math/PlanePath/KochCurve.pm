@@ -55,7 +55,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -509,10 +509,28 @@ sub _UNTESTED__n_to_turn_right {
   return ($turn6 < 0 ? 1 : 0);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 4**$level);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n-1, 4);
+  return $exp + 1;
+}
+
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
-=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie OEIS Xlevel floorlevel Nhi Nlo Ndigit
+=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie OEIS Xlevel floorlevel Nhi Nlo Ndigit Une thode trique mentaire tude de Certaines orie des Courbes Acta Arithmetica
 
 =head1 NAME
 
@@ -628,11 +646,11 @@ segment N=0 to N=1 as level=0 (which is area[0]=0),
                 = -----------------
                           5
 
-                = 0, 1, 13, 133, 1261, 11605, 105469, ...
+                = 0, 1, 13, 133, 1261, 11605, 105469, ...  (A016153)
 
-The sides are 6 different angles.  The triangles added there are always the
-same shape either pointing up or down.  Base width=2 and height=1 gives
-area=1.
+The sides are 6 different angles.  The triangles added on the sides are
+always the same shape either pointing up or down.  Base width=2 and height=1
+gives area=1.
 
        *            *-----*   ^
       / \            \   /    | height=1
@@ -671,6 +689,16 @@ and biggest in the rectangle.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 4**$level)>.
 
 =back
 

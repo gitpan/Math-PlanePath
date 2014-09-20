@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -178,7 +178,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Moore Wythoff Zeckendorf concecutive fibbinary OEIS
+=for stopwords eg Ryde Math-PlanePath Moore Wythoff Zeckendorf concecutive fibbinary OEIS Kimberling precurses
 
 =head1 NAME
 

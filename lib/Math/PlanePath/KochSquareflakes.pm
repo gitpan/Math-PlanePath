@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -424,16 +424,31 @@ sub rect_to_n_range {
 }
 
 
+#------------------------------------------------------------------------------
+# Nstart = (4^(k+1) - 1)/3
+# Nend = Nstart(k+1) - 1
+#      = (4*4^(k+1) - 1)/3 - 1
+#      = (4*4^(k+1) - 1 - 3)/3
+#      = (4*4^(k+1) - 4)/3
+#      = 4*(4^(k+1) - 1)/3
+#      = 4*Nstart(k)
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  my $n_lo = (4**($level+1) - 1)/3;
+  return ($n_lo, 4*$n_lo);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 1) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  my ($pow,$exp) = round_down_pow (3*$n + 1, 4);
+  return $exp-1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
-
-
-
-
-
-
-
-
 
     #                             15                     3
     #                            /  \
@@ -466,7 +481,7 @@ __END__
 
 
 
-=for stopwords eg Ryde ie Math-PlanePath Koch Nstart Xstart,Ystart OEIS
+=for stopwords eg Ryde ie Math-PlanePath Koch Nstart Xstart,Ystart OEIS Xstart
 
 =head1 NAME
 
@@ -597,11 +612,11 @@ than the next Nstart,
 
 For example,
 
-    level  Nstart   Nend
+    level  Nstart   Nend                       (A002450,A080674)
       0       1       4
       1       5      20
       2      21      84
-      3      85     340
+      3      85     340                       
 
 X<Lucas Sequence>The Xstart,Ystart position of the Nstart corner is a Lucas
 sequence,
@@ -613,7 +628,7 @@ sequence,
     ...
     Xstart(level+1) = 4*Xstart(level) - 2*Xstart(level-1)
 
-    0.5, 2, 7, 24, 82, 280, 956, 3264, ...
+    0.5, 2, 7, 24, 82, 280, 956, 3264, ...             (A003480)
 
 This recurrence occurs because the replications are 4 wide when horizontal
 but 3 wide when diagonal.
@@ -632,6 +647,19 @@ Create and return a new path object.
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return per L</Level Ranges> above,
+
+    (  (4**$level - 1)/3,
+     4*(4**$level - 1)/3 )
+
+=back
+
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
@@ -643,7 +671,7 @@ L<http://oeis.org/A003480> (etc)
 
 =back
 
-    A003480    -X,-Y coordinate first point of each ring
+    A003480    -X and -Y coordinate first point of each ring
                likewise A020727
     A007052    X,Y coordinate of axis crossing,
                and also maximum height of a side

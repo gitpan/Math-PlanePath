@@ -115,7 +115,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::WythoffDifference';
   $path_class = 'Math::PlanePath::WythoffTriangle';
   $path_class = 'Math::PlanePath::WythoffArray';
-  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::SumFractions';
   $path_class = 'Math::PlanePath::AztecDiamondRings';
   $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
@@ -128,7 +127,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::BinaryTerms';
   $path_class = 'Math::PlanePath::LCornerTreeByCells';
   $path_class = 'Math::PlanePath::UlamWarburtonOld';
-  $path_class = 'Math::PlanePath::UlamWarburton';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ToothpickSpiral';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
@@ -161,16 +159,20 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DiagonalRationals';
   $path_class = 'Math::PlanePath::OneOfEight';
   $path_class = 'Math::PlanePath::PythagoreanTree';
-  
+  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
+  $path_class = 'Math::PlanePath::UlamWarburton';
+
   my $lo = 0;
-  my $hi = 150;
+  my $hi = 20;
   
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     direction => 'up',
-     coordinates => 'ST',
-     tree_type => 'UAD',
+      parts => '2',
+     
+     # direction => 'up',
+     # coordinates => 'ST',
+     # tree_type => 'UAD',
      
      #  ring_shape => 'polygon',
      # step => 1,
@@ -187,8 +189,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # digit_order => 'LtoH',
      # reduced => 1,
      #radix => 4,
-     
-      parts => '3side',
      
       rule => 14,
      # align => 'down',

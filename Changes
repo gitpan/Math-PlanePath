@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 117, September 2014
+    - new methods n_to_level(), level_to_n_range()
+    - UlamWarburton,UlamWarburtonQuarter parameter parts=>octant,octant_up
+
 Version 116, June 2014
     - new WythoffPreliminaryTriangle
     - new methods is_tree(), x_negative_at_n(), y_negative_at_n()

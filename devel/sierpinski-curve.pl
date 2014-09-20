@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012, 2013 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,13 +22,256 @@ use 5.004;
 use strict;
 use POSIX ();
 use Math::Trig 'pi';
-use Math::PlanePath::SierpinskiArrowhead;
+use Math::PlanePath::SierpinskiCurve;
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+# use Smart::Comments;
+
+# Nlevel A146882 5*(4^(n+1)-1)/3 = 5*A002450
 
 
+# =for Test-Pari-DEFINE  Ytop(k,L) = if(k==0,0, (L+2)*2^(k-1) - 2)
+# 
+# =for Test-Pari  Ytop(0,1) == 0
+# 
+# =for Test-Pari  Ytop(1,1) == 1
+# 
+# =for Test-Pari  Ytop(2,1) == 4
+# 
+# =for Test-Pari  Ytop(3,1) == 10
+# 
+#     Ytop[k] = /  0                   if k = 0
+#               \  (L+2)*2^(k-1) - 2   if k > 0
+#             = 0, 1, 4, 10, 22, 46, 94, 190, ...
+#               for L=1
+# 
+# This is the same as C<SierpinskiCurve> but
+# 
+#     Nlevel = ((3L+2)*4^level - 5) / 3
+#     Nlevel = 4^level - 1 + ((3L+2)*4^level - 5) / 3 - 4^level + 1
+#     Nlevel = 4^level - 1 + ((3L+2)*4^level - 5 - 3*4^level + 3) / 3
+#     Nlevel = 4^level - 1 + ((3L-1)*4^level - 2) / 3
+# 
+# 
+# 
+# For C<diagonal_length> = L and reckoning the first diagonal side N=0 to N=2L
+# as level 0, a level extends out to a triangle
+# 
+#     Nlevel = ((6L+4)*4^level - 4) / 3
+#     Xlevel = (L+2)*2^level - 1
+# 
+# For example level 2 in the default L=1 goes to N=((6*1+4)*4^2-4)/3=52 and
+# Xlevel=(1+2)*2^2-1=11.  Or in the L=4 sample above level 1 is
+# N=((6*4+4)*4^1-4)/3=36 and Xlevel=(4+2)*2^1-1=11.
+# 
+# The power-of-4 in Nlevel is per the plain C<SierpinskiCurve>, with factor
+# 2L+1 for the points making the diagonal stair.  The "/3" arises from the
+# extra points between replications.  They become a power-of-4 series
+# 
+#     Nextras = 1+4+4^2+...+4^(level-1) = (4^level-1)/3
+# 
+# For example level 1 is Nextras=(4^1-1)/3=1, being point N=6 in the default
+# L=1.  Or for level 2 Nextras=(4^2-1)/3=5 at N=6 and N=19,26,33,46.
 
+{
+  # between two curves
+  #   (13*4^k - 7)/3
+  #   = 2 15 67 275 1107 4435 17747 70995 283987 1135955
+  #   not in OEIS
+  # area=2 initial diamond is level=0
+
+  require Math::Geometry::Planar;
+  my $path = Math::PlanePath::SierpinskiCurve->new (arms => 2);
+  my @values;
+
+  foreach my $level (0 .. 8) {
+    my $n_hi = 4**($level+1) - 1;
+    my @points;
+    for (my $n = 0; $n <= $n_hi; $n+=2) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @points, [$x,$y];
+    }
+    for (my $n = $n_hi; $n >= 0; $n-=2) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @points, [$x,$y];
+    }
+    ### @points
+    my $polygon = Math::Geometry::Planar->new;
+    $polygon->points(\@points);
+    my $area = $polygon->area;
+    my $length = $polygon->perimeter;
+
+    my $formula = two_area_by_formula($level);
+
+    print "$level  $length  area $area $formula\n";
+    push @values, $area;
+  }
+  shift @values;
+  require Math::OEIS::Grep;
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+
+  sub two_area_by_formula {
+    my ($k) = @_;
+
+    return (13*4**$k - 7) / 3;
+
+    $k++;
+    return (27*4**($k-1) - 18*2**($k-1) -14 * 4**($k-1) + 18 * 2**($k-1) - 4) / 3 - 1;
+    return 9*4**($k-1) - 6*2**($k-1) + (-14 * 4**($k-1) + 18 * 2**($k-1) - 4) / 3 - 1;
+    return 9*4**($k-1) - 6*2**($k-1) - (14 * 4**($k-1) - 18 * 2**($k-1) + 4) / 3 - 1;
+    return 9*2**(2*$k-2) - 2*3*2**($k-1) + 1 - (14 * 4**($k-1) - 18 * 2**($k-1) + 4) / 3 - 2;
+    return (3*2**($k-1) - 1)**2 - (14 * 4**($k-1) - 18 * 2**($k-1) + 4) / 3 - 2;
+    return (3*2**($k-1) - 1)**2 - 4*(7 * 4**($k-1) - 9 * 2**($k-1) + 2) / 6 - 2;
+    return (3*2**($k-1) - 2 + 1)**2 - 4*((7 * 4**($k-1) - 9 * 2**($k-1) + 2) / 6) - 2;
+    return (3*2**($k-1) - 2 + 1)**2 - 4*area_by_formula($k-1) - 2;
+  }
+}
+
+{
+  # area under the curve
+  #   (7*4^k - 9*2^k + 2)/6
+  #
+  require Math::Geometry::Planar;
+  my $path = Math::PlanePath::SierpinskiCurve->new;
+  my @values;
+
+  foreach my $level (1 .. 10) {
+    my ($n_lo, $n_hi) = $path->level_to_n_range($level);
+    my @points;
+    foreach my $n ($n_lo .. $n_hi) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @points, [$x,$y];
+    }
+    my $polygon = Math::Geometry::Planar->new;
+    $polygon->points(\@points);
+    my $area = $polygon->area;
+    my $length = $polygon->perimeter;
+
+    my $formula = area_by_formula($level);
+
+    print "$level  $length  area $area $formula\n";
+    push @values, $area;
+  }
+  shift @values;
+  require Math::OEIS::Grep;
+  Math::OEIS::Grep->search(array => \@values);
+  exit 0;
+
+  sub area_by_formula {
+    my ($k) = @_;
+    if ($k == 0) { return 0; }
+
+    return (7 * 4**$k - 9 * 2**$k + 2) / 6;
+    return (28 * 4**($k-1) - 18 * 2**($k-1) + 2) / 6;
+
+    {
+      return (
+              4**($k-1) * 6
+              - 4**($k-1) + 1
+              + 9*4**($k-1) - 9*2**($k-1)
+             )/3;
+    }
+    {
+      return (
+              (4**($k-1) * 6 - 4**($k-1) + 1)/3
+              + 3*4**($k-1) - 3*2**($k-1));
+    }
+    {
+      return (4**($k-1) * 2
+              - (4**($k-1) - 1)/3
+              + 3*2* (4**($k-1) - 2**($k-1))/(4-2));
+    }
+
+    {
+      #                            i=k-2
+      #      = 2*4^(k-1) + 3*2 * sum   4^i * 2^(k-2-i)    - (4^(k-1) - 1)/3
+      #                            i=0
+      #      = 2*4^(k-1) + 3*2 * (4^(k-1) - 2^(k-1))/(4-2)    - (4^(k-2) - 1)/3
+
+      if ($k == 1) { return 2; }
+      my $total = 4**($k-1) * 2;
+      $total -= (4**($k-1) - 1)/3;
+      $total += 3*2* (4**($k-1) - 2**($k-1))/(4-2);
+      return $total;
+    }
+    {
+      #                            i=k-2
+      #      = 2*4^(k-1) + 3*2^2 * sum   4^i * 2^(k-3-i)    - (4^(k-1) - 1)/3
+      #                            i=0
+      #      = 2*4^(k-1) + 3*2^2 * (4^(k-1) - 2^(k-1))/(4-2)    - (4^(k-2) - 1)/3
+
+      if ($k == 1) { return 2; }
+      my $total = 4**($k-1) * 2;
+      $total -= (4**($k-1) - 1)/3;
+      foreach my $i (0 .. $k-2) {
+        $total += 4**$i * (3 * 2**($k-1-$i));
+      }
+      return $total;
+    }
+
+    {
+      # A(2) = 4*A(1) + (3*2^(1) - 1)
+      #      =       (3*2^(k-1) - 1)                    0 + k-1 = k-1
+      #        + 4  *(3*2^(k-2) - 1)                    1 + k-2 = k-1
+      #        + 4^2*(3*2^(k-3) - 1)                    2 + k-2 = k-1
+      #        + ...
+      #        + 4^(k-3)*(3*2^(2) - 1)      Ytop(2)     k-3 + 2 = k-1
+      #        + 4^(k-2)*A(1)
+      #                    i=k-2
+      #      = 2*4^(k-1) + sum   4^i * (3*2^(k-1-i) - 1)
+      #                    i=0
+      if ($k == 1) { return 2; }
+      my $total = 4**($k-1) * 2;
+      foreach my $i (0 .. $k-2) {
+        $total += 4**$i * (3 * 2**($k-1-$i) - 1);
+      }
+      return $total;
+    }
+
+    {
+      # A(k) = 4*A(k-1) + Ytop(k) + 1      k >= 2
+      # A(1) = 2
+      # A(0) = 0
+      # Ytop(k) = 3*2^(k-1) - 2
+      # A(k) = 4*A(k-1) + 3*2^(k-1) - 1
+      #
+      if ($k == 1) { return 2; }
+      return 4*area_by_formula($k-1) + 3 * 2**($k-1) - 1;
+    }
+
+  }
+}
+
+
+{
+  # Y coordinate sequence
+  require Math::NumSeq::PlanePathCoord;
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath => 'SierpinskiCurve',
+                                               coordinate_type => 'Sum');
+  my @values;
+  for (1 .. 500) {
+    my ($i,$value) = $seq->next;
+    push @values, $value-1;
+  }
+  unduplicate(\@values);
+  print "values: ", join(',', @values), "\n";
+  require Math::OEIS::Grep;
+  Math::OEIS::Grep->search(array => \@values, verbose => 1);
+  exit 0;
+
+  sub unduplicate {
+    my ($aref) = @_;
+    my $i = 1;
+    while ($i < $#$aref) {
+      if ($aref->[$i] == $aref->[$i-1]) {
+        splice @$aref, $i, 1;
+      } else {
+        $i++;
+      }
+    }
+  }
+}
 {
   # dSumAbs
   require Math::NumSeq::PlanePathDelta;

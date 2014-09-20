@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 304;
+plan tests => 318;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::LTiling;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::LTiling::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::LTiling->VERSION,  $want_version,
@@ -90,5 +90,42 @@ require Math::PlanePath::LTiling;
     ok ($bits, $i);
   }
 }
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::LTiling->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 0); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 15); }
+}
+{
+  my $path = Math::PlanePath::LTiling->new (L_fill => 'ends');
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 7); }
+}
+{
+  my $path = Math::PlanePath::LTiling->new (L_fill => 'all');
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 2); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 11); }
+}
+
+
+#------------------------------------------------------------------------------
 
 exit 0;

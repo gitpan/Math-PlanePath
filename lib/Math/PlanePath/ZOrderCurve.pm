@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -285,6 +285,30 @@ sub rect_to_n_range {
           $self->xy_to_n ($x2, $y2));
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::ZOrderCurve;
+*level_to_n_range = \&Math::PlanePath::ZOrderCurve::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::ZOrderCurve::n_to_level;
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+# shared by Math::PlanePath::GrayCode and others
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, $self->{'radix'}**(2*$level) - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, $self->{'radix'} * $self->{'radix'});
+  return $exp;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -477,6 +501,16 @@ returns N.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, $radix**(2*$level) - 1)>.
 
 =back
 

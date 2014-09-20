@@ -20,14 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1022;
+plan tests => 1071;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::UlamWarburton;
 
@@ -36,7 +36,7 @@ require Math::PlanePath::UlamWarburton;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::UlamWarburton::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::UlamWarburton->VERSION,  $want_version,
@@ -59,6 +59,62 @@ require Math::PlanePath::UlamWarburton;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::UlamWarburton->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 1);
+    ok ($n_hi, 5); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 1);
+    ok ($n_hi, 21); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 1);
+    ok ($n_hi, 85); }
+}
+{
+  my $path = Math::PlanePath::UlamWarburton->new (parts => '2');
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 1);
+    ok ($n_hi, 4); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 1);
+    ok ($n_hi, 14); }
+}
+{
+  my $path = Math::PlanePath::UlamWarburton->new (parts => '1');
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 1);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 1);
+    ok ($n_hi, 9); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 1);
+    ok ($n_hi, 29); }
+}
+
+# depth=2-1=1 is level=0
+# depth=4-1=3 is level=1
+# depth=8-1=7 is level=2
+#
+foreach my $parts ('4','2','1') {
+  foreach my $n_start (1
+                       # , -10, 39
+                      ) {
+    my $path = Math::PlanePath::UlamWarburton->new (parts => $parts,
+                                                    n_start => $n_start);
+    foreach my $level (0 .. 6) {
+      my ($n_lo,$n_hi) = $path->level_to_n_range($level);
+      my $depth = 2**($level+1) - 1;
+      my $n_end = $path->tree_depth_to_n_end($depth);
+      ok ($n_hi,$n_end, "parts=$parts n_start=$n_start depth=$depth level=$level");
+    }
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -93,6 +149,8 @@ require Math::PlanePath::UlamWarburton;
 
                   [ 8, 30 ], # +1+1
                   [ 9, 32 ],
+
+                  [ 15, 74 ],
                 ],
 
                 [ [ ], # default parts=4

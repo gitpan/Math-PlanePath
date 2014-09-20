@@ -40,7 +40,7 @@
 # Notas de Contenido:Trabajo presentado con motivo de la enrega del premio
 # "Orlando Villamayor" en Matemática, a la Dra. Agnes I. Benedek, el día 10
 # noviembre de 2000.
-# # www.ancefn.org.ar/old/biblioteca/base_de_datos/tomo53.html                                                                           
+# # www.ancefn.org.ar/old/biblioteca/base_de_datos/tomo53.html
 # # (table of contents)
 
 # * Bailey, Kim, Strichartz, "Inside the Levy Dragon", American Mathematical
@@ -58,13 +58,27 @@
 # https://archive.org/details/your-sinclair-92
 # August 1983 pages 16-17 bytes poked into memory.
 
+# V. E. Hoggatt, Jr. and G. L. Alexanderson, "Sums of Partition Sets in
+# Generalized Pascal Triangles I", Fibonacci Quarterly, volume 14, number 2,
+# April 1976, pages 117-125.
+# http://fq.math.ca/14-2.html
+# http://fq.math.ca/Scanned/14-2/hoggatt1.pdf  1.6mb
+
+# Chr. Ramus, "Solution generale d'un probleme d'analyse combinatoire,"
+# J. Reine Angew. Math. (Crelle's journal), volume 11, 1834, pages 353-355.
+# <a href="http://gdz.sub.uni-goettingen.de/en/dms/load/toc/?PPN=PPN243919689_0011">goettingen</a>
+# <a href="http://citeseer.uark.edu:8080/citeseerx/showciting;jsessionid=C43AA7558C10AD9464E14AC5E86110F7?cid=5285697">citeseer</a>
+#
+# cf. E. Netto, Lehrbuch der Combinetorik, 2nd ed., Teubner, Berlin, 1927.
+
+
 package Math::PlanePath::CCurve;
 use 5.004;
 use strict;
 use List::Util 'min','max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -524,17 +538,26 @@ sub _UNDOCUMENTED_level_to_hull_boundary_sqrt2 {
 }
 
 #------------------------------------------------------------------------------
+# levels
 
-sub _UNDOCUMENTED_level_to_n_range {
+sub level_to_n_range {
   my ($self, $level) = @_;
   return (0, 2**$level);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n-1, 2);
+  return $exp + 1;
 }
 
 #------------------------------------------------------------------------------
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath ie OEIS dX,dY
+=for stopwords eg Ryde Math-PlanePath ie OEIS dX,dY dX combinatorial Ramus th zig zags stairstep Duvall Keesling vy Preprint
 
 =head1 NAME
 
@@ -918,6 +941,16 @@ Return 0, the first N in the path.
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2**$level)>.
+
+=back
+
 =head1 FORMULAS
 
 =head2 Direction
@@ -1128,23 +1161,24 @@ The four in-between points S=0,D=1 etc don't occur so range tests
 In a level N=0 to N=2^k-1 inclusive, the number of segments in each
 direction 0=East, 1=North, 2=West, 3=South are given by
 
-           k=0     for k >= 1
-    M0[k] = 1  then  2^(k-2) + d(k+2)*2^(h-1)
-    M1[k] = 0  then  2^(k-2) + d(k+0)*2^(h-1)
-    M2[k] = 0  then  2^(k-2) + d(k-2)*2^(h-1)
-    M3[k] = 0  then  2^(k-2) + d(k-4)*2^(h-1)
+           k=0        for k >= 1
+           ---        ----------
+    M0[k] = 1,    2^(k-2) + d(k+2)*2^(h-1)
+    M1[k] = 0,    2^(k-2) + d(k+0)*2^(h-1)
+    M2[k] = 0,    2^(k-2) + d(k-2)*2^(h-1)
+    M3[k] = 0,    2^(k-2) + d(k-4)*2^(h-1)
 
     where h = floor(k/2)
-      d(n mod 8) =  0  1  1  1  0 -1 -1 -1
-        n mod 8  =  0  1  2  3  4  5  6  7
+    and   d(m) = 0  1  1  1  0 -1 -1 -1
+                 for m == 0 to 7 mod 8
 
     M0[k] = 1, 1, 1, 1, 2,  6, 16, 36, 72, 136, 256, ...
     M1[k] = 0, 1, 2, 3, 4,  6, 12, 28, 64, 136, 272, ...
     M2[k] = 0, 0, 1, 3, 6, 10, 16, 28, 56, 120, 256, ...
     M3[k] = 0, 0, 0, 1, 4, 10, 20, 36, 64, 120, 240, ...
 
-d(n) is a +1, -1 or 0 factor according to n mod 8.  The counts go as a power
-2^(k-2), so roughy 1/4 each, but a half power 2^(h-1) possibly added or
+d(n) is a factor +1, -1 or 0 according to n mod 8.  Each M goes as a power
+2^(k-2), so roughly 1/4 each, but a half power 2^(h-1) possibly added or
 subtracted in a k mod 8 pattern.  In binary this is a 2^(k-2) high 1-bit
 with another 1-bit in the middle added or subtracted.
 
@@ -1207,8 +1241,8 @@ the previous level rotated +90,
             0---1
 
 For the bits in N, level k+1 introduces a new bit either 0 or 1.  In M0[k+1]
-the a 0-bit is count M0[k] the same direction, and when a 1-bit M3[k] one
-less bit mod 4.  Similarly the other counts.
+the a 0-bit is count M0[k] the same direction, and when a 1-bit is M3[k]
+since one less bit mod 4.  Similarly the other counts.
 
 Some substitutions give 3rd order recurrences
 
@@ -1246,7 +1280,7 @@ The characteristic polynomial  of these recurrences is
 So explicit formulas can be written in powers of the roots 2, 1-i and 1+i,
 
     M0[k] = ( 2^k +   (1-i)^k +   (1+i)^k )/4      for k>=1
-    M3[k] = ( 2^k + i*(1-i)^k - i*(1+i)^k )/4
+    M1[k] = ( 2^k + i*(1-i)^k - i*(1+i)^k )/4
     M2[k] = ( 2^k -   (1-i)^k -   (1+i)^k )/4
     M3[k] = ( 2^k - i*(1-i)^k + i*(1+i)^k )/4
 
@@ -1268,16 +1302,16 @@ So explicit formulas can be written in powers of the roots 2, 1-i and 1+i,
 
 The complex numbers 1-i and 1+i are 45 degree lines clockwise and
 anti-clockwise respectively.  The powers turn them in opposite directions so
-the imaginary parts cancel out.  The real parts can be had by a half power
-h=floor(k/2) which is the magnitude abs(1-i)=sqrt(2) projected onto the real
-axis.  The sign selector d(n) above is whether it's the positive or negative
-part of the real axis, or zero when entirely imaginary.
+the imaginary parts always cancel out.  The remaining real parts can be had
+by a half power h=floor(k/2) which is the magnitude abs(1-i)=sqrt(2)
+projected onto the real axis.  The sign selector d(n) above is whether the
+positive or negative part of the real axis, or zero when at the origin.
 
-The second way to calculate is the combinatorial interpretation that East
-segments are all N values with count_1_bits(N) == 0 mod 4, since as per
-L</Direction> above the direction is count_1_bits(N) mod 4.  So East is all
-N with 0, 4, 8, etc many 1-bits.  The number of ways to have that many
-within k bits is k choose 0, 4, 8 etc.
+The second way to calculate is the combinatorial interpretation that per
+L</Direction> above the direction is count_1_bits(N) mod 4 so East segments
+are all N values with count_1_bits(N) == 0 mod 4, ie. N with 0, 4, 8, etc
+many 1-bits.  The number of ways to have those bit counts within total k
+bits is k choose 0, 4, 8 etc.
 
     M0[k] = /k\ + /k\ + ... + / k\      m = floor(k/4)
             \0/   \4/         \4m/
@@ -1309,13 +1343,19 @@ within k bits is k choose 0, 4, 8 etc.
 
 The power forms above are cases of the identity by Ramus for sums of
 binomial coefficients in arithmetic progression like this.  (See Knuth
-volume 1 section 1.2.6 exercise 30 for a form with cos.)
+volume 1 section 1.2.6 exercise 30 for a form with cosines resulting from
+w=i+1 as 8th roots of unity.)
 
 The total M0+M1+M2+M3=2^k is the total binomials across a row of Pascal's
 triangle.
 
     /k\ + /k\ + ... + /k\ = 2^k
     \0/   \1/         \k/
+
+It's interesting to note the M counts here are the same in the dragon curve
+(L<Math::PlanePath::DragonCurve>).  The shapes of the curves are different
+since the segments are in a different order, but the total puts points N=2^k
+at the same X,Y position.
 
 =cut
 
@@ -1372,6 +1412,7 @@ the "C", from N=0 to N=2^k is
     R[k] = 2*R[k-1] + R[k-2] - 4*R[k-3] + 2*R[k-4]
 
 =for Test-Pari-DEFINE Rsamples = [1, 2, 4, 8, 14, 24, 38, 60, 90, 136, 198, 292, 418]
+
 =for Test-Pari-DEFINE Rcases(k)=if(k%2,10,7)*2^floor(k/2) - 2*k - 6
 
 =for Test-Pari vector(length(Rsamples), k, Rcases(k-1)) == Rsamples
@@ -1409,8 +1450,8 @@ the "C", from N=0 to N=2^k is
 =pod
 
 The length doubles until R[4]=14 which is points N=0 to N=2^4=16.  At k=4
-points N=7,8,9 have turned inward and closed off some of the outside of the
-curve so boundary less than 2x.
+the points N=7,8,9 have turned inward and closed off some of the outside of
+the curve so the boundary less than 2x.
 
         11--10--9,7--6--5        right boundary
          |       |      |        around "outside"
@@ -1441,11 +1482,11 @@ lines.  The straight lines all point "forward", which is anti-clockwise.
     v                 |          v                     \
        straight S=3                zig-zag Z[k+1] = 2S[k]-2 = 4
 
-The count Z here is both sides of each "V" shape, from the points marked "a"
-through to "c".  So Z counts the line segments making up the boundary
-(rather than the number of "V"s).  Each S becomes an upward peak.  The first
-and last side of those peaks become part of the following "straight" section
-(at A and D), hence Z[k+1]=2*S[k]-2.
+The count Z here is both sides of each "V" shape from points "a" through to
+"c".  So Z counts the boundary length (rather than the number of "V"s).
+Each S becomes an upward peak.  The first and last side of those peaks
+become part of the following "straight" section (at A and D), hence
+Z[k+1]=2*S[k]-2.
 
 The zigzags all point "forward" too.  When they expand they close off the V
 shape and become 2 straight lines for each V, which means 1 straight line
@@ -1477,7 +1518,7 @@ an empty zigzag at N=1.  Z[1] is the first non-empty at N=3 to N=5.
 The curve N=0 to N=2^k is symmetric at each end and is made up of runs S[0],
 Z[0], S[1], Z[1], etc, of straight and zigzag alternately at each end.  When
 k is even there's a single copy of a middle S[k/2].  When k is odd there's a
-single middle Z[(k-1)/2] (with an S[h] before and after).  So
+single middle Z[(k-1)/2] (with an S[(k-1)/2] before and after).  So
 
                 / i=h-1          \           # where h = floor(k/2)
     R[k] = 2 * | sum   S[i]+Z[i]  |
@@ -1492,8 +1533,8 @@ single middle Z[(k-1)/2] (with an S[h] before and after).  So
            + if k odd (2^h + 2*2^h - 2)      # possible S[h]+Z[h]
 
          = 2*(2^h-1 + 2*2^h-2 - 2h) + 2^h + (k odd 3*2^h - 2)
-         = 7*2^h - 4h-6 + (if k odd + 3*2^h - 2)
-         = 7*2^h - 2k-6 + (if k odd + 3*2^h)
+         = 7*2^h - 4h-6 + (if k odd then + 3*2^h - 2)
+         = 7*2^h - 2k-6 + (if k odd then + 3*2^h)
 
 =head2 Convex Hull Boundary
 
@@ -1584,8 +1625,8 @@ The area of the convex hull for points N=0 to N=2^k inclusive is
 HA[1] and HA[3] are fractions but all others are integers.
 
 The area can be calculated from the shapes shown for the hull boundary
-above.  For k odd it can be noted the total width and total height are the
-same, then the various corners are cut off.
+above.  For k odd it can be noted the width and height are equal, then the
+various corners are cut off.
 
 =head2 Line Points
 
@@ -1671,8 +1712,9 @@ direction.
 
 =head2 Triangle Areas in Regions
 
-Consider a little right triangle with hypotenuse on each line segment, as
-described above, and the way it becomes two triangles on replicating
+Consider a little right triangle with hypotenuse on each line segment (the
+same as in L</Tiling> above) and the way it becomes two triangles on
+replicating
 
                                                 *   *
     1 triangle           2 triangles           / \ / \    4 triangles
@@ -1683,7 +1725,7 @@ described above, and the way it becomes two triangles on replicating
     E-----S               E     S             E       E
 
 Consider the triangles which fall within the following regions a,b,c,...,i.
-The "S" start to "E" end line are rotated as necessary to be horizontal.
+The line from start "S" to end "E" is rotated as necessary to be horizontal.
 
             *-------*
            /|\  a  /|\
@@ -1709,10 +1751,11 @@ regions, two "c" regions, etc, one on each side.
 The initial triangle is e[0]=1.  On expanding to S,M,E shown above there are
 then 2 triangles, 1 in each of the two "c" regions, giving c[1]=1.  The
 third expansion keeps 2 triangles in "c" and pushes 2 triangles into "b" for
-c[2]=1 and b[2]=1.  In all cases the total is the power-of-2 doubling,
+c[2]=1 and b[2]=1.  In all cases the total is the power-of-2 doubling, hence
+sum
 
-    a[k] + 2*b[k] + 2*c[k] + 2*d[k] + e[k]
-        + 2*f[k] + g[k] + 2*h[k] + 2*i[k] = 2^k
+    a[k] + 2*b[k] + 2*c[k] + 2*d[k] +   e[k]
+         + 2*f[k] +   g[k] + 2*h[k] + 2*i[k] = 2^k
 
 Level k+1 can be calculated by considering two level k, one from S to M and
 another from M to E.  The following shows how those two previous levels fall
@@ -1753,24 +1796,24 @@ a[k+1] = 2*b[k] + 2*d[k].  The recurrences are
 
 =pod
 
-    a[k+1] = 2*b[k] + 2*d[k]                 starting
-    b[k+1] = a[k] + c[k]                       a[0]=...=i[0]=1
-    c[k+1] = c[k] + e[k] + f[k] + h[k]         except e[0]=1
-    d[k+1] = b[k]
-    e[k+1] = 2*g[k] + 2*i[k]
-    f[k+1] = d[k]
-    g[k+1] = 2*i[k]
-    h[k+1] = f[k]
-    i[k+1] = h[k]
+                                             starting
+    a[k+1] = 2*b[k] + 2*d[k]                   a[0] = 0
+    b[k+1] = a[k] + c[k]                       b[0] = 0
+    c[k+1] = c[k] + e[k] + f[k] + h[k]         c[0] = 0
+    d[k+1] = b[k]                              d[0] = 0
+    e[k+1] = 2*g[k] + 2*i[k]                   e[0] = 1
+    f[k+1] = d[k]                              f[0] = 0
+    g[k+1] = 2*i[k]                            g[0] = 0
+    h[k+1] = f[k]                              h[0] = 0
+    i[k+1] = h[k]                              i[0] = 0
 
-These equations are not independent since
+These equations are not independent since a[k+1] can be written in terms of
+d[k+1] and f[k+1]
 
-    d[k+1] = b[k]
-    f[k+1] = d[k]
-    2*d[k+1] + 2*f[k+1] = 2*b[k] + 2*d[k]
-                        = a[k+1]
+    a[k+1] = 2*b[k]   + 2*d[k]
+    a[k+1] = 2*d[k+1] + 2*f[k+1]
 
-The initial values a[0]=0, d[0]=0 and f[0]=0 also satisfy this relation, so
+The initial values a[0]=0, d[0]=0 and f[0]=0 also satisfy this, so
 a[k]=2*d[k]+2*f[k] for kE<gt>=0.  Substituting into the equation for b[k+1]
 eliminates a[k].
 
@@ -1813,8 +1856,8 @@ values
     i   0,0,0,0,0,0, 1, 1,   3, 5, 10, 20, 38, 78,155,311
 
 The values for b through i are the same, just starting one position later
-each time.  This is the spiralling out by 45 degrees each time, and per the
-equations above.
+each time.  This is the spiralling out by 45 degrees each time and per the
+successive equations above.
 
     i[k+1] = h[k] = f[k-1] = d[k-2] = b[k-3]
 
@@ -1829,9 +1872,9 @@ equations above.
 =for Test-Pari Vec(gBt(x) - O(x^12)) == vecextract(Btsamples,"3..")  /* no leading zeros from Vec() */
 
 The recurrence for these can be started from a single initial "1" and
-treating preceding values (including some negative indices) as "0".  This is
-also seen in a single term for the numerator of the generating function.
-For example the generating function for "b",
+treating preceding values (including some negative indices) as "0".  The
+generating function for these have a single term in numerator.  For example
+the generating function for "b",
 
                                x^2
     gb(x) =  -----------------------------------------
@@ -2012,13 +2055,13 @@ One use for this could be some gray-scale colouring at a limit of drawing
 resolution.  Replications to a desired level give triangles then those
 triangles which are "on" can be drawn as gray spread out among its
 neighbouring triangles in the pattern above.  The total in a given triangle
-would be all grays which go into that triangle.  For square pixels the four
-triangles making up a square can be averaged.  Or at an odd replication
-level two triangles make up a square.
+would be all grays which go into that triangle.  For square pixels the
+triangles making up a square can be averaged (4 triangles at even
+replication levels, 2 triangles at odd replication levels).
 
 Triangles with total gray "1" are fully within the final fractal.  The first
-such does not arise until 14 expansions (per Duvall and Keesling, reference
-below).
+such does not arise until 14 expansions, as per Duvall and Keesling
+reference below.
 
 =cut
 
@@ -2115,8 +2158,8 @@ L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::AlternatePaper>,
 L<Math::PlanePath::KochCurve>
 
-L<ccurve(6x)> back-end of L<xscreensaver(1)> displaying the C curve (and
-various other dragon curve and Koch curves).
+L<ccurve(6x)> back-end for L<xscreensaver(1)> which displays the C curve
+(and various other dragon curve and Koch curves).
 
 =head1 HOME PAGE
 

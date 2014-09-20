@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 140;
+plan tests => 160;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ my $path = Math::PlanePath::KochSnowflakes->new;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::KochSnowflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSnowflakes->VERSION,  $want_version,
@@ -66,6 +66,32 @@ my $path = Math::PlanePath::KochSnowflakes->new;
   ok ($path->y_negative, 1, 'y_negative()');
   ok ($path->class_x_negative, 1, 'class_x_negative()');
   ok ($path->class_y_negative, 1, 'class_y_negative()');
+}
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::KochSnowflakes->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 1);
+    ok ($n_hi, 3); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 4);
+    ok ($n_hi, 15); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 16);
+    ok ($n_hi, 63); }
+
+  foreach my $level (0 .. 6) {
+    my ($n_lo,$n_hi) = $path->level_to_n_range($level);
+    my ($x_lo,$y_lo) =  $path->n_to_xy($n_lo);
+    my ($x_hi,$y_hi) =  $path->n_to_xy($n_hi);
+    my $dx = $x_hi - $x_lo;
+    my $dy = $y_hi - $y_lo;
+    ok($dx,1);
+    ok($dy,1);
+  }
 }
 
 #------------------------------------------------------------------------------

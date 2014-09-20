@@ -27,7 +27,7 @@
 
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 use List::Util 'max';
 use Test;
 plan tests => 46;

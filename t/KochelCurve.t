@@ -37,7 +37,7 @@ my $path = Math::PlanePath::KochelCurve->new;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::KochelCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochelCurve->VERSION,  $want_version,

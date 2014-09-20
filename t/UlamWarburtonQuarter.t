@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 284;
+plan tests => 317;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::UlamWarburtonQuarter;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::UlamWarburtonQuarter::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::UlamWarburtonQuarter->VERSION,  $want_version,
@@ -59,6 +59,48 @@ require Math::PlanePath::UlamWarburtonQuarter;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::UlamWarburtonQuarter->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 1);
+    ok ($n_hi, 1); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 1);
+    ok ($n_hi, 5); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 1);
+    ok ($n_hi, 21); }
+}
+{
+  my $path = Math::PlanePath::UlamWarburtonQuarter->new (n_start => 10);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 10);
+    ok ($n_hi, 10); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 10);
+    ok ($n_hi, 14); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 10);
+    ok ($n_hi, 30); }
+}
+
+# depth=2-2=0 is level=0
+# depth=4-2=2 is level=1
+# depth=8-2=6 is level=2
+#
+foreach my $n_start (1, -10, 39) {
+  my $path = Math::PlanePath::UlamWarburtonQuarter->new (n_start => $n_start);
+  foreach my $level (0 .. 6) {
+    my ($n_lo,$n_hi) = $path->level_to_n_range($level);
+    my $depth = 2**($level+1) - 2;
+    my $n_end = $path->tree_depth_to_n_end($depth);
+    ok ($n_hi,$n_end);
+  }
 }
 
 #------------------------------------------------------------------------------

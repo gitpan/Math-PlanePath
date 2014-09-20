@@ -37,11 +37,11 @@
 package Math::NumSeq::PlanePathDelta;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -3944,8 +3944,10 @@ sub _dxdy_to_dir4 {
     return ($self->{'parts'} eq '2');
   }
 }
-# { package Math::PlanePath::UlamWarburtonQuarter;
-# }
+{ package Math::PlanePath::UlamWarburtonQuarter;
+  use constant _NumSeq_Delta_Dir4_integer => 0;  # N=1 North-East
+  use constant _NumSeq_Delta_TDir6_integer => 0; # N=3 North
+}
 { package Math::PlanePath::CoprimeColumns;
   use constant _NumSeq_Delta_TDir6_integer => 0; # between verticals
 }
@@ -4251,7 +4253,7 @@ __END__
 # }
 
 
-=for stopwords Ryde dX dY dX+dY dX-dY dSum dDiffXY DiffXY dDiffYX dAbsDiff AbsDiff TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath AbsdX AbsdY NSEW boolean dSumAbs SumAbs ENWS
+=for stopwords Ryde dX dY dX+dY dX-dY dSum dDiffXY DiffXY dDiffYX dAbsDiff AbsDiff TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath AbsdX AbsdY NSEW boolean dSumAbs SumAbs ENWS dRadius dRSquared RSquared supremum
 
 =head1 NAME
 

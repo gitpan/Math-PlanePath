@@ -23,13 +23,13 @@
 package Math::PlanePath::SierpinskiArrowhead;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -411,6 +411,23 @@ sub rect_to_n_range {
   return (0, 3**($exp+1));
 }
 
+#-----------------------------------------------------------------------------
+# level_to_n_range()
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 3**$level);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n-1, 3);
+  return $exp + 1;
+}
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -761,6 +778,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 If C<$n> is not an integer then the return is on a straight line between the
 integer points.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 3**$level)>.
 
 =back
 

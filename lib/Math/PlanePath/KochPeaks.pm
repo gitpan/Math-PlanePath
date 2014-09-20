@@ -16,9 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=KochPeaks --lines --scale=10
-
-
 package Math::PlanePath::KochPeaks;
 use 5.004;
 use strict;
@@ -26,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -36,6 +33,7 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'round_down_pow';
 use Math::PlanePath::KochCurve;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -117,15 +115,8 @@ use constant dir_maximum_dxdy => (1,-1); # South-East
 #   return $level + (2*$side + 1)/3 - .5;
 # }
 
-sub n_to_xy {
-  my ($self, $n) = @_;
-  ### KochPeaks n_to_xy(): $n
-
-  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
-  return if 2*$n < 1;
-
-  if (is_infinite($n)) { return ($n,$n); }
-
+sub _n_to_side_level_base {
+  my ($n) = @_;
   my ($side, $level) = round_down_pow((3*$n-1)/2, 4);
   my $base = $level + (2*$side + 1)/3;
   ### $level
@@ -137,6 +128,20 @@ sub n_to_xy {
     ### $level
     ### $base
   }
+  return ($side, $level, $base);
+}
+
+sub n_to_xy {
+  my ($self, $n) = @_;
+  ### KochPeaks n_to_xy(): $n
+
+  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
+  return if 2*$n < 1;
+
+  if (is_infinite($n)) { return ($n,$n); }
+
+  my ($side, $level, $base) = _n_to_side_level_base($n);
+
   my $rem = $n - $base;
   my $frac;
   if ($rem < 0) {
@@ -296,6 +301,24 @@ sub rect_to_n_range {
 #                = level + (2*4^level + 1 + 3*4^level)/3
 #                = level + (5*4^level + 1)/3
 
+#------------------------------------------------------------------------------
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  my $pow = 4**$level;
+  return ((2*$pow + 1)/3 + $level,
+          (8*$pow + 1)/3 + $level);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 1) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($side, $level, $base) = _n_to_side_level_base($n);
+  return $level;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -372,11 +395,37 @@ Counting the innermost N=1 to N=3 peak as level 0, each peak is
 
     Nstart = level + (2*4^level + 1)/3
     Nend   = level + (8*4^level + 1)/3
-    length = 2*4^level + 1       including endpoints
+    points = Nend-Nstart+1 = 2*4^level + 1
+
+=for Test-Pari-DEFINE  Nstart(k) = k + (2*4^k + 1)/3
+
+=for Test-Pari-DEFINE  Nend(k) = k + (8*4^k + 1)/3
+
+=for Test-Pari-DEFINE  points(k) = 2*4^k + 1
+
+=for Test-Pari  vector(20,k,my(k=k-1); Nend(k)-Nstart(k)+1) == vector(20,k,my(k=k-1); points(k))
+
+=for Test-Pari  2+(2*4^2+1)/3 == 13
+
+=for Test-Pari  Nstart(0) == 1
+
+=for Test-Pari  Nend(0) == 3
+
+=for Test-Pari  Nstart(2) == 13
+
+=for Test-Pari  2+(8*4^2+1)/3 == 45
+
+=for Test-Pari  Nend(2) == 45
+
+=for Test-Pari  points(2) == 33
+
+=for Test-Pari  2*4^2+1 == 33
+
+=for Test-Pari  45-13+1 == 33
 
 For example the outer peak shown above is level 2 starting at
 Nstart=2+(2*4^2+1)/3=13 through to Nend=2+(8*4^2+1)/3=45 with
-length=2*4^2+1=33 inclusive (45-13+1=33).  The X width at a given level is
+points=2*4^2+1=33 inclusive (45-13+1=33).  The X width at a given level is
 the endpoints at
 
     Xlo = -(3^level)
@@ -387,6 +436,14 @@ the centre peak half-way through the level at
 
     Ypeak = 3^level
     Npeak = level + (5*4^level + 1)/3
+
+=for Test-Pari-DEFINE  Npeak(k) = k + (5*4^k + 1)/3
+
+=for Test-Pari  vector(20,k,my(k=k-1); (Nstart(k) + Nend(k))/2) == vector(20,k,my(k=k-1); Npeak(k))
+
+=for Test-Pari  2+(5*4^2+1)/3 == 29
+
+=for Test-Pari  Npeak(2) == 29
 
 For example the level 2 outer peak above is Ypeak=3^2=9 at
 N=2+(5*4^2+1)/3=29.  For each level the Xlo,Xhi and Ypeak extents grow by a
@@ -421,6 +478,19 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional C<$n> gives an X,Y position along a straight line between the
 integer positions.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return per L</Level Ranges> above,
+
+    ((2 * 4**$level + 1)/3 + $level,
+     (8 * 4**$level + 1)/3 + $level)
 
 =back
 

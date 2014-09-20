@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -48,7 +48,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -233,6 +234,25 @@ sub xy_to_n {
   return undef;
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 5**$level * $self->{'arms'});
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n) - 1;
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 5);
+  return $exp + 1;
+}
+
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -424,6 +444,22 @@ C<$n_hi> are the smallest and biggest in the rectangle, but don't rely on
 that yet since finding the exact range is a touch on the slow side.  (The
 advantage of which though is that it helps avoid very big ranges from a
 simple over-estimate.)
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 5**$level)>, or for multiple arms return C<(0, $arms *
+5**$level)>.
+
+There are 5^level + 1 points in a level, numbered starting from 0.  On the
+second and subsequent arms the origin is omitted (so as not to repeat that
+point) and so just 5^level for them, giving 5^level+1 + (arms-1)*5^level =
+arms*5^level + 1 many points starting from 0.
 
 =back
 

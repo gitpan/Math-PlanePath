@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -240,15 +240,25 @@ sub rect_to_n_range {
 
 #------------------------------------------------------------------------------
 
-sub _UNDOCUMENTED_level_to_n_range {
+# shared by Math::PlanePath::AR2W2Curve and others
+sub level_to_n_range {
   my ($self, $level) = @_;
   return (0, 4**$level - 1);
 }
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($pow, $exp) = round_down_pow ($n, 4);
+  return $exp;
+}
 
+#------------------------------------------------------------------------------
 1;
 __END__
 
-=for :stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve ZOrder Peano Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein FlE<228>chenstE<252>ck Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
+=for :stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve ZOrder Peano Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein FlE<228>chenstE<252>ck Mathematische Annalen DOI ascii lookup Arndt PlanePath ie Sergey Kitaev Toufik Mansour Automata Combinatorics Preprint
 
 =head1 NAME
 
@@ -373,6 +383,16 @@ returns N.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 4**$level - 1)>.
 
 =back
 

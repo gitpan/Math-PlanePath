@@ -19,8 +19,6 @@
 # math-image --path=QuadricIslands --lines --scale=10
 # math-image --path=QuadricIslands --all --output=numbers_dash --size=132x50
 
-# area approaches sqrt(48)/10
-
 
 package Math::PlanePath::QuadricIslands;
 use 5.004;
@@ -29,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -104,17 +102,23 @@ use constant gcdxy_minimum => 1/2;
 # ### level_to_base(2): _level_to_base(2)
 # ### level_to_base(3): _level_to_base(3)
 
+# base = (4 * 8**$level + 3)/7
+#      = (4 * 8**($level+1) / 8 + 3)/7
+#      = (8**($level+1) / 2 + 3)/7
+sub _n_to_base_and_level {
+  my ($n) = @_;
+  my ($base,$level) = round_down_pow ((7*$n - 3)*2, 8);
+  return (($base/2 + 3)/7,
+          $level - 1);
+}
+
 sub n_to_xy {
   my ($self, $n) = @_;
   ### QuadricIslands n_to_xy(): "$n"
   if ($n < 1) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  my ($base,$level) = round_down_pow ((7*$n - 3)*2, 8);
-  $base /= 8;
-  $level -= 1;
-  $base = (4*$base + 3)/7;  # (4 * 8**$level + 3)/7
-
+  my ($base, $level) = _n_to_base_and_level($n);
   ### $level
   ### $base
   ### level: "$level"
@@ -186,7 +190,7 @@ sub n_to_xy {
 # total -10 to 5 inclusive
 
 my @inner_n_list = ([1,7], [1,8], [2,8], [2,15],  # Y=-1
-                    [1,32], [1],   [2],  [2,16],  # Y=-0.5 
+                    [1,32], [1],   [2],  [2,16],  # Y=-0.5
                     [4,32], [4],   [3],  [3,16],  # Y=0
                     [4,31],[4,24],[3,24],[3,23]); # Y=0.5
 
@@ -365,8 +369,57 @@ sub rect_to_n_range {
 # return (1,
 #         (4*8**($level+3) + 3)/7 - 1);
 
+#------------------------------------------------------------------------------
+# Nstart(k) = (4*8^k + 3)/7
+# Nend(k) = Nstart(k+1) - 1
+#         = (4*8*8^k + 3)/7 - 1
+#         = (4*8*8^k + 8*3 - 8*3 + 3)/7 - 1
+#         = (4*8*8^k + 8*3)/7 + (-8*3 + 3)/7 - 1
+#         = 8*Nstart(k) + (-8*3 + 3)/7 - 1
+#         = 8*Nstart(k) - 4
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  my $n_lo = (4 * 8**$level + 3)/7;
+  return ($n_lo, 8*$n_lo - 4);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 1) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($base,$level) = _n_to_base_and_level($n);
+  return $level;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
+
+      #                     55--56      10--11                -3
+      #                      |   |
+      # ...             53--54  57  60--61                    -4
+      #                  |       |   |   |
+      #                 52--51  58--59  62--63                -5
+      #                      |               |
+      #             48--49--50      66--65--64                -6
+      #              |               |
+      #     39--40  47--46          67--68                    -7
+      #      |   |       |               |
+      # 37--38  41  44--45              69                    -8
+      #          |   |                   |
+      #         42--43                  70--71                -9
+      #                                      |
+      #                             74--73--72               -10
+      #                              |
+      #                             75--76  79--80      ...  -11
+      #                                  |   |   |       |
+      #                                 77--78  81  84--85   -12
+      #                                          |   |
+      #                                         82--83       -13
+      #
+      #                                  ^
+      # -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3   4
 
 =for stopwords eg Ryde ie Math-PlanePath quadric onwards
 
@@ -384,42 +437,22 @@ Math::PlanePath::QuadricIslands -- quadric curve rings
 
 This is concentric islands made from four sides of the C<QuadricCurve>,
 
-                                  27--26                     3
-                                   |   |
-                              29--28  25  22--21             2
-                               |       |   |   |
-                              30--31  24--23  20--19         1
-                                   | 4--3          |
-                          34--33--32    | 16--17--18     <- Y=0
-                           |         1--2  |
-                          35--36   7---8  15--14            -1
-                                   |   |       |
-                               5---6   9  12--13            -2
-                                       |   |
-                          55--56      10--11                -3
-                           |   |
-      ...             53--54  57  60--61                    -4
-                       |       |   |   |
-                      52--51  58--59  62--63                -5
-                           |               |
-                  48--49--50      66--65--64                -6
-                   |               |
-          39--40  47--46          67--68                    -7
-           |   |       |               |
-      37--38  41  44--45              69                    -8
-               |   |                   |
-              42--43                  70--71                -9
-                                           |
-                                  74--73--72               -10
-                                   |
-                                  75--76  79--80      ...  -11
-                                       |   |   |       |
-                                      77--78  81  84--85   -12
-                                               |   |
-                                              82--83       -13
+            27--26                     3
+             |   |
+        29--28  25  22--21             2
+         |       |   |   |
+        30--31  24--23  20--19         1
+             | 4--3          |
+    34--33--32    | 16--17--18     <- Y=0
+     |         1--2  |
+    35--36   7---8  15--14            -1
+             |   |       |
+         5---6   9  12--13            -2
+                 |   |
+                10--11                -3
 
-                                       ^
-      -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3   4
+                 ^
+    -3  -2  -1  X=0  1   2   3   4
 
 The initial figure is the square N=1,2,3,4 then for the next level each
 straight side expands to 4x longer and a zigzag like N=5 through N=13 and
@@ -430,16 +463,26 @@ the further sides to N=36.
       *---*     becomes     *---*   *   *---*
                                     |   |
                                     *---*
+         * <------ *
+         |         ^
+         |         |
+         |         |
+         v         |
+         * ------> *
 
 =head2 Level Ranges
 
 Counting the innermost square as level 0, each ring is
 
     length = 4 * 8^level     many points
-    Nstart = 1 + length[0] + ... + length[level-1]
+    Nlevel = 1 + length[0] + ... + length[level-1]
            = (4*8^level + 3)/7
     Xstart = - 4^level / 2
     Ystart = - 4^level / 2
+
+=for Test-Pari-DEFINE  Nlevel(k) = (4*8^k + 3)/7
+
+=for Test-Pari (4*8^2+3)/7 == 37
 
 For example the lower partial ring shown above is level 2 starting
 N=(4*8^2+3)/7=37 at X=-(4^2)/2=-8,Y=-8.
@@ -465,6 +508,33 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =item C<$path = Math::PlanePath::QuadricIslands-E<gt>new ()>
 
 Create and return a new path object.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return per L</Level Ranges> above,
+
+    ( ( 4 * 8**$level + 3) / 7,
+      (32 * 8**$level - 4) / 7 )
+
+=for Test-Pari-DEFINE  Nend(k) = (32*8^k - 4)/7
+
+=for Test-Pari  Nlevel(0) == 1
+
+=for Test-Pari  Nend(0) == 4
+
+=for Test-Pari  Nlevel(1) == 5
+
+=for Test-Pari  Nend(1) == 36
+
+=for Test-Pari  Nlevel(2) == 37
+
+=for Test-Pari  vector(20,k, Nlevel(k)) == vector(20,k, Nend(k-1)+1)
 
 =back
 

@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -266,6 +266,24 @@ sub rect_to_n_range {
   return (0, int($n_hi));
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, $self->{'norm'}**$level * $self->{'arms'} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, $self->{'norm'});
+  return $exp;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -394,6 +412,18 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2**$level - 1)>, or for 2 arms return C<(0, 2 * 2**$level -
+1)>.  With the C<realpart> option return C<(0, $norm**$level - 1)> where
+norm=realpart^2+1.
 
 =back
 

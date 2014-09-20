@@ -33,12 +33,12 @@
 package Math::PlanePath::WunderlichSerpentine;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -609,10 +609,19 @@ sub rect_to_n_range {
   # return ($min_n, $max_n);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::ZOrderCurve;
+*level_to_n_range = \&Math::PlanePath::ZOrderCurve::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::ZOrderCurve::n_to_level;
+
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
-=for stopwords Walter Wunderlich Wunderlich's there'll eg Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online radix Uber Peano-Kurven Elemente der Mathematik
+=for stopwords Walter Wunderlich Wunderlich's there'll eg Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online radix Uber Peano-Kurven Elemente der Mathematik Peano
 
 =head1 NAME
 

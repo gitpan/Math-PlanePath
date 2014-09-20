@@ -19,6 +19,8 @@
 # ENHANCE-ME: What formula for the cumulative pixel count, and its inverse?
 # Not floor(k*4*sqrt(2)).
 
+# ENHANCE-ME: Maybe n_start
+
 
 package Math::PlanePath::PixelRings;
 use 5.004;
@@ -29,7 +31,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

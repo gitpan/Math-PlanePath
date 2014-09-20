@@ -19,11 +19,11 @@
 package Math::SquareRadical;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 use Scalar::Util 'blessed';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 
 # uncomment this to run the ### lines
 use Smart::Comments;

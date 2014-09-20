@@ -86,7 +86,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -417,10 +417,33 @@ sub rect_to_n_range {
   return (1, 4**($level+2) - 1);
 }
 
+#------------------------------------------------------------------------------
+# Nstart = 4^k
+# length = 3*4^k many points
+# Nend = Nstart + length-1
+#      = 4^k + 3*4^k - 1
+#      = 4*4^k - 1
+#      = Nstart(k+1) - 1
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  my $pow = 4**$level;
+  return ($pow, 4*$pow-1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 1) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  my ($sidelen, $level) = round_down_pow (($self->{'sides'} == 6 ? ($n+1)/2 : $n),
+                                          4);
+  return $level;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
-=for stopwords eg Ryde ie SVG Math-PlanePath Ylo
+=for stopwords eg Ryde ie SVG Math-PlanePath Ylo OEIS
 
 =head1 NAME
 
@@ -575,6 +598,19 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =item C<$path = Math::PlanePath::KochSnowflakes-E<gt>new ()>
 
 Create and return a new path object.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return per L</Level Ranges> above,
+
+    (4**$level,
+     4**($level+1) - 1)
 
 =back
 

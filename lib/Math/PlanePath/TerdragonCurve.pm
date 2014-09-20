@@ -47,16 +47,17 @@ use Math::PlanePath::Base::Generic
   'xy_is_even';
 use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh',
-  'digit_join_lowtohigh';
+  'digit_join_lowtohigh',
+  'round_down_pow';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -345,14 +346,23 @@ sub n_to_dxdy {
 
 
 #-----------------------------------------------------------------------------
-# eg. arms=5 0 .. 5*3^k    by 5s
-#            1 .. 5*3^k+1  by 5s
-#            4 .. 5*3^k+4  by 5s
+# eg. arms=5 0 .. 5*3^k    step by 5s
+#            1 .. 5*3^k+1  step by 5s
+#            4 .. 5*3^k+4  step by 5s
 #
-sub _UNDOCUMENTED_level_to_n_range {
+sub level_to_n_range {
   my ($self, $level) = @_;
   return (0,
           3**$level * $self->{'arms'} + ($self->{'arms'}-1));
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n - 1, 3);
+  return $exp + 1;
 }
 
 #-----------------------------------------------------------------------------
@@ -389,15 +399,19 @@ sub _UNDOCUMENTED__right_boundary_i_to_n {
 # representation low digit ternary and the rest binary.
 sub _digit_split_mix23_lowtohigh {
   my ($n) = @_;
+  if ($n == 0) {
+    return ();
+  }
   my $low = _divrem_mutate($n,3);
   return ($low, digit_split_lowtohigh($n,2));
 }
 
 {
-  my @_UNDOCUMENTED__n_segment_is_right_boundary;
-  $_UNDOCUMENTED__n_segment_is_right_boundary[1][1] = 1;  # disallowed
-  $_UNDOCUMENTED__n_segment_is_right_boundary[1][2] = 1;  # combinations
-  $_UNDOCUMENTED__n_segment_is_right_boundary[2][0] = 1;
+  # disallowed digit pairs $disallowed[high][low]
+  my @disallowed;
+  $disallowed[1][1] = 1;
+  $disallowed[1][2] = 1;
+  $disallowed[2][0] = 1;
 
   sub _UNDOCUMENTED__n_segment_is_right_boundary {
     my ($self, $n) = @_;
@@ -405,10 +419,17 @@ sub _digit_split_mix23_lowtohigh {
     unless ($n >= 0) { return 0; }
     $n = int($n);
 
+    # no boundary when arms=6, right boundary is only in arm 0
+    {
+      my $arms = $self->{'arms'};
+      if ($arms == 6) { return 0; }
+      if (_divrem_mutate($n,$arms)) { return 0; }
+    }
+
     my $prev = _divrem_mutate($n,3);
     while ($n) {
       my $digit = _divrem_mutate($n,3);
-      if ($_UNDOCUMENTED__n_segment_is_right_boundary[$digit][$prev]) {
+      if ($disallowed[$digit][$prev]) {
         return 0;
       }
       $prev = $digit;
@@ -420,6 +441,7 @@ sub _digit_split_mix23_lowtohigh {
 #-----------------------------------------------------------------------------
 # left boundary N
 
+
 # mixed 0,1, 2, 10, 11, 12, 100, 101, 102, 110, 111, 112, 1000, 1001, 1002, 1010, 1011, 1012, 1100, 1101, 1102,
 # vals  0,1,12,120,121,122,1200,1201,1212,1220,1221,1222,12000,12001,12012,12120,12121,12122,12200,12201,12212,
 {
@@ -427,59 +449,117 @@ sub _digit_split_mix23_lowtohigh {
                                              [0,2],  # 1
                                              [1,2]); # 2
   sub _UNDOCUMENTED__left_boundary_i_to_n {
-    my ($self, $i) = @_;
-    my @digits = (Math::PlanePath::TerdragonCurve::_digit_split_mix23_lowtohigh($i),
-                  0);
+    my ($self, $i, $level) = @_;
+    ### _UNDOCUMENTED__left_boundary_i_to_n(): $i
+    ### $level
+
+    if (defined $level && $level < 0) {
+      if ($i <= 2) {
+        return $i;
+      }
+      $i += 2;
+    }
+
+    my @digits = _digit_split_mix23_lowtohigh($i);
+    ### @digits
+
+    if (defined $level) {
+      if ($level >= 0) {
+        if (@digits > $level) {
+          ### beyond given level ...
+          return undef;
+        }
+        # pad for $level, total $level many digits
+        push @digits, (0) x ($level - scalar(@digits));
+      } else {
+        ### union all levels ...
+        pop @digits;
+        if ($digits[-1]) {
+          push @digits, 0;     # high 0,1  or 0,2 when i=3
+        } else {
+          $digits[-1] = 1;     # high   1
+        }
+      }
+    } else {
+      ### infinite curve, an extra high 0 ...
+      push @digits, 0;
+    }
+    ### @digits
+
     my $prev = $digits[0];
     foreach my $i (1 .. $#digits) {
       $prev = $digits[$i] = $_UNDOCUMENTED__left_boundary_i_to_n[$prev][$digits[$i]];
     }
+    ### ternary: @digits
     return digit_join_lowtohigh(\@digits, 3, $i*0);
-
-    # if ($digits[$i-1] == 0) {       # 0or2 <- 0
-    #   if ($digits[$i]) { $digits[$i] = 2; }
-    # } elsif ($digits[$i-1] == 1) {  # 0or2 <- 1
-    #   if ($digits[$i]) { $digits[$i] = 2; }
-    # } else {                        # 1or2 <- 2
-    #   if ($digits[$i]) { $digits[$i] = 2; }
-    #   else { $digits[$i] = 1; }
-    # }
-
-    # for (my $i = 1; $i <= $#digits; $i++) {   # low to high
-    #   if ($digits[$i] == 0 && $digits[$i-1] == 2) {
-    #     $digits[$i] = 1;     # 02 -> 12
-    #   } elsif ($digits[$i] == 1 && $digits[$i-1] == 2) {
-    #     $digits[$i] = 2;     # 12 -> 22
-    #   } elsif ($digits[$i] == 1 && $digits[$i-1] == 0) {
-    #     $digits[$i] = 2;     # 10 -> 20
-    #   } elsif ($digits[$i] == 1 && $digits[$i-1] == 1) {
-    #     $digits[$i] = 2;     # 11 -> 21
-    #   }
-    # }
   }
 }
 
 {
-  my @_UNDOCUMENTED__n_segment_is_left_boundary;
-  $_UNDOCUMENTED__n_segment_is_left_boundary[0][2] = 1;  # disallowed
-  $_UNDOCUMENTED__n_segment_is_left_boundary[1][0] = 1;  # combinations
-  $_UNDOCUMENTED__n_segment_is_left_boundary[1][1] = 1;
+  # disallowed digit pairs $disallowed[high][low]
+  my @disallowed;
+  $disallowed[0][2] = 1;
+  $disallowed[1][0] = 1;
+  $disallowed[1][1] = 1;
 
   sub _UNDOCUMENTED__n_segment_is_left_boundary {
-    my ($self, $n) = @_;
+    my ($self, $n, $level) = @_;
+    ### _UNDOCUMENTED__n_segment_is_left_boundary(): $n
+    ### $level
+
     if (is_infinite($n)) { return 0; }
     unless ($n >= 0) { return 0; }
     $n = int($n);
 
+    if (defined $level && $level == 0) {
+      ### level 0 curve, N=0 is only segment: ($n == 0)
+      return ($n == 0);
+    }
+
+    {
+      my $arms = $self->{'arms'};
+      if ($arms == 6) {
+        return 0;
+      }
+      my $arm = _divrem_mutate($n,$arms);
+      if ($arm != $arms-1) {
+        return 0;
+      }
+    }
+
+    my $prev = _divrem_mutate($n,3);
+    if (defined $level) { $level -= 1; }
+
+    for (;;) {
+      if (defined $level && $level == 0) {
+        ### end of level many digits, must be N < 3**$level
+        return ($n == 0);
+      }
+      last unless $n;
+
+      my $digit = _divrem_mutate($n,3);
+      if ($disallowed[$digit][$prev]) {
+        return 0;
+      }
+      if (defined $level) { $level -= 1; }
+      $prev = $digit;
+    }
+
+    return ((defined $level && $level < 0)   # union all levels
+            || ($prev != 2));                # not high 2 otherwise
+  }
+
+  sub _UNDOCUMENTED__n_segment_is_any_left_boundary {
+    my ($self, $n) = @_;
     my $prev = _divrem_mutate($n,3);
     while ($n) {
       my $digit = _divrem_mutate($n,3);
-      if ($_UNDOCUMENTED__n_segment_is_left_boundary[$digit][$prev]) {
+      if ($disallowed[$digit][$prev]) {
         return 0;
       }
       $prev = $digit;
     }
-    return ($prev <= 1);  # high digit 1, and also $n==0
+    return 1;
   }
 
   # sub left_boundary_n_pred {
@@ -487,6 +567,11 @@ sub _digit_split_mix23_lowtohigh {
   #   my $n3 = '0' . Math::BaseCnv::cnv($n,10,3);
   #   return ($n3 =~ /02|10|11/ ? 0 : 1);
   # }
+}
+sub _UNDOCUMENTED__n_segment_is_boundary {
+  my ($self, $n, $level) = @_;
+  return $self->_UNDOCUMENTED__n_segment_is_right_boundary($n)
+    || $self->_UNDOCUMENTED__n_segment_is_left_boundary($n,$level);
 }
 
 1;
@@ -564,7 +649,7 @@ __END__
 # return (2*$i + $j - $k, $j+$k);
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism si,sj,sk dX,dY Pari
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism si,sj,sk dX,dY Pari rhombi dX si
 
 =head1 NAME
 
@@ -579,6 +664,21 @@ Math::PlanePath::TerdragonCurve -- triangular dragon curve
 =head1 DESCRIPTION
 
 X<Davis>X<Knuth, Donald>This is the terdragon curve by Davis and Knuth,
+
+=over
+
+Chandler Davis and Donald Knuth, "Number Representations and Dragon Curves
+-- I", Journal Recreational Mathematics, volume 3, number 2 (April 1970),
+pages 66-81 and "Number Representations and Dragon Curves -- II", volume 3,
+number 3 (July 1970), pages 133-149.
+
+Reprinted with addendum in Knuth "Selected Papers on Fun and Games", 2010,
+pages 571--614.
+
+=back
+
+Points are a triangular grid using every second integer X,Y as per
+L<Math::PlanePath/Triangular Lattice>, beginning
 
               \         /       \
            --- 26,29,32 ---------- 27                          6
@@ -603,9 +703,6 @@ X<Davis>X<Knuth, Donald>This is the terdragon curve by Davis and Knuth,
 
           ^        ^        ^       ^      ^      ^      ^
          -3       -2       -1      X=0     1      2      3
-
-Points are a triangular grid using every second integer X,Y as per
-L<Math::PlanePath/Triangular Lattice>.
 
 The base figure is an "S" shape
 
@@ -841,7 +938,31 @@ minimum.
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 3**$level)>, or for multiple arms return C<(0, $arms *
+3**$level + ($arms-1))>.
+
+There are 3^level segments in a curve level, so 3^level+1 points numbered
+from 0.  For multiple arms there are arms*(3^level+1) points, numbered from
+0 so n_hi = arms*(3^level+1)-1.
+
+=back
+
 =head1 FORMULAS
+
+Various formulas for boundary length and area can be found in the author's
+mathematical write-up
+
+=over
+
+L<http://user42.tuxfamily.org/terdragon/index.html>
+
+=back
 
 =head2 N to X,Y
 
@@ -963,972 +1084,6 @@ triangular representation of X,Y this means
 
     X+Y mod 2 == 0        "even" points
 
-=head2 Boundary Length
-
-The length of the boundary of the terdragon on points N=0 to N=3^k
-inclusive, taking each line segment as length 1, is
-
-    boundary B[k] = / 2      if k=0     (N=0 to N=1)
-                    \ 3*2^k  if k>=1    (N=0 to N=3^k)
-    = 2, 6, 12, 24, 48, 96, ...
-
-=for Test-Pari-DEFINE  Bsamples=[2, 6, 12, 24, 48, 96]
-
-=for Test-Pari-DEFINE  B(k)=if(k==0, 2, 3*2^k)
-
-=for Test-Pari vector(length(Bsamples), k, B(k-1)) == Bsamples
-
-The boundary follows the curve edges around from the origin until returning
-there.  So the single line segment N=0 to N=1 is boundary length 2, or the
-"S" shape of N=0 to N=3 is length 6.
-
-                           2------3
-    B[0] = 2                \
-                             \       B[1] = 6
-    0-----1            0------1
-
-The B[1] first "S" is 3x the length of the preceding but thereafter the
-curve touches itself and so the boundary grows by only 2x per level.
-
-The boundary formula can be calculated from the way the curve meets when it
-replicates.  Consider the level N=0 to N=3^k and take its boundary length in
-two parts as a short side R on the right and the V shaped indentation on the
-left.  These are shown as plain lines here but are wiggly as the curve
-becomes bigger and fatter.
-
-             R         R[k] = right side boundary length
-          2-----3      V[k] = left side boundary length
-           \ V       initial
-         V  \          R[0] = 1
-       0-----1         V[0] = 2
-          R          B[k+1] = 2*R[k] + 2*V[k]
-                       B[1] = 6
-
-By symmetry the two sides of the terdragon are the same length, so the total
-boundary is twice the right side,
-
-    boundary[k] = 2*R[k+1]
-
-When the curve is tripled out to the next level N=3^k the boundary length
-does not triple because the sides marked "===" in the following diagram
-enclose lengths 2*R and 2*V which would have been boundary, leaving only 4*R
-and 4*V.
-
-             R          for k >= 0
-          *-----3       R[k+1] = R[k] + V[k]    # per 0 to 1
-           \ V          V[k+1] = R[k] + V[k]    # per 0 to 2
-          V \
-       2=====@
-        \   / \ R
-      R  \ /   \        initial B[0] = 2
-          @=====1               B[1] = 6
-           \ V
-          V \
-       0-----*
-         R
-
-The two recurrences for R and V are the same, so R[k]=V[k] for k>=1 and
-hence
-
-    R[k+1] = 2*R[k]       k >= 1
-
-    B[k] = 2*B[k-1]       k >= 2
-         = 3*2^k          from initial boundary[1] = 6
-
-The separate R and V parts are
-
-    R[k] = / 1          if k=0
-           \ 3*2^(k-1)  if k>=1
-    = 1, 3, 6, 12, 24, 48, ...
-
-    V[k] = / 2          if k=0
-           \ 3*2^(k-1)  if k>=1
-    = 2, 3, 6, 12, 24, 48, ...
-
-=for Test-Pari-DEFINE  Rsamples=[1, 3, 6, 12, 24, 48]
-
-=for Test-Pari-DEFINE  R(k)=if(k==0, 1, 3*2^(k-1))
-
-=for Test-Pari vector(length(Rsamples), k, R(k-1)) == Rsamples
-
-=for Test-Pari-DEFINE  Vsamples=[2, 3, 6, 12, 24, 48]
-
-=for Test-Pari-DEFINE  V(k)=if(k==0, 2, 3*2^(k-1))
-
-=for Test-Pari vector(length(Vsamples), k, V(k-1)) == Vsamples
-
-=head2 Multi-Arm Boundary
-
-The boundary length of two curve arms each to N=3^k is
-
-    Ba2[k] = 2*R[k] + V[k]
-           = / 4           if k=0
-             \ 9*2^(k-1)   if k>=1
-    = 4, 9, 18, 36, 72, 144, 288, 576, 1152, ...
-
-          2
-         ^
-      R /  V       Ba2 = 2*R + V
-       /
-      0----->1
-         R
-
-=for Test-Pari-DEFINE  Ba2samples = [4, 9, 18, 36, 72, 144, 288, 576, 1152]
-
-=for Test-Pari-DEFINE  Ba2_by_RV(k) = 2*R(k) + V(k)
-
-=for Test-Pari vector(length(Ba2samples), k, Ba2_by_RV(k-1)) == Ba2samples
-
-=for Test-Pari-DEFINE  Ba2(k) = if(k==0, 4, 9*2^(k-1))
-
-=for Test-Pari vector(length(Ba2samples), k, Ba2(k-1)) == Ba2samples
-
-=cut
-
-# Ba2 = / 2*1 + 2
-#       \ 2*3*2^(k-1) + 3*2^(k-1)
-# Ba2 = / 4
-#       \ 9*2^(k-1)
-# Pari: (Ba2(k) = if(k==0, 4, 9*2^(k-1))); for(k=0,8,print1(Ba2(k),", "))
-
-=pod
-
-The boundary between endpoints 1 and 2 is the same as V above.  The curve
-direction 0 to 1 is the other way around, but that doesn't matter since the
-curve is identical forward and backward.
-
-The boundary length of three through five arms has a further V in each.
-
-    Ba3[k] = 2*R[k] + 2*V[k]
-           = 6*2^k
-    = 6, 12, 24, 48, 96, 192, 384, 768, 1536, ...
-
-    Ba4[k] = 2*R[k] + 3*V[k]
-           = / 8            if k=0
-             \ 15*2^(k-1)   if k>=1
-    = 8, 15, 30, 60, 120, 240, 480, 960, 1920,
-
-    Ba5[k] = 2*R[k] + 4*V[k]
-           = / 10           if k=0
-             \ 9*2^k        if k>=1
-    = 10, 18, 36, 72, 144, 288, 576, 1152, 2304,
-
-    3       2             3       2            3       2
-     ^  V  ^               ^  V  ^              ^  V  ^
-    R \   /  V           V  \   /  V          V  \   /  V
-       \ /                   \ /                  \ /
-        0----->1       4<-----0----->1      4<-----0----->1
-           R              R      R             V  /    R
-                                                 / R
-    Ba3 = 2*R + 2*V    Ba4 = 2*R + 3*V          v
-                                               5
-
-                                             Ba5 = 2*R + 4*V
-
-=for Test-Pari-DEFINE  Ba3samples = [6, 12, 24, 48, 96, 192, 384, 768, 1536]
-
-=for Test-Pari-DEFINE  Ba4samples = [8, 15, 30, 60, 120, 240, 480, 960, 1920]
-
-=for Test-Pari-DEFINE  Ba5samples = [10, 18, 36, 72, 144, 288, 576, 1152, 2304]
-
-=for Test-Pari-DEFINE  Ba3(k) = 6*2^k
-
-=for Test-Pari-DEFINE  Ba4(k) = if(k==0, 8, 15*2^(k-1))
-
-=for Test-Pari-DEFINE  Ba5(k) = if(k==0, 10, 9*2^k)
-
-=for Test-Pari vector(length(Ba3samples), k, Ba3(k-1)) == Ba3samples
-
-=for Test-Pari vector(length(Ba4samples), k, Ba4(k-1)) == Ba4samples
-
-=for Test-Pari vector(length(Ba5samples), k, Ba5(k-1)) == Ba5samples
-
-=for Test-Pari-DEFINE  Ba3_by_RV(k) = 2*R(k) + 2*V(k)
-
-=for Test-Pari-DEFINE  Ba4_by_RV(k) = 2*R(k) + 3*V(k)
-
-=for Test-Pari-DEFINE  Ba5_by_RV(k) = 2*R(k) + 4*V(k)
-
-=for Test-Pari vector(length(Ba3samples), k, Ba3_by_RV(k-1)) == Ba3samples
-
-=for Test-Pari vector(length(Ba4samples), k, Ba4_by_RV(k-1)) == Ba4samples
-
-=for Test-Pari vector(length(Ba5samples), k, Ba5_by_RV(k-1)) == Ba5samples
-
-=cut
-
-# Ba3 = / 2*1 + 2*2
-#       \ 2*3*2^(k-1) + 2*3*2^(k-1)
-# Ba3 = / 6
-#       \ 6*2^k
-#     = 6*2^k
-#
-# Ba4 = / 2*1 + 3*2
-#       \ 2*3*2^(k-1) + 3*3*2^(k-1)
-# Ba4 = / 8
-#       \ 15*2^(k-1)
-#
-# Ba5 = / 2*1 + 4*2
-#       \ 2*3*2^(k-1) + 4*3*2^(k-1)
-# Ba5 = / 10
-#       \ 9*2^k
-#
-# Pari: (Ba3(k) = 6*2^k);                   for(k=0,8,print1(Ba3(k),", "))
-# Pari: (Ba4(k) = if(k==0, 8, 15*2^(k-1))); for(k=0,8,print1(Ba4(k),", "))
-# Pari: (Ba5(k) = if(k==0, 10, 9*2^k));     for(k=0,8,print1(Ba5(k),", "))
-
-=pod
-
-Six arms is six V,
-
-    Ba6[k] = 6*V[k]
-           = / 12       if k=0
-             \ 9*2^k    if k>=1
-    = 12, 18, 36, 72, 144, 288, 576, 1152, 2304, ...
-
-       3       2
-        ^  V  ^
-      V  \   /  V      
-          \ /             Ba6 = 6*V
-    4<-----0----->1
-       V  / \  V
-         /   \
-        v  V  v
-       5       6
-
-=for Test-Pari-DEFINE  Ba6samples = [12, 18, 36, 72, 144, 288, 576, 1152, 2304]
-
-=for Test-Pari-DEFINE  Ba6(k) = if(k==0, 12, 9*2^k)
-
-=for Test-Pari vector(length(Ba6samples), k, Ba6(k-1)) == Ba6samples
-
-=for Test-Pari-DEFINE  Ba6_by_V(k) = 6*V(k)
-
-=for Test-Pari vector(length(Ba6samples), k, Ba6_by_V(k-1)) == Ba6samples
-
-=cut
-
-# Pari: (Ba6(k) = if(k==0, 12, 9*2^k)); for(k=0,8,print1(Ba6(k),", "))
-
-=pod
-
-Notice Ba6[k] = Ba5[k] for kE<gt>=1.  That arises since R[k]=V[k] for
-kE<gt>=1.  The two Rs in 5 arms have become two Vs in 6 arms.
-
-=head2 Area from Boundary
-
-The area enclosed by the terdragon curve from 0 to N inclusive is related to
-the boundary by
-
-    2*N = 3*A[N] + B[N]
-
-where A[N] counts unit equilateral triangles.  Imagine each line segment as
-having a little triangle on each side, with each of those triangles being
-1/3 of the unit area.
-
-          *      equilateral unit area
-         /|\     divided into 3 triangles
-        / | \
-       /  |  \
-      /  _*_  \                _*_         2 triangles
-     /_--   --_\            _--   --_      one each side of line segment
-    *-----------*         *-----------*    total triangles=2*N
-                            -__   __-      each triangle area 1/3
-                               -*-
-
-If a line segment is on the curve boundary then its outside triangle should
-not count towards the area enclosed, so subtract 1 for each unit boundary
-length.  If a segment is both a left and right boundary, such as the initial
-N=0 to N=1 then it counts 2 to B[N] which makes its area 0 which is as
-desired.  So
-
-    area triangles = total triangles - B[N]
-       3*A[N]      =      2*N        - B[N]
-
-Another way is to consider how a new line segment changes the total boundary and area
-
-    <------*       line segment not enclose triangle
-          /          boundary +2
-                     area     unchanged
-
-    *  <----*      line segment enclose triangle
-     \     /         boundary -2 + 1 = -1
-      \   /          area     + 1
-       \ /
-        *
-
-So the boundary increases by 2 for each N, but decreases by 3 if there's a
-new enclosed area triangle, giving the relation
-
-    B = 2*N - 3*A
-
-At all times the curve has all "inside" line segments traversed exactly once
-so that each unit area has all three sides traversed once each.  If there
-was ever an area enclosed bigger than a single unit equilateral triangle
-then the curve would have to cross itself to traverse the inner lines to
-produce the "all inside segments traversed" pattern of the replications and
-expansions.
-
-=head2 Area
-
-The area enclosed by the curve from N=0 to N=3^k inclusive is
-
-    A[k] = / 0                      if k=0
-           \ 2*(3^(k-1) - 2^(k-1))  if k >=1
-         = 0, 0, 2, 10, 38, 130, 422, 1330, 4118, ...
-
-=for Test-Pari-DEFINE  Asamples=[0, 0, 2, 10, 38, 130, 422, 1330, 4118]
-
-=for Test-Pari-DEFINE  A(k)=if(k==0, 0, 2*(3^(k-1) - 2^(k-1)))
-
-=for Test-Pari vector(length(Asamples), k, A(k-1)) == Asamples
-
-=for Test-Pari vector(20, k, 2*3^(k -1)) == vector(20, k, 3*A(k -1) + B(k -1))
-
-=cut
-
-# perl -e '$,=", "; print map{2*(3**($_-1)-2**($_-1))} 1 .. 8'
-# Pari: for(n=1,8,print1(2*(3^(n-1)-2^(n-1)),", "))
-
-=pod
-
-This is per 2*N=3*A+B and the boundary formula above.
-
-    2*3^k = 3*A[k] + 3*2^k        k >= 1
-
-=head2 Area by Replication
-
-The area can also be calculated directly from the replication.
-
-       *-----D
-        \              A[k] = 2 * A[k-1]     # AB and CD
-         \                  + 2 * 3^(k-2)    # centre triangles
-    C-----f                 - 2 * A[k-2]/2   # Cf, Be insides
-     \   / \                + 2 * A[k-2]/2   # Ce, Bf outsides
-      \ /   \
-       e-----B              = 2*A[k-1] + 2*3^(k-2)
-        \
-         \             sum to
-    A-----*            A[k] = 2*(3^(k-1) - 2^(k-1))
-
-=cut
-
-# A[0] to N=1   0
-# A[1] to N=2   0
-# A[2] to N=9   k=2; 2*0 + 2*3^(k-2) == 2
-# A[2] to N=27  k=3; 2*2 + 2*3^(k-2) == 10
-# A[2] to N=81  k=4; 2*10 + 2*3^(k-2) == 38
-
-=pod
-
-The area enclosed by the end two copies A-B and C-D are each the area of the
-preceding level.
-
-The middle two triangles enclose area 2*3^k.  But they duplicate the area on
-the underside of the C-f copy of the curve and the upper side of the B-e
-copy.  The terdragon is symmetric on the two sides of the line between its
-endpoints so the part on the upper side is half the curve, so subtract
-2*A[k-2]/2.
-
-Then there are 2 similar half curve A[k-2]/2 areas on the outer sides of the
-B-f and C-e segments to be added.  The extra and overlapped insides and
-outsides cancel out.
-
-=cut
-
-# A[k] = 2^1*3^(k-1) + 2^2*3^(k-2) + ... + 2^k*3^0
-#      = 2* (3^k - 2^k)/(3-2)
-#
-#            *
-#           / \       area = base^2
-#   *      *---*
-#  / \    / \ / \
-# *---*  *---*---*
-#
-#       *-----D
-#        \
-#         \
-#    *-----*                  R[3] = -1+1+1 = 1
-#     \   / \                 V[3] = -1+1-1+1+1+1 = 4
-#      \ /   \                A[3] = 2R+2V = 10
-#       *-----*     *
-#        \   / \   / \
-#         \ /   \ /   \
-#    C-----*-----*-----B
-#     \   / \   / \
-#      \ /   \ /   \
-#       *     *-----*
-#              \   / \
-#               \ /   \
-#                *-----*
-#                 \
-#                  \
-#             A-----*
-#
-#  2*(3^k - 2^k) / 3^k -> 2
-
-# This is as if in the area of the A-B and C-D end parts above became
-# negligible and only the centre two triangles mattered.
-
-=pod
-
-=head2 Area as Rhombus
-
-The area of the curve approaches the area of a rhombus made of two large
-equilateral triangles between the endpoints.
-
-       *-----N         N=3^(k+1)
-      . \   .          side length = sqrt(3)^k
-     .   \ .           rhombus area = 2 * side^2 = 2*3^k
-    O-----*            (area measured in unit triangles)
-
-    terdragon    2*(3^k - 2^k)
-    --------- =  ------------- -> 1 as k->infinity
-     rhombus         2*3^k
-
-If the terdragon is reckoned as a fractal with unit length between its
-endpoints and infinitely smaller wiggles then this ratio is exact, ie. the
-area of the fractal terdragon is the same as the area of the rhombus.
-
-=cut
-
-# Rhombus area
-#
-# +---*------*
-# |  /      /|  H=S*sqrt(3)/2
-# | /      / |
-# |/      /  |         rhombus area = 2 * side^2 = 2*3^k
-# O------*---+
-#    S
-# H^2+(S/2)^2 = 3/4*S^2 + 1/4*S^2 = S^2
-# Rect = (S+S/2)*H = 3/2**sqrt(3)/2*S^2 = 3/4*sqrt(3)*S
-# Rhombus = 2/3 * Rect = 1/2*sqrt(3)*S
-
-=pod
-
-=head2 Join Area
-
-When the terdragon curve triples out from N=3^k to N=3^(k+1) the three
-copies enclose the same area each, plus where they meet encloses a further
-join area.
-
-       _____
-      /    /
-     /____/
-    _____  <-- join area JA[k]
-    \    \
-     \____\
-       _____  <-- join area JA[k]
-      /    /
-     /____/
-
-The curve is symmetric so the two join areas are the same, just rotated 180
-degrees.  The join area can be calculated as a difference A[k+1] versus
-three A[k].
-
-     JA[k] = (A[k+1] - 3*A[k])/2      join area when N=3^k triples
-           = / 0       if k = 0
-             \ 2^k     if k >= 1
-     = 0, 2, 4, 8, 16, 32, 64, ...
-
-=for Test-Pari-DEFINE  JAsamples = [0, 2, 4, 8, 16, 32, 64]
-
-=for Test-Pari-DEFINE  JA(k)=if(k==0,0, 2^k)
-
-=for Test-Pari vector(length(JAsamples), k, JA(k-1)) == JAsamples
-
-=for Test-Pari-DEFINE  A(k)=if(k==0, 0, 2*(3^(k-1) - 2^(k-1)))
-
-=for Test-Pari-DEFINE  JA_from_A(k)=A(k+1)-3*A(k)
-
-=for Test-Pari vector(length(JAsamples), k, JA_from_A(k-1)) == JAsamples
-
-=for Test-Pari vector(20, k, JA_from_A(k-1)) == vector(20, k, JA_from_A(k-1))
-
-=cut
-
-# JA[k] = A[k+1] - 3*A[k]
-#       = 2*3^k - 2*2^k - 3*2*3^(k-1) + 3*2*2^(k-1)
-#       = 2*3^k - 2*2^k - 2*3^k + 3*2^k
-#       = 2^k
-
-=pod
-
-=head2 Join Boundary
-
-When two copies of the curve meet there is a certain boundary length on each
-side of the two copies.  These lengths are V[k] and R[k], and hence equal
-for kE<gt>=2.
-
-    2-----
-     \    \       boundary 1 to j = / 0         if k=0
-      \____\                        \ V[k-1]    if k>=1
-       j____1
-      /    /      boundary 1 to j = / 0         if k=0
-     /    /                         \ R[k-1]    if k>=1
-    0-----
-
-For example two k=1 levels meet as follows.  N=2 to N=3 is the boundary of
-the first copy, which is R[0]=1.  N=3,4,5 is the boundary of the second,
-which is V[1]=2.
-
-    6     4
-     \  /  \     V[0] = 2       k=1 join
-      5,2---3
-        \        R[0] = 1
-    0----1
-
-The triangular area 2-3-4-5 expand on its two sides as R and V boundaries
-described above.
-
-      *
-     / \             A-*-B second curve   V[k]
-    / V \
-   A     B
-
-      R              A-B first curve      R[k]
-   A-----B
-
-Outside that triangular area there is no further join.  The 1--2 is the
-first curve and 5--6 is the second and two curves in the same direction like
-that don't touch except at their endpoint 2 and 5.
-
-This can be seen from the curve extents, or also from the join area
-calculated above.  Each join area has 3 sides of boundary and it can be seen
-that the total of those is equal to the R and V boundaries inside the
-triangle.
-
-    3*JA[k] = R[k] + V[k]       k >= 1
-
-=for Test-Pari vector(20, k, 3*JA(k)) == vector(20, k, R(k) + V(k))
-
-=head2 Right Boundary Turn Sequence
-
-The right side boundary of the terdragon at each point either turns by +120
-degrees (left), -120 degrees (right), or goes straight ahead.  Numbering the
-boundary starting from i=1 at N=1 the turn sequence is
-
-    Rt(i) = / if i == 2 mod 3 then  turn -120   (right)
-            | otherwise
-            | let b = bit above lowest 1-bit of i-floor(i/3)
-            | if b = 0 then         turn +120   (left)
-            \ if b = 1 then         turn 0      (straight ahead)
-
-    = 1, -1, 1, 0, -1, 1, 1, -1, 0, 0, -1, 1, 1, -1, 1, 0, -1, 0, ...
-      starting i=1, multiple of 120 degrees
-
-Every third turn is -1.  i-floor(i/3) counts positions with those turns
-removed.  Bit above lowest 1-bit on that remaining position is the same as
-the dragon curve turn sequence (the full dragon curve, not just its
-boundary).  So the terdragon boundary turns are the dragon turns with -1
-inserted as every third turn starting from position i=2.
-
-The following diagram illustrates the initial boundary turns.  Boundary
-positions 5 and 8 are at the same point since that point is visited twice by
-the boundary.
-
-       Rt(8)=-1
-       |
-    *  v  7  Rt(7)=1
-     \   / \
-      \8/   \                       right boundary
-       *-----6  Rt(6)=1             turn sequence
-        \5  Rt(5)=-1
-         \
-          4  Rt(4)=0
-           \
-            \
-       *-----3   Rt(3)=1
-        \2  Rt(2)=-1
-         \
-    *-----1  Rt(1)=1
-
-The turns can be calculated by considering how the curve replicates.  Take
-the turn sequence in two parts Rt and Vt.  This is similar to the boundary
-length above but for the turns not the length.
-
-       2-----3        Rt[k] turns from 0 to 1
-        \ Vt          Vt[k] turns from 1 to 3
-         \
-    0-----1           initial Rt[0] = empty
-      Rt                      Vt[0] = -1 (a single turn)
-
-The endpoints are not included in the two sequence parts, so the turn at "1"
-is not in either part.  The curve expands as follows.
-
-       *-----3        Rt[k+1] = Rt[k], 1, Vt[k]
-        \             Vt[k+1] = Rt[k], 0, Vt[k]
-         \
-    2-----b
-     \   / \
-      \ /   \
-       *-----1
-        \
-         \
-    0-----a
-
-Rt from 0 to 1 becomes an Rt from 0 to "a", followed by the turn +1 at "a",
-then a Vt from "a" to 1.  This is the same as in the first diagram an
-Rt[k+1] from 0 to 3 comprising Rt[k] from 0 to 1 and Vt[k] from 1 to 3.
-
-Vt from 1 to 3 becomes an Rt from 1 to "b", followed by turn 0 at "b"
-(straight ahead), then a Vt from "b" to 1.
-
-Points a, 1, b and 3 are on the right boundary and remain so in further
-expansions due to the extents of the curve segments.  Point 2 which was the
-inside of the preceding Vt does not remain on the right boundary.
-
-The repeated expansion
-
-    R -> R,1,V
-    V -> R,0,V
-
-is per the dragon curve (L<Math::PlanePath::DragonCurve/Turn>) and hence bit
-above lowest 1-bit.  Repeated expansions always have R and V alternating
-since both expand to an R and a V in that order, but with a different value
-in between.
-
-    R _ V _ R _ V _ R _ V _ R _ V
-
-At the final lowest level Rt[0]=empty and Vt[0]=-1.  That Vt[0]=-1 gives the
--1 at every third position.
-
-The way the endpoint "3" is always on the right boundary means that the
-successive levels extend each other.  So Rt[k+1] starts with Rt[k] and then
-has further turns (turn 1 then Vt[k]).
-
-=head2 Right Boundary Segment N
-
-The curve segment numbers which are on the right boundary are
-
-    RN = N in ternary no digit pair 11, 12 or 20,
-         in ascending order
-
-    = decimal  0,1,2,  3, 7, 8,   9, 10, 11,  21, 25, 26,   27,  28,...
-    = ternary  0,1,2, 10,21,22, 100,101,102, 210,221,222, 1000,1001,...
-
-For example on segments N=0 to N=8 the boundary segments are as follows.
-
-        8-----9        boundary segments
-         \
-          \              N   ternary
-     6----7,4            0       0
-      \   / \            1       1
-       \ /   \           2       2
-       5,2----3          3      10      (no 11, 12, 20)
-         \               7      21
-          \              8      22
-     0-----1
-
-Some of the boundary points are visited twice.  The boundary segment N is
-the N which goes along the boundary.  So the segment 7,4 to 8 is N=7.
-Segment 7,4 to 5,2 would be N=4 (and is not on the boundary).
-
-The ternary characterization of the values can be found by a breakdown
-similar to the boundary length calculation above.  Take the boundary N
-numbers in two parts RN[k] and VN[k] at expansion level k.
-
-        2-----3
-         \  VN[1] = 1,2        initial RN[1] and VN[1]
-          \
-     0-----1
-    RN[1] = 0
-
-RN[k] and VN[k] are in the range 0 to 3^k-1 and so can be written with k
-many ternary digits.  The curve replicates and adds a new ternary digit as
-follows.  Points 1, 3 and 7,4 are always on the boundary and so subsections
-can be taken between them.
-
-       8------9
-        \
-         \            VN[k+1] =   3^k + RN[k],  (3 to 4)
-    6----7,4                    2*3^k + VN[k]   (7 to 9)
-     \   / \
-      \ /   \
-      5,2----3        RN[k+1] = RN[k],          (0 to 1)
-        \                       VN[k]           (1 to 3)
-         \
-    0-----1
-
-RN[k+1] gains a high digit 0.  The initial RN[1] is 0 and so RN[k] has a
-high digit 0.
-
-VN[k+1] gains a high digit 1 or 2.  The initial VN[k] is digit 1 or 2 and so
-all VN[k] have high digit 1 or 2.
-
-RN[k+1] is a 0 above 0 from LN[k] or 1 or 2 from VN[k] and so gives digit
-pairs 00, 01 and 02.  VN[k+1] is a 1 above 0 from RN[k] or a 2 above 1 or 2
-from VN[k] and so gives digit pairs 10, 21 and 22.  All these digit pairs
-occur and the remaining 11, 12 and 20 do not occur.
-
-=head2 Right Boundary Segment N Calculation
-
-Each right boundary segment number RN(i) can be calculated by writing its
-index i in a mixed radix representation with a ternary low digit and then
-binary above.
-
-      binary   binary        binary   ternary
-    +--------+--------+    +--------+--------+
-    |   1    |  0or1  |....|  0or1  |  0or2  |
-    +--------+--------+    +--------+--------+
-    high                                   low
-
-Then consider each digit pair and change the binary 1s as follows.  The
-result as ternary digits is RN(i).
-
-    1,nonzero  ->  2,nonzero
-
-Digit pairs include overlaps.  So a run of consecutive 1-bits has all except
-the lowest changed,
-
-    1,1,1,1    ->  2,2,2,1
-
-Disallowed pairs "11" and "12" are changed to the allowed "21" and "22".
-The disallowed "20" doesn't occur since 2 is only created by the change
-procedure above and so cannot have 0 below it.  The change of "12" -E<gt>
-"22" only occurs at the lowest digit pair when the mixed radix gives 2 as
-the low ternary digit.
-
-The reason this works can be seen by considering what next higher digit is
-permitted above a given ternary 0,1,2.
-
-     next        ternary
-    higher        digit
-    1 or 0   <-     0         cannot 20, can 10 00
-    2 or 0   <-     1         cannot 11, can 21 01
-    2 or 0   <-     2         cannot 12, can 02 22
-
-So starting from a low ternary 0,1,2 there is always just two choices as to
-what should be above it.  Those two are counted by a binary digit.  The
-digit choice is always 0 or non=0 so when the change is applied to binary in
-ascending order the resulting RN(i) ternary is in ascending order.
-
-=head2 Left Boundary Segment N
-
-The curve segment numbers which are on the left boundary are
-
-    LN = N in ternary no digit pair 02, 10 or 11,
-         and most significant digit 1,
-         in ascending order
-
-    = decimal  0,1, 5,  15, 16, 17,   45,  46,  50,   51,  52,  53,...
-    = ternary  0,1,12, 120,121,122, 1200,1201,1212, 1220,1221,1222,...
-
-The characterization can be made in a similar way to the right boundary
-segments above.  Take the boundary N numbers in two parts LN and EN.
-
-                 EN[1]=2
-                   2-----3         initial LN[1] and EN[1]
-     LN[1] = 0,1    \
-                     \
-                0-----1
-
-LN[k] and EN[k] are in the range 0 to 3^k-1 and so can be written with k
-many ternary digits.  The curve replicates and adds a new ternary digit as
-follows.  Points 5,2, 6 and 8 are on the boundary of the replication and so
-subsections can be taken between them.
-
-    EN[k+1]   8------9
-               \             EN[k+1] = 2*3^k + LN[k],   (6 to 8)
-                \                      2*3^k + EN[k]    (8 to 9)
-           6----7,4
-            \   / \          LN[k+1] =         LN[k],   (0 to 2)
-             \ /   \                     3^k + EN[k]    (5 to 6)
-    LN[k+1]  5,2----3
-               \
-                \
-           0-----1
-
-EN[k+1] gains a high digit 2.  The initial EN[1] is a high digit 2 and so
-all EN have high digit 2.
-
-LN[k+1] gains a 0 above the 0 or 1 from LN[k], and gains a 1 above the high
-2 of EN[k].  LN[1] is 0,1 and so LN always has high digit 0 or 1 and highest
-non-zero digit always 1.
-
-EN[k+1] is a 2 above either 0 or 1 from LN[k] or 2 from EN[k] and so gives
-digit pairs 20, 21 and 22.  LN[k+1] is a 0 above 0 or 1 from LN[k] or a 1
-above 2 from EN[k] and so gives digit pairs 00, 01 and 12.  All these digit
-pairs occur and the remaining 02, 10 and 11 do not occur.
-
-The repeatedly expanded LN[k] values are the left boundary of the full
-curve.  If stopping at a finite expansion k then the EN[k] positions are on
-the boundary too.  If continuing then EN[k] is enclosed by the next
-expansion level.  To include EN[k] for a finite expansion the rule above is
-relaxed to allow high digit 2.
-
-    LN[k],EN[k] left boundary of curve after k expansions
-    = N with k many ternary digits and no digit pair 02, 10 or 11,
-      in ascending order
-
-Disallowing high digit 2 can also be done by considering values to have 0s
-above the most significant and so a high 2 is a digit pair "02" which is to
-be excluded.
-
-=head2 Left Boundary Segment N Calculation
-
-Each left boundary segment number LN(i) can be calculated by writing its
-index i in a mixed radix representation with a ternary low digit and then
-binary above, plus an extra high 0 bit.
-
-               binary   binary        binary   ternary
-    +--------+--------+--------+    +--------+--------+
-    |   0    |    1   |  0or1  |....|  0or1  |  0or2  |
-    +--------+--------+--------+    +--------+--------+
-    high                                            low
-
-Then take each binary digit from low to high and apply a transformation as
-follows.  The "previous digit" in each case includes the transformation of
-that digit.
-
-    previous digit   binary transformed
-         0               0->0  1->2
-         1               0->0  1->2
-         2               0->1  1->2
-
-For example i=8 in the mixed radix is 0102 so apply the transformations
-
-     0102
-       ^^  previous digit 2, bit 0, transform bit 0->1
-     0112
-      ^^   previous digit 1, bit 1, transform bit 1->2
-     0212
-     ^^    previous digit 2, bit 0, transform bit 0->1
-     1212
-
-     final 1212 ternary = 50 so segment N=50
-
-=for Test-Pari 2 + 3*(0 + 2*(1)) == 8
-
-=for Test-Pari 2 + 3*(1 + 3*(2 + 3*(1))) == 50
-
-The transformations correspond to the allowed digit pairs.  The digit above
-a 0 can only be 0 or 2.  The digit above a 1 can only be 0 or 2.  The digit
-above a 2 can only be 1 or 2.  The low digit can be ternary 0,1,2 and from
-that starting point there are two choices at each digit, hence the binary
-mixed radix.
-
-=cut
-
-# CHECK-ME:
-#
-# Fixed-width k digits with the disallow rule ...
-#
-# The extra high 0-bit has the effect of adding a 1-digit if the high is
-# otherwise 2.  Those high 2 values are EN[k].  If EN[k] values are to be
-# included, as for a finite expansion to level k, then that high 0-bit should
-# be omitted.
-
-=pod
-
-=head2 Shortcut Boundary Length
-
-The turns on the right boundary which are to the right -120 degrees are like
-
-    2-----3       turn -120 at "2"
-     \
-      \
-       1
-
-A shortcut can be taken by a unit step directly from 1 to 3, skipping
-point 2.  Doing so gives a boundary from N=0 to N=3^k which is
-
-    Rsh[k] =   2^k       shortcut right side
-    Bsh[k] = 2*2^k       shortcut whole boundary
-
-=for Test-Pari-DEFINE  Rsh(k) = 2^k
-
-=for Test-Pari-DEFINE  Bsh(k) = 2*2^k
-
-Every third point starting from N=2 is a -120 degree turn and at each of
-those 2 boundary lines become 1 shortcut line
-
-    Rsh[k] = R[k] * 2/3            k >= 1
-           = 3*2^(k-1) * 2/3
-           = 2^k
-
-=for Test-Pari vector(20, k, Rsh(k)) == vector(20, k, R(k)*2/3)
-
-R[k] is a multiple of 3, so no rounding is required for the 2/3 factor.  The
-multiple of 3 also means the last turn in Rt[k] is always a -120 (to be
-shortcut across).  The left and right sides are symmetric, so Bsh=2*Rsh.
-
-=head2 Shortcut Boundary Turn Sequence
-
-The shortcut boundary turn sequence is the dragon curve turns but by 60
-degrees instead of 90 degrees.
-
-    St(i) = / bit above lowest 1-bit of i
-            |   if 0 then  turn +60  (left)
-            \   if 1 then  turn -60  (right)
-
-    = 1, 1, -1, 1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, ...
-      starting i=1, multiple of 60 degrees
-
-The shortcut eliminates the -120 degree turns from the right boundary turn
-sequence.  The following diagram shows a a -120 at s and preceding turn P
-and following turn Q.
-
-            \
-       s-----Q
-        \
-         \                  = 1, 0   (at "*" and "a")
-       ---P
-
-The turns at P and Q are either 0 or +120 degrees.  The effect of skipping s
-and going straight across from P to Q is that the turn at P is -60 degrees
-of whatever its value was, and the same for Q -60 degrees of whatever its
-value was.  So the turns 0 and +120 in the right boundary sequence become
--60 or +60.
-
-=head2 Shortcut Area
-
-The area enclosed by the shortcut boundary can be calculated from the plain
-curve area plus the extra triangles enclosed by B[k]/3 many shortcuts,
-
-   Ash[k] = A[k] + floor(B[k]/3)
-          = / 0          if k=0
-            \ 2*3^(k-1)  if k>=1
-
-=for Test-Pari-DEFINE  Ash(k) = if(k==0, 0, 2*3^(k-1))
-
-=for Test-Pari-DEFINE  Ash_from_AB(k) = A(k) + floor(B(k)/3)
-
-=for Test-Pari vector(20, k, Ash(k-1)) == vector(20, k, Ash_from_AB(k-1))
-
-=cut
-
-# Ash[k] = 2*(3^(k-1) - 2^(k-1))  +  3*2^k/3
-#        = 2*3^(k-1) - 2*2^(k-1)  +  2*2^(k-1)
-#        = 2*3^(k-1)
-# Pari: (Ash(k) = 2*3^(k-1)); for(k=0,8,print1(Ash(k),", "))
-#
-# 3*Ash(k)+Bsh(k) = 3*2*3^(k-1) + 2*2^k
-#                 = 2*3^k + 2*2^k
-#                 = 2*3^k
-
-=pod
-
-The "floor" is only needed for k=0 single line segment case.  B[0]=2 and by
-rounding down 2/3 nothing is added to A[0]=0.  For kE<gt>=1 B[k] is a
-multiple of 3.
-
-The shortcut area and boundary continue to satisfy the 2N=3A+B relation
-given in L</Area from Boundary> above.  That relation requires each unit
-area to have all three of its sides traversed and that is so with the
-shortcuts.
-
-    Bshortcuts(k) = floor(B(k)/3)      # extra shortcuts
-    Nsh(k) = 3^k + Bshortcuts(k)       # total incl shortcuts
-
-    2*Nsh(k) = 3*Ash(k) + Bsh(k)
-
-=for Test-Pari-DEFINE  Bshortcuts(k) = floor(B(k)/3)
-
-=for Test-Pari-DEFINE  Nsh(k) = 3^k + Bshortcuts(k)
-
-=for Test-Pari vector(20, k, 2*Nsh(k -1)) == vector(20, k, 3*Ash(k -1)+Bsh(k -1))
-
 =head1 OEIS
 
 The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
@@ -1981,6 +1136,16 @@ with a left turn at N=1.
     A135254   count North-West segments N=0 to N=3^k, extra 0
     A133474   count South-West segments N=0 to N=3^k
     A057083   count segments diff from 3^(k-1)
+
+    A057682   level X, at N=3^level
+                also arms=2 level Y, at N=2*3^level
+    A057083   level Y, at N=3^level
+                also arms=6 level X at N=6*3^level
+
+    A057681   arms=2 level X, at N=2*3^level
+                also arms=3 level Y at 3*3^level
+    A103312   same
+
 
 =head1 SEE ALSO
 

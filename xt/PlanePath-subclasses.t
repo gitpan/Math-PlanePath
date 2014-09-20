@@ -51,13 +51,73 @@ my @modules = (
 
                # module list begin
 
-               'WythoffPreliminaryTriangle',
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
 
-               'WythoffArray',
-               'WythoffArray,x_start=1',
-               'WythoffArray,y_start=1',
-               'WythoffArray,x_start=1,y_start=1',
-               'WythoffArray,x_start=5,y_start=7',
+               'UlamWarburton,parts=octant',
+               'UlamWarburton,parts=octant_up',
+               'UlamWarburton',
+               'UlamWarburton,parts=2',
+               'UlamWarburton,parts=1',
+               'UlamWarburton,n_start=0',
+               'UlamWarburton,n_start=0,parts=2',
+               'UlamWarburton,n_start=0,parts=1',
+               'UlamWarburton,n_start=37',
+               'UlamWarburton,n_start=37,parts=2',
+               'UlamWarburton,n_start=37,parts=1',
+               'UlamWarburtonQuarter,parts=octant',
+               'UlamWarburtonQuarter,parts=octant,n_start=37',
+               'UlamWarburtonQuarter,parts=octant_up',
+               'UlamWarburtonQuarter,parts=octant_up,n_start=37',
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,n_start=0',
+               'UlamWarburtonQuarter,n_start=37',
+
+               '*ToothpickReplicate',
+               '*ToothpickReplicate,parts=1',
+               '*ToothpickReplicate,parts=2',
+               '*ToothpickReplicate,parts=3',
+
+               '*LCornerReplicate',
+
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+
+               'SierpinskiCurve',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+
+               'CubicBase',
+               'CubicBase,radix=3',
+               'CubicBase,radix=4',
+               'CubicBase,radix=37',
+
+               'DragonCurve',
+               'DragonCurve,arms=2',
+               'DragonCurve,arms=3',
+               'DragonCurve,arms=4',
+
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+               'KochCurve',
+               'KochPeaks',
+
+               'CCurve',
+
+               '*HTree',
 
                'ComplexRevolving',
                'ComplexPlus',
@@ -71,18 +131,63 @@ my @modules = (
                'ComplexMinus,realpart=4',
                'ComplexMinus,realpart=5',
 
-               'Flowsnake',
-               'Flowsnake,arms=2',
-               'Flowsnake,arms=3',
-               'FlowsnakeCentres',
-               'FlowsnakeCentres,arms=2',
-               'FlowsnakeCentres,arms=3',
+               'SierpinskiCurveStair',
+               'SierpinskiCurveStair,diagonal_length=2',
+               'SierpinskiCurveStair,diagonal_length=3',
+               'SierpinskiCurveStair,diagonal_length=4',
+               'SierpinskiCurveStair,arms=2',
+               'SierpinskiCurveStair,arms=3,diagonal_length=2',
+               'SierpinskiCurveStair,arms=4',
+               'SierpinskiCurveStair,arms=5',
+               'SierpinskiCurveStair,arms=6,diagonal_length=5',
+               'SierpinskiCurveStair,arms=7',
+               'SierpinskiCurveStair,arms=8',
+               'HIndexing',
 
-               'DiagonalsAlternating',
-               'DiagonalsAlternating,n_start=0',
-               'DiagonalsAlternating,n_start=37',
-               'DiagonalsAlternating,x_start=5',
-               'DiagonalsAlternating,x_start=2,y_start=5',
+               'QuadricCurve',
+               'QuadricIslands',
+
+               'LTiling',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
+               'FibonacciWordFractal',
+
+               'GosperReplicate',
+               'GosperSide',
+
+               'SquareReplicate',
+
+               'QuintetCurve',
+               'QuintetCurve,arms=2',
+               'QuintetCurve,arms=3',
+               'QuintetCurve,arms=4',
+               'QuintetCentres',
+               'QuintetCentres,arms=2',
+               'QuintetCentres,arms=3',
+               'QuintetCentres,arms=4',
+
+               'QuintetReplicate',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=4',
+               'TerdragonMidpoint,arms=5',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=4',
+               'TerdragonCurve,arms=5',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
 
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowheadCentres,align=right',
@@ -92,6 +197,40 @@ my @modules = (
                'SierpinskiArrowhead,align=right',
                'SierpinskiArrowhead,align=left',
                'SierpinskiArrowhead,align=diagonal',
+
+               'Flowsnake',
+               'Flowsnake,arms=2',
+               'Flowsnake,arms=3',
+               'FlowsnakeCentres',
+               'FlowsnakeCentres,arms=2',
+               'FlowsnakeCentres,arms=3',
+
+               'HilbertCurve',
+               'HilbertSpiral',
+
+               'DragonMidpoint',
+               'DragonMidpoint,arms=2',
+               'DragonMidpoint,arms=3',
+               'DragonMidpoint,arms=4',
+
+               'DragonRounded',
+               'DragonRounded,arms=2',
+               'DragonRounded,arms=3',
+               'DragonRounded,arms=4',
+
+               'WythoffPreliminaryTriangle',
+
+               'WythoffArray',
+               'WythoffArray,x_start=1',
+               'WythoffArray,y_start=1',
+               'WythoffArray,x_start=1,y_start=1',
+               'WythoffArray,x_start=5,y_start=7',
+
+               'DiagonalsAlternating',
+               'DiagonalsAlternating,n_start=0',
+               'DiagonalsAlternating,n_start=37',
+               'DiagonalsAlternating,x_start=5',
+               'DiagonalsAlternating,x_start=2,y_start=5',
 
                # Math::PlanePath::CellularRule::Line
                'CellularRule,rule=2',  # left line
@@ -126,10 +265,6 @@ my @modules = (
                'CellularRule,rule=206', # left solid
                'CellularRule,rule=206,n_start=0',
                'CellularRule,rule=206,n_start=37',
-
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=18,n_start=0',
-               'CellularRule,rule=18,n_start=37',
 
                'CellularRule,rule=0',   # blank
                'CellularRule,rule=60',
@@ -252,13 +387,6 @@ my @modules = (
                'SquareSpiral,wider=6',
                'SquareSpiral,wider=37',
 
-               '*ToothpickReplicate',
-               '*ToothpickReplicate,parts=1',
-               '*ToothpickReplicate,parts=2',
-               '*ToothpickReplicate,parts=3',
-
-               '*LCornerReplicate',
-
                'MultipleRings,ring_shape=polygon,step=3',
                'MultipleRings,ring_shape=polygon,step=5',
                'MultipleRings,ring_shape=polygon,step=6',
@@ -360,24 +488,6 @@ my @modules = (
                'KnightSpiral,n_start=0',
                'KnightSpiral,n_start=37',
 
-               'CubicBase',
-               'CubicBase,radix=3',
-               'CubicBase,radix=4',
-               'CubicBase,radix=37',
-
-               'UlamWarburton',
-               'UlamWarburton,n_start=0',
-               'UlamWarburton,n_start=0,parts=2',
-               'UlamWarburton,n_start=0,parts=1',
-               'UlamWarburton,n_start=37',
-               'UlamWarburton,n_start=37,parts=2',
-               'UlamWarburton,n_start=37,parts=1',
-               'UlamWarburton,parts=2',
-               'UlamWarburton,parts=1',
-               'UlamWarburtonQuarter',
-               'UlamWarburtonQuarter,n_start=0',
-               'UlamWarburtonQuarter,n_start=37',
-
                'ImaginaryBase',
                'ImaginaryBase,radix=3',
                'ImaginaryBase,radix=4',
@@ -397,17 +507,6 @@ my @modules = (
                'R5DragonMidpoint,arms=2',
                'R5DragonMidpoint,arms=3',
                'R5DragonMidpoint,arms=4',
-
-               'R5DragonCurve',
-               'R5DragonCurve,arms=2',
-               'R5DragonCurve,arms=3',
-               'R5DragonCurve,arms=4',
-
-               'KochCurve',
-               'KochPeaks',
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
 
                'PentSpiral',
                'PentSpiral,n_start=0',
@@ -434,58 +533,17 @@ my @modules = (
                'CellularRule190,mirror=1,n_start=0',
                'CellularRule190,mirror=1,n_start=37',
 
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=4',
-               'TerdragonMidpoint,arms=5',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=4',
-               'TerdragonCurve,arms=5',
-               'TerdragonCurve,arms=6',
-
                'DivisibleColumns',
                'DivisibleColumns,n_start=37',
                'DivisibleColumns,divisor_type=proper',
                'CoprimeColumns',
                'CoprimeColumns,n_start=37',
 
-               'SierpinskiCurve',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
-
-               'SierpinskiCurveStair',
-               'SierpinskiCurveStair,diagonal_length=2',
-               'SierpinskiCurveStair,diagonal_length=3',
-               'SierpinskiCurveStair,diagonal_length=4',
-               'SierpinskiCurveStair,arms=2',
-               'SierpinskiCurveStair,arms=3,diagonal_length=2',
-               'SierpinskiCurveStair,arms=4',
-               'SierpinskiCurveStair,arms=5',
-               'SierpinskiCurveStair,arms=6,diagonal_length=5',
-               'SierpinskiCurveStair,arms=7',
-               'SierpinskiCurveStair,arms=8',
-               'HIndexing',
-
                'DiamondArms',
                'SquareArms',
                'HexArms',
 
                'PixelRings',
-               'HilbertSpiral',
 
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
@@ -543,28 +601,6 @@ my @modules = (
                'AztecDiamondRings,n_start=0',
                'AztecDiamondRings,n_start=37',
 
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=4',
-               'TerdragonRounded,arms=5',
-               'TerdragonRounded,arms=6',
-
-               'DragonCurve',
-               'DragonCurve,arms=2',
-               'DragonCurve,arms=3',
-               'DragonCurve,arms=4',
-
-               'DragonMidpoint',
-               'DragonMidpoint,arms=2',
-               'DragonMidpoint,arms=3',
-               'DragonMidpoint,arms=4',
-
-               'DragonRounded',
-               'DragonRounded,arms=2',
-               'DragonRounded,arms=3',
-               'DragonRounded,arms=4',
-
                'Corner',
                'Corner,wider=1',
                'Corner,wider=2',
@@ -577,10 +613,6 @@ my @modules = (
                'Corner,wider=1,n_start=37',
                'Corner,wider=2,n_start=37',
                'Corner,wider=13,n_start=37',
-
-               'CCurve',
-
-               '*HTree',
 
                'PythagoreanTree,tree_type=UMT',
                'PythagoreanTree,tree_type=UMT,coordinates=AC',
@@ -689,8 +721,6 @@ my @modules = (
                'DigitGroups,radix=5',
                'DigitGroups,radix=37',
 
-               'HilbertCurve',
-
                'CfracDigits,radix=1',
                'CfracDigits',
                'CfracDigits,radix=3',
@@ -711,19 +741,6 @@ my @modules = (
 
                'GosperIslands',
 
-               'LTiling',
-               'LTiling,L_fill=ends',
-               'LTiling,L_fill=all',
-               'FibonacciWordFractal',
-
-               'GosperReplicate',
-               'GosperSide',
-
-               'SquareReplicate',
-
-               'QuadricCurve',
-               'QuadricIslands',
-
                'PowerArray',
                'PowerArray,radix=3',
                'PowerArray,radix=4',
@@ -738,17 +755,6 @@ my @modules = (
                'GrayCode,apply_type=sF',
                'GrayCode,apply_type=sT',
                'GrayCode,radix=4,gray_type=modular',
-
-               'QuintetCurve',
-               'QuintetCurve,arms=2',
-               'QuintetCurve,arms=3',
-               'QuintetCurve,arms=4',
-               'QuintetCentres',
-               'QuintetCentres,arms=2',
-               'QuintetCentres,arms=3',
-               'QuintetCentres,arms=4',
-
-               'QuintetReplicate',
 
                'DekkingCurve',
                'DekkingCentres',
@@ -793,7 +799,7 @@ sub module_exists {
   }
 }
 foreach (@modules) { s/^\*// }
-  
+
 my @classes = map {(module_parse($_))[0]} @modules;
 { my %seen; @classes = grep {!$seen{$_}++} @classes } # uniq
 
@@ -854,7 +860,7 @@ BEGIN {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 116;
+my $want_version = 117;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -872,18 +878,18 @@ ok (! eval { Math::PlanePath->VERSION($check_version); 1 },
 
 # foreach my $class (@classes) {
 #   eval "require $class" or die;
-# 
+#
 #   ok (eval { $class->VERSION($want_version); 1 },
 #       1,
 #       "VERSION class check $want_version in $class");
 #   ok (! eval { $class->VERSION($check_version); 1 },
 #       1,
 #       "VERSION class check $check_version in $class");
-# 
+#
 #   my $path = $class->new;
 #   ok ($path->VERSION, $want_version,
 #       "VERSION object method in $class");
-# 
+#
 #   ok (eval { $path->VERSION($want_version); 1 },
 #       1,
 #       "VERSION object check $want_version in $class");
@@ -1136,10 +1142,10 @@ sub pythagorean_diag {
                             %parameters);
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
-
+    
     if ($mod !~ /,/) {
       # base class only
-
+      
       my $parameter_info_hash = $path->parameter_info_hash;
       if (my $pinfo = $parameter_info_hash->{'n_start'}) {
         $pinfo->{'default'} == $n_start
@@ -1149,7 +1155,7 @@ sub pythagorean_diag {
         $pinfo->{'default'} == $arms_count
           or &$report("parameter info arms_count default $pinfo->{'default'} but path->arms_count $arms_count");
       }
-
+      
       foreach my $pinfo ($path->parameter_info_list) {
         if ($pinfo->{'type'} eq 'enum') {
           my $choices = $pinfo->{'choices'};
@@ -1160,6 +1166,38 @@ sub pythagorean_diag {
               &$report("parameter info $pinfo->{'name'} choices $num_choices but choices_display $num_choices_display");
             }
           }
+        }
+      }
+      
+      ### level_to_n_range() different among arms ...
+      # This checks that if there's an arms parameter then the
+      # level_to_n_range() code takes account of it.
+      if (my $pinfo = $parameter_info_hash->{'arms'}) {
+        my %seen;
+        foreach my $arms ($pinfo->{'minimum'} .. $pinfo->{'maximum'}) {
+          my $apath = $class->new (arms => $arms);
+          my ($n_lo, $n_hi) = $apath->level_to_n_range(3)
+            or next;
+          if (exists $seen{$n_hi}) {
+            &$report ("level_to_n_range() n_hi=$n_hi at arms=$arms is same as from arms=$seen{$n_hi}");
+          } else {
+            $seen{$n_hi} = $arms;
+          }
+        }
+        ### %seen
+      }
+
+      ### level_to_n_range() follows n_start ...
+      if (my $pinfo = $parameter_info_hash->{'n_start'}) {
+        my $apath = $class->new (n_start => 100);
+        my ($n_lo_100, $n_hi_100) = $path->level_to_n_range(3)
+          or next;
+        my $bpath = $class->new (n_start => 200);
+        my ($n_lo_200, $n_hi_200) = $path->level_to_n_range(3)
+          or next;
+        if ($n_lo_100 + 100 == $n_lo_200
+            && $n_hi_100 + 100 == $n_hi_200) {
+          &$report ("level_to_n_range() not affected by n_start");
         }
       }
     }
@@ -1644,7 +1682,7 @@ sub pythagorean_diag {
           $got_y_negative_at_n= $n;
         }
       }
-
+      
       if (defined $x_minimum && $x < $x_minimum) {
         &$report("n_to_xy($n) X=$x below x_minimum=$x_minimum");
       }
@@ -1910,6 +1948,38 @@ sub pythagorean_diag {
     }
     
     #--------------------------------------------------------------------------
+    ### level_to_n_range() and with n_to_level() ...
+    
+    foreach my $n ($n_start-1, $n_start-100) {
+      my $got = $path->n_to_level($n);
+      if (defined $got) {
+        &$report ("n_to_level() not undef on N=$n before n_start=$n_start");
+      }
+    }
+    if ($path->level_to_n_range(0)) {
+      my @n_range;
+      my $bad = 0;
+      foreach my $n ($n_start .. $n_start+100) {
+        my $level = $path->n_to_level($n);
+        if (! defined $level) {
+          &$report ("n_to_level($n) undef");
+          last;
+        }
+        if ($level < 0) {
+          &$report ("n_to_level() negative");
+          last if $bad++ > 10;
+          next;
+        }
+        $n_range[$level] ||= [ $path->level_to_n_range($level) ];
+        my ($n_lo, $n_hi) = @{$n_range[$level]};
+        unless ($n >= $n_lo && $n <= $n_hi) {
+          &$report ("n_to_level()=$level has $n outside $n_lo .. $n_hi");
+          last if $bad++ > 10;
+        }
+      }
+    }
+    
+    #--------------------------------------------------------------------------
     ### n_to_xy() various bogus values return 0 or 2 values and not crash ...
     
     foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
@@ -1944,7 +2014,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     #--------------------------------------------------------------------------
     ### _UNDOCUMENTED__n_is_diagonal_NE() ...
     
@@ -1958,7 +2028,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     #--------------------------------------------------------------------------
     ### _UNDOCUMENTED__dxdy_list() completeness ...
     
@@ -1986,7 +2056,7 @@ sub pythagorean_diag {
           }
         }
       }
-
+      
     } else {
       my $seen_dxdy_count = scalar keys %seen_dxdy;
       if ($seen_dxdy_count > 0
@@ -1998,10 +2068,10 @@ sub pythagorean_diag {
         MyTestHelpers::diag ("  possible dxdy list: ", join(' ', keys %seen_dxdy));
       }
     }
-    
+
     #--------------------------------------------------------------------------
     ### x negative xy_to_n() ...
-    
+
     foreach my $x (-100, -99) {
       ### $x
       my @n = $path->xy_to_n ($x,-1);
@@ -2009,11 +2079,11 @@ sub pythagorean_diag {
       (scalar(@n) == 1)
         or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
     }
-    
+
     {
       my $x_negative = ($path->x_negative ? 1 : 0);
       my $got_x_negative = (defined $got_x_negative_at_n ? 1 : 0);
-      
+
       # if ($mod eq 'ComplexPlus,realpart=2'
       #     || $mod eq 'ComplexPlus,realpart=3'
       #     || $mod eq 'ComplexPlus,realpart=4'
@@ -2022,7 +2092,7 @@ sub pythagorean_diag {
       #   # these don't get to X negative in small rectangle
       #   $got_x_negative = 1;
       # }
-      
+
       if ($n_limit < (defined $x_negative_at_n ? $x_negative_at_n : $n_start)) {
         MyTestHelpers::diag ("  skip n_limit=$n_limit <= x_negative_at_n=$x_negative_at_n");
       } else {
@@ -2049,7 +2119,7 @@ sub pythagorean_diag {
     {
       my $y_negative = ($path->y_negative ? 1 : 0);
       my $got_y_negative = (defined $got_y_negative_at_n ? 1 : 0);
-      
+
       # if (($mod eq 'ComplexPlus' && $limit < 32) # first y_neg at N=32
       #     || $mod eq 'ComplexPlus,realpart=2'  # y_neg big
       #     || $mod eq 'ComplexPlus,realpart=3'
@@ -2065,7 +2135,7 @@ sub pythagorean_diag {
       #   # on realpart==5 or bigger too.
       #   $got_y_negative = 1;
       # }
-      
+
       if ($n_limit < (defined $y_negative_at_n ? $y_negative_at_n : $n_start)) {
         MyTestHelpers::diag ("  skip n_limit=$n_limit <= y_negative_at_n=$y_negative_at_n");
       } else {
@@ -2094,11 +2164,11 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     if ($path->figure ne 'circle'
         # bit slow
         && ! ($path->isa('Math::PlanePath::Flowsnake'))) {
-      
+
       my $x_min = ($path->x_negative ? - int($rect_limit/2) : -2);
       my $y_min = ($path->y_negative ? - int($rect_limit/2) : -2);
       my $x_max = $x_min + $rect_limit;

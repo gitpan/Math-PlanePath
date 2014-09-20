@@ -35,7 +35,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -47,7 +47,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'round_down_pow';
 
 
 use constant n_start => 0;
@@ -501,6 +502,31 @@ sub rect_to_n_range {
   return ($n_lo, $n_hi);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+# level=0 
+# level=1  0 to 4
+# level=2  0 to 24    is 5^level-1
+#
+# multiple arms the same full points of arms=1
+# so arms*5^level points numbered starting 0
+#        = 5^level*arms - 1
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, 5**$level * $self->{'arms'} - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 5);
+  return $exp + 1;
+}
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -663,6 +689,20 @@ simple over-estimate.)
 
 =back
 
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 5**$level - 1)>, or for multiple arms return C<(0, $arms *
+5**$level - 1)>.
+
+There are 5^level points in a level, or arms*5^level for multiple arms,
+numbered starting from 0.
+
+=back
+
 =head1 FORMULAS
 
 =head2 X,Y to N
@@ -701,6 +741,22 @@ low and making suitable rotations for the sub-part orientation of the curve.
 The remainders alone give a traversal in the style of C<QuintetReplicate>.
 Applying suitable rotations produces the connected path of
 C<QuintetCentres>.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+=over
+
+L<http://oeis.org/A106665> (etc)
+
+=back
+
+    A099456   level Y end, being Im((2+i)^k)
+
+    arms=2
+      A139011   level Y end, being Re((2+i)^k)
 
 =head1 SEE ALSO
 

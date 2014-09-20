@@ -28,7 +28,7 @@
 package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 #use List::Util 'min','max';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
@@ -40,7 +40,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 116;
+$VERSION = 117;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';

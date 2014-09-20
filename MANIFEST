@@ -32,13 +32,6 @@ devel/cubic-base.pl
 devel/diagonals.pl
 devel/digit-groups.pl
 devel/divisible-columns.pl
-devel/dragon-devel.m4
-devel/dragon-iterative.gri
-devel/dragon-numbers.pl
-devel/dragon-pgf.tex
-devel/dragon.el
-devel/dragon.gnuplot
-devel/dragon.logo
 devel/dragon.pl
 devel/exe-atan2.c
 devel/exe-complex-minus.c
@@ -111,6 +104,7 @@ devel/lib/Math/square-radical.pl
 devel/lib/Math/SquareRadical.pm
 devel/Makefile
 devel/mephisto-waltz.logo
+devel/misc.pl
 devel/multiple-rings.pl
 devel/number-fraction.pl
 devel/numseq.pl
@@ -316,6 +310,7 @@ t/CincoCurve.t
 t/Columns-load.t
 t/Columns.t
 t/ComplexMinus.t
+t/ComplexPlus.t
 t/CoprimeColumns.t
 t/Corner.t
 t/CornerReplicate.t
@@ -375,6 +370,7 @@ t/PlanePath.t
 t/PyramidRows.t
 t/PythagoreanTree.t
 t/QuadricCurve.t
+t/QuadricIslands.t
 t/QuintetCentres.t
 t/QuintetCurve.t
 t/RationalsTree.t
@@ -432,6 +428,7 @@ xt/bigrat.t
 xt/ChanTree-slow.t
 xt/DragonCurve-more.t
 xt/GrayCode-oseq.t
+xt/HIndexing-more.t
 xt/KochCurve-more.t
 xt/MyOEIS.pm
 xt/oeis-duplicate.t
@@ -486,6 +483,7 @@ xt/oeis/PyramidRows-oeis.t
 xt/oeis/PyramidSides-oeis.t
 xt/oeis/PyramidSpiral-oeis.t
 xt/oeis/PythagoreanTree-oeis.t
+xt/oeis/QuadricCentres-oeis.t
 xt/oeis/QuadricCurve-oeis.t
 xt/oeis/R5DragonCurve-oeis.t
 xt/oeis/RationalsTree-oeis.t
@@ -516,6 +514,7 @@ xt/slow/GcdRationals-slow.t
 xt/slow/HilbertCurve-slow.t
 xt/slow/NumSeq-PlanePathCoord.t
 xt/slow/R5DragonCurve-slow.t
+xt/slow/TerdragonCurve-slow.t
 xtools/my-check-copyright-years.sh
 xtools/my-check-spelling.sh
 xtools/my-deb.sh

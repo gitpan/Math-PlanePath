@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -80,7 +80,7 @@ sub _UNDOCUMENTED__dxdy_list {
              0,2,   # N by 2
              -1,0,  # W
              0,-1)  # S
-          : Math::PlanePath::Base::NSEW->_UNDOCUMENTED__dxdy_list)
+          : Math::PlanePath::Base::NSEW->_UNDOCUMENTED__dxdy_list);
 }
 
 use constant dsumxy_minimum => -1; # straight S

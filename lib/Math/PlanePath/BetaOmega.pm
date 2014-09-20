@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 use Math::PlanePath::Base::NSEW;
 @ISA = ('Math::PlanePath::Base::NSEW',
@@ -368,6 +368,14 @@ sub rect_to_n_range {
   return ($n_min, $n_max);
 }
 
+#------------------------------------------------------------------------------
+# levels
+
+use Math::PlanePath::HilbertCurve;
+*level_to_n_range = \&Math::PlanePath::HilbertCurve::level_to_n_range;
+*n_to_level       = \&Math::PlanePath::HilbertCurve::n_to_level;
+
+#------------------------------------------------------------------------------
 1;
 __END__
 
@@ -411,7 +419,7 @@ __END__
 
 
 
-=for stopwords eg Ryde OEIS ie bignums prepending Math-PlanePath Jens-Michael Wierum Ymin Ymax Wierum's Paderborn CCCG'02 MERCHANTABILITY 14th
+=for stopwords eg Ryde OEIS ie bignums prepending Math-PlanePath Jens-Michael Wierum Ymin Ymax Wierum's Paderborn CCCG'02 MERCHANTABILITY 14th ybit
 
 =head1 NAME
 
@@ -589,6 +597,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 4**$level - 1)>.
 
 =back
 

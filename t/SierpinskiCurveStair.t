@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 22;
+plan tests => 53;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurveStair;
 # VERSION
 
 {
-  my $want_version = 116;
+  my $want_version = 117;
   ok ($Math::PlanePath::SierpinskiCurveStair::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurveStair->VERSION,  $want_version,
@@ -98,6 +98,55 @@ require Math::PlanePath::SierpinskiCurveStair;
   my $path = Math::PlanePath::SierpinskiCurveStair->new (arms => 8);
   ok ($path->x_negative ? 1 : 0, 1, 'x_negative()');
   ok ($path->y_negative ? 1 : 0, 1, 'y_negative()');
+}
+
+#------------------------------------------------------------------------------
+# level_to_n_range()
+
+{
+  my $path = Math::PlanePath::SierpinskiCurveStair->new;
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 0);
+  }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 5);
+    my ($x,$y) =  $path->n_to_xy($n_hi);
+    ok ($x, 4);
+  }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(2);
+    ok ($n_lo, 0);
+    ok ($n_hi, 25);
+    my ($x,$y) =  $path->n_to_xy($n_hi);
+    ok ($x, 10);
+  }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(3);
+    ok ($n_lo, 0);
+    ok ($n_hi, 105);
+    my ($x,$y) =  $path->n_to_xy($n_hi);
+    ok ($x, 22);
+  }
+  foreach my $level (0 .. 5) {
+    my ($n_lo,$n_hi) = $path->level_to_n_range($level);
+    { my ($x,$y) =  $path->n_to_xy($n_hi);
+      ok ($y, 0, 'level at Y=0'); }
+    if ($n_hi > 0) {
+      { my ($x,$y) =  $path->n_to_xy($n_hi - 1);
+        ok ($y, 0, 'before level at Y=0 too'); }
+      { my ($x,$y) =  $path->n_to_xy($n_hi + 1);
+        ok ($y, 1, 'after level at Y=1'); }
+    }
+  }
+}
+{
+  my $path = Math::PlanePath::SierpinskiCurveStair->new (arms => 8);
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(0);
+    ok ($n_lo, 0);
+    ok ($n_hi, 7); }
+  { my ($n_lo,$n_hi) = $path->level_to_n_range(1);
+    ok ($n_lo, 0);
+    ok ($n_hi, 47); }
 }
 
 #------------------------------------------------------------------------------

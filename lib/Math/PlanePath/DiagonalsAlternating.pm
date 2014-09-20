@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,11 +40,11 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-use constant _UNDOCUMENTED__dxdy_list => (1,0,   # E   at N=3 in default n_start=1
-                           0,1,   # N   at N=1
-                           -1,1,  # NW  at N=4
-                           1,-1,  # SE  at N=2
-                          );
+use constant 1.02 _UNDOCUMENTED__dxdy_list => (1,0,   # E   at N=3 in default n_start=1
+                                               0,1,   # N   at N=1
+                                               -1,1,  # NW  at N=4
+                                               1,-1,  # SE  at N=2
+                                              );
 sub _UNDOCUMENTED__dxdy_list_at_n {
   my ($self) = @_;
   return $self->n_start + 3;

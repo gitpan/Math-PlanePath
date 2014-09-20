@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,9 +54,9 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-use constant _UNDOCUMENTED__dxdy_list => (2,0,    # E
-                           -1,1,   # NW
-                           -1,-1); # SW
+use constant 1.02 _UNDOCUMENTED__dxdy_list => (2,0,    # E
+                                               -1,1,   # NW
+                                               -1,-1); # SW
 use constant absdx_minimum => 1;
 use constant dsumxy_minimum => -2; # SW diagonal
 use constant dsumxy_maximum => 2;  # dX=+2 horiz

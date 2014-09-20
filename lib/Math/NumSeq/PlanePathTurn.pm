@@ -29,10 +29,10 @@
 package Math::NumSeq::PlanePathTurn;
 use 5.004;
 use strict;
-use Carp;
+use Carp 'croak';
 
 use vars '$VERSION','@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -2267,7 +2267,7 @@ sub characteristic_non_decreasing {
 __END__
 
 
-=for stopwords Ryde Math-PlanePath NumSeq PlanePath SquareSpiral ie LSR dX,dY dx1,dy1 dx2,dy2 dx1 dx2
+=for stopwords Ryde Math-PlanePath NumSeq PlanePath SquareSpiral ie LSR dX,dY dx1,dy1 dx2,dy2 dx1 dx2 SRL dX
 
 =head1 NAME
 

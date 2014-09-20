@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012, 2013 Kevin Ryde
+# Copyright 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -86,6 +86,41 @@ sub xy_left_right {
   }
   die "unrecognised turn $turn";
 }
+
+#------------------------------------------------------------------------------
+# A005823 - N ternary no 1s is horizontal segment, either left or right
+
+MyOEIS::compare_values
+  (anum => 'A005823',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $path->n_to_dxdy($n);
+       if ($dx == 2 && $dy == 0) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A099450 - Y at N=3^k
+
+MyOEIS::compare_values
+  (anum => 'A099450',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::BigInt;
+     for (my $k = Math::BigInt->new(1); @got < $count; $k++) {
+       my ($x,$y) = $path->n_to_xy(3**$k);
+       push @got, $y;
+     }
+     return \@got;
+   });
+
 
 #------------------------------------------------------------------------------
 # A189673 - morphism turn 0=left, 1=right, extra initial 0

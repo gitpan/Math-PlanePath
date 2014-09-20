@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 116;
+$VERSION = 117;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -36,6 +36,8 @@ use Math::PlanePath;
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 use Math::PlanePath::TerdragonCurve;
 
 # uncomment this to run the ### lines
@@ -203,6 +205,29 @@ sub rect_to_n_range {
   return ($n_lo, $n_hi);
 }
 
+
+#-----------------------------------------------------------------------------
+# level_to_n_range()
+
+# 3^level segments, 2 rounded points each
+# arms*2*3^level when multi-arm
+# numbered starting 0
+#
+sub level_to_n_range {
+  my ($self, $level) = @_;
+  return (0, (2*$self->{'arms'}) * 3**$level - 1);
+}
+sub n_to_level {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  if (is_infinite($n)) { return $n; }
+  $n = round_nearest($n);
+  _divrem_mutate ($n, 2 * $self->{'arms'});
+  my ($pow, $exp) = round_down_pow ($n, 3);
+  return $exp + 1;
+}
+
+#-----------------------------------------------------------------------------
 1;
 __END__
 
@@ -332,6 +357,20 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
+
+=back
+
+=head2 Level Methods
+
+=over
+
+=item C<($n_lo, $n_hi) = $path-E<gt>level_to_n_range($level)>
+
+Return C<(0, 2 * 3**$level - 1)>, or for multiple arms return C<(0, 2 *
+$arms * 3**$level - 1)>.
+
+These level ranges are like C<TerdragonMidpoint> but with 2 points on each
+line segment terdragon line segment instead of 1.
 
 =back
 

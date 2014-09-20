@@ -127,7 +127,7 @@ use Math::PlanePath::KochSnowflakes;
         $rdy /= $g;
         next if $seen{"$rdx,$rdy"};
 
-         next unless $segment_inside->($p1, $p2);
+        next unless $segment_inside->($p1, $p2);
 
         $seen{"$rdx,$rdy"} = 1;
       }
@@ -143,7 +143,7 @@ use Math::PlanePath::KochSnowflakes;
     push @values, $count;
     print "$level $count\n";
   }
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
@@ -188,7 +188,7 @@ use Math::PlanePath::KochSnowflakes;
     my $calc = 4**$level + 2;
     print "$level $count $calc\n";
   }
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
@@ -228,7 +228,7 @@ use Math::PlanePath::KochSnowflakes;
     push @values, $count;
     print "$level $count\n";
   }
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 }
@@ -278,7 +278,7 @@ use Math::PlanePath::KochSnowflakes;
     $prev_len_log = $len_log;
   }
   shift @values;
-  use lib 'xt'; require MyOEIS;
+  require Math::OEIS::Grep;
   Math::OEIS::Grep->search(array => \@values);
   exit 0;
 
